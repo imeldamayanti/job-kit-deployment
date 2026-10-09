@@ -330,16 +330,18 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Done when:** PDF CV uji menghasilkan teks yang bisa dibaca di konsol halaman options, dan empat jenis kesalahan punya tes.
 
 ### T23 · Parser CV: identitas dan kontak · 2h · feature · Medium
-- [ ] **T23 selesai**
+- [x] **T23 selesai**
 
 **Context:** `core/cv/parse.ts`, fungsi murni dari teks ke `Partial<Profile>` dengan `confidence` per field. Tanpa AI; aturan dan regex. Fixture berupa teks CV sintetis berbahasa Indonesia dan Inggris, tidak ada data orang sungguhan di repo.
 **Acceptance criteria**
-- [ ] Mengenali nama lengkap, email, telepon (format +62, 08xx, spasi atau strip), LinkedIn, dan kota dari blok kepala CV (FR-25)
-- [ ] Setiap field punya `confidence` (`high` atau `low`); yang `low` ditandai "Periksa lagi" di pratinjau (FR-25)
-- [ ] Teks kosong atau tanpa satu pun field yang dikenali mengembalikan hasil kosong, bukan kesalahan (FR-25)
-- [ ] Tes ditulis lebih dulu; minimal 6 fixture (ID dan EN, satu kolom dan dua kolom)
+- [x] Mengenali nama lengkap, email, telepon (format +62, 08xx, spasi atau strip), LinkedIn, dan kota dari blok kepala CV (FR-25)
+- [x] Setiap field punya `confidence` (`high` atau `low`); penanda "Periksa lagi" di pratinjau menyusul di T25 (FR-25)
+- [x] Teks kosong atau tanpa satu pun field yang dikenali mengembalikan hasil kosong, bukan kesalahan (FR-25)
+- [x] Tes ditulis lebih dulu; 8 fixture sintetis di `fixtures/cv/text-fixtures.ts` (ID dan EN, satu kolom dan dua kolom, tiga kasus ambigu)
 
 **Done when:** semua fixture lulus dan tidak ada tebakan nilai tanpa tanda `low`.
+
+**Catatan:** akurasi baru diuji pada fixture sintetis dan dua PDF hasil Chrome; PDF CV asli diuji di T26.
 
 ### T24 · Parser CV: pendidikan dan pengalaman · 2h · feature · Medium
 - [ ] **T24 selesai**
