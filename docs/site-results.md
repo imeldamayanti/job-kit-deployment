@@ -29,7 +29,7 @@ Target PRD §10: **≥70% field terpetakan dengan benar pada 10 situs lamaran uj
 
 **Sebelum penyetelan:** 30 dari 34 (88%) pada 6 situs pertama, dan 1 pengisian salah (pertanyaan visa "...in the country in which the job..." terisi "Indonesia"). Penyetelan menambah frasa `legal name`, `current location`, `lokasi`, `domisili`, `domicile`, menolak label berupa pertanyaan atau label panjang yang hanya menyebut kata kunci di tengah, membuang id mesin dari label, dan mengenali iframe platform lamaran. Semuanya punya tes di `src/core/matching` dan `src/core/fill`.
 
-**Peringatan:** penyetelan dilakukan pada situs yang sama dengan pengukurannya, jadi 100% itu optimistis. Sampelnya juga kecil dan semuanya platform berbahasa Inggris untuk perusahaan teknologi, tidak ada form Indonesia. Pada form kustom, yang tidak ikut menyetel, 6 dari 7 (86%) terpetakan benar sebelum perbaikan. Anggap sekitar 86 sampai 88% sebagai perkiraan yang lebih jujur untuk situs baru.
+**Peringatan:** penyetelan dilakukan pada situs yang sama dengan pengukurannya, jadi 100% itu optimistis. Sampelnya juga kecil, dan semua formnya berlabel bahasa Inggris, padahal salah satu klaim produk adalah label Indonesia. Belum ada form berlabel Indonesia yang diuji di situs sungguhan. Pada form kustom, yang tidak ikut menyetel, 6 dari 7 (86%) terpetakan benar sebelum perbaikan. Anggap sekitar 86 sampai 88% sebagai perkiraan yang lebih jujur untuk situs baru.
 
 ## Apakah Fill bertahan di form asli (FR-10)
 
