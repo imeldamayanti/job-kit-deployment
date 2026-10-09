@@ -7,6 +7,7 @@ import { isProfileEmpty } from '../../core/profile/summary'
 import { openEditProfile } from '../../platform/navigation'
 import { requestSiteAccess } from '../../platform/permissions'
 import { useStoredProfile } from '../../ui/hooks/useStoredProfile'
+import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { EmptyProfile } from './EmptyProfile'
 import { PlanRow } from './PlanRow'
@@ -75,9 +76,12 @@ export function App() {
               </p>
 
               {phase === 'filled' && summary && (
-                <section className="rounded-xl border border-border bg-green-50 p-3">
-                  <p className="text-[13px] font-bold text-green-700">{formatFillSummary(summary.filled, summary.skipped)}</p>
-                  <p className="mt-1 text-text-secondary">Cek sekali lagi sebelum submit, ya.</p>
+                <section className="flex items-center gap-3 rounded-xl border border-border bg-green-50 p-3">
+                  <Mascot state="success" size={48} />
+                  <div>
+                    <p className="text-[13px] font-bold text-green-700">{formatFillSummary(summary.filled, summary.skipped)}</p>
+                    <p className="mt-1 text-text-secondary">Cek sekali lagi sebelum submit, ya.</p>
+                  </div>
                 </section>
               )}
 
@@ -157,7 +161,8 @@ export function App() {
           )}
 
           {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'no-form' && (
-            <section className="rounded-xl border border-border bg-surface p-4">
+            <section className="flex flex-col items-start gap-2 rounded-xl border border-border bg-surface p-4">
+              <Mascot state="neutral" />
               <h2 className="text-[13px] font-bold text-text-primary">Tidak ada form di halaman ini</h2>
               <p className="mt-1 text-text-secondary">
                 Buka halaman lamaran kerja, lalu panel ini akan mendeteksi field-nya sendiri.
@@ -181,7 +186,8 @@ export function App() {
           )}
 
           {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'unreachable-page' && (
-            <section className="rounded-xl border border-border bg-surface p-4">
+            <section className="flex flex-col items-start gap-2 rounded-xl border border-border bg-surface p-4">
+              <Mascot state="error" />
               <h2 className="text-[13px] font-bold text-text-primary">Tidak bisa dibaca</h2>
               <p className="mt-1 text-text-secondary">
                 {state.domain
@@ -193,7 +199,8 @@ export function App() {
           )}
 
           {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'locked-frame' && (
-            <section className="rounded-xl border border-border bg-surface p-4">
+            <section className="flex flex-col items-start gap-2 rounded-xl border border-border bg-surface p-4">
+              <Mascot state="error" />
               <h2 className="text-[13px] font-bold text-text-primary">Tidak bisa dibaca</h2>
               <p className="mt-1 text-text-secondary">
                 Form ada di dalam frame yang terkunci, jadi job-kit tidak bisa mengisinya.

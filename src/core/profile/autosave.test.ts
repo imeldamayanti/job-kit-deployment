@@ -10,7 +10,7 @@ describe('createAutosaver', () => {
   })
 
   it('saves only the latest value after the delay, once', async () => {
-    const save = vi.fn().mockResolvedValue(undefined)
+    const save = vi.fn().mockResolvedValue({ ok: true })
     const saver = createAutosaver<string>(save, 400)
 
     saver.schedule('a')
@@ -25,7 +25,7 @@ describe('createAutosaver', () => {
   })
 
   it('reports saving, then saved, and saved within 2 seconds of the change', async () => {
-    const save = vi.fn().mockResolvedValue(undefined)
+    const save = vi.fn().mockResolvedValue({ ok: true })
     const states: string[] = []
     const saver = createAutosaver<string>(save, 400, (state) => states.push(state))
 
@@ -36,12 +36,23 @@ describe('createAutosaver', () => {
   })
 
   it('flush saves a pending value immediately', async () => {
-    const save = vi.fn().mockResolvedValue(undefined)
+    const save = vi.fn().mockResolvedValue({ ok: true })
     const saver = createAutosaver<string>(save, 400)
 
     saver.schedule('pending')
     await saver.flush()
 
     expect(save).toHaveBeenCalledWith('pending')
+  })
+
+  it('reports storage-full instead of saved when the save is refused', async () => {
+    const save = vi.fn().mockResolvedValue({ ok: false, reason: 'storage-full' })
+    const states: string[] = []
+    const saver = createAutosaver<string>(save, 400, (state) => states.push(state))
+
+    saver.schedule('x')
+    await vi.advanceTimersByTimeAsync(400)
+
+    expect(states).toEqual(['saving', 'storage-full'])
   })
 })

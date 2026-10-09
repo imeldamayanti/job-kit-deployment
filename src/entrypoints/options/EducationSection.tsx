@@ -1,5 +1,6 @@
 import { addEntry, createEducation, moveEntry, removeEntry, summarizeEducation, updateEntry } from '../../core/profile/entries'
 import type { Education, Profile } from '../../core/profile/types'
+import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { TextField } from '../../ui/primitives/TextField'
 import { EntryCard } from './EntryCard'
@@ -28,6 +29,7 @@ export function EducationSection({ profile, update }: { profile: Profile; update
     <SectionCard title="Education">
       {list.length === 0 ? (
         <div className="flex flex-col items-start gap-2">
+          <Mascot state="neutral" />
           <h3 className="text-[14px] font-bold text-text-primary">Belum ada riwayat pendidikan</h3>
           <p className="max-w-[60ch] text-text-secondary">
             Institusi, jenjang, jurusan, IPK, dan tahun — empat di antaranya sering ditanya form lamaran.

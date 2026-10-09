@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fakeBrowser } from 'wxt/testing/fake-browser'
 import { createEmptyProfile, setPersonalField } from '../core/profile/profile'
 import { loadProfile, saveProfile, watchProfile } from './storage'
@@ -18,6 +18,22 @@ describe('profile storage', () => {
     await saveProfile(profile)
 
     expect((await loadProfile()).personal.firstName).toBe('Imelda')
+  })
+
+  it('says storage is full when the browser refuses the write, and keeps the old data', async () => {
+    await saveProfile(setPersonalField(createEmptyProfile(), 'firstName', 'Imelda'))
+    vi.spyOn(fakeBrowser.storage.local, 'set').mockRejectedValueOnce(new Error('QUOTA_BYTES quota exceeded'))
+
+    const outcome = await saveProfile(setPersonalField(createEmptyProfile(), 'firstName', 'Baru'))
+
+    expect(outcome).toEqual({ ok: false, reason: 'storage-full' })
+    expect((await loadProfile()).personal.firstName).toBe('Imelda')
+  })
+
+  it('does not hide other errors as storage-full', async () => {
+    vi.spyOn(fakeBrowser.storage.local, 'set').mockRejectedValueOnce(new Error('something else broke'))
+
+    await expect(saveProfile(createEmptyProfile())).rejects.toThrow('something else broke')
   })
 })
 

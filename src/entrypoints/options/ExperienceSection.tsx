@@ -1,5 +1,6 @@
 import { addEntry, createExperience, moveEntry, removeEntry, summarizeExperience, updateEntry } from '../../core/profile/entries'
 import type { Experience, Profile } from '../../core/profile/types'
+import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { Checkbox } from '../../ui/primitives/Checkbox'
 import { TextArea } from '../../ui/primitives/TextArea'
@@ -23,6 +24,7 @@ export function ExperienceSection({ profile, update }: { profile: Profile; updat
     <SectionCard title="Work Experience">
       {list.length === 0 ? (
         <div className="flex flex-col items-start gap-2">
+          <Mascot state="neutral" />
           <h3 className="text-[14px] font-bold text-text-primary">Belum ada pengalaman kerja</h3>
           <p className="max-w-[60ch] text-text-secondary">
             Perusahaan, jabatan, periode, dan deskripsi singkat. Form lamaran sering menanyakan pekerjaan terakhir.

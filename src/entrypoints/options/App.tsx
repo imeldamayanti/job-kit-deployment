@@ -8,6 +8,7 @@ import { ExperienceSection } from './ExperienceSection'
 import { PersonalSection } from './PersonalSection'
 import { SaveIndicator } from './SaveIndicator'
 import { Sidebar } from './Sidebar'
+import { StorageFullNotice } from './StorageFullNotice'
 import type { SectionId } from './sections'
 
 export function App() {
@@ -20,6 +21,7 @@ export function App() {
         <h1 className="text-[28px] font-bold text-text-primary">Edit Profile</h1>
         <SaveIndicator state={saveState} />
       </header>
+      {saveState === 'storage-full' && <StorageFullNotice />}
       {profile && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
           <Sidebar current={section} onSelect={setSection} />

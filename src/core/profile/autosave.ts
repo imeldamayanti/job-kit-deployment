@@ -1,4 +1,5 @@
-export type SaveState = 'saving' | 'saved'
+export type SaveOutcome = { ok: true } | { ok: false; reason: 'storage-full' }
+export type SaveState = 'saving' | 'saved' | 'storage-full'
 
 export type Autosaver<T> = {
   schedule: (value: T) => void
@@ -6,7 +7,7 @@ export type Autosaver<T> = {
 }
 
 export function createAutosaver<T>(
-  save: (value: T) => Promise<void>,
+  save: (value: T) => Promise<SaveOutcome>,
   delayMs: number,
   onState?: (state: SaveState) => void,
 ): Autosaver<T> {
@@ -19,8 +20,8 @@ export function createAutosaver<T>(
     const { value } = pending
     pending = undefined
     onState?.('saving')
-    await save(value)
-    onState?.('saved')
+    const outcome = await save(value)
+    onState?.(outcome.ok ? 'saved' : outcome.reason)
   }
 
   return {
