@@ -482,12 +482,14 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T32 selesai**
 
 **Acceptance criteria**
-- [ ] Antarmuka `JobSource { id, fetch(prefs, ctx) }`; satu adapter per sumber yang lolos T27: Greenhouse, Lever, Ashby (per perusahaan pilihan), Remotive (FR-27)
-- [ ] Tiap adapter memetakan ke `Job` (FR-28); fixture respons asli disimpan di `fixtures/jobs/`
-- [ ] Timeout per request dan satu kali retry. Kegagalan jadi `SourceRun` dengan sebab (`blocked`, `timeout`, `parse`, `http-xxx`), bukan exception yang menghentikan run (FR-27)
-- [ ] Tes memakai fixture, tanpa jaringan
+- [x] Antarmuka `JobSource { id, fetch(prefs, ctx) }`; satu adapter per sumber yang lolos T27: Greenhouse, Lever, Ashby (per perusahaan pilihan), Remotive (FR-27)
+- [x] Tiap adapter memetakan ke `Job` (FR-28); fixture respons asli disimpan di `fixtures/jobs/`
+- [x] Timeout per request dan satu kali retry. Kegagalan jadi `SourceRun` dengan sebab (`blocked`, `timeout`, `parse`, `http-xxx`), bukan exception yang menghentikan run (FR-27)
+- [x] Tes memakai fixture, tanpa jaringan
 
 **Done when:** semua adapter lulus tes fixture dan satu run nyata di Chrome mengisi storage.
+
+**Hasil:** antarmuka `JobSource` dan adapter Greenhouse, Lever (`limit=100`, karena papan penuh lambat), Ashby, Remotive (satu pencarian per role, maksimal tiga) di `src/core/feed/sources/`. `fetchJson`: timeout, satu retry (timeout, network, 5xx), 429/403 jadi `blocked`, `credentials: 'omit'`. `runSource` tidak pernah melempar; satu perusahaan gagal tidak menggagalkan sumber. 19 tes memakai fixture asli tanpa jaringan. Belum: run nyata di Chrome yang mengisi storage (menunggu T36 dan spike T27 dijalankan).
 
 ### T33 · Adapter scraping LinkedIn (halaman publik) · 2h · feature · High
 - [ ] **T33 selesai**

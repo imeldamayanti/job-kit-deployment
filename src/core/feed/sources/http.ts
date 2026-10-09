@@ -1,0 +1,37 @@
+import { SourceError, type FetchContext } from './types'
+
+const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+
+type Attempt = { ok: true; body: unknown } | { ok: false; error: SourceError; retry: boolean }
+
+async function attempt(ctx: FetchContext, url: string, init: RequestInit): Promise<Attempt> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), ctx.timeoutMs ?? 15000)
+  try {
+    // credentials 'omit': a source never sees the user's cookies (PRD §4.1).
+    const response = await ctx.fetch(url, { ...init, credentials: 'omit', signal: controller.signal })
+    if (response.status === 429 || response.status === 403) return { ok: false, error: new SourceError('blocked'), retry: false }
+    if (!response.ok) return { ok: false, error: new SourceError(`http-${response.status}`), retry: response.status >= 500 }
+    try {
+      return { ok: true, body: await response.json() }
+    } catch {
+      return { ok: false, error: new SourceError('parse'), retry: false }
+    }
+  } catch (error) {
+    const aborted = error instanceof DOMException && error.name === 'AbortError'
+    return { ok: false, error: new SourceError(aborted ? 'timeout' : 'network'), retry: true }
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+// One request, one retry. A failure becomes a SourceError carrying the reason (PRD §8).
+export async function fetchJson(ctx: FetchContext, url: string, init: RequestInit = {}): Promise<unknown> {
+  let last = await attempt(ctx, url, init)
+  if (!last.ok && last.retry) {
+    await (ctx.sleep ?? defaultSleep)(1000)
+    last = await attempt(ctx, url, init)
+  }
+  if (!last.ok) throw last.error
+  return last.body
+}
