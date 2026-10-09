@@ -526,14 +526,16 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T35 selesai**
 
 **Acceptance criteria**
-- [ ] Ringkasan profil yang dikirim hanya berisi field di PRD §4.1. Tes memastikan nama, email, telepon, alamat, dan tanggal lahir tidak ada di payload (FR-29)
-- [ ] Lowongan dinilai per batch; output terstruktur (skor 0–100, `matches[]`, `gaps[]`, ringkasan) divalidasi; output tidak valid → skor kasar (FR-29, PRD §8)
-- [ ] AI juga mengisi field yang masih kosong setelah normalisasi bila jelas dari teks (tipe kerja, level, pengalaman, gaji), ditandai berasal dari AI (FR-28)
-- [ ] Skor di-cache per lowongan dengan hash profil + preferensi; tidak dihitung ulang tanpa perubahan (FR-29)
-- [ ] Batas per run: paling banyak 50 lowongan dinilai AI (bisa diubah), sisanya skor kasar
+- [x] Ringkasan profil yang dikirim hanya berisi field di PRD §4.1. Tes memastikan nama, email, telepon, alamat, dan tanggal lahir tidak ada di payload (FR-29)
+- [x] Lowongan dinilai per batch; output terstruktur (skor 0–100, `matches[]`, `gaps[]`, ringkasan) divalidasi; output tidak valid → skor kasar (FR-29, PRD §8)
+- [x] AI juga mengisi field yang masih kosong setelah normalisasi bila jelas dari teks (tipe kerja, level, pengalaman, gaji), ditandai berasal dari AI (FR-28)
+- [x] Skor di-cache per lowongan dengan hash profil + preferensi; tidak dihitung ulang tanpa perubahan (FR-29)
+- [x] Batas per run: paling banyak 50 lowongan dinilai AI (bisa diubah), sisanya skor kasar
 - [ ] Tes memakai klien palsu; satu run nyata dicatat dengan jumlah token dan perkiraan biaya
 
 **Done when:** run nyata menghasilkan skor dan alasan, dan mencabut kunci menghasilkan "Skor kasar".
+
+**Hasil:** `src/core/ai/score.ts`: ringkasan profil hanya berisi field PRD §4.1 (tes memastikan nama, email, telepon, alamat, tanggal lahir, sekolah, perusahaan, dan custom field tidak ada di payload), batch 5 lowongan per request, output divalidasi per item (item tidak valid dibuang, tidak diperbaiki), tidak valid → skor kasar, key ditolak atau quota habis → berhenti memanggil AI dan sisanya skor kasar dengan sebab dicatat (`aiProblem`), skor di-cache dengan hash ringkasan sehingga hanya dihitung ulang bila profil atau preferensi berubah, batas 50 lowongan per run, field kosong diisi AI dan ditandai (`aiFilled`). Klien AI sekarang mengembalikan pemakaian token. Belum: satu run nyata dengan jumlah token dan perkiraan biaya (butuh kunci API; tabel harga tidak saya tebak).
 
 ### T36 · Jadwal harian dan Segarkan · 1.5h · feature · High
 - [ ] **T36 selesai**

@@ -1,7 +1,9 @@
 import { AiError, mapAiFailure } from '../core/ai/errors'
 
 export type AiRequest = { key: string; model: string; system: string; user: string; maxTokens: number }
-export type AiClient = { complete: (request: AiRequest) => Promise<string> }
+export type AiUsage = { inputTokens: number; outputTokens: number }
+export type AiReply = { text: string; usage: AiUsage }
+export type AiClient = { complete: (request: AiRequest) => Promise<AiReply> }
 
 type FetchLike = (url: string, init?: RequestInit) => Promise<Response>
 
@@ -33,10 +35,13 @@ export function createAnthropicClient(fetchImpl: FetchLike = (url, init) => fetc
         clearTimeout(timer)
       }
       if (!response.ok) throw new AiError(mapAiFailure(response.status, await response.text().catch(() => '')))
-      const body = (await response.json().catch(() => null)) as { content?: { type?: string; text?: string }[] } | null
+      const body = (await response.json().catch(() => null)) as {
+        content?: { type?: string; text?: string }[]
+        usage?: { input_tokens?: number; output_tokens?: number }
+      } | null
       const text = body?.content?.find((part) => part.type === 'text' || typeof part.text === 'string')?.text
       if (typeof text !== 'string') throw new AiError('server')
-      return text
+      return { text, usage: { inputTokens: body?.usage?.input_tokens ?? 0, outputTokens: body?.usage?.output_tokens ?? 0 } }
     },
   }
 }

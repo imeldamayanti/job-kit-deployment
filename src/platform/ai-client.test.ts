@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { AiError } from '../core/ai/errors'
 import { createAnthropicClient } from './ai-client'
 
-const ok = (text: string) => new Response(JSON.stringify({ content: [{ type: 'text', text }] }), { status: 200 })
+const ok = (text: string) => new Response(JSON.stringify({ content: [{ type: 'text', text }], usage: { input_tokens: 12, output_tokens: 3 } }), { status: 200 })
 
 describe('createAnthropicClient', () => {
   it('sends the key and version headers and returns the text', async () => {
     let seen: { url: string; init: RequestInit } | undefined
     const client = createAnthropicClient(async (url, init) => ((seen = { url: String(url), init: init as RequestInit }), ok('ok')))
     const text = await client.complete({ key: 'sk-test', model: 'm', system: 's', user: 'u', maxTokens: 10 })
-    expect(text).toBe('ok')
+    expect(text).toEqual({ text: 'ok', usage: { inputTokens: 12, outputTokens: 3 } })
     expect(seen?.url).toBe('https://api.anthropic.com/v1/messages')
     const headers = seen?.init.headers as Record<string, string>
     expect(headers['x-api-key']).toBe('sk-test')
