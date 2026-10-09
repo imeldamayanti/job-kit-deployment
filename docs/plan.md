@@ -359,18 +359,20 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Batas yang diketahui:** institusi tanpa kata kunci (mis. singkatan "ITB") jatuh ke `unparsed`; judul dan perusahaan yang dipisah dua baris tanpa penanda perusahaan (PT, CV, Ltd, ...) diberi `low`; baris deskripsi tanpa titik yang tepat di atas periode entri berikutnya bisa terbaca sebagai judul. Akurasi pada CV asli diuji di T26.
 
 ### T25 · Pratinjau Import CV per field · 2h · feature · Medium
-- [ ] **T25 selesai**
+- [x] **T25 selesai** (tombol "Isi profil" sengaja nonaktif dengan "Belum tersedia di versi ini" sampai T26)
 
 **Context:** memperluas `ImportPreview` dari T18. Tidak ada yang tersimpan sebelum pengguna mengonfirmasi (FR-25). Teks UI baru ditandai di laporan.
 **Acceptance criteria**
-- [ ] Tombol Import menerima `.pdf` dan `.json`; jenisnya dikenali dari isi, bukan hanya ekstensi (FR-25)
-- [ ] Pratinjau menampilkan tiap field terdeteksi dengan kotak centang, nilai lama di samping nilai baru, dan penanda "Periksa lagi" untuk `low` (FR-25)
-- [ ] Bawaan: field yang sudah berisi dilewati; pengguna bisa memilih menimpa per field (FR-25)
-- [ ] State `parsing` (sedang membaca), `import-error` (empat sebab dari T22), dan "tidak ada yang terdeteksi" dengan tombol konfirmasi nonaktif (FR-25, PRD §8)
-- [ ] Reducer dan seleksi field ada di `core/` dengan tes; komponen hanya menampilkan
-- [ ] Semua warna dari token, ikon lucide-react, tanpa kontrol bawaan peramban; `npx -y impeccable detect src/ui src/entrypoints` bersih
+- [x] Tombol Import menerima `.pdf` dan `.json`; jenisnya dikenali dari isi (tanda `%PDF-`), bukan hanya ekstensi (FR-25). Di Chrome sungguhan baru diuji dengan berkas ber-ekstensi benar; berkas yang diganti namanya baru dicakup tes unit `looksLikePdf`.
+- [x] Pratinjau menampilkan tiap field terdeteksi dengan kotak centang, nilai lama di samping nilai baru, dan penanda "Periksa lagi" untuk `low` (FR-25). Pendidikan dan pengalaman tampil sebagai satu baris per entri, bukan per field (keputusan implementasi; PRD tidak mengatur).
+- [x] Bawaan: field yang sudah berisi dilewati; pengguna bisa memilih menimpa per field (FR-25). Untuk entri: bawaan tercentang hanya bila bagian itu masih kosong di profil.
+- [x] State `parsing` (sedang membaca), `import-error` (sebab dari T22: terenkripsi, tanpa lapisan teks, tak terbaca; berkas yang bukan PDF dan bukan JSON memakai pesan "bukan JSON"), dan "tidak ada yang terdeteksi" dengan tombol konfirmasi nonaktif (FR-25, PRD §8)
+- [x] Reducer dan seleksi field ada di `core/` dengan tes; komponen hanya menampilkan
+- [x] Semua warna dari token, ikon lucide-react, tanpa kontrol bawaan peramban; `npx -y impeccable detect src/ui src/entrypoints` bersih
 
 **Done when:** semua state terlihat lewat `#data?state=...` di build dev, dan layout tetap rapi di lebar sempit.
+
+**Hasil (2026-10-10, Chrome for Testing 151):** `#data?state=parsing|cv-preview|cv-empty|cv-error-scan|cv-error-locked|cv-error-broken` terlihat di build dev; tanpa overflow horizontal di 420 px. Alur nyata di build produksi dengan `clean-id.pdf`, `two-column-en.pdf`, dan `scan-id.pdf`: profil tidak berubah sebelum konfirmasi, tanpa request keluar dari origin ekstensi, tanpa error konsol. Ukuran akhir: `options` 60,17 kB (naik 20,7 kB), chunk pdf lazy 430 kB, worker 1,26 MB; side panel tetap 20,09 kB.
 
 ### T26 · Sambungkan Import CV ke profil dan uji di Chrome · 1.5h · feature · Medium
 - [ ] **T26 selesai**

@@ -1,15 +1,17 @@
 import { Download, Trash2, Upload } from 'lucide-react'
 import { useReducer, useRef, type ChangeEvent, type ReactNode } from 'react'
 import { buildExport, exportFileName } from '../../core/data/export'
-import { applyImport, eventForImportFile, summarizeImport } from '../../core/data/import'
+import { applyImport, summarizeImport } from '../../core/data/import'
 import { previewStateFromHash } from '../../core/data/preview-states'
 import { describeUsage } from '../../core/data/storage-usage'
 import { initialDataState, reduceData } from '../../core/data/state'
 import { createEmptyProfile } from '../../core/profile/profile'
 import type { Profile } from '../../core/profile/types'
 import { downloadText } from '../../platform/download'
+import { useImportFile } from '../../ui/hooks/useImportFile'
 import { useStorageUsage } from '../../ui/hooks/useStorageUsage'
 import { Button } from '../../ui/primitives/Button'
+import { CvPreview, ImportParsing } from './CvStates'
 import { ConfirmDelete, Done, ImportError, ImportPreview } from './DataStates'
 
 function startState() {
@@ -90,13 +92,15 @@ export function DataPage({ profile, update }: { profile: Profile | null; update:
     dispatch({ type: 'finish', title: 'Semua data dihapus', detail: 'Profil di browser ini sekarang kosong.' })
   }
 
-  const readFile = async (event: ChangeEvent<HTMLInputElement>) => {
+  const importFile = useImportFile(profile, dispatch)
+  const readFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || !profile) return
-    dispatch(eventForImportFile(file, await file.text(), profile))
+    if (file) void importFile(file)
   }
 
+  if (state.kind === 'parsing') return <ImportParsing state={state} />
+  if (state.kind === 'import-cv-preview') return <CvPreview state={state} dispatch={dispatch} />
   if (state.kind === 'import-preview') return <ImportPreview state={state} dispatch={dispatch} onApply={applyPreview} />
   if (state.kind === 'import-error') return <ImportError state={state} dispatch={dispatch} />
   if (state.kind === 'confirm-delete') return <ConfirmDelete state={state} dispatch={dispatch} onConfirm={confirmDelete} />
@@ -123,9 +127,15 @@ export function DataPage({ profile, update }: { profile: Profile | null; update:
         <ActionCard
           icon={<Upload size={18} strokeWidth={2} />}
           title="Import"
-          body="Baca file export. Kamu memilih gabung atau ganti setelah melihat pratinjau."
+          body="Baca file export JSON atau CV berformat PDF. Kamu melihat pratinjau dulu sebelum ada yang tersimpan."
         >
-          <input ref={fileInput} type="file" accept=".json,application/json" className="hidden" onChange={readFile} />
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".json,.pdf,application/json,application/pdf"
+            className="hidden"
+            onChange={readFile}
+          />
           <Button variant="secondary" disabled={!profile} onClick={() => fileInput.current?.click()}>
             Pilih file
           </Button>

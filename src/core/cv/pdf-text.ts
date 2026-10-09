@@ -1,6 +1,8 @@
 // Pure helpers around pdf.js: what it hands us goes in, plain text or a typed reason comes out.
 export type PdfErrorReason = 'not-pdf' | 'encrypted' | 'no-text-layer' | 'unreadable'
 
+export type PdfReadResult = { ok: true; pages: string[] } | { ok: false; reason: PdfErrorReason }
+
 // The slice of a pdf.js text item this module reads.
 export type PdfTextItem = { str: string; transform: number[]; width: number; hasEOL: boolean }
 

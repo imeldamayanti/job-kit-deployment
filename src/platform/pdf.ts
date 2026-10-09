@@ -3,11 +3,9 @@ import {
   classifyPdfError,
   itemsToText,
   looksLikePdf,
-  type PdfErrorReason,
+  type PdfReadResult,
   type PdfTextItem,
 } from '../core/cv/pdf-text'
-
-export type PdfResult = { ok: true; pages: string[] } | { ok: false; reason: PdfErrorReason }
 
 // pdf.js and its worker are loaded here, on first use, so only the options page ever pays for them.
 // The worker is bundled with the extension and served from its own origin: no remote script.
@@ -21,7 +19,7 @@ async function loadPdfjs() {
 }
 
 // Reads the text of a PDF in this browser. The file never leaves it.
-export async function readPdfText(file: File): Promise<PdfResult> {
+export async function readPdfText(file: File): Promise<PdfReadResult> {
   const bytes = new Uint8Array(await file.arrayBuffer())
   if (!looksLikePdf(bytes)) return { ok: false, reason: 'not-pdf' }
 

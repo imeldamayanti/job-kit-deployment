@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { CLEAN_ID } from '../../../fixtures/cv/text-fixtures'
+import { parseCv } from '../cv/parse'
+import { buildCvPreview, defaultSelection } from '../cv/preview'
 import { createEmptyProfile } from '../profile/profile'
 import { canConfirmDelete, DELETE_WORD, initialDataState, reduceData, type DataState } from './state'
 
@@ -81,5 +84,53 @@ describe('canConfirmDelete', () => {
     expect(canConfirmDelete(`  ${DELETE_WORD} `)).toBe(true)
     expect(canConfirmDelete('hapus')).toBe(false)
     expect(canConfirmDelete('')).toBe(false)
+  })
+})
+
+describe('reduceData Import CV', () => {
+  const draft = parseCv(CLEAN_ID)
+  const { rows, unparsed } = buildCvPreview(draft, createEmptyProfile())
+  const cvPreview = reduceData(initialDataState, { type: 'preview-cv', fileName: 'cv.pdf', fileSize: 100, draft, rows, unparsed })
+
+  it('shows that a file is being read', () => {
+    expect(reduceData(initialDataState, { type: 'start-parsing', fileName: 'cv.pdf' })).toEqual({ kind: 'parsing', fileName: 'cv.pdf' })
+  })
+
+  it('opens the CV preview with the empty fields selected', () => {
+    expect(cvPreview).toEqual({
+      kind: 'import-cv-preview',
+      fileName: 'cv.pdf',
+      fileSize: 100,
+      draft,
+      rows,
+      unparsed,
+      selected: defaultSelection(rows),
+    })
+  })
+
+  it('toggles one field only while previewing a CV', () => {
+    const off = reduceData(cvPreview, { type: 'toggle-field', id: 'personal.firstName' })
+    expect(off.kind === 'import-cv-preview' && off.selected).not.toContain('personal.firstName')
+    const on = reduceData(off, { type: 'toggle-field', id: 'personal.firstName' })
+    expect(on.kind === 'import-cv-preview' && on.selected).toContain('personal.firstName')
+    expect(reduceData(initialDataState, { type: 'toggle-field', id: 'x' })).toBe(initialDataState)
+  })
+
+  it('finishes only when at least one field is selected', () => {
+    expect(reduceData(cvPreview, { type: 'finish', title: 't', detail: 'd' }).kind).toBe('done')
+    const none = { ...cvPreview, selected: [] } as DataState
+    expect(reduceData(none, { type: 'finish', title: 't', detail: 'd' })).toBe(none)
+  })
+
+  it('cannot finish a CV preview that detected nothing', () => {
+    const empty = reduceData(initialDataState, { type: 'preview-cv', fileName: 'cv.pdf', fileSize: 1, draft, rows: [], unparsed: [] })
+    expect(reduceData(empty, { type: 'finish', title: 't', detail: 'd' })).toBe(empty)
+  })
+
+  it('turns a read failure into an error screen and leaves from it on cancel', () => {
+    const reading = reduceData(initialDataState, { type: 'start-parsing', fileName: 'scan.pdf' })
+    const failed = reduceData(reading, { type: 'reject-import', fileName: 'scan.pdf', reason: 'no-text-layer', detail: '' })
+    expect(failed).toEqual({ kind: 'import-error', fileName: 'scan.pdf', reason: 'no-text-layer', detail: '' })
+    expect(reduceData(reading, { type: 'cancel' })).toEqual({ kind: 'idle' })
   })
 })

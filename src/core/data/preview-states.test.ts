@@ -7,6 +7,26 @@ describe('previewStateFromHash', () => {
     expect(previewStateFromHash('#data?state=done')?.kind).toBe('done')
   })
 
+  it('has a sample for every Import CV screen', () => {
+    expect(previewStateFromHash('#data?state=parsing')?.kind).toBe('parsing')
+    expect(previewStateFromHash('#data?state=cv-empty')).toMatchObject({ kind: 'import-cv-preview', rows: [] })
+    expect(previewStateFromHash('#data?state=cv-error-scan')).toMatchObject({ kind: 'import-error', reason: 'no-text-layer' })
+    expect(previewStateFromHash('#data?state=cv-error-locked')).toMatchObject({ kind: 'import-error', reason: 'encrypted' })
+    expect(previewStateFromHash('#data?state=cv-error-broken')).toMatchObject({ kind: 'import-error', reason: 'unreadable' })
+  })
+
+  it('shows every kind of row in the CV preview sample', () => {
+    const state = previewStateFromHash('#data?state=cv-preview')
+    if (state?.kind !== 'import-cv-preview') throw new Error('expected the CV preview sample')
+    expect(state.rows.some((row) => row.confidence === 'low')).toBe(true)
+    expect(state.rows.some((row) => row.occupied && row.oldValue !== '')).toBe(true)
+    expect(state.rows.some((row) => row.group === 'education')).toBe(true)
+    expect(state.rows.some((row) => row.group === 'experience')).toBe(true)
+    expect(state.unparsed.length).toBeGreaterThan(0)
+    expect(state.selected.length).toBeGreaterThan(0)
+    expect(state.selected.length).toBeLessThan(state.rows.length)
+  })
+
   it('returns nothing for a missing or unknown name', () => {
     expect(previewStateFromHash('#data')).toBeUndefined()
     expect(previewStateFromHash('#data?state=nope')).toBeUndefined()

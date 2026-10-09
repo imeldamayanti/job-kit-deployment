@@ -22,6 +22,18 @@ const ERROR_TEXT = {
     title: 'Berkas tidak berisi profil job-kit',
     body: 'JSON-nya terbaca, tetapi bentuknya bukan hasil Export job-kit.',
   },
+  encrypted: {
+    title: 'PDF dikunci dengan kata sandi',
+    body: 'job-kit tidak membuka PDF yang terenkripsi. Buka kuncinya dulu, atau isi profil secara manual.',
+  },
+  'no-text-layer': {
+    title: 'PDF tidak punya lapisan teks',
+    body: 'Kemungkinan ini hasil scan atau foto. job-kit tidak memakai OCR. Isi profil secara manual, atau pakai PDF yang diekspor dari Word atau Google Docs.',
+  },
+  unreadable: {
+    title: 'PDF tidak bisa dibaca',
+    body: 'Berkasnya rusak atau formatnya tidak didukung. Isi profil secara manual.',
+  },
 } as const
 
 function Panel({ children }: { children: ReactNode }) {

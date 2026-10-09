@@ -1,5 +1,39 @@
+import { parseCv } from '../cv/parse'
+import { buildCvPreview } from '../cv/preview'
 import { createEmptyProfile } from '../profile/profile'
-import type { DataState } from './state'
+import { initialDataState, reduceData, type DataState } from './state'
+
+// Made-up CV text that shows every kind of row: a clash with a filled field, a "Periksa lagi",
+// a skipped entry that cannot be placed.
+const SAMPLE_CV = `Rani Wijaya Contoh
+rani.contoh@example.test | 0812 0000 0001 | Bandung
+linkedin.com/in/rani-contoh-
+sintetis
+Pendidikan
+Universitas Contoh Nusantara
+S1 Teknik Informatika, IPK 3,62
+2018 - 2022
+Pengalaman Kerja
+Software Engineer, PT Contoh Teknologi
+Agustus 2022 - Sekarang
+Membangun fitur web.
+Kasir
+2019 - 2020`
+
+function sampleCvPreview(): DataState {
+  const profile = createEmptyProfile()
+  profile.personal.lastName = 'Wijaya'
+  const draft = parseCv(SAMPLE_CV)
+  const { rows, unparsed } = buildCvPreview(draft, profile)
+  return reduceData(initialDataState, { type: 'preview-cv', fileName: 'cv-rani.pdf', fileSize: 34552, draft, rows, unparsed })
+}
+
+const cvError = (reason: 'no-text-layer' | 'encrypted' | 'unreadable'): DataState => ({
+  kind: 'import-error',
+  fileName: 'cv-rani.pdf',
+  reason,
+  detail: '',
+})
 
 // Sample states for looking at D2-D5 in a dev build. Never reachable from a production build.
 export const PREVIEW_STATES: Record<string, DataState> = {
@@ -30,6 +64,19 @@ export const PREVIEW_STATES: Record<string, DataState> = {
     reason: 'unknown-version',
     detail: '3',
   },
+  parsing: { kind: 'parsing', fileName: 'cv-rani.pdf' },
+  'cv-preview': sampleCvPreview(),
+  'cv-empty': reduceData(initialDataState, {
+    type: 'preview-cv',
+    fileName: 'cv-kosong.pdf',
+    fileSize: 12000,
+    draft: parseCv(''),
+    rows: [],
+    unparsed: [],
+  }),
+  'cv-error-scan': cvError('no-text-layer'),
+  'cv-error-locked': cvError('encrypted'),
+  'cv-error-broken': cvError('unreadable'),
   'confirm-delete': { kind: 'confirm-delete', typed: '' },
   done: { kind: 'done', title: '9 entri diimpor', detail: '1 profil digabung · 2 pendidikan dan 5 pengalaman ditambah.' },
 }
