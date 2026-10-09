@@ -204,14 +204,16 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 ## Tambahan atas permintaan PIC (2026-10-09)
 
-### T16 · Tandai field yang belum terisi dengan outline kuning · 1.5h · feature · Medium
+### T16 · Tandai field wajib yang belum terisi dengan outline kuning · 1.5h · feature · Medium
 - [ ] **T16 selesai**
 
 **Context:** JobFill lama menandai field yang tidak terisi dengan outline kuning di halaman, supaya pengguna langsung tahu mana yang harus diisi sendiri. job-kit baru menampilkan daftar di panel, tetapi tidak menandai halamannya. Dokumen JobFill lama tidak mendefinisikan perilaku ini, jadi rinciannya di bawah adalah asumsi yang perlu dikonfirmasi PIC.
 
 **Asumsi (konfirmasi PIC sebelum dikerjakan)**
 1. **Kapan:** outline muncul setelah Fill ditekan, bukan saat panel baru membaca halaman. Ini menjaga prinsip FR-09 bahwa halaman tidak berubah sebelum Fill.
-2. **Field mana:** semua field yang masih kosong setelah Fill, yaitu yang tak terpetakan, yang datanya tidak ada di profil, dan yang dimatikan pengguna. Field yang berisi (oleh job-kit atau oleh pengguna) tidak ditandai. Pertanyaan esai yang tak terpetakan ikut ditandai; kalau terlalu ramai, bisa dibatasi ke field wajib.
+2. **Field mana (diputuskan PIC 2026-10-09):** hanya field **wajib** yang masih kosong setelah Fill, yaitu yang tak terpetakan, yang datanya tidak ada di profil, dan yang dimatikan pengguna. Field opsional yang kosong tidak diberi outline. Field yang berisi (oleh job-kit atau oleh pengguna) tidak ditandai.
+   **Daftar "Dilewati" di panel tetap memuat semua field yang tidak terisi**, wajib maupun opsional (tafsiran saya atas "tetap tulis di field yang dilewati"; kalau yang dimaksud tulisan di halaman, kabari). Field wajib di daftar itu diberi penanda "Wajib" supaya cocok dengan outline di halaman.
+   **Cara mengenali wajib:** atribut `required`, atau `aria-required="true"`, atau teks labelnya memuat tanda `*` atau `✱`, atau kata "Required" atau "Wajib". Tiga situs yang sudah diukur (Greenhouse, Lever, Intikom) memakai tanda atau kata di label, jadi atribut saja tidak cukup.
 3. **Warna:** amber dari token desain (`amber-600`, #DC6803), outline 2px dengan jarak 2px. Kalau PIC ingin kuning yang lebih terang, ganti warnanya; tidak ada konsekuensi lain.
 4. **Hilang kapan:** dari satu field begitu pengguna mengisinya; semuanya saat Undo; dan saat halaman dimuat ulang.
 
@@ -222,16 +224,18 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 - [ ] Tabel cakupan di bawah: tambah baris FR-20 → T16.
 
 **Acceptance criteria**
-- [ ] Setelah Fill, setiap field yang masih kosong dan terlihat di halaman memiliki outline amber yang jelas (FR-20)
+- [ ] Setelah Fill, setiap field **wajib** yang masih kosong dan terlihat di halaman memiliki outline amber yang jelas (FR-20)
+- [ ] Field opsional yang kosong tidak diberi outline, tetapi tetap muncul di daftar "Dilewati" (FR-20)
+- [ ] Di daftar "Dilewati", field wajib diberi penanda "Wajib" (FR-20)
 - [ ] Sebelum Fill ditekan, tidak ada field yang diberi outline (FR-09)
 - [ ] Field yang terisi oleh job-kit, dan field yang sudah berisi teks pengguna, tidak diberi outline (FR-20)
 - [ ] Outline sebuah field hilang begitu pengguna mengisinya (FR-20)
 - [ ] Undo menghapus semua outline, dan outline milik situs sendiri pada field itu kembali seperti sebelumnya (FR-11, FR-20)
 - [ ] Field tersembunyi tidak ditandai, dan jumlah elemen di halaman tidak bertambah (RFC §2)
 - [ ] Panel memberi tahu bahwa field yang belum terisi ditandai di halaman, dengan kalimat yang ditulis ramah dan singkat (FR-20)
-- [ ] Dropdown dan grup radio yang tidak terisi juga ditandai; untuk grup radio, yang ditandai adalah grupnya, bukan tiap tombol (FR-20)
+- [ ] Dropdown dan grup radio wajib yang tidak terisi juga ditandai; untuk grup radio, yang ditandai adalah grupnya, bukan tiap tombol (FR-20)
 
-**Done when:** setelah Fill di form uji dan di satu form sungguhan, field yang harus diisi sendiri langsung terlihat di halaman, dan Undo mengembalikan halaman seperti semula.
+**Done when:** setelah Fill di form uji dan di satu form sungguhan, field wajib yang harus diisi sendiri langsung terlihat di halaman, dan Undo mengembalikan halaman seperti semula.
 
 ---
 
