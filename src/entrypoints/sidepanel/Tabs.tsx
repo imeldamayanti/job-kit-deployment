@@ -7,7 +7,7 @@ const TABS: { id: TabId; title: string }[] = [
 
 export function Tabs({ current, onSelect }: { current: TabId; onSelect: (id: TabId) => void }) {
   return (
-    <div role="tablist" aria-label="job-kit" className="flex gap-1 border-b border-border px-4">
+    <div role="tablist" aria-label="job-kit" className="flex gap-1 bg-neutral-100 px-2 pt-2">
       {TABS.map(({ id, title }) => (
         <button
           key={id}
@@ -18,11 +18,11 @@ export function Tabs({ current, onSelect }: { current: TabId; onSelect: (id: Tab
           aria-controls={`panel-${id}`}
           onClick={() => onSelect(id)}
           className={
-            '-mb-px h-9 rounded-t-lg border border-b-0 px-4 text-[13px] font-semibold transition-colors duration-150 ' +
+            'h-9 flex-1 rounded-t-lg text-[13px] transition-colors duration-150 ' +
             'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring ' +
             (id === current
-              ? 'border-border bg-surface-sunken text-text-primary'
-              : 'border-transparent text-text-secondary hover:bg-neutral-100')
+              ? 'bg-surface font-bold text-text-primary shadow-[inset_0_-2px_0_var(--color-accent)]'
+              : 'font-semibold text-text-secondary hover:bg-neutral-200')
           }
         >
           {title}

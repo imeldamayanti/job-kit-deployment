@@ -1,6 +1,7 @@
+import { Globe } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { formIsLocked } from '../../core/fill/frames'
-import { formatFillSummary } from '../../core/fill/summary'
+import { formatFillSummary, matchPercent } from '../../core/fill/summary'
 import { buildPlan } from '../../core/matching/plan'
 import { selectItems } from '../../core/matching/selection'
 import { sectionForKey } from '../../core/profile/sections'
@@ -10,6 +11,7 @@ import { requestSiteAccess } from '../../platform/permissions'
 import { useStoredProfile } from '../../ui/hooks/useStoredProfile'
 import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
+import { Logo } from '../../ui/primitives/Logo'
 import { EmptyProfile } from './EmptyProfile'
 import { PlanRow } from './PlanRow'
 import { ProfileTab } from './ProfileTab'
@@ -51,8 +53,9 @@ export function App() {
   })
 
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="px-4 pt-4">
+    <div className="flex min-h-full flex-col bg-surface">
+      <header className="flex items-center gap-2 px-4 py-3">
+        <Logo size={24} />
         <h1 className="text-[17px] font-bold text-text-primary">job-kit</h1>
       </header>
       <Tabs current={tab} onSelect={setTab} />
@@ -64,18 +67,37 @@ export function App() {
       )}
 
       {tab === 'autofill' && (
-        <main id="panel-autofill" role="tabpanel" aria-labelledby="tab-autofill" className="flex flex-col gap-3 p-4 pb-24">
+        <main id="panel-autofill" role="tabpanel" aria-labelledby="tab-autofill" className="flex flex-col gap-5 p-4 pb-24">
           {state.status === 'ready' && state.domain && (
-            <p className="text-[12px] font-semibold text-text-secondary">{state.domain}</p>
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-text-secondary"
+              >
+                <Globe size={16} strokeWidth={2} />
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-[12px] text-text-secondary">{state.domain}</p>
+                {state.tab?.title && <p className="truncate text-[13px] font-bold text-text-primary">{state.tab.title}</p>}
+              </div>
+            </div>
           )}
 
           {plan && !frameLocked && profileEmpty && <EmptyProfile />}
 
           {plan && !frameLocked && !profileEmpty && (
             <>
-              <p className="rounded-lg bg-accent-wash px-3 py-2 text-[13px] font-semibold text-text-primary">
-                {plan.matched} dari {plan.total} field cocok
-              </p>
+              <div className="rounded-lg bg-accent-wash px-3 py-2.5">
+                <p className="flex items-baseline justify-between text-[13px] font-semibold text-text-primary">
+                  <span>
+                    {plan.matched} dari {plan.total} field cocok
+                  </span>
+                  <span className="text-[12px] text-text-secondary">{matchPercent(plan.matched, plan.total)}%</span>
+                </p>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-200" aria-hidden="true">
+                  <div className="h-full rounded-full bg-accent" style={{ width: `${matchPercent(plan.matched, plan.total)}%` }} />
+                </div>
+              </div>
 
               {phase === 'filled' && summary && (
                 <section className="flex items-center gap-3 rounded-xl border border-border bg-green-50 p-3">
@@ -96,12 +118,12 @@ export function App() {
               )}
 
               {plan.items.length > 0 && (
-                <section className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3">
-                  <div>
-                    <h2 className="text-[12px] font-bold text-text-secondary">Akan diisi</h2>
+                <section className="flex flex-col gap-3">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h2 className="text-[11px] font-bold uppercase tracking-[0.08em] text-neutral-400">Akan diisi</h2>
                     {phase === 'preview' && <p className="text-[12px] text-text-secondary">Matikan yang tidak perlu</p>}
                   </div>
-                  <ul className="flex flex-col gap-3">
+                  <ul className="flex flex-col gap-4">
                     {plan.items.map((item) => (
                       <li key={item.fieldId}>
                         {phase === 'preview' ? (
@@ -125,8 +147,8 @@ export function App() {
               )}
 
               {plan.skipped.length > 0 && (
-                <section className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3">
-                  <h2 className="text-[12px] font-bold text-text-secondary">Dilewati</h2>
+                <section className="flex flex-col gap-2">
+                  <h2 className="text-[11px] font-bold uppercase tracking-[0.08em] text-neutral-400">Dilewati</h2>
                   <ul className="flex flex-col gap-1">
                     {plan.skipped.map((field) => (
                       <li key={field.fieldId} className="text-[13px] text-text-secondary">
@@ -138,8 +160,8 @@ export function App() {
               )}
 
               {plan.missing.length > 0 && (
-                <section className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3">
-                  <h2 className="text-[12px] font-bold text-text-secondary">Profil belum punya</h2>
+                <section className="flex flex-col gap-2">
+                  <h2 className="text-[11px] font-bold uppercase tracking-[0.08em] text-neutral-400">Profil belum punya</h2>
                   <ul className="flex flex-col gap-1">
                     {plan.missing.map((field) => (
                       <li key={field.fieldId} className="flex items-center justify-between gap-3">

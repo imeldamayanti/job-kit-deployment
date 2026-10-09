@@ -13,7 +13,7 @@ function Pair({ item }: { item: PlanItem }) {
   return (
     <span className="flex flex-col">
       <span className="text-[12px] text-text-secondary">{item.label}</span>
-      <span className="break-words text-[13px] text-text-primary">{item.value}</span>
+      <span className="break-words text-[13px] font-semibold text-text-primary">{item.value}</span>
     </span>
   )
 }
