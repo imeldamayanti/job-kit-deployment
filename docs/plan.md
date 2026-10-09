@@ -497,14 +497,16 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Context:** PIC butuh scraping (keputusan 2026-10-09). Hanya halaman publik tanpa login. Risiko ToS dan blokir diterima PIC dan dibatasi lewat AC di bawah (PRD §4.1). HTML diparse di offscreen document.
 
 **Acceptance criteria**
-- [ ] Query dibangun dari preferensi: role, lokasi, filter remote (FR-27)
+- [x] Query dibangun dari preferensi: role, lokasi, filter remote (FR-27)
 - [ ] Request tanpa cookie, paling banyak N halaman per run (angka dari T27), jeda acak antar request, satu run otomatis per hari (FR-27)
-- [ ] Semua selector di satu berkas. Struktur berubah → `SourceRun` `parse` dengan jumlah 0, bukan crash (PRD §8)
-- [ ] Halaman detail (untuk teks deskripsi) hanya diambil untuk lowongan yang lolos saringan T31
+- [x] Semua selector di satu berkas. Struktur berubah → `SourceRun` `parse` dengan jumlah 0, bukan crash (PRD §8)
+- [x] Halaman detail (untuk teks deskripsi) hanya diambil untuk lowongan yang lolos saringan T31
 - [ ] Gagal 3 run berturut-turut → sumber dijeda dan header S4 memberi tahu (PRD §8)
-- [ ] Tes parser memakai HTML fixture tersimpan, termasuk satu fixture rusak
+- [x] Tes parser memakai HTML fixture tersimpan, termasuk satu fixture rusak
 
 **Done when:** run nyata di Chrome menghasilkan lowongan LinkedIn ternormalisasi, dan fixture rusak menghasilkan `parse`, bukan error.
+
+**Hasil:** adapter LinkedIn halaman publik: selector di satu berkas (`linkedin-selectors.ts`), parser dijalankan di offscreen document (entrypoint `offscreen`, izin `offscreen` ditambah; `alarms` ikut ditambah untuk T36, keduanya tanpa peringatan instal), query dari role, lokasi pertama, dan filter tipe kerja, jeda acak antar request, tanpa cookie, batas halaman bawaan 5 per run (angka final menunggu keputusan PIC setelah spike T27), detail hanya untuk lowongan yang lolos `passesRules` (maks 30), blokir di tengah jalan mempertahankan hasil yang sudah ada, layout berubah menjadi `parse`. `shouldPause`: tiga run gagal berturut-turut. Fixture nyata dan fixture rusak diuji. Belum: run nyata di Chrome dan 'satu run otomatis per hari' (T36); header S4 yang memberi tahu sumber dijeda (T37).
 
 ### T34 · Atur Lowongan: sumber, izin, dan klien AI · 1.5h · feature · High
 - [ ] **T34 selesai**

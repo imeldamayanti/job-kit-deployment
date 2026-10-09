@@ -9,7 +9,7 @@ export default defineConfig({
   manifest: {
     name: 'job-kit',
     description: 'Ketik sekali, lamar di mana saja.',
-    permissions: ['storage', 'sidePanel', 'scripting', 'tabs'],
+    permissions: ['storage', 'sidePanel', 'scripting', 'tabs', 'offscreen', 'alarms'],
     optional_host_permissions: ['*://*/*'],
     action: { default_title: 'job-kit' },
   },
