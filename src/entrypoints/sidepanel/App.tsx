@@ -13,14 +13,39 @@ export function App() {
         <p className="text-[12px] font-semibold text-text-secondary">{state.domain}</p>
       )}
 
-      {state.status === 'ready' && state.scan.ok && (
-        <ul className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3">
-          {state.scan.fields.map((field) => (
-            <li key={field.id} className="text-[13px] text-text-primary">
-              {field.label}
-            </li>
-          ))}
-        </ul>
+      {state.status === 'ready' && state.plan && (
+        <>
+          <p className="rounded-lg bg-accent-wash px-3 py-2 text-[13px] font-semibold text-text-primary">
+            {state.plan.matched} dari {state.plan.total} field cocok
+          </p>
+
+          {state.plan.items.length > 0 && (
+            <section className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3">
+              <h2 className="text-[12px] font-bold text-text-secondary">Akan diisi</h2>
+              <ul className="flex flex-col gap-2">
+                {state.plan.items.map((item) => (
+                  <li key={item.fieldId} className="flex flex-col">
+                    <span className="text-[12px] text-text-secondary">{item.label}</span>
+                    <span className="text-[13px] text-text-primary">{item.value}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {state.plan.skipped.length > 0 && (
+            <section className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3">
+              <h2 className="text-[12px] font-bold text-text-secondary">Dilewati</h2>
+              <ul className="flex flex-col gap-1">
+                {state.plan.skipped.map((field) => (
+                  <li key={field.fieldId} className="text-[13px] text-text-secondary">
+                    {field.label}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
       )}
 
       {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'no-form' && (

@@ -9,5 +9,5 @@ export default defineUnlistedScript(() => {
   if (scope.__jobkitReady) return
   scope.__jobkitReady = true
 
-  onScanRequest(() => scanFields(document).map(({ id, label }) => ({ id, label })))
+  onScanRequest(() => scanFields(document).map(({ id, label, autocomplete }) => ({ id, label, autocomplete })))
 })

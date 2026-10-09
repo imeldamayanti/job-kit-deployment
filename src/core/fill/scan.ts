@@ -1,6 +1,9 @@
+import { readLabel } from '../matching/label'
+
 export type ScannedField = {
   id: string
   label: string
+  autocomplete: string
   element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 }
 
@@ -12,13 +15,13 @@ function isReadable(element: Element): element is ScannedField['element'] {
   return false
 }
 
-function labelOf(element: ScannedField['element']): string {
-  const text = element.labels?.[0]?.textContent?.trim()
-  return text || element.name || element.id
-}
-
 export function scanFields(root: ParentNode): ScannedField[] {
   return Array.from(root.querySelectorAll('input, textarea, select'))
     .filter(isReadable)
-    .map((element, index) => ({ id: `f${index}`, label: labelOf(element), element }))
+    .map((element, index) => ({
+      id: `f${index}`,
+      label: readLabel(element),
+      autocomplete: element.getAttribute('autocomplete') ?? '',
+      element,
+    }))
 }

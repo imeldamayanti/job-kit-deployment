@@ -2,7 +2,7 @@ import { browser } from 'wxt/browser'
 import { classifyUnreadablePage, type UnreadableReason } from '../core/fill/page-access'
 import type { ActiveTab } from './tabs'
 
-export type FieldSummary = { id: string; label: string }
+export type FieldSummary = { id: string; label: string; autocomplete: string }
 
 export type PageScan =
   | { ok: true; fields: FieldSummary[] }
