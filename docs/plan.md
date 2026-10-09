@@ -558,7 +558,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [x] Kartu, filter tipe kerja, urutan, pencarian, dan ubah status. Filter, urut, dan cari adalah fungsi murni di `core/` dengan tes (FR-30)
 - [x] Panel alasan skor per kartu; "Skor kasar" ditandai (FR-29)
 - [x] Semua state dari T28 terlihat lewat `#jobs?state=...` di build dev
-- [x] Token, ikon lucide-react, tanpa kontrol bawaan peramban; rapi di ≤420 px
+- [ ] Token, ikon lucide-react, tanpa kontrol bawaan peramban; rapi di ≤420 px (token dan ikon sudah; urutan masih `<select>` bawaan dan ≤420 px belum dilihat)
 
 **Done when:** feed nyata dari T36 tampil dan semua state terlihat di Chrome sungguhan.
 
