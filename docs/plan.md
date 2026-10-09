@@ -309,14 +309,23 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Done when:** Export, ubah profil, Import (Ganti) mengembalikan profil; Hapus semua berjalan setelah mengetik `HAPUS`; semua terlihat di Chrome sungguhan, bukan hanya harness.
 
 ### T22 · Baca teks dari PDF di options · 2h · spike · Medium
-- [ ] **T22 selesai**
+- [x] **T22 selesai**
 
 **Context:** dasar Import CV (FR-25). Teks diekstrak lokal di halaman options; tidak ada server, OCR, atau layanan luar. Risiko utama: bundling worker `pdfjs-dist` di WXT dan CSP MV3 yang melarang skrip jarak jauh. Kerjakan spike ini lebih dulu untuk memastikan jalan sebelum parser ditulis.
+
+**Hasil spike (2026-10-10, `pdfjs-dist@6.4.299`, Chrome for Testing 151, muat unpacked dari `.output/chrome-mv3`)**
+- Worker dibundel lewat `import ... '?url'`: WXT mengeluarkannya sebagai `assets/pdf.worker.min-*.mjs` (1,26 MB) dan dimuat dari origin ekstensi. Manifest tidak punya CSP khusus; CSP bawaan MV3 (`script-src 'self'`) cukup.
+- Tambahan bundle: chunk lazy `pdf-*.js` 430 kB, pembungkus 1,5 kB, worker 1,26 MB; total sekitar 1,7 MB, dimuat hanya saat PDF dipilih. Hanya `options-*.js` yang merujuk chunk itu; side panel, background, dan `page-reader.js` tidak.
+- Selama pembacaan tiga PDF, tidak ada request keluar dari origin ekstensi dan tidak ada error konsol.
+- Hasil di Chrome: PDF bersih dan PDF dua kolom menghasilkan teks terbaca; PDF scan (hanya gambar) → `no-text-layer`; berkas bukan PDF → `not-pdf`; PDF terpotong → `unreadable`. `encrypted` baru dibuktikan lewat tes unit (bentuk `PasswordException`), belum dengan PDF terenkripsi sungguhan di Chrome.
+- Temuan untuk T23: pada PDF dua kolom, teks terbaca kolom demi kolom (kolom kiri dulu), dan baris panjang bisa terpotong jadi dua baris (mis. URL LinkedIn).
+- Pdfjs 6 tidak punya opsi `isEvalSupported`; `destroy` ada di loading task. Ukuran akhir diukur ulang saat pdf dikabelkan di T25 (tanpa pemanggil, pdfjs tidak ikut build).
+
 **Acceptance criteria**
-- [ ] `platform/pdf.ts` membungkus `pdfjs-dist` dan memuatnya lazy, hanya saat Import PDF dipakai; build produksi tidak memuat skrip dari luar (FR-25)
-- [ ] Fungsi menerima `File` dan mengembalikan teks per halaman dalam urutan baca, atau kesalahan bertipe: `not-pdf`, `encrypted`, `no-text-layer`, `unreadable` (FR-25)
-- [ ] Terbukti jalan di build ekstensi di Chrome sungguhan dengan satu PDF CV uji (bukan hanya di happy-dom); hasil dicatat di tiket ini
-- [ ] Ukuran tambahan bundle dicatat; pdfjs tidak masuk side panel atau content script
+- [x] `platform/pdf.ts` membungkus `pdfjs-dist` dan memuatnya lazy, hanya saat Import PDF dipakai; build produksi tidak memuat skrip dari luar (FR-25)
+- [x] Fungsi menerima `File` dan mengembalikan teks per halaman dalam urutan baca, atau kesalahan bertipe: `not-pdf`, `encrypted`, `no-text-layer`, `unreadable` (FR-25)
+- [x] Terbukti jalan di build ekstensi di Chrome sungguhan dengan satu PDF CV uji (bukan hanya di happy-dom); hasil dicatat di tiket ini
+- [x] Ukuran tambahan bundle dicatat; pdfjs tidak masuk side panel atau content script
 
 **Done when:** PDF CV uji menghasilkan teks yang bisa dibaca di konsol halaman options, dan empat jenis kesalahan punya tes.
 
