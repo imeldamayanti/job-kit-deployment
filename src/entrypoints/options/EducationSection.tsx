@@ -1,4 +1,4 @@
-import { addEntry, createEducation, moveEntry, removeEntry, summarizeEducation, updateEntry } from '../../core/profile/entries'
+import { addEntry, createEducation, moveEntry, removeEntry, updateEntry } from '../../core/profile/entries'
 import type { Education, Profile } from '../../core/profile/types'
 import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
@@ -26,8 +26,9 @@ export function EducationSection({ profile, update }: { profile: Profile; update
   }
 
   return (
-    <SectionCard title="Education">
+    <>
       {list.length === 0 ? (
+        <SectionCard>
         <div className="flex flex-col items-start gap-2">
           <Mascot state="neutral" />
           <h3 className="text-[14px] font-bold text-text-primary">Belum ada riwayat pendidikan</h3>
@@ -38,12 +39,15 @@ export function EducationSection({ profile, update }: { profile: Profile; update
             Tambah pendidikan pertama
           </Button>
         </div>
+        </SectionCard>
       ) : (
         <div className="flex flex-col gap-3">
           {list.map((entry, index) => (
             <EntryCard
               key={entry.id}
-              summary={summarizeEducation(entry)}
+              title={entry.institution.trim() || 'Belum diisi'}
+              subtitle={`${entry.level} ${entry.major}`.trim()}
+              period={entry.year}
               expanded={isOpen(entry.id)}
               canMoveUp={index > 0}
               canMoveDown={index < list.length - 1}
@@ -72,6 +76,6 @@ export function EducationSection({ profile, update }: { profile: Profile; update
           </div>
         </div>
       )}
-    </SectionCard>
+    </>
   )
 }

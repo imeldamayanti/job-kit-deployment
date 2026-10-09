@@ -1,4 +1,4 @@
-import { addEntry, createExperience, moveEntry, removeEntry, summarizeExperience, updateEntry } from '../../core/profile/entries'
+import { addEntry, createExperience, moveEntry, removeEntry, updateEntry } from '../../core/profile/entries'
 import type { Experience, Profile } from '../../core/profile/types'
 import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
@@ -21,8 +21,9 @@ export function ExperienceSection({ profile, update }: { profile: Profile; updat
   }
 
   return (
-    <SectionCard title="Work Experience">
+    <>
       {list.length === 0 ? (
+        <SectionCard>
         <div className="flex flex-col items-start gap-2">
           <Mascot state="neutral" />
           <h3 className="text-[14px] font-bold text-text-primary">Belum ada pengalaman kerja</h3>
@@ -33,12 +34,15 @@ export function ExperienceSection({ profile, update }: { profile: Profile; updat
             Tambah pengalaman pertama
           </Button>
         </div>
+        </SectionCard>
       ) : (
         <div className="flex flex-col gap-3">
           {list.map((entry, index) => (
             <EntryCard
               key={entry.id}
-              summary={summarizeExperience(entry)}
+              title={entry.title.trim() || 'Belum diisi'}
+              subtitle={entry.company}
+              period={[entry.start, entry.current ? 'sekarang' : entry.end].filter((part) => part.trim() !== '').join(' - ')}
               expanded={isOpen(entry.id)}
               canMoveUp={index > 0}
               canMoveDown={index < list.length - 1}
@@ -70,6 +74,6 @@ export function ExperienceSection({ profile, update }: { profile: Profile; updat
           </div>
         </div>
       )}
-    </SectionCard>
+    </>
   )
 }

@@ -8,7 +8,7 @@ import { SectionCard } from './SectionCard'
 
 export function CustomSection({ profile, update }: { profile: Profile; update: (next: Profile) => void }) {
   return (
-    <SectionCard title="Custom Field">
+    <SectionCard>
       <div className="flex flex-col gap-3">
         {profile.custom.map((pair) => (
           <div key={pair.id} className="grid grid-cols-1 items-end gap-3 sm:grid-cols-[1fr_1fr_auto]">

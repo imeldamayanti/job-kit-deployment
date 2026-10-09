@@ -6,7 +6,7 @@ import { SectionCard } from './SectionCard'
 
 export function ContactSection({ profile, update }: { profile: Profile; update: (next: Profile) => void }) {
   return (
-    <SectionCard title="Contact & Address">
+    <SectionCard>
       <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
         {CONTACT_FIELDS.map(({ key, label, placeholder, wide }) => (
           <div key={key} className={wide ? 'sm:col-span-2' : undefined}>

@@ -6,7 +6,7 @@ import { SectionCard } from './SectionCard'
 
 export function PersonalSection({ profile, update }: { profile: Profile; update: (next: Profile) => void }) {
   return (
-    <SectionCard title="Personal Info">
+    <SectionCard>
       <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
         {PERSONAL_FIELDS.map(({ key, label, placeholder }) => (
           <TextField
