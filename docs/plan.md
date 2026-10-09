@@ -3,7 +3,7 @@
 Pengganti P5: backlog lokal, tanpa Jira dan tanpa CSV. Sumber: `docs/02-prd.md` (APPROVED) dan `docs/03-rfc.md` (APPROVED).
 Aturan tetap berlaku: maksimal 18 tiket, total ≤20 jam, tiap tiket ≤2 jam, walking skeleton selesai dalam 8 jam pertama.
 
-**Total estimasi: 21.0 jam · 16 tiket** (video demo dibuang atas keputusan PIC; T16 ditambah 2026-10-09 atas permintaan PIC dan melewati 20 jam sebesar 1 jam. PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras.)
+**Total estimasi: 24.0 jam · 18 tiket** (video demo dibuang atas keputusan PIC; T16, T17, dan T19 ditambah 2026-10-09 atas permintaan PIC dan melewati 20 jam sebesar 4 jam. PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras. T18 ditunda dan tidak dihitung.)
 **Walking skeleton: T01–T05 = 7.0 jam**
 
 Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
@@ -237,6 +237,53 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 **Done when:** setelah Fill di form uji dan di satu form sungguhan, field wajib yang harus diisi sendiri langsung terlihat di halaman, dan Undo mengembalikan halaman seperti semula.
 
+### T17 · Section Data di options (UI saja) · 1.5h · feature · Medium
+- [ ] **T17 selesai**
+
+**Context:** mockup menampilkan halaman Data (Export, Import, Hapus semua, pemakaian storage). PRD v1 sebelumnya mengeluarkannya (§4, §9, §6.6 #13). PIC memasukkannya ke v1 pada 2026-10-09, **secara UI dulu**; perilaku Import dan Hapus semua ditunda ke T18. Layar dan state dirujuk dari `docs/screens.md` §3.3 (D1 sampai D5) dan mockup `docs/reference/JobFill UI.dc.html`.
+
+**Perubahan dokumen yang ikut (PRD dan RFC sudah APPROVED, jadi ini keputusan PIC yang dicatat)**
+- [ ] PRD §4: hapus "Tidak ada export atau import data di v1" dari non-goals dan ganti dengan "Import dan Hapus semua belum berfungsi di v1; UI-nya ada".
+- [ ] PRD §9: pindahkan halaman Data (UI) dari OUT ke IN; "export/import, hapus semua data" tetap OUT sebagai perilaku sampai T18.
+- [ ] PRD §6.6 #13: perbarui; grup DATA kini berisi satu item, Data. Captured Jobs dan Additional tetap di luar.
+- [ ] PRD §7: tambah **FR-21** (Should): halaman Data menampilkan kartu Export, Import, Hapus semua, pemakaian storage nyata, dan kalimat jujur soal enkripsi. **FR-22** (Could, T18 ditunda): ketiga aksi berfungsi.
+- [ ] Tabel cakupan: FR-21 → T17, FR-22 → T18 (ditunda).
+
+**Acceptance criteria**
+- [ ] Navigasi kiri punya grup DATA dengan satu item "Data"; grup PROFILE tetap seperti sekarang (FR-21)
+- [ ] Halaman Data menampilkan tiga kartu aksi (Export, Import, Hapus semua) dan kartu "Pemakaian storage" dengan bar dan angka nyata, misalnya "1.8 MB dari 10 MB" (FR-21)
+- [ ] Kalimat jujur soal enkripsi tampil: data disimpan tanpa enkripsi di `chrome.storage.local`, tanpa server dan tanpa akun (FR-21)
+- [ ] Export JSON menghasilkan satu berkas berversi berisi profil dan bisa diunduh; ini hanya membaca data (FR-21)
+- [ ] State D2 (pratinjau import dengan Ganti atau Gabung), D3 (import tidak valid dengan sebab), D4 (konfirmasi hapus dengan mengetik ulang kata), dan D5 (selesai dengan angka) ada sebagai komponen yang bisa dilihat, tanpa memakai kata "Captured Jobs" atau "pemetaan situs" karena di luar v1
+- [ ] Di build produksi, tombol Import dan Hapus semua tampil nonaktif dan menyebut alasannya ("Belum tersedia di versi ini"); tidak ada kontrol yang tampak berfungsi tetapi tidak melakukan apa-apa
+- [ ] Semua kontrol bergaya sesuai token, tanpa kontrol bawaan browser
+
+**Done when:** halaman Data terlihat sesuai mockup, pemakaian storage menunjukkan angka nyata, Export mengunduh berkas profil, dan keempat state lain bisa dilihat di build dev.
+
+### T18 · Import dan Hapus semua berfungsi · 1.5h · feature · Medium · **ditunda**
+- [ ] **T18 selesai** (belum dijadwalkan; menunggu keputusan PIC setelah T17)
+
+**Context:** menyambungkan state D2 sampai D5 ke perilaku sungguhan (FR-22).
+**Acceptance criteria (rancangan)**
+- [ ] Import membaca berkas export, menolak berkas rusak atau versi tak dikenal dengan sebab yang spesifik, dan menampilkan pratinjau apa yang berubah (FR-22)
+- [ ] Gabung menambah tanpa menimpa data yang ada; Ganti menggantikan seluruh profil (FR-22)
+- [ ] Hapus semua baru berjalan setelah pengguna mengetik ulang kata konfirmasi, dan setelahnya profil kosong (FR-22)
+- [ ] Setelah impor atau hapus, panel menampilkan angka hasil ("112 entri diimpor") (FR-22)
+
+### T19 · Samakan tampilan dengan mockup referensi · 1.5h · polish · Medium
+- [ ] **T19 selesai**
+
+**Context:** P6 mensyaratkan membangun agar cocok dengan referensi visual bila PRD §6.3 memilikinya, tetapi build sekarang dibuat dari token dan teks tanpa pernah dibandingkan berdampingan dengan mockup. Dikerjakan di chat terpisah memakai `docs/redesign-prompt.md`.
+
+**Acceptance criteria**
+- [ ] Ada daftar selisih antara tiap layar (panel dan options) dan mockup, dengan yang diperbaiki dan yang sengaja dibiarkan beserta alasannya
+- [ ] Kepala sidebar options memuat logo dan nama "job-kit"; seluruh options dalam satu kartu membulat; dasar sidebar memuat catatan privasi tentang tanpa enkripsi, server, dan akun
+- [ ] Indikator "Tersimpan" memakai titik hijau seperti mockup; judul halaman memiliki subjudul satu baris
+- [ ] Layar panel sesuai mockup untuk tab, site header, summary bar, baris field, dan banner
+- [ ] Tidak ada perubahan perilaku: 174 tes tetap lulus, `typecheck` dan `build` bersih
+
+**Done when:** layar sebelum dan sesudah, dibandingkan dengan mockup, hanya berbeda pada hal yang sengaja diputuskan.
+
 ---
 
 ## Cakupan
@@ -255,6 +302,8 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 | FR-08 | T04, T06 | FR-18 | T10 |
 | FR-09 | T05 | FR-19 | T05 |
 | FR-10 | T05 | FR-20 (usulan) | T16 |
+| | | FR-21 (usulan) | T17 |
+| | | FR-22 (usulan, ditunda) | T18 |
 
 **Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11.
 
