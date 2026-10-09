@@ -3,7 +3,7 @@
 Pengganti P5: backlog lokal, tanpa Jira dan tanpa CSV. Sumber: `docs/02-prd.md` (APPROVED) dan `docs/03-rfc.md` (APPROVED).
 Aturan tetap berlaku: maksimal 18 tiket, total ≤20 jam, tiap tiket ≤2 jam, walking skeleton selesai dalam 8 jam pertama.
 
-**Total estimasi: 25.5 jam · 19 tiket** (video demo dibuang atas keputusan PIC; T16, T17, T19, dan T20 ditambah 2026-10-09 atas permintaan PIC dan melewati 20 jam sebesar 5.5 jam. PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras. T18 dan T21 ditunda dan tidak dihitung.)
+**Total estimasi: 37 jam · 25 tiket** (video demo dibuang atas keputusan PIC; T16, T17, T19, dan T20 ditambah 2026-10-09 atas permintaan PIC; T18 dijadwalkan dan T22 sampai T26 ditambah 2026-10-10 atas permintaan PIC, total 11.5 jam lagi. Semuanya melewati 20 jam; PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras. Hanya T21 yang masih ditunda dan tidak dihitung.)
 **Walking skeleton: T01–T05 = 7.0 jam**
 
 Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
@@ -260,12 +260,17 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 **Done when:** halaman Data terlihat sesuai mockup, pemakaian storage menunjukkan angka nyata, Export mengunduh berkas profil, dan keempat state lain bisa dilihat di build dev.
 
-### T18 · Import dan Hapus semua berfungsi · 1.5h · feature · Medium · **ditunda**
-- [ ] **T18 selesai** (belum dijadwalkan; menunggu keputusan PIC setelah T17)
+### T18 · Import JSON dan Hapus semua berfungsi · 2h · feature · Medium
+- [ ] **T18 selesai** (dijadwalkan PIC 2026-10-10)
 
-**Context:** menyambungkan state D2 sampai D5 ke perilaku sungguhan (FR-22).
-**Acceptance criteria (rancangan)**
+**Context:** menyambungkan state D2 sampai D5 ke perilaku sungguhan (FR-22). Dikerjakan sebelum T22 karena pratinjau, aksi gabung/ganti, dan state hasilnya dipakai ulang oleh Import CV. State machine ada di `src/core/data/state.ts`; envelope export di `src/core/data/export.ts`.
+**Dokumen yang diubah tiket ini**
+- [ ] PRD sudah diubah 2026-10-10 (FR-22 Should, FR-25, §4, §8, §9). Pastikan README dan `docs/screens.md` §3.3 konsisten setelah T18 selesai.
+
+**Acceptance criteria**
 - [ ] Import membaca berkas export, menolak berkas rusak atau versi tak dikenal dengan sebab yang spesifik, dan menampilkan pratinjau apa yang berubah (FR-22)
+- [ ] Logika validasi dan diff ada di `core/data/` dengan tes lebih dulu (TDD); komponen tidak berisi logika bisnis
+- [ ] Tombol Import dan Hapus semua tidak lagi nonaktif; tidak ada kontrol palsu yang tersisa
 - [ ] Gabung menambah tanpa menimpa data yang ada; Ganti menggantikan seluruh profil (FR-22)
 - [ ] Hapus semua baru berjalan setelah pengguna mengetik ulang kata konfirmasi, dan setelahnya profil kosong (FR-22)
 - [ ] Setelah impor atau hapus, panel menampilkan angka hasil ("112 entri diimpor") (FR-22)
@@ -301,7 +306,71 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 - [x] Tombol "Simpan perubahan" dan "Hapus entri" di slide-over nonaktif dengan alasan "Belum tersedia di versi ini"
 - [x] Semua kontrol, termasuk pilihan status, bergaya sesuai token tanpa kontrol bawaan browser
 
-**Done when:** halaman terlihat sesuai mockup di build dev dengan data contoh, dan build produksi hanya menampilkan state kosong yang jujur.
+**Done when:** Export, ubah profil, Import (Ganti) mengembalikan profil; Hapus semua berjalan setelah mengetik `HAPUS`; semua terlihat di Chrome sungguhan, bukan hanya harness.
+
+### T22 · Baca teks dari PDF di options · 2h · spike · Medium
+- [ ] **T22 selesai**
+
+**Context:** dasar Import CV (FR-25). Teks diekstrak lokal di halaman options; tidak ada server, OCR, atau layanan luar. Risiko utama: bundling worker `pdfjs-dist` di WXT dan CSP MV3 yang melarang skrip jarak jauh. Kerjakan spike ini lebih dulu untuk memastikan jalan sebelum parser ditulis.
+**Acceptance criteria**
+- [ ] `platform/pdf.ts` membungkus `pdfjs-dist` dan memuatnya lazy, hanya saat Import PDF dipakai; build produksi tidak memuat skrip dari luar (FR-25)
+- [ ] Fungsi menerima `File` dan mengembalikan teks per halaman dalam urutan baca, atau kesalahan bertipe: `not-pdf`, `encrypted`, `no-text-layer`, `unreadable` (FR-25)
+- [ ] Terbukti jalan di build ekstensi di Chrome sungguhan dengan satu PDF CV uji (bukan hanya di happy-dom); hasil dicatat di tiket ini
+- [ ] Ukuran tambahan bundle dicatat; pdfjs tidak masuk side panel atau content script
+
+**Done when:** PDF CV uji menghasilkan teks yang bisa dibaca di konsol halaman options, dan empat jenis kesalahan punya tes.
+
+### T23 · Parser CV: identitas dan kontak · 2h · feature · Medium
+- [ ] **T23 selesai**
+
+**Context:** `core/cv/parse.ts`, fungsi murni dari teks ke `Partial<Profile>` dengan `confidence` per field. Tanpa AI; aturan dan regex. Fixture berupa teks CV sintetis berbahasa Indonesia dan Inggris, tidak ada data orang sungguhan di repo.
+**Acceptance criteria**
+- [ ] Mengenali nama lengkap, email, telepon (format +62, 08xx, spasi atau strip), LinkedIn, dan kota dari blok kepala CV (FR-25)
+- [ ] Setiap field punya `confidence` (`high` atau `low`); yang `low` ditandai "Periksa lagi" di pratinjau (FR-25)
+- [ ] Teks kosong atau tanpa satu pun field yang dikenali mengembalikan hasil kosong, bukan kesalahan (FR-25)
+- [ ] Tes ditulis lebih dulu; minimal 6 fixture (ID dan EN, satu kolom dan dua kolom)
+
+**Done when:** semua fixture lulus dan tidak ada tebakan nilai tanpa tanda `low`.
+
+### T24 · Parser CV: pendidikan dan pengalaman · 2h · feature · Medium
+- [ ] **T24 selesai**
+
+**Context:** lanjutan T23, bagian yang paling beragam. Heading dikenali dalam dua bahasa ("Pendidikan", "Education", "Pengalaman Kerja", "Work Experience", dan variannya).
+**Acceptance criteria**
+- [ ] Memisahkan blok per heading, lalu per entri; setiap entri pendidikan mendapat institusi, jurusan, IPK jika ada, dan periode (FR-25)
+- [ ] Setiap entri pengalaman mendapat posisi, perusahaan, periode, dan deskripsi jika ada (FR-25)
+- [ ] Periode dengan "Sekarang" atau "Present" dikenali sebagai masih berjalan (FR-25)
+- [ ] Entri yang strukturnya tidak jelas tidak ditebak; teks mentahnya dikembalikan sebagai `unparsed` agar bisa ditampilkan di pratinjau (FR-25)
+- [ ] Tes ditulis lebih dulu memakai fixture yang sama dengan T23 ditambah variasi heading
+
+**Done when:** fixture lulus, dan entri yang tidak bisa dibaca muncul sebagai `unparsed`, bukan hilang.
+
+### T25 · Pratinjau Import CV per field · 2h · feature · Medium
+- [ ] **T25 selesai**
+
+**Context:** memperluas `ImportPreview` dari T18. Tidak ada yang tersimpan sebelum pengguna mengonfirmasi (FR-25). Teks UI baru ditandai di laporan.
+**Acceptance criteria**
+- [ ] Tombol Import menerima `.pdf` dan `.json`; jenisnya dikenali dari isi, bukan hanya ekstensi (FR-25)
+- [ ] Pratinjau menampilkan tiap field terdeteksi dengan kotak centang, nilai lama di samping nilai baru, dan penanda "Periksa lagi" untuk `low` (FR-25)
+- [ ] Bawaan: field yang sudah berisi dilewati; pengguna bisa memilih menimpa per field (FR-25)
+- [ ] State `parsing` (sedang membaca), `import-error` (empat sebab dari T22), dan "tidak ada yang terdeteksi" dengan tombol konfirmasi nonaktif (FR-25, PRD §8)
+- [ ] Reducer dan seleksi field ada di `core/` dengan tes; komponen hanya menampilkan
+- [ ] Semua warna dari token, ikon lucide-react, tanpa kontrol bawaan peramban; `npx -y impeccable detect src/ui src/entrypoints` bersih
+
+**Done when:** semua state terlihat lewat `#data?state=...` di build dev, dan layout tetap rapi di lebar sempit.
+
+### T26 · Sambungkan Import CV ke profil dan uji di Chrome · 1.5h · feature · Medium
+- [ ] **T26 selesai**
+
+**Context:** menyatukan T22 sampai T25 dan memverifikasi di ekstensi sungguhan.
+**Acceptance criteria**
+- [ ] Konfirmasi menulis field terpilih lewat `useProfile.update` (satu jalur tulis yang sama dengan form manual); hasil tampil sebagai angka ("8 field diisi, 2 dilewati") (FR-25)
+- [ ] Field yang sudah berisi tidak tertimpa kecuali dipilih eksplisit (FR-25)
+- [ ] Diuji di Chrome sungguhan dengan minimal tiga PDF CV: satu bersih, satu dua kolom, satu hasil scan (harus ditolak) (FR-25)
+- [ ] Penyimpanan penuh saat konfirmasi memakai notice yang sudah ada dan tidak menghilangkan data lama (PRD §8)
+- [ ] README diperbarui: fitur Import CV, batasannya (tanpa OCR, akurasi tergantung layout), dan bahwa PDF tidak meninggalkan peramban
+
+**Done when:** PDF CV uji mengisi profil di Chrome sungguhan, field yang berisi tidak tertimpa, dan PDF scan ditolak dengan pesan jelas.
 
 ### T21 · Lowongan tercatat otomatis setelah Fill · 2h · feature · Medium · **ditunda**
 - [ ] **T21 selesai** (belum dijadwalkan; menunggu keputusan PIC setelah T20)
@@ -331,9 +400,10 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 | FR-09 | T05 | FR-19 | T05 |
 | FR-10 | T05 | FR-20 (usulan) | T16 |
 | | | FR-21 | T17 |
-| | | FR-22 (ditunda) | T18 |
+| | | FR-22 | T18 |
 | | | FR-23 | T20 |
 | | | FR-24 (ditunda) | T21 |
+| | | FR-25 | T22, T23, T24, T25, T26 |
 
 **Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11.
 

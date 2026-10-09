@@ -18,9 +18,9 @@ Tanpa akun, tanpa server, tanpa AI, tanpa telemetri. Datamu hanya ada di browser
 
 - Tidak menekan tombol submit. Kamu yang mengirim form.
 - Tidak mengisi field password.
-- Tidak mengunggah CV, dan tidak membaca CV PDF.
+- Tidak mengunggah CV ke form. CV PDF hanya dibaca lokal untuk mengisi profil (belum tersedia; direncanakan T22–T26), tanpa OCR dan tanpa layanan luar.
 - Tidak ada fitur AI (cover letter, cek kecocokan lowongan, latihan interview).
-- Tidak ada banyak profil, sinkron antar perangkat, atau import dan hapus semua data (halaman Data baru berupa UI, Export sudah jalan).
+- Tidak ada banyak profil, sinkron antar perangkat, atau sinkron antar perangkat. Halaman Data: Export sudah jalan; Import dan Hapus semua direncanakan (T18).
 - Hanya browser Chromium, dan baru diuji di Chrome. Tidak ada Safari atau Firefox.
 
 ## Pasang
