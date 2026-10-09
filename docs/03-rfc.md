@@ -53,13 +53,14 @@ Satu profil, satu key: `local:profile`.
 
 ```ts
 type Profile = {
-  version: 1
+  version: 2                                    // 1 sebelum Preferensi kerja; lihat §3.3b
   personal: Record<PersonalKey, string>        // nama depan/tengah/belakang, tanggal lahir, jenis kelamin, kewarganegaraan
   contact: Record<ContactKey, string>          // email, telepon, linkedin, website, jalan, kota, provinsi, kode pos, negara
   education: Education[]                        // urutan array = urutan tampil
   experience: Experience[]
   skills: { group: 'teknis' | 'bahasa' | 'lainnya'; name: string }[]
   custom: { id: string; key: string; value: string }[]
+  jobPrefs: JobPreferences                      // dipakai feed lowongan, tidak pernah oleh Fill
 }
 type Education  = { id: string; institution: string; level: string; major: string; gpa: string; year: string }
 type Experience = { id: string; company: string; title: string; start: string; end: string; current: boolean; description: string }
@@ -81,6 +82,40 @@ type FillResult = { filled: number; skipped: number }
 3. **Side panel** (React) bertanya ke content script lewat pesan bertipe di `platform/messaging`, menampilkan pratinjau, dan mengirim item yang aktif saat Fill.
 4. **Fill** menulis nilai lewat native value setter lalu men-dispatch `input` dan `change`; Undo menulis balik nilai awal dari memori.
 5. **Background** hanya tiga hal: membuka halaman options di tab baru, meneruskan `tabs.onActivated`/`onUpdated` ke panel (FR-06), dan membuka panel dari ikon.
+
+### 3.3b Lowongan harian (revisi PRD 2026-10-09)
+
+**Model.** `Profile.version` naik ke 2 dan memuat `jobPrefs` (role, level, lokasi, tipe kerja, kata kunci wajib dan dihindari, gaji minimum). `migrateProfile` dipakai tiap membaca storage; berkas Export versi 1 tetap terbaca. Data feed memakai key terpisah dari profil: `local:feed` (`Job[]`), `local:feedRuns` (`SourceRun[]`, 20 terakhir per sumber), `local:feedState` (status run), `local:feedSettings`, `local:aiKey` (tidak ikut Export, terhapus oleh Hapus semua), dan `session:openedJobs` (tab yang dibuka dari feed).
+
+**Pipeline** (`core/feed/pipeline.ts`, murni; semua I/O disuntikkan):
+
+```
+alarm 15 menit → isRunDue (maks 1 run otomatis/hari; mengejar hari yang terlewat)
+  → sumber paralel (runSource tidak pernah melempar; gagal → SourceRun {reason})
+  → passesRules (kata dihindari, tipe kerja, lokasi) sebelum apa pun disimpan
+  → mergeFeed (dedupe URL kanonik, cadangan judul+perusahaan; status dan skor tidak direset) → pruneFeed
+  → scoreJobs (AI per batch 5, maks 50/run; gagal atau tanpa kunci → roughScore) → simpan
+```
+
+**Sumber** (`core/feed/sources/`): Greenhouse, Lever (`limit=100`), Ashby, Remotive lewat `fetchJson` (timeout, satu retry, 429/403/999 → `blocked`, `credentials: 'omit'`). LinkedIn halaman publik lewat `fetchText`, diparse di offscreen document (service worker tidak punya `DOMParser`); semua selector di `linkedin-selectors.ts`. Halaman detail hanya untuk lowongan yang lolos saringan. Sumber yang gagal tiga run berturut-turut dijeda sampai dinyalakan ulang.
+
+**Izin.** `optional_host_permissions` diminta per sumber dari klik di halaman options (`platform/permissions.ts`). Izin wajib bertambah dua tanpa peringatan instal: `offscreen` dan `alarms`.
+
+**AI.** Klien Anthropic di `platform/ai-client.ts` dengan kunci milik pengguna (BYOK), header `anthropic-dangerous-direct-browser-access`, timeout, dan pemetaan `invalid-key | quota | network | server | bad-request`. Yang dikirim hanya `ProfileSummary` (`core/ai/score.ts`): role, level, skill, judul dan lama pengalaman, jenjang pendidikan, lokasi, tipe kerja; tes memastikan nama, email, telepon, alamat, tanggal lahir, sekolah, perusahaan, dan custom field tidak ada di payload. Skor di-cache dengan hash ringkasan itu.
+
+**Hasil spike T27 (dari terminal, bukan dari service worker; belum dikonfirmasi di Chrome):**
+
+| Sumber | Hasil | Catatan |
+|---|---|---|
+| Greenhouse | 732 lowongan, 5,7 MB, 1,3 dtk | tanpa tipe kerja dan gaji terstruktur |
+| Lever | papan penuh >1 MB dan lambat (>25 dtk); `limit=30` 276 KB, 2,2 dtk | `workplaceType`, `commitment` ada |
+| Ashby | 68 lowongan, 2,2 MB, 1,0 dtk | paling lengkap: `workplaceType`, `employmentType`, ringkasan gaji |
+| Remotive | 17 lowongan, 0,3 dtk | API kecil dan dibatasi; ada pemberitahuan legal |
+| LinkedIn guest | 9 halaman × 10 kartu berturut-turut tanpa 429 (~0,8 dtk/halaman) | level dan tipe kontrak hanya di request detail |
+
+Belum terbukti (menunggu spike di Chrome, `spikes/t27/`): fetch dari service worker dengan dan tanpa izin host, `chrome.permissions.request` dari options, request AI dari service worker, dan `chrome.sidePanel.open` dari klik di options untuk tab lain.
+
+**Risiko yang diketahui.** Service worker MV3 bisa dimatikan Chrome di tengah run panjang (state `running` dianggap macet setelah 10 menit); scraping LinkedIn bisa berhenti kapan saja; Lever penuh terlalu besar tanpa `limit`.
 
 ### 3.4 Yang biasanya makan lebih dari 2 jam di stack ini
 
@@ -165,6 +200,16 @@ Tidak ada yang memblokir approval.
 **D8 — Auto-import WXT dimatikan; semua impor eksplisit.**
 *Why:* asal setiap fungsi terlihat saat review.
 *Cost:* lebih banyak baris impor.
+*Verdict:* ya.
+
+**D9 — Lowongan harian memakai jaringan dan AI (keputusan PIC 2026-10-09, PRD §4.1).**
+*Why:* mencarikan lowongan butuh request keluar; menilai kecocokan dan mengisi field yang kosong butuh model.
+*Cost:* prinsip "tanpa jaringan, tanpa AI" hanya berlaku untuk autofill, profil, dan Import CV; izin host dan kunci API milik pengguna; risiko ToS dan blokir pada scraping.
+*Verdict:* ya, mati secara bawaan, izin diminta per sumber, data yang dikirim dibatasi ke ringkasan tanpa identitas.
+
+**D10 — Folder `core/feed/` baru, bukan memperluas `core/jobs/`.**
+*Why:* `CapturedJob` (T20) dan `Job` (feed) punya bentuk dan status berbeda; menggabungkannya memaksa satu tipe melayani dua arti.
+*Cost:* kode Captured Jobs lama menunggu dihapus (belum dihapus: hook menolak `git rm`).
 *Verdict:* ya.
 
 ## 9. Stack conventions

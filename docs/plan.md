@@ -582,10 +582,12 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 
 **Acceptance criteria**
 - [ ] 5 hari run harian; per hari dicatat jumlah lowongan, sumber gagal, biaya AI, dan berapa dari 10 teratas yang layak menurut PIC (PRD §10)
-- [ ] README: fitur Lowongan, daftar sumber, data apa yang dikirim ke penyedia AI, risiko scraping, izin yang diminta; bagian Privasi dan "Yang tidak dilakukan" ditulis ulang
-- [ ] `docs/03-rfc.md` sesuai implementasi akhir
+- [x] README: fitur Lowongan, daftar sumber, data apa yang dikirim ke penyedia AI, risiko scraping, izin yang diminta; bagian Privasi dan "Yang tidak dilakukan" ditulis ulang
+- [x] `docs/03-rfc.md` sesuai implementasi akhir
 
 **Done when:** metrik lowongan harian di PRD §10 tercatat di tiket ini.
+
+**Hasil:** README ditulis ulang (fitur Lowongan, daftar sumber, data yang dikirim ke penyedia AI, risiko scraping, izin yang diminta, bagian Privasi dan 'Yang tidak dilakukan'), dan RFC §3.3b, D9, D10 mencatat pipeline, model data, hasil spike dari terminal, dan risiko. Belum: uji 5 hari dan metrik PRD §10, karena butuh fitur dijalankan di Chrome dengan kunci API dan penilaian PIC atas 10 teratas tiap hari. RFC masih menyebut spike Chrome (`spikes/t27/`) belum dijalankan.
 
 ---
 
