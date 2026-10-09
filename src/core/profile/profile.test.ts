@@ -9,10 +9,11 @@ import {
 } from './profile'
 
 describe('createEmptyProfile', () => {
-  it('starts at version 1 with every personal field empty', () => {
+  it('starts at version 2 with every personal field empty and no job preferences', () => {
     const profile = createEmptyProfile()
 
-    expect(profile.version).toBe(1)
+    expect(profile.version).toBe(2)
+    expect(profile.jobPrefs.roles).toEqual([])
     expect(Object.values(profile.personal).every((value) => value === '')).toBe(true)
   })
 })

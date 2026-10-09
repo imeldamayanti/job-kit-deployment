@@ -8,6 +8,7 @@ import { ExperienceSection } from './ExperienceSection'
 import { JobsPage } from './JobsPage'
 import { PAGE_SUBTITLES, pageFromHash, pageTitle, type PageId } from './pages'
 import { PersonalSection } from './PersonalSection'
+import { PreferencesSection } from './PreferencesSection'
 import { SaveIndicator } from './SaveIndicator'
 import { Sidebar } from './Sidebar'
 import { StorageFullNotice } from './StorageFullNotice'
@@ -37,6 +38,7 @@ export function App() {
             {profile && page === 'education' && <EducationSection profile={profile} update={update} />}
             {profile && page === 'experience' && <ExperienceSection profile={profile} update={update} />}
             {profile && page === 'custom' && <CustomSection profile={profile} update={update} />}
+            {profile && page === 'preferences' && <PreferencesSection profile={profile} update={update} />}
           </div>
         </main>
       </div>

@@ -38,6 +38,26 @@ describe('parseImport', () => {
     expect(parseImport('{"app":"job-kit","version":1}')).toMatchObject({ ok: false, reason: 'wrong-shape' })
   })
 
+  it('reads job preferences from the file', () => {
+    const withPrefs = profileWith((p) => {
+      p.jobPrefs.roles = ['Frontend Engineer']
+      p.jobPrefs.workModes = ['Remote']
+      p.jobPrefs.minSalary = '15000000'
+    })
+    const result = parseImport(buildExport(withPrefs, NOW))
+    expect(result).toEqual({ ok: true, profile: withPrefs })
+  })
+
+  it('still reads an older version 1 file that has no job preferences', () => {
+    const { jobPrefs: _unused, ...legacy } = sample
+    const text = JSON.stringify({ app: 'job-kit', version: 1, exportedAt: NOW.toISOString(), profile: { ...legacy, version: 1 } })
+    const result = parseImport(text)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.profile.jobPrefs).toEqual(createEmptyProfile().jobPrefs)
+    expect(result.profile.personal.firstName).toBe('Sari')
+  })
+
   it('rejects an unknown version and says which one', () => {
     const text = JSON.stringify({ app: 'job-kit', version: 3, profile: sample })
     expect(parseImport(text)).toEqual({ ok: false, reason: 'unknown-version', detail: '3' })
@@ -88,6 +108,25 @@ describe('mergeProfile', () => {
     expect(new Set(merged.education.map((e) => e.id)).size).toBe(2)
   })
 
+  it('fills empty job preferences and keeps the ones already chosen', () => {
+    const current = profileWith((p) => {
+      p.jobPrefs.level = 'Senior'
+      p.jobPrefs.roles = ['UI Engineer']
+      p.jobPrefs.workModes = ['Hybrid']
+    })
+    const incoming = profileWith((p) => {
+      p.jobPrefs.level = 'Mid'
+      p.jobPrefs.roles = ['ui engineer', 'Frontend Engineer']
+      p.jobPrefs.workModes = ['Remote']
+      p.jobPrefs.minSalary = '15000000'
+    })
+    const merged = mergeProfile(current, incoming).jobPrefs
+    expect(merged.level).toBe('Senior')
+    expect(merged.roles).toEqual(['UI Engineer', 'Frontend Engineer'])
+    expect(merged.workModes).toEqual(['Remote', 'Hybrid'])
+    expect(merged.minSalary).toBe('15000000')
+  })
+
   it('does not overwrite a custom field with the same key', () => {
     const current = profileWith((p) => {
       p.custom.push({ id: 'k1', key: 'gaji', value: '8 juta' })
@@ -130,6 +169,16 @@ describe('diffImport', () => {
     expect(changes.find((c) => c.label === 'Work Experience')).toEqual({ label: 'Work Experience', before: '1 entri', after: '0 entri' })
   })
 
+  it('lists job preferences when they would change', () => {
+    const incoming = profileWith((p) => {
+      p.jobPrefs.roles = ['Frontend Engineer']
+      p.jobPrefs.level = 'Mid'
+    })
+    expect(diffImport(createEmptyProfile(), incoming, 'merge')).toEqual([
+      { label: 'Preferensi kerja', before: '0 bagian', after: '2 bagian' },
+    ])
+  })
+
   it('shows merge leaving current-only data alone', () => {
     expect(diffImport(sample, createEmptyProfile(), 'merge')).toEqual([])
   })
@@ -141,6 +190,16 @@ describe('summarizeImport', () => {
     expect(summarizeImport(createEmptyProfile(), result)).toEqual({
       title: '7 entri diimpor',
       detail: '3 field terisi · 1 pendidikan, 1 pengalaman, 1 skill, 1 custom field ditambah.',
+    })
+  })
+
+  it('counts job preferences that were filled', () => {
+    const incoming = profileWith((p) => {
+      p.jobPrefs.roles = ['Frontend Engineer']
+    })
+    expect(summarizeImport(createEmptyProfile(), applyImport(createEmptyProfile(), incoming, 'merge'))).toEqual({
+      title: '1 entri diimpor',
+      detail: '1 preferensi kerja terisi',
     })
   })
 

@@ -19,6 +19,7 @@ export const PAGE_SUBTITLES: Record<PageId, string> = {
   education: 'Riwayat pendidikan, satu kartu per institusi.',
   experience: 'Pengalaman kerja, satu kartu per posisi.',
   custom: 'Pertanyaan yang tidak ada di bagian lain, misalnya ekspektasi gaji.',
+  preferences: 'Dipakai untuk mencarikan dan menilai lowongan harian. Tidak dipakai saat mengisi form.',
   jobs: 'Riwayat lowongan yang sudah kamu lamar.',
   data: 'Cadangkan profilmu, atau mulai dari awal.',
 }

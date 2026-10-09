@@ -24,6 +24,12 @@ describe('isProfileEmpty', () => {
     expect(isProfileEmpty(blank)).toBe(true)
   })
 
+  it('does not count job preferences, because Fill never uses them', () => {
+    const profile = createEmptyProfile()
+    profile.jobPrefs.roles = ['Frontend Engineer']
+    expect(isProfileEmpty(profile)).toBe(true)
+  })
+
   it('counts a filled education entry or custom pair', () => {
     const withEducation = { ...createEmptyProfile(), education: [{ ...createEducation('e1'), institution: 'ITB' }] }
     const withCustom = updateCustomField(addCustomField(createEmptyProfile(), 'c1'), 'c1', { key: 'Gaji', value: '10 juta' })
@@ -34,6 +40,12 @@ describe('isProfileEmpty', () => {
 })
 
 describe('summarizeProfile', () => {
+  it('does not list job preferences among the sections the panel shows', () => {
+    const profile = createEmptyProfile()
+    profile.jobPrefs.roles = ['Frontend Engineer']
+    expect(summarizeProfile(profile).sections.map((s) => s.id)).not.toContain('preferences')
+  })
+
   it('shows the name, the email and a count for each section', () => {
     let profile = setPersonalField(createEmptyProfile(), 'firstName', 'Imelda')
     profile = setPersonalField(profile, 'lastName', 'Damayanti')

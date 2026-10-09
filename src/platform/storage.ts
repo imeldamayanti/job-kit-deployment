@@ -1,6 +1,7 @@
 import { browser } from 'wxt/browser'
 import { storage } from 'wxt/utils/storage'
 import type { SaveOutcome } from '../core/profile/autosave'
+import { migrateProfile } from '../core/profile/migrate'
 import { createEmptyProfile } from '../core/profile/profile'
 import { isQuotaError } from '../core/profile/storage-errors'
 import type { Profile } from '../core/profile/types'
@@ -9,8 +10,8 @@ const profileItem = storage.defineItem<Profile>('local:profile', {
   fallback: createEmptyProfile(),
 })
 
-export function loadProfile(): Promise<Profile> {
-  return profileItem.getValue()
+export async function loadProfile(): Promise<Profile> {
+  return migrateProfile(await profileItem.getValue())
 }
 
 // A refused write changes nothing, so the profile saved earlier is still there.
@@ -25,7 +26,7 @@ export async function saveProfile(profile: Profile): Promise<SaveOutcome> {
 }
 
 export function watchProfile(onChange: (profile: Profile) => void): () => void {
-  return profileItem.watch((value) => onChange(value ?? createEmptyProfile()))
+  return profileItem.watch((value) => onChange(migrateProfile(value)))
 }
 
 export type StorageUsage = { used: number; quota: number }

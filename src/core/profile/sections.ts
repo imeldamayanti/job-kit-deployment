@@ -1,7 +1,7 @@
 import type { MatchKey } from '../matching/match'
 import { CONTACT_KEYS } from './types'
 
-export type SectionId = 'personal' | 'contact' | 'education' | 'experience' | 'custom'
+export type SectionId = 'personal' | 'contact' | 'education' | 'experience' | 'custom' | 'preferences'
 
 export const PROFILE_SECTIONS: readonly { id: SectionId; title: string }[] = [
   { id: 'personal', title: 'Personal Info' },
@@ -9,6 +9,7 @@ export const PROFILE_SECTIONS: readonly { id: SectionId; title: string }[] = [
   { id: 'education', title: 'Education' },
   { id: 'experience', title: 'Work Experience' },
   { id: 'custom', title: 'Custom Field' },
+  { id: 'preferences', title: 'Preferensi kerja' },
 ]
 
 const CONTACT = new Set<string>(CONTACT_KEYS)

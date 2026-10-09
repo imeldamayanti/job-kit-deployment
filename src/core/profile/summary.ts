@@ -4,7 +4,10 @@ import type { Profile } from './types'
 const filled = (value: string) => value.trim() !== ''
 const countFilled = (record: Record<string, string>) => Object.values(record).filter(filled).length
 
-function counts(profile: Profile): Record<SectionId, number> {
+// Sections Fill can use. Preferensi kerja is left out: the panel and the empty check are about autofill.
+type FillSectionId = Exclude<SectionId, 'preferences'>
+
+function counts(profile: Profile): Record<FillSectionId, number> {
   return {
     personal: countFilled(profile.personal),
     contact: countFilled(profile.contact),
@@ -24,7 +27,7 @@ export function summarizeProfile(profile: Profile) {
   return {
     name: [firstName, middleName, lastName].filter(filled).join(' '),
     email: profile.contact.email,
-    sections: PROFILE_SECTIONS.map(({ id, title }) => ({
+    sections: PROFILE_SECTIONS.filter((section): section is typeof section & { id: FillSectionId } => section.id !== 'preferences').map(({ id, title }) => ({
       id,
       text: `${title} · ${total[id] === 0 ? 'belum diisi' : total[id]}`,
     })),

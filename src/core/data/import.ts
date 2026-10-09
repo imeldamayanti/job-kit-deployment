@@ -1,4 +1,11 @@
 import {
+  addListItem,
+  countJobPreferences,
+  normalizeJobPreferences,
+  WORK_MODES,
+  type JobPreferences,
+} from '../profile/job-preferences'
+import {
   CONTACT_KEYS,
   PERSONAL_KEYS,
   type Education,
@@ -33,7 +40,7 @@ const SKILL_GROUPS = ['teknis', 'bahasa', 'lainnya'] as const
 // Keeps only what this version knows; anything missing becomes empty.
 function normalizeProfile(raw: Loose): Profile {
   return {
-    version: 1,
+    version: 2,
     personal: pick(PERSONAL_KEYS, raw.personal),
     contact: pick(CONTACT_KEYS, raw.contact),
     education: records(raw.education).map((item, index) => ({
@@ -62,6 +69,7 @@ function normalizeProfile(raw: Loose): Profile {
       key: text(item.key),
       value: text(item.value),
     })),
+    jobPrefs: normalizeJobPreferences(raw.jobPrefs),
   }
 }
 
@@ -75,7 +83,7 @@ export function parseImport(source: string): ParsedImport {
   if (!isRecord(data) || data.app !== 'job-kit' || !isRecord(data.profile)) {
     return { ok: false, reason: 'wrong-shape', detail: '' }
   }
-  if (data.version !== 1) {
+  if (data.version !== 1 && data.version !== 2) {
     return { ok: false, reason: 'unknown-version', detail: String(data.version) }
   }
   return { ok: true, profile: normalizeProfile(data.profile) }
@@ -124,16 +132,33 @@ function fillEmpty<K extends string>(current: Record<K, string>, incoming: Recor
   return result
 }
 
+function mergeList(current: string[], incoming: string[]): string[] {
+  return incoming.reduce(addListItem, current)
+}
+
+function mergeJobPreferences(current: JobPreferences, incoming: JobPreferences): JobPreferences {
+  return {
+    roles: mergeList(current.roles, incoming.roles),
+    level: current.level || incoming.level,
+    locations: mergeList(current.locations, incoming.locations),
+    workModes: WORK_MODES.filter((mode) => current.workModes.includes(mode) || incoming.workModes.includes(mode)),
+    mustHave: mergeList(current.mustHave, incoming.mustHave),
+    avoid: mergeList(current.avoid, incoming.avoid),
+    minSalary: current.minSalary.trim() === '' ? incoming.minSalary : current.minSalary,
+  }
+}
+
 // Merge only adds: filled fields stay, existing entries stay, nothing is removed.
 export function mergeProfile(current: Profile, incoming: Profile): Profile {
   return {
-    version: 1,
+    version: 2,
     personal: fillEmpty(current.personal, incoming.personal),
     contact: fillEmpty(current.contact, incoming.contact),
     education: appendNewWithId(current.education, incoming.education, educationKey),
     experience: appendNewWithId(current.experience, incoming.experience, experienceKey),
     skills: appendNew(current.skills, incoming.skills, skillKey),
     custom: appendNewWithId(current.custom, incoming.custom, customKey),
+    jobPrefs: mergeJobPreferences(current.jobPrefs, incoming.jobPrefs),
   }
 }
 
@@ -159,6 +184,12 @@ export function diffImport(current: Profile, incoming: Profile, mode: ImportMode
   add('Work Experience', withoutId(current.experience) !== withoutId(next.experience), `${current.experience.length} entri`, `${next.experience.length} entri`)
   add('Skill', withoutId(current.skills) !== withoutId(next.skills), `${current.skills.length} skill`, `${next.skills.length} skill`)
   add('Custom Field', withoutId(current.custom) !== withoutId(next.custom), `${current.custom.length} field`, `${next.custom.length} field`)
+  add(
+    'Preferensi kerja',
+    !same(current.jobPrefs, next.jobPrefs),
+    `${countJobPreferences(current.jobPrefs)} bagian`,
+    `${countJobPreferences(next.jobPrefs)} bagian`,
+  )
   return changes
 }
 
@@ -180,10 +211,12 @@ export function summarizeImport(before: Profile, after: Profile): { title: strin
     [addedEntries(before.skills, after.skills, skillKey), 'skill'],
     [addedEntries(before.custom, after.custom, customKey), 'custom field'],
   ]
+  const prefs = Math.max(0, countJobPreferences(after.jobPrefs) - countJobPreferences(before.jobPrefs))
   const added = lists.filter(([count]) => count > 0)
-  const total = fields + added.reduce((sum, [count]) => sum + count, 0)
+  const total = fields + prefs + added.reduce((sum, [count]) => sum + count, 0)
   const parts: string[] = []
   if (fields > 0) parts.push(`${fields} field terisi`)
+  if (prefs > 0) parts.push(`${prefs} preferensi kerja terisi`)
   if (added.length > 0) parts.push(`${added.map(([count, name]) => `${count} ${name}`).join(', ')} ditambah.`)
   return {
     title: `${total} entri diimpor`,

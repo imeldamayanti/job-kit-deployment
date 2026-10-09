@@ -27,6 +27,17 @@ describe('applyCvSelection', () => {
     expect(profile.contact.phone).toBe('')
   })
 
+  it('never touches job preferences, even when everything is selected', () => {
+    const current = profileWith((p) => {
+      p.jobPrefs.roles = ['Frontend Engineer']
+      p.jobPrefs.level = 'Mid'
+      p.jobPrefs.minSalary = '15000000'
+    })
+    const everything = buildCvPreview(draft, current).rows.map((row) => row.id)
+    const { profile } = applyCvSelection(current, draft, everything, ids())
+    expect(profile.jobPrefs).toEqual(current.jobPrefs)
+  })
+
   it('does not overwrite a filled field that was not selected', () => {
     const before = profileWith((p) => {
       p.personal.lastName = 'Wijaya'

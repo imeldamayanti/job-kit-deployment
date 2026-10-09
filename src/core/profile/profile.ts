@@ -1,3 +1,4 @@
+import { createEmptyJobPreferences } from './job-preferences'
 import {
   CONTACT_KEYS,
   PERSONAL_KEYS,
@@ -12,13 +13,14 @@ function emptyRecord<K extends string>(keys: readonly K[]): Record<K, string> {
 
 export function createEmptyProfile(): Profile {
   return {
-    version: 1,
+    version: 2,
     personal: emptyRecord<PersonalKey>(PERSONAL_KEYS),
     contact: emptyRecord<ContactKey>(CONTACT_KEYS),
     education: [],
     experience: [],
     skills: [],
     custom: [],
+    jobPrefs: createEmptyJobPreferences(),
   }
 }
 

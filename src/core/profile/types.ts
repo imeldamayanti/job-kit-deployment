@@ -1,3 +1,5 @@
+import type { JobPreferences } from './job-preferences'
+
 export const PERSONAL_KEYS = [
   'firstName',
   'middleName',
@@ -41,11 +43,12 @@ export type Experience = {
 }
 
 export type Profile = {
-  version: 1
+  version: 2
   personal: Record<PersonalKey, string>
   contact: Record<ContactKey, string>
   education: Education[]
   experience: Experience[]
   skills: { group: 'teknis' | 'bahasa' | 'lainnya'; name: string }[]
   custom: { id: string; key: string; value: string }[]
+  jobPrefs: JobPreferences
 }

@@ -6,7 +6,7 @@ describe('buildExport', () => {
   it('wraps the profile in a versioned envelope', () => {
     const profile = createEmptyProfile()
     const parsed = JSON.parse(buildExport(profile, new Date('2026-10-09T08:00:00Z')))
-    expect(parsed).toEqual({ app: 'job-kit', version: 1, exportedAt: '2026-10-09T08:00:00.000Z', profile })
+    expect(parsed).toEqual({ app: 'job-kit', version: 2, exportedAt: '2026-10-09T08:00:00.000Z', profile })
   })
 })
 

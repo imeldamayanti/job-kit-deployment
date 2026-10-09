@@ -29,13 +29,19 @@ describe('sectionFromHash', () => {
 })
 
 describe('PROFILE_SECTIONS', () => {
-  it('lists only v1 sections, in the order of the spec', () => {
+  it('puts Preferensi kerja after Custom Field', () => {
+    expect(PROFILE_SECTIONS.at(-1)).toEqual({ id: 'preferences', title: 'Preferensi kerja' })
+    expect(sectionFromHash('#preferences')).toBe('preferences')
+  })
+
+  it('lists the v1 sections in the order of the spec, then Preferensi kerja', () => {
     expect(PROFILE_SECTIONS.map((s) => s.title)).toEqual([
       'Personal Info',
       'Contact & Address',
       'Education',
       'Work Experience',
       'Custom Field',
+      'Preferensi kerja',
     ])
   })
 })
