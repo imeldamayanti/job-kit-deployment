@@ -8,7 +8,9 @@ import {
   originsForSource,
   setCompanies,
   setSourceEnabled,
-  AI_ORIGINS,
+  aiOrigins,
+  setAiProvider,
+  zenMayTrainOn,
 } from './settings'
 
 describe('createDefaultSettings', () => {
@@ -69,7 +71,35 @@ describe('originsForSource', () => {
   it('names the hosts each source needs, and nothing for a different source', () => {
     expect(originsForSource('greenhouse')).toEqual(['https://boards-api.greenhouse.io/*'])
     expect(originsForSource('linkedin')).toEqual(['https://www.linkedin.com/*'])
-    expect(AI_ORIGINS).toEqual(['https://api.anthropic.com/*'])
+  })
+})
+
+describe('AI provider', () => {
+  it('names the host each provider needs', () => {
+    expect(aiOrigins('anthropic')).toEqual(['https://api.anthropic.com/*'])
+    expect(aiOrigins('opencode-zen')).toEqual(['https://opencode.ai/*'])
+  })
+
+  it('goes back to the new provider’s default model when the provider changes', () => {
+    const next = setAiProvider({ ...createDefaultSettings(), ai: { provider: 'anthropic', model: 'custom' } }, 'opencode-zen')
+    expect(next.ai).toEqual({ provider: 'opencode-zen', model: 'space-bunny-free' })
+  })
+
+  it('leaves settings alone when the provider is the same', () => {
+    const settings = { ...createDefaultSettings(), ai: { provider: 'anthropic' as const, model: 'custom' } }
+    expect(setAiProvider(settings, 'anthropic')).toBe(settings)
+  })
+
+  it('keeps a stored Zen choice and defaults an empty Zen model', () => {
+    expect(normalizeSettings({ ai: { provider: 'opencode-zen', model: 'exo-free' } }).ai).toEqual({ provider: 'opencode-zen', model: 'exo-free' })
+    expect(normalizeSettings({ ai: { provider: 'opencode-zen', model: '' } }).ai).toEqual({ provider: 'opencode-zen', model: 'space-bunny-free' })
+  })
+
+  it('flags Zen models that may be trained on, and not the zero-retention ones', () => {
+    expect(zenMayTrainOn('exo-free')).toBe(true)
+    expect(zenMayTrainOn('muse-spark-1.3-contributor-free')).toBe(true)
+    expect(zenMayTrainOn('space-bunny-free')).toBe(false)
+    expect(zenMayTrainOn(' step-5-preview-free ')).toBe(false)
   })
 })
 

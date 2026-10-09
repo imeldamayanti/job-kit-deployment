@@ -2,25 +2,25 @@ import { AiError } from '../core/ai/errors'
 import type { ScoringClient } from '../core/ai/score'
 import { canStartRun, type FeedStage } from '../core/feed/schedule'
 import { runFeed } from '../core/feed/pipeline'
-import { AI_ORIGINS } from '../core/feed/settings'
+import { aiOrigins, type AiProvider } from '../core/feed/settings'
 import { ashbySource } from '../core/feed/sources/ashby'
 import { greenhouseSource } from '../core/feed/sources/greenhouse'
 import { leverSource } from '../core/feed/sources/lever'
 import { createLinkedInSource } from '../core/feed/sources/linkedin'
 import { remotiveSource } from '../core/feed/sources/remotive'
 import { loadFeed, loadAiKey, loadRuns, loadSettings, loadState, saveFeed, saveRuns, saveState } from './feed-storage'
-import { createAnthropicClient } from './ai-client'
+import { createAiClient } from './ai-client'
 import { offscreenParsers } from './linkedin-parser'
 import { hasOrigins } from './permissions'
 import { loadProfile } from './storage'
 
 export type RunStart = 'started' | 'busy' | 'no-prefs'
 
-async function aiClient(key: string): Promise<ScoringClient> {
-  if (key.trim() !== '' && !(await hasOrigins(AI_ORIGINS))) {
+async function aiClient(key: string, provider: AiProvider): Promise<ScoringClient> {
+  if (key.trim() !== '' && !(await hasOrigins(aiOrigins(provider)))) {
     return { complete: async () => { throw new AiError('no-permission') } }
   }
-  return createAnthropicClient()
+  return createAiClient(provider)
 }
 
 export type RunHandle = { status: RunStart; finished: Promise<void> }
@@ -43,7 +43,7 @@ export async function executeRun({ auto }: { auto: boolean }): Promise<RunHandle
       const result = await runFeed({
         profile, settings, key, feed, runs, now,
         ctx: { fetch: (url, init) => fetch(url, init), now, companies: settings.companies },
-        client: await aiClient(key),
+        client: await aiClient(key, settings.ai.provider),
         sources: [greenhouseSource, leverSource, ashbySource, remotiveSource, createLinkedInSource(offscreenParsers)],
         onStage: stage,
       })

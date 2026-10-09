@@ -21,7 +21,7 @@ const MESSAGES: Record<AiFailure, string> = {
   network: 'Tidak bisa menghubungi penyedia. Periksa koneksi internet.',
   server: 'Penyedia sedang bermasalah. Coba lagi nanti.',
   'bad-request': 'Penyedia menolak permintaan. Periksa nama model.',
-  'no-permission': 'Izin untuk api.anthropic.com belum diberikan.',
+  'no-permission': 'Izin untuk penyedia AI belum diberikan.',
   'invalid-output': 'Jawaban penyedia tidak bisa dibaca.',
   'no-key': 'Kunci API belum diisi.',
 }

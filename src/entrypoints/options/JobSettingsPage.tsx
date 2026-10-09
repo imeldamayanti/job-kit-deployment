@@ -2,13 +2,17 @@ import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { aiErrorMessage, AiError, type AiFailure } from '../../core/ai/errors'
 import {
-  AI_ORIGINS,
+  aiOrigins,
+  AI_PROVIDERS,
   ATS_SOURCES,
   canEnableFeed,
   isValidTime,
   originsForSource,
+  setAiProvider,
   setCompanies,
   setSourceEnabled,
+  zenMayTrainOn,
+  type AiProvider,
   type AtsSource,
   type FeedSettings,
 } from '../../core/feed/settings'
@@ -18,7 +22,7 @@ import { clearRunsFor } from '../../core/feed/pipeline'
 import { requestRefresh } from '../../platform/feed-control'
 import { loadRuns, saveRuns } from '../../platform/feed-storage'
 import type { Profile } from '../../core/profile/types'
-import { createAnthropicClient } from '../../platform/ai-client'
+import { createAiClient } from '../../platform/ai-client'
 import { hasOrigins, requestOrigins } from '../../platform/permissions'
 import { Button } from '../../ui/primitives/Button'
 import { Select } from '../../ui/primitives/Select'
@@ -35,6 +39,11 @@ const SOURCES: { id: JobSourceId; name: string; about: string }[] = [
 ]
 
 type Notice = { kind: 'warn' | 'ok' | 'bad'; text: string }
+
+const PROVIDER_TEXT: Record<AiProvider, { name: string; keyHint: string }> = {
+  anthropic: { name: 'Anthropic', keyHint: 'sk-ant-…' },
+  'opencode-zen': { name: 'OpenCode Zen', keyHint: 'Kunci dari opencode.ai/zen' },
+}
 
 function Alert({ notice }: { notice: Notice }) {
   const tone = { warn: 'bg-amber-50 text-amber-700', ok: 'bg-green-50 text-green-700', bad: 'bg-rose-50 text-rose-700' }[notice.kind]
@@ -105,11 +114,11 @@ export function JobSettingsPage({
   }
 
   const runTest = () => {
-    void requestOrigins(AI_ORIGINS).then(async (ok) => {
+    void requestOrigins(aiOrigins(settings.ai.provider)).then(async (ok) => {
       if (!ok) return setTest({ kind: 'bad', text: aiErrorMessage('no-permission') })
       setTest('running')
       try {
-        await createAnthropicClient().complete({ key: aiKey, model: settings.ai.model, system: '', user: 'Balas satu kata: ok', maxTokens: 10 })
+        await createAiClient(settings.ai.provider).complete({ key: aiKey, model: settings.ai.model, system: '', user: 'Balas satu kata: ok', maxTokens: 10 })
         setTest({ kind: 'ok', text: 'Tersambung. Model menjawab dengan benar.' })
       } catch (error) {
         const reason: AiFailure = error instanceof AiError ? error.reason : 'network'
@@ -210,8 +219,21 @@ export function JobSettingsPage({
         <h2 className="mb-3 text-[12px] font-bold uppercase tracking-[0.06em] text-text-secondary">Penilaian AI</h2>
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Select label="Penyedia" value={settings.ai.provider} onChange={() => {}}>
-              <option value="anthropic">Anthropic</option>
+            <Select
+              label="Penyedia"
+              value={settings.ai.provider}
+              onChange={(event) => {
+                // A key belongs to one provider; keeping it would send it to the other one.
+                update(setAiProvider(settings, event.target.value as AiProvider))
+                changeKey('')
+                setTest(null)
+              }}
+            >
+              {AI_PROVIDERS.map((id) => (
+                <option key={id} value={id}>
+                  {PROVIDER_TEXT[id].name}
+                </option>
+              ))}
             </Select>
             <TextField label="Model" value={settings.ai.model} onChange={(event) => update({ ...settings, ai: { ...settings.ai, model: event.target.value } })} />
           </div>
@@ -220,7 +242,7 @@ export function JobSettingsPage({
               label="Kunci API"
               type="password"
               autoComplete="off"
-              placeholder="sk-ant-…"
+              placeholder={PROVIDER_TEXT[settings.ai.provider].keyHint}
               value={aiKey}
               onChange={(event) => {
                 changeKey(event.target.value)
@@ -235,6 +257,14 @@ export function JobSettingsPage({
             </Button>
           </div>
           {test && test !== 'running' && <Alert notice={test} />}
+          {settings.ai.provider === 'opencode-zen' && zenMayTrainOn(settings.ai.model) && (
+            <Alert
+              notice={{
+                kind: 'warn',
+                text: 'Model ini boleh dipakai OpenCode Zen untuk melatih model selama masa gratis. Untuk data pribadi, pilih space-bunny-free, longcat-2.5-preview-free, atau step-5-preview-free.',
+              }}
+            />
+          )}
           <div role="note" className="rounded-lg bg-accent-wash px-3 py-2.5 text-[13px] text-text-primary">
             <p>
               <b>Yang dikirim ke penyedia AI:</b> role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe
