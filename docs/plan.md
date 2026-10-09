@@ -3,7 +3,7 @@
 Pengganti P5: backlog lokal, tanpa Jira dan tanpa CSV. Sumber: `docs/02-prd.md` (APPROVED) dan `docs/03-rfc.md` (APPROVED).
 Aturan tetap berlaku: maksimal 18 tiket, total ≤20 jam, tiap tiket ≤2 jam, walking skeleton selesai dalam 8 jam pertama.
 
-**Total estimasi: 37 jam · 25 tiket** (video demo dibuang atas keputusan PIC; T16, T17, T19, dan T20 ditambah 2026-10-09 atas permintaan PIC; T18 dijadwalkan dan T22 sampai T26 ditambah 2026-10-10 atas permintaan PIC, total 11.5 jam lagi. Semuanya melewati 20 jam; PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras. Hanya T21 yang masih ditunda dan tidak dihitung.)
+**Total estimasi: 58.5 jam · 38 tiket** (video demo dibuang atas keputusan PIC; T16, T17, T19, dan T20 ditambah 2026-10-09 atas permintaan PIC; T18 dijadwalkan dan T22 sampai T26 ditambah 2026-10-10 atas permintaan PIC, total 11.5 jam lagi; T27 sampai T39 (lowongan harian, 21.5 jam) ditambah 2026-10-09 atas permintaan PIC. Semuanya melewati 20 jam; PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras. T21 dan FR-33 masih ditunda dan tidak dihitung.)
 **Walking skeleton: T01–T05 = 7.0 jam**
 
 Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
@@ -399,6 +399,178 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 ---
 
+## Lowongan harian (revisi PRD 2026-10-09)
+
+Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09): mockup T28 dulu, lalu spike T27 dan RFC, lalu data, sumber, AI, jadwal, layar. Kirim ke CV Maker (FR-33) ditunda dan tidak punya tiket.
+
+**Done when:** selama 5 hari, feed harian jalan tanpa halaman options terbuka, lowongan tampil dengan skor dan alasan, dan Buka & isi mengantar ke panel Autofill (PRD §10).
+
+### T27 · Spike: ambil lowongan dari tiap jenis sumber · 2h · spike · Highest
+- [ ] **T27 selesai**
+
+**Context:** risiko terbesar fitur ini. Buktikan dari build ekstensi di Chrome sungguhan bahwa tiap jenis sumber bisa diambil dari service worker MV3. Parsing HTML dilakukan di offscreen document karena service worker tidak punya `DOMParser`. Kandidat: Greenhouse (`boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true`), Lever (`api.lever.co/v0/postings/{company}?mode=json`), Ashby (`api.ashbyhq.com/posting-api/job-board/{name}`), Remotive (`remotive.com/api/remote-jobs`), dan halaman pencarian publik LinkedIn tanpa login. Endpoint dicek ulang saat spike; tidak ada yang dianggap stabil.
+
+**Acceptance criteria**
+- [ ] Per sumber dicatat di tiket ini: berhasil atau tidak, jumlah lowongan, waktu, ukuran respons, field yang tersedia (terutama tipe kerja, gaji, deadline, teks deskripsi) (FR-27, FR-28)
+- [ ] LinkedIn: request memakai `credentials: 'omit'`; dicatat berapa halaman berturut-turut sebelum kena 429 atau halaman blokir, dan selector yang dipakai (FR-27)
+- [ ] `optional_host_permissions` dan `chrome.permissions.request` terbukti jalan dari halaman options; izin wajib di manifest tidak bertambah (FR-32)
+- [ ] Satu request ke penyedia AI dari service worker berhasil, termasuk header yang dibutuhkan penyedia untuk request dari browser (FR-29)
+- [ ] `chrome.sidePanel.open` dari klik di halaman options terbukti membuka panel di tab lain, atau dicatat bahwa tidak bisa (FR-31)
+- [ ] Ringkasan arsitektur pipeline ditambahkan ke `docs/03-rfc.md`
+
+**Done when:** tabel hasil per sumber ada di tiket ini dan PIC memutuskan daftar sumber v1 (PRD §11).
+
+### T28 · Mockup Lowongan di design system · 1.5h · design · Highest
+- [ ] **T28 selesai**
+
+**Context:** sama seperti §7 "Options page navigation", mockup dibuat dulu di `docs/design-system.html` tanpa menyentuh produk. Referensi kartu: gambar kartu lowongan dari PIC (logo, judul, perusahaan, chip, baris meta). Sidebar mengikuti usulan tiga tujuan, dengan Captured Jobs diganti Lowongan.
+
+**Acceptance criteria**
+- [x] Sidebar Profile, Lowongan (badge jumlah baru), Data; tab Rekomendasi dan Disimpan (FR-30)
+- [x] Kartu: logo atau inisial, judul, perusahaan, sumber, chip lokasi, tipe kerja, kontrak, level; baris meta yang menyembunyikan item kosong; badge skor tiga tingkat; panel alasan; aksi Buka & isi, Simpan, menu lainnya (FR-28 sampai FR-31)
+- [x] Header (waktu update, jumlah baru, Segarkan, Atur), filter tipe kerja, urutan, pencarian (FR-30)
+- [x] State: belum dinyalakan, sedang mengambil, kosong hari ini, filter tanpa hasil, satu sumber gagal, "Skor kasar" (PRD §8)
+- [x] S5 Preferensi kerja dan S6 Atur Lowongan (FR-26, FR-32)
+- [x] Hanya token dan komponen yang sudah ada; rapi di desktop dan ≤420 px tanpa overflow horizontal
+
+**Hasil:** mockup di `docs/design-system.html` §8 (S4 Rekomendasi, S4 Disimpan, 8 kartu state, S5, S6, lebar ≤420 px). Overflow horizontal dicek lewat skrip di viewport 420 px: tidak ada selain rak tab yang memang bisa digeser. Menunggu persetujuan PIC.
+
+**Done when:** PIC menyetujui mockup.
+
+### T29 · Preferensi kerja di profil · 1.5h · feature · High
+- [ ] **T29 selesai**
+
+**Acceptance criteria**
+- [x] Tipe `JobPreferences` masuk model profil dengan migrasi skema; profil dan berkas Export lama tetap terbaca (FR-26)
+- [ ] Tab Preferensi kerja di Profile sesuai T28: role incaran (chip), level, lokasi, tipe kerja (multi), kata kunci wajib dan dihindari, gaji minimum opsional; tersimpan otomatis (FR-26)
+- [x] Export dan Import JSON memuat preferensi; Import CV tidak menyentuhnya
+- [x] Migrasi dan validasi di `core/` dengan tes ditulis lebih dulu
+
+**Done when:** preferensi bertahan setelah muat ulang dan ikut Export.
+
+**Hasil:** profil naik ke versi 2 (`jobPrefs`), `migrateProfile` dipakai saat membaca storage, berkas Export versi 1 dan 2 terbaca, Import CV tidak menyentuh preferensi (tes), `isProfileEmpty` dan ringkasan panel mengabaikannya supaya Fill tidak aktif hanya karena preferensi. 347 tes hijau, typecheck dan build lolos. Belum diverifikasi: tampilan tab di browser dan "bertahan setelah muat ulang" di Chrome sungguhan. Untuk saat ini Preferensi kerja berupa item sidebar di bawah Custom Field; bentuk tab menunggu T37.
+
+### T30 · Model data lowongan dan penyimpanan feed · 1.5h · feature · High
+- [ ] **T30 selesai**
+
+**Acceptance criteria**
+- [ ] Tipe `Job` (bentuk FR-28), `JobStatus` (`new`, `saved`, `applied`, `hidden`), dan `SourceRun` (sumber, waktu, jumlah, sebab gagal) di `core/` (FR-27, FR-28, FR-30)
+- [ ] Kunci dedupe: URL kanonik (tanpa parameter pelacak), cadangan judul + perusahaan yang dinormalkan. Lowongan yang sudah ada diperbarui datanya tanpa mereset status dan skor (FR-28)
+- [ ] Pemangkasan: lowongan `new` dan `hidden` yang lebih dari 30 hari atau di atas 500 entri dibuang dari yang tertua; `saved` dan `applied` tidak pernah dibuang otomatis (PRD §8)
+- [ ] Kunci storage terpisah dari profil; Hapus semua ikut menghapusnya; Export memuat lowongan `saved` dan `applied`
+- [ ] Tes ditulis lebih dulu
+
+**Done when:** tes merge, dedupe, dan pemangkasan lulus.
+
+### T31 · Normalisasi, kategori tipe kerja, saringan, dan skor kasar · 1.5h · feature · High
+- [ ] **T31 selesai**
+
+**Acceptance criteria**
+- [ ] `classifyWorkplace(job)` → `remote | hybrid | onsite | unknown`: field terstruktur sumber dulu (`workplaceType`, `isRemote`), lalu kata kunci di lokasi dan judul ("Remote", "WFH", "Hybrid", "Anywhere") (FR-28)
+- [ ] Saringan aturan membuang lowongan dengan kata kunci dihindari, atau tipe kerja dan lokasi di luar preferensi, sebelum AI dipanggil (FR-29)
+- [ ] Skor kasar: kecocokan role dan skill, level dibanding lama pengalaman, kebaruan (FR-29)
+- [ ] Deskripsi HTML dibersihkan jadi teks polos dan dipotong untuk prompt
+- [ ] Fungsi murni di `core/` dengan fixture dari T27
+
+**Done when:** fixture tiap sumber tergolong benar dan saringan terbukti di tes.
+
+### T32 · Adapter sumber API: ATS dan Remotive · 2h · feature · High
+- [ ] **T32 selesai**
+
+**Acceptance criteria**
+- [ ] Antarmuka `JobSource { id, fetch(prefs, ctx) }`; satu adapter per sumber yang lolos T27: Greenhouse, Lever, Ashby (per perusahaan pilihan), Remotive (FR-27)
+- [ ] Tiap adapter memetakan ke `Job` (FR-28); fixture respons asli disimpan di `fixtures/jobs/`
+- [ ] Timeout per request dan satu kali retry. Kegagalan jadi `SourceRun` dengan sebab (`blocked`, `timeout`, `parse`, `http-xxx`), bukan exception yang menghentikan run (FR-27)
+- [ ] Tes memakai fixture, tanpa jaringan
+
+**Done when:** semua adapter lulus tes fixture dan satu run nyata di Chrome mengisi storage.
+
+### T33 · Adapter scraping LinkedIn (halaman publik) · 2h · feature · High
+- [ ] **T33 selesai**
+
+**Context:** PIC butuh scraping (keputusan 2026-10-09). Hanya halaman publik tanpa login. Risiko ToS dan blokir diterima PIC dan dibatasi lewat AC di bawah (PRD §4.1). HTML diparse di offscreen document.
+
+**Acceptance criteria**
+- [ ] Query dibangun dari preferensi: role, lokasi, filter remote (FR-27)
+- [ ] Request tanpa cookie, paling banyak N halaman per run (angka dari T27), jeda acak antar request, satu run otomatis per hari (FR-27)
+- [ ] Semua selector di satu berkas. Struktur berubah → `SourceRun` `parse` dengan jumlah 0, bukan crash (PRD §8)
+- [ ] Halaman detail (untuk teks deskripsi) hanya diambil untuk lowongan yang lolos saringan T31
+- [ ] Gagal 3 run berturut-turut → sumber dijeda dan header S4 memberi tahu (PRD §8)
+- [ ] Tes parser memakai HTML fixture tersimpan, termasuk satu fixture rusak
+
+**Done when:** run nyata di Chrome menghasilkan lowongan LinkedIn ternormalisasi, dan fixture rusak menghasilkan `parse`, bukan error.
+
+### T34 · Atur Lowongan: sumber, izin, dan klien AI · 1.5h · feature · High
+- [ ] **T34 selesai**
+
+**Acceptance criteria**
+- [ ] S6 sesuai T28: nyala/mati per sumber, daftar perusahaan ATS, jam ambil, penyedia, model, kunci API (input tersembunyi), Tes koneksi dengan hasil jelas (FR-32)
+- [ ] Izin host diminta saat sumber atau AI dinyalakan; menolak izin membuat sumber itu tetap mati (FR-32)
+- [ ] Kunci di `storage.local` terpisah dari profil, tidak ikut Export, ikut Hapus semua (FR-32)
+- [ ] Klien AI di `platform/` dengan timeout dan pemetaan error (`invalid-key`, `quota`, `network`)
+- [ ] Lowongan tidak bisa dinyalakan selama Preferensi kerja kosong (PRD §8)
+
+**Done when:** Tes koneksi berhasil dengan kunci sah dan gagal dengan pesan spesifik untuk kunci salah.
+
+### T35 · Skor AI dan alasan · 2h · feature · High
+- [ ] **T35 selesai**
+
+**Acceptance criteria**
+- [ ] Ringkasan profil yang dikirim hanya berisi field di PRD §4.1. Tes memastikan nama, email, telepon, alamat, dan tanggal lahir tidak ada di payload (FR-29)
+- [ ] Lowongan dinilai per batch; output terstruktur (skor 0–100, `matches[]`, `gaps[]`, ringkasan) divalidasi; output tidak valid → skor kasar (FR-29, PRD §8)
+- [ ] AI juga mengisi field yang masih kosong setelah normalisasi bila jelas dari teks (tipe kerja, level, pengalaman, gaji), ditandai berasal dari AI (FR-28)
+- [ ] Skor di-cache per lowongan dengan hash profil + preferensi; tidak dihitung ulang tanpa perubahan (FR-29)
+- [ ] Batas per run: paling banyak 50 lowongan dinilai AI (bisa diubah), sisanya skor kasar
+- [ ] Tes memakai klien palsu; satu run nyata dicatat dengan jumlah token dan perkiraan biaya
+
+**Done when:** run nyata menghasilkan skor dan alasan, dan mencabut kunci menghasilkan "Skor kasar".
+
+### T36 · Jadwal harian dan Segarkan · 1.5h · feature · High
+- [ ] **T36 selesai**
+
+**Acceptance criteria**
+- [ ] `chrome.alarms` sekali sehari pada jam dari S6; run yang terlewat berjalan saat Chrome dibuka; paling banyak satu run otomatis per hari (FR-27, PRD §8)
+- [ ] Pipeline: sumber paralel → normalisasi → dedupe/merge → saringan → skor → simpan. Progres per tahap dikirim ke halaman yang terbuka
+- [ ] Segarkan menjalankan run sekarang; selama berjalan tombol nonaktif "Sedang mengambil…" dan run kedua ditolak (PRD §8)
+- [ ] Badge jumlah lowongan baru di item Lowongan di sidebar; hilang setelah halaman dibuka
+
+**Done when:** alarm uji (interval dipendekkan di build dev) menjalankan run penuh tanpa halaman options terbuka.
+
+### T37 · Halaman Lowongan · 2h · feature · High
+- [ ] **T37 selesai**
+
+**Acceptance criteria**
+- [ ] Sidebar dan tab sesuai T28; tab Disimpan memakai ulang komponen Captured Jobs dari T20 (FR-30)
+- [ ] Kartu, filter tipe kerja, urutan, pencarian, dan ubah status. Filter, urut, dan cari adalah fungsi murni di `core/` dengan tes (FR-30)
+- [ ] Panel alasan skor per kartu; "Skor kasar" ditandai (FR-29)
+- [ ] Semua state dari T28 terlihat lewat `#jobs?state=...` di build dev
+- [ ] Token, ikon lucide-react, tanpa kontrol bawaan peramban; rapi di ≤420 px
+
+**Done when:** feed nyata dari T36 tampil dan semua state terlihat di Chrome sungguhan.
+
+### T38 · Buka & isi · 1.5h · feature · Medium
+- [ ] **T38 selesai**
+
+**Acceptance criteria**
+- [ ] Buka & isi membuka URL di tab baru dan side panel di tab itu (sesuai hasil T27) (FR-31)
+- [ ] Panel menampilkan konteks kecil "Dari Lowongan · skor 86" bila tab berasal dari feed
+- [ ] Fill berhasil di tab itu → status lowongan jadi Dilamar (FR-31). Untuk lowongan dari feed, ini menggantikan T21 (FR-24)
+- [ ] Bila panel tidak bisa dibuka otomatis, tab tetap terbuka dengan petunjuk "Klik ikon job-kit untuk mengisi"
+
+**Done when:** alur dari kartu sampai status Dilamar jalan di Chrome pada satu form Greenhouse.
+
+### T39 · Uji 5 hari dan README · 1h · launch · Medium
+- [ ] **T39 selesai**
+
+**Acceptance criteria**
+- [ ] 5 hari run harian; per hari dicatat jumlah lowongan, sumber gagal, biaya AI, dan berapa dari 10 teratas yang layak menurut PIC (PRD §10)
+- [ ] README: fitur Lowongan, daftar sumber, data apa yang dikirim ke penyedia AI, risiko scraping, izin yang diminta; bagian Privasi dan "Yang tidak dilakukan" ditulis ulang
+- [ ] `docs/03-rfc.md` sesuai implementasi akhir
+
+**Done when:** metrik lowongan harian di PRD §10 tercatat di tiket ini.
+
+---
+
 ## Cakupan
 
 **FR → tiket**
@@ -420,8 +592,16 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 | | | FR-23 | T20 |
 | | | FR-24 (ditunda) | T21 |
 | | | FR-25 | T22, T23, T24, T25, T26 |
+| | | FR-26 | T28, T29 |
+| | | FR-27 | T27, T32, T33, T36 |
+| | | FR-28 | T30, T31, T35 |
+| | | FR-29 | T31, T35, T37 |
+| | | FR-30 | T28, T30, T37 |
+| | | FR-31 | T27, T38 |
+| | | FR-32 | T27, T34 |
+| | | FR-33 (ditunda) | — |
 
-**Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11.
+**Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10, T38 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11 · S4 Options · Lowongan → T28, T37 · S5 Options · Preferensi kerja → T28, T29 · S6 Options · Atur Lowongan → T28, T34.
 
 **Dipotong agar muat 20 jam (urutan PRD §9):**
 1. **FR-16 Skill** (chip grup teknis / bahasa / lainnya). Tidak ada tiketnya; item Skill tidak ada di navigasi options.
