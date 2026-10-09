@@ -1,3 +1,4 @@
+import { createEmptyProfile } from '../profile/profile'
 import type { DataState } from './state'
 
 // Sample states for looking at D2-D5 in a dev build. Never reachable from a production build.
@@ -7,12 +8,21 @@ export const PREVIEW_STATES: Record<string, DataState> = {
     fileName: 'job-kit-export-2026-08-19.json',
     fileSize: 4300,
     mode: 'merge',
-    changes: [
-      { label: 'Personal Info', before: 'lengkap', after: 'diperbarui' },
-      { label: 'Education', before: '1 entri', after: '2 entri' },
-      { label: 'Work Experience', before: '3 entri', after: '5 entri' },
-      { label: 'Custom Field', before: '2 field', after: '4 field' },
-    ],
+    profile: createEmptyProfile(),
+    changes: {
+      merge: [
+        { label: 'Personal Info', before: '2 field', after: '5 field' },
+        { label: 'Education', before: '1 entri', after: '2 entri' },
+        { label: 'Work Experience', before: '3 entri', after: '5 entri' },
+        { label: 'Custom Field', before: '2 field', after: '4 field' },
+      ],
+      replace: [
+        { label: 'Personal Info', before: '2 field', after: '5 field' },
+        { label: 'Education', before: '1 entri', after: '2 entri' },
+        { label: 'Work Experience', before: '3 entri', after: '2 entri' },
+        { label: 'Custom Field', before: '2 field', after: '4 field' },
+      ],
+    },
   },
   'import-error': {
     kind: 'import-error',

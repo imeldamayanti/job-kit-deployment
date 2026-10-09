@@ -1,16 +1,16 @@
 import { Download, Trash2, Upload } from 'lucide-react'
-import { useReducer, type ReactNode } from 'react'
+import { useReducer, useRef, type ChangeEvent, type ReactNode } from 'react'
 import { buildExport, exportFileName } from '../../core/data/export'
+import { applyImport, eventForImportFile, summarizeImport } from '../../core/data/import'
 import { previewStateFromHash } from '../../core/data/preview-states'
 import { describeUsage } from '../../core/data/storage-usage'
 import { initialDataState, reduceData } from '../../core/data/state'
+import { createEmptyProfile } from '../../core/profile/profile'
 import type { Profile } from '../../core/profile/types'
 import { downloadText } from '../../platform/download'
 import { useStorageUsage } from '../../ui/hooks/useStorageUsage'
 import { Button } from '../../ui/primitives/Button'
 import { ConfirmDelete, Done, ImportError, ImportPreview } from './DataStates'
-
-const UNAVAILABLE = 'Belum tersedia di versi ini'
 
 function startState() {
   // The D2-D5 samples exist only to be looked at in a dev build.
@@ -74,12 +74,32 @@ function StorageCard() {
   )
 }
 
-export function DataPage({ profile }: { profile: Profile | null }) {
+export function DataPage({ profile, update }: { profile: Profile | null; update: (next: Profile) => void }) {
   const [state, dispatch] = useReducer(reduceData, undefined, startState)
+  const fileInput = useRef<HTMLInputElement>(null)
 
-  if (state.kind === 'import-preview') return <ImportPreview state={state} dispatch={dispatch} />
+  const applyPreview = () => {
+    if (!profile || state.kind !== 'import-preview') return
+    const next = applyImport(profile, state.profile, state.mode)
+    update(next)
+    dispatch({ type: 'finish', ...summarizeImport(profile, next) })
+  }
+
+  const confirmDelete = () => {
+    update(createEmptyProfile())
+    dispatch({ type: 'finish', title: 'Semua data dihapus', detail: 'Profil di browser ini sekarang kosong.' })
+  }
+
+  const readFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || !profile) return
+    dispatch(eventForImportFile(file, await file.text(), profile))
+  }
+
+  if (state.kind === 'import-preview') return <ImportPreview state={state} dispatch={dispatch} onApply={applyPreview} />
   if (state.kind === 'import-error') return <ImportError state={state} dispatch={dispatch} />
-  if (state.kind === 'confirm-delete') return <ConfirmDelete state={state} dispatch={dispatch} />
+  if (state.kind === 'confirm-delete') return <ConfirmDelete state={state} dispatch={dispatch} onConfirm={confirmDelete} />
   if (state.kind === 'done') return <Done state={state} dispatch={dispatch} />
 
   const exportProfile = () => {
@@ -104,9 +124,9 @@ export function DataPage({ profile }: { profile: Profile | null }) {
           icon={<Upload size={18} strokeWidth={2} />}
           title="Import"
           body="Baca file export. Kamu memilih gabung atau ganti setelah melihat pratinjau."
-          note={UNAVAILABLE}
         >
-          <Button variant="secondary" disabled title={UNAVAILABLE}>
+          <input ref={fileInput} type="file" accept=".json,application/json" className="hidden" onChange={readFile} />
+          <Button variant="secondary" disabled={!profile} onClick={() => fileInput.current?.click()}>
             Pilih file
           </Button>
         </ActionCard>
@@ -115,9 +135,8 @@ export function DataPage({ profile }: { profile: Profile | null }) {
           tone="danger"
           title="Hapus semua"
           body="Menghapus profil dari storage browser ini. Tidak ada backup di server."
-          note={UNAVAILABLE}
         >
-          <Button variant="danger" disabled title={UNAVAILABLE}>
+          <Button variant="danger" disabled={!profile} onClick={() => dispatch({ type: 'ask-delete' })}>
             Hapus semua
           </Button>
         </ActionCard>

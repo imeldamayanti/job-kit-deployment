@@ -1,3 +1,5 @@
+import type { Profile } from '../profile/types'
+
 export const DELETE_WORD = 'HAPUS'
 
 export type ImportMode = 'merge' | 'replace'
@@ -6,13 +8,20 @@ export type ImportErrorReason = 'not-json' | 'unknown-version' | 'wrong-shape'
 
 export type DataState =
   | { kind: 'idle' }
-  | { kind: 'import-preview'; fileName: string; fileSize: number; mode: ImportMode; changes: ImportChange[] }
+  | {
+      kind: 'import-preview'
+      fileName: string
+      fileSize: number
+      mode: ImportMode
+      profile: Profile
+      changes: Record<ImportMode, ImportChange[]>
+    }
   | { kind: 'import-error'; fileName: string; reason: ImportErrorReason; detail: string }
   | { kind: 'confirm-delete'; typed: string }
   | { kind: 'done'; title: string; detail: string }
 
 export type DataEvent =
-  | { type: 'preview-import'; fileName: string; fileSize: number; changes: ImportChange[] }
+  | { type: 'preview-import'; fileName: string; fileSize: number; profile: Profile; changes: Record<ImportMode, ImportChange[]> }
   | { type: 'set-mode'; mode: ImportMode }
   | { type: 'reject-import'; fileName: string; reason: ImportErrorReason; detail: string }
   | { type: 'ask-delete' }
@@ -30,7 +39,14 @@ export function canConfirmDelete(typed: string): boolean {
 export function reduceData(state: DataState, event: DataEvent): DataState {
   switch (event.type) {
     case 'preview-import':
-      return { kind: 'import-preview', fileName: event.fileName, fileSize: event.fileSize, mode: 'merge', changes: event.changes }
+      return {
+        kind: 'import-preview',
+        fileName: event.fileName,
+        fileSize: event.fileSize,
+        mode: 'merge',
+        profile: event.profile,
+        changes: event.changes,
+      }
     case 'set-mode':
       return state.kind === 'import-preview' ? { ...state, mode: event.mode } : state
     case 'reject-import':

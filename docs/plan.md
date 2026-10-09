@@ -253,7 +253,7 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 - [x] Navigasi kiri punya grup DATA dengan satu item "Data"; grup PROFILE tetap seperti sekarang (FR-21)
 - [x] Halaman Data menampilkan tiga kartu aksi (Export, Import, Hapus semua) dan kartu "Pemakaian storage" dengan bar dan angka nyata, misalnya "1.8 MB dari 10 MB" (FR-21)
 - [x] Kalimat jujur soal enkripsi tampil: data disimpan tanpa enkripsi di `chrome.storage.local`, tanpa server dan tanpa akun (FR-21)
-- [ ] Export JSON menghasilkan satu berkas berversi berisi profil dan bisa diunduh; ini hanya membaca data (FR-21)
+- [x] Export JSON menghasilkan satu berkas berversi berisi profil dan bisa diunduh; ini hanya membaca data (FR-21). Terbukti di Chrome sungguhan saat uji T18.
 - [x] State D2 (pratinjau import dengan Ganti atau Gabung), D3 (import tidak valid dengan sebab), D4 (konfirmasi hapus dengan mengetik ulang kata), dan D5 (selesai dengan angka) ada sebagai komponen yang bisa dilihat, tanpa memakai kata "Captured Jobs" atau "pemetaan situs" karena di luar v1
 - [x] Di build produksi, tombol Import dan Hapus semua tampil nonaktif dan menyebut alasannya ("Belum tersedia di versi ini"); tidak ada kontrol yang tampak berfungsi tetapi tidak melakukan apa-apa
 - [x] Semua kontrol bergaya sesuai token, tanpa kontrol bawaan browser
@@ -261,19 +261,19 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Done when:** halaman Data terlihat sesuai mockup, pemakaian storage menunjukkan angka nyata, Export mengunduh berkas profil, dan keempat state lain bisa dilihat di build dev.
 
 ### T18 · Import JSON dan Hapus semua berfungsi · 2h · feature · Medium
-- [ ] **T18 selesai** (dijadwalkan PIC 2026-10-10)
+- [x] **T18 selesai** (dijadwalkan PIC 2026-10-10; diverifikasi di Chrome for Testing 151, muat unpacked dari `.output/chrome-mv3`)
 
 **Context:** menyambungkan state D2 sampai D5 ke perilaku sungguhan (FR-22). Dikerjakan sebelum T22 karena pratinjau, aksi gabung/ganti, dan state hasilnya dipakai ulang oleh Import CV. State machine ada di `src/core/data/state.ts`; envelope export di `src/core/data/export.ts`.
 **Dokumen yang diubah tiket ini**
-- [ ] PRD sudah diubah 2026-10-10 (FR-22 Should, FR-25, §4, §8, §9). Pastikan README dan `docs/screens.md` §3.3 konsisten setelah T18 selesai.
+- [x] PRD sudah diubah 2026-10-10 (FR-22 Should, FR-25, §4, §8, §9). README diperbarui; `docs/screens.md` §3.3 (D2 sampai D5) sudah sesuai perilaku sekarang.
 
 **Acceptance criteria**
-- [ ] Import membaca berkas export, menolak berkas rusak atau versi tak dikenal dengan sebab yang spesifik, dan menampilkan pratinjau apa yang berubah (FR-22)
-- [ ] Logika validasi dan diff ada di `core/data/` dengan tes lebih dulu (TDD); komponen tidak berisi logika bisnis
-- [ ] Tombol Import dan Hapus semua tidak lagi nonaktif; tidak ada kontrol palsu yang tersisa
-- [ ] Gabung menambah tanpa menimpa data yang ada; Ganti menggantikan seluruh profil (FR-22)
-- [ ] Hapus semua baru berjalan setelah pengguna mengetik ulang kata konfirmasi, dan setelahnya profil kosong (FR-22)
-- [ ] Setelah impor atau hapus, panel menampilkan angka hasil ("112 entri diimpor") (FR-22)
+- [x] Import membaca berkas export, menolak berkas rusak atau versi tak dikenal dengan sebab yang spesifik, dan menampilkan pratinjau apa yang berubah (FR-22). Di Chrome sungguhan: berkas bukan JSON dan versi 3 ditolak, profil tidak berubah.
+- [x] Logika validasi dan diff ada di `core/data/import.ts` dengan tes lebih dulu (TDD); komponen tidak berisi logika bisnis
+- [x] Tombol Import dan Hapus semua tidak lagi nonaktif; tidak ada kontrol palsu yang tersisa
+- [x] Gabung menambah tanpa menimpa data yang ada; Ganti menggantikan seluruh profil (FR-22). Terbukti di Chrome sungguhan.
+- [x] Hapus semua baru berjalan setelah pengguna mengetik ulang kata konfirmasi, dan setelahnya profil kosong (FR-22). Terbukti di Chrome sungguhan.
+- [x] Setelah impor atau hapus, panel menampilkan angka hasil ("112 entri diimpor") (FR-22)
 
 ### T19 · Samakan tampilan dengan mockup referensi · 1.5h · polish · Medium
 - [ ] **T19 selesai**

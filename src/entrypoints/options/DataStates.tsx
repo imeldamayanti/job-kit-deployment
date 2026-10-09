@@ -1,12 +1,10 @@
 import { CircleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { DELETE_WORD, type DataEvent, type DataState } from '../../core/data/state'
+import { canConfirmDelete, DELETE_WORD, type DataEvent, type DataState } from '../../core/data/state'
 import { formatBytes } from '../../core/data/storage-usage'
 import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { TextField } from '../../ui/primitives/TextField'
-
-const UNAVAILABLE = 'Belum tersedia di versi ini'
 
 type Dispatch = (event: DataEvent) => void
 type Of<K extends DataState['kind']> = Extract<DataState, { kind: K }>
@@ -47,7 +45,16 @@ function ModeChoice({ selected, onClick, children }: { selected: boolean; onClic
   )
 }
 
-export function ImportPreview({ state, dispatch }: { state: Of<'import-preview'>; dispatch: Dispatch }) {
+export function ImportPreview({
+  state,
+  dispatch,
+  onApply,
+}: {
+  state: Of<'import-preview'>
+  dispatch: Dispatch
+  onApply: () => void
+}) {
+  const changes = state.changes[state.mode]
   return (
     <Panel>
       <div>
@@ -56,16 +63,20 @@ export function ImportPreview({ state, dispatch }: { state: Of<'import-preview'>
       </div>
       <div>
         <h2 className="text-[12px] font-bold uppercase tracking-[0.08em] text-neutral-400">Yang akan berubah</h2>
-        <ul className="mt-2 divide-y divide-border">
-          {state.changes.map((change) => (
-            <li key={change.label} className="flex items-center justify-between gap-4 py-2 text-[13px]">
-              <span className="font-semibold text-text-primary">{change.label}</span>
-              <span className="text-text-secondary">
-                {change.before} → <span className="font-semibold text-text-primary">{change.after}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
+        {changes.length === 0 ? (
+          <p className="mt-2 text-[13px] text-text-secondary">Tidak ada yang berubah dari profil sekarang.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-border">
+            {changes.map((change) => (
+              <li key={change.label} className="flex items-center justify-between gap-4 py-2 text-[13px]">
+                <span className="font-semibold text-text-primary">{change.label}</span>
+                <span className="text-text-secondary">
+                  {change.before} → <span className="font-semibold text-text-primary">{change.after}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <div role="group" aria-label="Cara import" className="flex overflow-hidden rounded-md">
         <ModeChoice selected={state.mode === 'merge'} onClick={() => dispatch({ type: 'set-mode', mode: 'merge' })}>
@@ -81,11 +92,10 @@ export function ImportPreview({ state, dispatch }: { state: Of<'import-preview'>
           : 'Ganti menimpa seluruh profil dengan isi berkas.'}
       </p>
       <div className="flex items-center justify-end gap-3">
-        <span className="text-[12px] text-text-secondary">{UNAVAILABLE}</span>
         <Button variant="secondary" onClick={() => dispatch({ type: 'cancel' })}>
           Batal
         </Button>
-        <Button disabled title={UNAVAILABLE}>
+        <Button disabled={changes.length === 0} onClick={onApply}>
           Terapkan import
         </Button>
       </div>
@@ -121,7 +131,15 @@ export function ImportError({ state, dispatch }: { state: Of<'import-error'>; di
   )
 }
 
-export function ConfirmDelete({ state, dispatch }: { state: Of<'confirm-delete'>; dispatch: Dispatch }) {
+export function ConfirmDelete({
+  state,
+  dispatch,
+  onConfirm,
+}: {
+  state: Of<'confirm-delete'>
+  dispatch: Dispatch
+  onConfirm: () => void
+}) {
   return (
     <Panel>
       <div>
@@ -137,11 +155,10 @@ export function ConfirmDelete({ state, dispatch }: { state: Of<'confirm-delete'>
         autoComplete="off"
       />
       <div className="flex items-center justify-end gap-3">
-        <span className="text-[12px] text-text-secondary">{UNAVAILABLE}</span>
         <Button variant="secondary" onClick={() => dispatch({ type: 'cancel' })}>
           Batal
         </Button>
-        <Button variant="danger" disabled title={UNAVAILABLE}>
+        <Button variant="danger" disabled={!canConfirmDelete(state.typed)} onClick={onConfirm}>
           Hapus semua
         </Button>
       </div>

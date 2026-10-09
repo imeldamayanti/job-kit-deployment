@@ -31,7 +31,7 @@ export function App() {
             </header>
             {saveState === 'storage-full' && <StorageFullNotice />}
             {page === 'jobs' && <JobsPage />}
-            {page === 'data' && <DataPage profile={profile} />}
+            {page === 'data' && <DataPage profile={profile} update={update} />}
             {profile && page === 'personal' && <PersonalSection profile={profile} update={update} />}
             {profile && page === 'contact' && <ContactSection profile={profile} update={update} />}
             {profile && page === 'education' && <EducationSection profile={profile} update={update} />}

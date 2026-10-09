@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest'
+import { createEmptyProfile } from '../profile/profile'
 import { canConfirmDelete, DELETE_WORD, initialDataState, reduceData, type DataState } from './state'
+
+const changes = {
+  merge: [{ label: 'Work Experience', before: '3 entri', after: '5 entri' }],
+  replace: [{ label: 'Work Experience', before: '3 entri', after: '4 entri' }],
+}
 
 const preview: DataState = {
   kind: 'import-preview',
   fileName: 'job-kit-export.json',
   fileSize: 4096,
   mode: 'merge',
-  changes: [{ label: 'Work Experience', before: '3 entri', after: '5 entri' }],
+  profile: createEmptyProfile(),
+  changes,
 }
 
 describe('reduceData', () => {
@@ -15,13 +22,15 @@ describe('reduceData', () => {
   })
 
   it('opens the import preview with merge as the default choice', () => {
+    const profile = createEmptyProfile()
     const next = reduceData(initialDataState, {
       type: 'preview-import',
       fileName: 'a.json',
       fileSize: 10,
-      changes: [],
+      profile,
+      changes,
     })
-    expect(next).toMatchObject({ kind: 'import-preview', fileName: 'a.json', mode: 'merge' })
+    expect(next).toEqual({ kind: 'import-preview', fileName: 'a.json', fileSize: 10, mode: 'merge', profile, changes })
   })
 
   it('switches between merge and replace only while previewing', () => {
