@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JobFill — Design System Preview</title>
+<style>
+/* ============================================================
+   TOKENS — sumbernya docs/design-system.md §3
+   Blok :root ini bisa dipotong jadi tokens.css apa adanya.
+   ============================================================ */
+:root{
+  --blue-50:#EFF4FF; --blue-100:#DBE6FE; --blue-200:#BFD3FE;
+  --blue-400:#5B8DEF; --blue-500:#3B76F0; --blue-600:#2563EB;
+  --blue-700:#1D4FD7; --blue-800:#1A41B0;
+
+  --neutral-0:#FFFFFF; --neutral-25:#FBFCFD; --neutral-50:#F6F8FA;
+  --neutral-100:#F0F2F6; --neutral-200:#E4E7EC; --neutral-300:#D0D5DD;
+  --neutral-400:#98A2B3; --neutral-500:#667085; --neutral-600:#475467;
+  --neutral-900:#101828;
+
+  --green-50:#ECFDF3; --green-600:#039855; --green-700:#027A48;
+  --amber-50:#FFFAEB; --amber-600:#DC6803; --amber-700:#B54708;
+  --rose-50:#FEF3F2;  --rose-600:#D92D20;  --rose-700:#B42318;
+  --violet-50:#F4F3FF;--violet-600:#6938EF;--violet-700:#5925DC;
+  --slate-50:#F2F4F7; --slate-600:#475467;
+
+  --surface:var(--neutral-0);
+  --surface-sunken:var(--neutral-50);
+  --surface-subtle:var(--neutral-100);
+  --surface-input:var(--neutral-25);
+  --border:var(--neutral-200);
+  --border-strong:var(--neutral-300);
+  --text-primary:var(--neutral-900);
+  --text-secondary:var(--neutral-600);
+  --text-tertiary:var(--neutral-400);
+  --text-on-accent:var(--neutral-0);
+  --accent:var(--blue-600);
+  --accent-hover:var(--blue-700);
+  --accent-pressed:var(--blue-800);
+  --accent-wash:var(--blue-50);
+  --focus-ring:var(--blue-500);
+
+  --status-success-fg:var(--green-700); --status-success-bg:var(--green-50);
+  --status-warning-fg:var(--amber-700); --status-warning-bg:var(--amber-50);
+  --status-danger-fg:var(--rose-700);   --status-danger-bg:var(--rose-50);
+  --status-progress-fg:var(--violet-700);--status-progress-bg:var(--violet-50);
+  --status-neutral-fg:var(--slate-600); --status-neutral-bg:var(--slate-50);
+
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+
+  --radius-sm:6px; --radius-md:8px; --radius-lg:10px;
+  --radius-xl:14px; --radius-full:999px;
+
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+  --shadow-md:0 2px 8px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
+  --shadow-lg:0 12px 32px rgba(16,24,40,.10);
+
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --dur-fast:120ms; --dur-base:200ms; --dur-slow:280ms;
+
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+
+  /* density — default options page (design-system.md D1) */
+  --pad-card:20px; --gap-row:12px; --pad-section:32px;
+}
+.panel{--pad-card:12px; --gap-row:8px; --pad-section:16px;}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ============================================================
+   HALAMAN PREVIEW (bukan bagian dari tokens.css)
+   ============================================================ */
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:var(--surface-sunken);
+     color:var(--text-primary);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:28px;margin:0 0 6px;letter-spacing:-.02em}
+.lede{color:var(--text-secondary);font-size:14px;margin:0 0 40px;max-width:62ch;line-height:1.6}
+h2{font-size:20px;margin:56px 0 6px;letter-spacing:-.01em}
+.note{color:var(--text-secondary);font-size:13px;margin:0 0 20px;max-width:72ch;line-height:1.6}
+code{background:var(--surface-subtle);padding:1px 5px;border-radius:4px;font-size:.92em}
+.grid{display:grid;gap:16px}
+.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.cols-2{grid-template-columns:1fr}}
+
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sw{border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;background:var(--surface)}
+.sw .chip{height:52px}
+.sw .meta{padding:8px 10px;font-size:11px;line-height:1.5}
+.sw .name{color:var(--text-primary);font-weight:600}
+.sw .hex{color:var(--text-tertiary);font-variant-numeric:tabular-nums;text-transform:uppercase}
+.ratio{display:inline-block;margin-top:2px;font-size:10px;padding:1px 5px;border-radius:4px;
+       background:var(--status-success-bg);color:var(--status-success-fg);font-weight:600}
+.ratio.bad{background:var(--status-danger-bg);color:var(--status-danger-fg)}
+.ratio.warn{background:var(--status-warning-bg);color:var(--status-warning-fg)}
+
+.frames{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.frame{width:400px;flex:0 0 400px;background:var(--surface);border:1px solid var(--border);
+       border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-md)}
+.frame-cap{font-size:11px;font-weight:600;color:var(--text-secondary);
+           text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+.frame-note{font-size:12px;color:var(--text-secondary);margin:8px 0 0;line-height:1.5;max-width:400px}
+
+/* ---------- KOMPONEN PANEL ---------- */
+.panel{font-size:13px;line-height:1.5}
+.panel-head{padding:10px 12px 0;background:var(--surface)}
+.brand{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.brand-mark{width:22px;height:22px;border-radius:7px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-hover));
+  display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
+.brand-name{font-size:13px;font-weight:650;letter-spacing:-.01em}
+
+/* Tab folder — aktif menyatu dengan bidang konten, non-aktif di rak abu */
+.tabs{display:flex;background:var(--surface-subtle);gap:0;
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;overflow:hidden}
+.tabs button{flex:1;border:0;background:transparent;font:inherit;font-size:13px;font-weight:550;
+  color:var(--text-secondary);padding:10px 8px 9px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  transition:background var(--dur-base) var(--ease),color var(--dur-base) var(--ease)}
+.tabs button span{display:block}
+.tabs button span::after{content:"";display:block;height:3px;border-radius:2px;
+  background:transparent;margin-top:7px}
+.tabs button:hover{color:var(--text-primary)}
+.tabs button[aria-selected=true]{background:var(--surface);color:var(--text-primary);font-weight:700}
+.tabs button[aria-selected=true] span::after{background:var(--accent)}
+.tabs button:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-3px}
+
+.panel-body{padding:var(--pad-card);display:flex;flex-direction:column;gap:var(--gap-row)}
+.panel-scroll{max-height:440px;overflow-y:auto}
+
+.site{display:flex;align-items:center;gap:8px;padding:2px 0 6px}
+.favicon{width:16px;height:16px;border-radius:4px;background:var(--accent);flex:0 0 16px;
+  display:grid;place-items:center;color:#fff;font-size:9px;font-weight:700}
+.site .txt{min-width:0}
+.site .dom{font-size:11px;color:var(--text-tertiary);line-height:1.3}
+.site .ttl{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+
+.summary{background:var(--accent-wash);border-radius:var(--radius-md);padding:10px 12px}
+.summary .row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;
+  color:var(--accent-pressed);font-weight:600;margin-bottom:7px}
+.summary .row em{font-style:normal;color:var(--text-secondary);font-weight:500}
+.bar{height:4px;border-radius:var(--radius-full);background:var(--blue-200);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:inherit}
+
+.sec{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 2px}
+.sec h3{margin:0;font-size:12px;font-weight:650;letter-spacing:.03em;text-transform:uppercase;
+  color:var(--text-secondary)}
+.sec .cnt{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
+
+/* KOMPONEN TERPENTING: field preview row */
+.fields{border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden}
+.field{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--border)}
+.field:last-child{border-bottom:0}
+.field .box{flex:0 0 16px;width:16px;height:16px;margin-top:2px;border-radius:5px;
+  border:1.5px solid var(--border-strong);background:var(--surface-input);
+  display:grid;place-items:center;font-size:10px;color:transparent}
+.field.on .box{background:var(--accent);border-color:var(--accent);color:#fff}
+.field.done .box{background:var(--status-success-fg);border-color:var(--status-success-fg);color:#fff}
+.field .txt{min-width:0;flex:1}
+.field .lbl{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;line-height:1.35;display:block}
+.field .val{font-size:13px;color:var(--text-primary);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;line-height:1.4}
+.field.off .lbl,.field.off .val{color:var(--text-tertiary)}
+.field .end{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding-top:1px}
+
+.badge{font-size:11px;font-weight:650;padding:2px 7px;border-radius:var(--radius-sm);white-space:nowrap}
+.badge.ok{background:var(--status-success-bg);color:var(--status-success-fg)}
+.badge.warn{background:var(--status-warning-bg);color:var(--status-warning-fg)}
+.badge.dim{background:var(--status-neutral-bg);color:var(--status-neutral-fg)}
+.badge.prog{background:var(--status-progress-bg);color:var(--status-progress-fg)}
+.badge.bad{background:var(--status-danger-bg);color:var(--status-danger-fg)}
+
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:var(--radius-lg);
+  padding:9px 14px;border:1px solid transparent;cursor:pointer;display:inline-flex;
+  align-items:center;justify-content:center;gap:7px;
+  transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease)}
+.btn.pri{background:linear-gradient(180deg,var(--accent),var(--accent-hover));color:var(--text-on-accent)}
+.btn.pri:hover{background:linear-gradient(180deg,var(--accent-hover),var(--accent-pressed))}
+.btn.sec{background:var(--surface);border-color:var(--border-strong);color:var(--text-primary)}
+.btn.sec:hover{background:var(--surface-subtle)}
+.btn.ghost{background:transparent;color:var(--text-secondary)}
+.btn.ghost:hover{background:var(--surface-subtle);color:var(--text-primary)}
+.btn.danger{background:var(--status-danger-bg);color:var(--status-danger-fg)}
+.btn.sm{font-size:12px;padding:5px 10px;border-radius:var(--radius-md)}
+.btn.full{width:100%}
+.btn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+.panel-foot{padding:12px;border-top:1px solid var(--border);background:var(--surface);
+  display:flex;gap:8px}
+
+.empty{text-align:center;padding:36px 20px}
+.empty .ico{width:40px;height:40px;border-radius:var(--radius-full);background:var(--surface-subtle);
+  display:grid;place-items:center;margin:0 auto 12px;font-size:17px}
+.empty h4{margin:0 0 4px;font-size:15px;font-weight:650}
+.empty p{margin:0 auto;font-size:13px;color:var(--text-secondary);line-height:1.55;max-width:30ch}
+.empty .act{margin-top:14px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:var(--pad-card)}
+.card.sh{box-shadow:var(--shadow-sm)}
+.entry{display:flex;gap:12px;align-items:flex-start}
+.entry .ico{flex:0 0 40px;width:40px;height:40px;border-radius:var(--radius-full);
+  background:var(--accent-wash);display:grid;place-items:center;font-size:16px}
+.entry .ttl{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.entry .sub{font-size:13px;color:var(--text-secondary);margin-top:1px}
+.entry .date{font-size:12px;color:var(--text-tertiary);margin-top:1px;font-variant-numeric:tabular-nums}
+
+.f{display:block;margin-bottom:14px}
+.f label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.f .err{font-size:12px;color:var(--status-danger-fg);margin-top:5px;font-weight:500}
+.inp{width:100%;font:inherit;font-size:14px;padding:9px 11px;border-radius:var(--radius-md);
+  border:1px solid var(--border);background:var(--surface-input);color:var(--text-primary)}
+.inp::placeholder{color:var(--text-tertiary)}
+.inp:focus{outline:2px solid var(--focus-ring);outline-offset:0;border-color:var(--accent);
+  background:var(--surface)}
+.inp.bad{border-color:var(--status-danger-fg)}
+.inp[disabled]{background:var(--surface-subtle);color:var(--text-tertiary);cursor:not-allowed}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip-tag{font-size:13px;padding:5px 11px;border-radius:var(--radius-full);
+  background:var(--surface-subtle);color:var(--text-primary);display:inline-flex;align-items:center;gap:6px}
+.chip-tag.sel{background:var(--accent-wash);color:var(--accent-pressed);font-weight:600}
+.chip-tag button{border:0;background:transparent;cursor:pointer;color:var(--text-tertiary);
+  font-size:14px;line-height:1;padding:0}
+
+.jobrow{display:flex;align-items:center;gap:14px;padding:14px var(--pad-card);
+  border-bottom:1px solid var(--border)}
+.jobrow:last-child{border-bottom:0}
+.jobrow .av{flex:0 0 36px;width:36px;height:36px;border-radius:var(--radius-lg);
+  background:var(--surface-subtle);display:grid;place-items:center;font-weight:700;
+  font-size:13px;color:var(--text-secondary)}
+.jobrow .main{flex:1;min-width:0}
+.jobrow .jt{font-size:14px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
+.jobrow .jc{font-size:13px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.jobrow .when{font-size:12px;color:var(--text-tertiary);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{flex:1;min-width:200px;position:relative}
+.search .inp{padding-left:32px}
+.search span{position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  color:var(--text-tertiary);font-size:13px}
+
+.alert{display:flex;gap:10px;padding:11px 13px;border-radius:var(--radius-md);font-size:13px;
+  line-height:1.5;align-items:flex-start}
+.alert.ok{background:var(--status-success-bg);color:var(--status-success-fg)}
+.alert.warn{background:var(--status-warning-bg);color:var(--status-warning-fg)}
+.alert.bad{background:var(--status-danger-bg);color:var(--status-danger-fg)}
+.alert.info{background:var(--accent-wash);color:var(--accent-pressed)}
+.alert b{font-weight:700}
+
+.type-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}
+.type-row:last-child{border-bottom:0}
+.type-row .tag{flex:0 0 160px;font-size:11px;color:var(--text-tertiary);
+  font-variant-numeric:tabular-nums;text-transform:uppercase;letter-spacing:.05em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>JobFill — Design System</h1>
+<p class="lede">Preview dari <code>docs/design-system.md</code>. Blok <code>:root</code> di halaman
+ini bisa dipotong apa adanya jadi <code>tokens.css</code> di extension. Setiap frame panel di bawah
+lebarnya tepat 400px — lebar side panel sebenarnya, bukan miniatur.</p>
+
+<!-- 1. WARNA -->
+<h2>1. Warna</h2>
+<p class="note">Rasio dihitung dari hex dengan rumus WCAG relative luminance, bukan diperkirakan.
+<code>--text-tertiary</code> sengaja gagal 4.5:1 dan hanya boleh untuk meta.</p>
+
+<div class="swatches">
+  <div class="sw"><div class="chip" style="background:var(--neutral-900)"></div>
+    <div class="meta"><div class="name">text-primary</div><div class="hex">#101828</div>
+    <span class="ratio">17.75:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--neutral-600)"></div>
+    <div class="meta"><div class="name">text-secondary</div><div class="hex">#475467</div>
+    <span class="ratio">7.69:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--neutral-400)"></div>
+    <div class="meta"><div class="name">text-tertiary</div><div class="hex">#98A2B3</div>
+    <span class="ratio bad">2.58:1 meta saja</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--accent)"></div>
+    <div class="meta"><div class="name">accent</div><div class="hex">#2563EB</div>
+    <span class="ratio">5.17:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--accent-hover)"></div>
+    <div class="meta"><div class="name">accent-hover</div><div class="hex">#1D4FD7</div>
+    <span class="ratio">6.05:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--accent-wash);border-bottom:1px solid var(--border)"></div>
+    <div class="meta"><div class="name">accent-wash</div><div class="hex">#EFF4FF</div></div></div>
+  <div class="sw"><div class="chip" style="background:var(--green-700)"></div>
+    <div class="meta"><div class="name">success</div><div class="hex">#027A48</div>
+    <span class="ratio">5.13:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--amber-700)"></div>
+    <div class="meta"><div class="name">warning</div><div class="hex">#B54708</div>
+    <span class="ratio">5.20:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--rose-700)"></div>
+    <div class="meta"><div class="name">danger</div><div class="hex">#B42318</div>
+    <span class="ratio">6.05:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--violet-700)"></div>
+    <div class="meta"><div class="name">progress</div><div class="hex">#5925DC</div>
+    <span class="ratio">7.02:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--slate-600)"></div>
+    <div class="meta"><div class="name">status netral</div><div class="hex">#475467</div>
+    <span class="ratio">6.98:1</span></div></div>
+  <div class="sw"><div class="chip" style="background:var(--border-strong)"></div>
+    <div class="meta"><div class="name">border-strong</div><div class="hex">#D0D5DD</div>
+    <span class="ratio warn">1.47:1 terbuka</span></div></div>
+</div>
+
+<p class="note" style="margin-top:22px"><b>Dua sumbu status, tidak boleh tertukar.</b>
+Perhatikan Applied netral, bukan biru — biru dipakai eksklusif untuk hal yang bisa diklik.</p>
+<div class="grid cols-2">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Status field</h3></div>
+    <div class="chips" style="margin-top:12px">
+      <span class="badge dim">Siap</span><span class="badge ok">Terisi</span>
+      <span class="badge warn">Tidak dikenali</span><span class="badge dim">Dilewati</span>
+    </div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Status lamaran</h3></div>
+    <div class="chips" style="margin-top:12px">
+      <span class="badge dim">Applied</span><span class="badge prog">Interviewing</span>
+      <span class="badge bad">Rejected</span><span class="badge ok">Offer</span>
+    </div>
+  </div>
+</div>
+
+<!-- 2. TYPE -->
+<h2>2. Skala type</h2>
+<p class="note">System stack, tanpa webfont — panel harus terasa bagian dari browser.
+Floor panel 12px, dan itu hanya untuk meta.</p>
+<div class="card sh">
+  <div class="type-row"><span class="tag">panel 12 / meta</span>
+    <span style="font-size:12px;color:var(--text-tertiary)">jobstreet.co.id · 8 jam lalu</span></div>
+  <div class="type-row"><span class="tag">panel 13 / body</span>
+    <span style="font-size:13px">9 dari 12 field cocok dengan profilmu</span></div>
+  <div class="type-row"><span class="tag">panel 15 / judul kartu</span>
+    <span style="font-size:15px;font-weight:650;letter-spacing:-.01em">Pengalaman Kerja</span></div>
+  <div class="type-row"><span class="tag">panel 17 / judul utama</span>
+    <span style="font-size:17px;font-weight:700;letter-spacing:-.015em">Siap mengisi form</span></div>
+  <div class="type-row"><span class="tag">web 14 / body</span>
+    <span style="font-size:14px">Data tersimpan hanya di browser ini.</span></div>
+  <div class="type-row"><span class="tag">web 20 / judul section</span>
+    <span style="font-size:20px;font-weight:650;letter-spacing:-.01em">Captured Jobs</span></div>
+  <div class="type-row"><span class="tag">web 28 / judul halaman</span>
+    <span style="font-size:28px;font-weight:700;letter-spacing:-.02em">Profile</span></div>
+</div>
+
+<!-- 3. TAB -->
+<h2>3. Tab switcher</h2>
+<p class="note">Diambil dari referensimu, dan bentuknya bukan segmented control: tab aktif adalah
+bidang putih yang <b>menyatu dengan konten di bawahnya</b>, tab non-aktif duduk di rak abu di
+belakang. Putih dan underline tidak menandai hal yang sama &mdash; putihnya kelanjutan bidang,
+underline-nya penanda aktif. Karena itu keduanya boleh ada bersamaan di sini, dan di segmented
+control tidak boleh.</p>
+
+<div class="frames">
+  <div>
+    <p class="frame-cap">2 tab &mdash; v1</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JF</span><span class="brand-name">JobFill</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true"><span>Autofill</span></button>
+          <button role="tab" aria-selected="false"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body" style="padding-top:14px">
+        <div class="site">
+          <span class="favicon">J</span>
+          <span class="txt">
+            <span class="dom">jobstreet.co.id</span>
+            <div class="ttl">Application &mdash; iOS Developer</div>
+          </span>
+        </div>
+        <div class="summary">
+          <div class="row"><span>12 dari 12 field cocok</span></div>
+          <div class="bar"><i style="width:100%"></i></div>
+        </div>
+      </div>
+    </div></div>
+    <p class="frame-note">Perhatikan tidak ada garis pemisah di bawah tab aktif &mdash; itu yang
+    bikin tab dan isinya terbaca sebagai satu lembar.</p>
+  </div>
+
+  <div>
+    <p class="frame-cap">3 tab &mdash; slot v2 (PRD &sect;11)</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JF</span><span class="brand-name">JobFill</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true"><span>Autofill</span></button>
+          <button role="tab" aria-selected="false"><span>Match</span></button>
+          <button role="tab" aria-selected="false"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body" style="padding-top:14px">
+        <div class="site">
+          <span class="favicon">J</span>
+          <span class="txt">
+            <span class="dom">jobstreet.co.id</span>
+            <div class="ttl">Application &mdash; iOS Developer</div>
+          </span>
+        </div>
+        <div class="summary">
+          <div class="row"><span>12 dari 12 field cocok</span></div>
+          <div class="bar"><i style="width:100%"></i></div>
+        </div>
+      </div>
+    </div></div>
+    <p class="frame-note">Pola ini menampung tab ketiga tanpa berubah bentuk: setiap tab tetap
+    punya bidangnya sendiri, dan underline menyempit mengikuti labelnya.</p>
+  </div>
+</div>
+
+<!-- 4. PANEL PADAT -->
+<h2>4. Side panel — state terpadat</h2>
+<p class="note">A3 <code>partial</code> adalah layar tersulit di produk ini: site header, summary,
+daftar field, section tak dikenal, dan footer sticky, semua di 400px. Kalau ini muat dan terbaca,
+sisanya pasti muat.</p>
+
+<div class="frames">
+  <div>
+    <p class="frame-cap">A3 — partial</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JF</span><span class="brand-name">JobFill</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true"><span>Autofill</span></button>
+          <button role="tab" aria-selected="false"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body panel-scroll">
+        <div class="site">
+          <span class="favicon">J</span>
+          <span class="txt">
+            <span class="dom">jobstreet.co.id</span>
+            <div class="ttl" title="Application — iOS Developer, PT Contoh Karya Nusantara">Application — iOS Developer, PT Contoh Karya Nusantara</div>
+          </span>
+        </div>
+
+        <div class="summary">
+          <div class="row"><span>9 dari 12 field cocok</span><em>3 tidak dikenali</em></div>
+          <div class="bar"><i style="width:75%"></i></div>
+        </div>
+
+        <div class="sec"><h3>Akan diisi</h3><span class="cnt">9</span></div>
+        <div class="fields">
+          <div class="field on"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Full name</span><div class="val">Nama Contoh</div></span></div>
+          <div class="field on"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Email address</span><div class="val">nama@example.test</div></span></div>
+          <div class="field on"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Phone</span><div class="val">+62 813-0000-0000</div></span></div>
+          <div class="field on"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Current company</span>
+            <div class="val" title="PT Contoh Teknologi Nusantara Sejahtera">PT Contoh Teknologi Nusantara Sejahtera</div></span></div>
+          <div class="field off"><span class="box"></span><span class="txt">
+            <span class="lbl">Expected salary</span><div class="val">Rp 8.000.000</div></span>
+            <span class="end"><span class="badge dim">Dilewati</span></span></div>
+        </div>
+
+        <div class="sec"><h3>Tidak dikenali</h3><span class="cnt">3</span></div>
+        <div class="fields">
+          <div class="field"><span class="box"></span><span class="txt">
+            <span class="lbl">Field tanpa label</span>
+            <div class="val" style="color:var(--text-tertiary)">name="q_4471"</div></span>
+            <span class="end"><button class="btn sm sec">Petakan</button></span></div>
+          <div class="field"><span class="box"></span><span class="txt">
+            <span class="lbl">Notice period</span>
+            <div class="val" style="color:var(--text-tertiary)">belum dipetakan</div></span>
+            <span class="end"><button class="btn sm sec">Petakan</button></span></div>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <button class="btn pri full">Isi 9 field</button>
+      </div>
+    </div></div>
+    <p class="frame-note">Baris field 44px saat ada value. Footer sticky — tombol Fill tidak pernah
+    perlu di-scroll.</p>
+  </div>
+
+  <div>
+    <p class="frame-cap">A5 — filled</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JF</span><span class="brand-name">JobFill</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true"><span>Autofill</span></button>
+          <button role="tab" aria-selected="false"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="alert ok"><span>&#10003;</span><span><b>9 field terisi.</b>
+          Periksa sebelum submit — JobFill tidak menekan tombol kirim.</span></div>
+
+        <div class="fields">
+          <div class="field done"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Full name</span><div class="val">Nama Contoh</div></span>
+            <span class="end"><span class="badge ok">Terisi</span></span></div>
+          <div class="field done"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Email address</span><div class="val">nama@example.test</div></span>
+            <span class="end"><span class="badge ok">Terisi</span></span></div>
+          <div class="field off"><span class="box"></span><span class="txt">
+            <span class="lbl">Expected salary</span><div class="val">&mdash;</div></span>
+            <span class="end"><span class="badge dim">Dilewati</span></span></div>
+        </div>
+
+        <div class="card">
+          <div class="sec" style="padding-top:0"><h3>Simpan lowongan ini?</h3></div>
+          <div class="f" style="margin:10px 0 8px">
+            <input class="inp" style="font-size:13px" value="iOS Developer" aria-label="Judul posisi"></div>
+          <div class="f" style="margin-bottom:10px">
+            <input class="inp" style="font-size:13px" value="PT Contoh Karya" aria-label="Perusahaan"></div>
+          <button class="btn pri sm full">Simpan ke Captured Jobs</button>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <button class="btn sec full">Undo</button>
+      </div>
+    </div></div>
+    <p class="frame-note">Kartu simpan lowongan inline; judul dan perusahaan bisa dikoreksi dulu.</p>
+  </div>
+</div>
+
+<!-- 5. STATE LAIN -->
+<h2>5. Side panel — state sisanya</h2>
+<p class="note">A6 sengaja tidak memakai bahasa error. Ini state yang paling sering dilihat pengguna
+baru, dan tugasnya membawa orang ke halaman profil, bukan menyatakan kegagalan.</p>
+
+<div class="frames">
+  <div>
+    <p class="frame-cap">A1 — no form</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body" style="padding:0">
+        <div class="empty">
+          <div class="ico">&#128269;</div>
+          <h4>Tidak ada form di halaman ini</h4>
+          <p>Buka halaman lamaran, lalu buka lagi panel ini.</p>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <div>
+    <p class="frame-cap">A6 — incomplete profile</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body">
+        <div class="alert info"><span>&#9432;</span><span>Form terdeteksi, tapi 4 field belum ada
+          datanya di profilmu.</span></div>
+        <div class="fields">
+          <div class="field off"><span class="box"></span><span class="txt">
+            <span class="lbl">Address</span><div class="val">Contact &amp; Address belum diisi</div></span>
+            <span class="end"><button class="btn sm ghost">Isi &rsaquo;</button></span></div>
+          <div class="field off"><span class="box"></span><span class="txt">
+            <span class="lbl">University</span><div class="val">Education belum diisi</div></span>
+            <span class="end"><button class="btn sm ghost">Isi &rsaquo;</button></span></div>
+        </div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full">Lengkapi profil</button></div>
+    </div></div>
+  </div>
+
+  <div>
+    <p class="frame-cap">A7 — error</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body">
+        <div class="alert bad"><span>&#9888;</span><span><b>Tidak bisa membaca halaman ini.</b>
+          Formnya berada di dalam iframe yang dikunci situs.</span></div>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin:2px 0 0">
+          Beberapa ATS menaruh form di frame terpisah yang tidak boleh disentuh extension.
+          Isi manual, atau salin datanya dari tab Profile.</p>
+      </div>
+      <div class="panel-foot">
+        <button class="btn sec full">Coba lagi</button>
+        <button class="btn pri full">Buka Profile</button>
+      </div>
+    </div></div>
+  </div>
+
+  <div>
+    <p class="frame-cap">P3 — tab Profile (read-only)</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JF</span><span class="brand-name">JobFill</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="false"><span>Autofill</span></button>
+          <button role="tab" aria-selected="true"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="card" style="padding:12px">
+          <div class="entry">
+            <span class="ico">&#128100;</span>
+            <span>
+              <div class="ttl" style="font-size:14px">Nama Contoh</div>
+              <div class="sub" style="font-size:12px">nama@example.test</div>
+              <div class="date">+62 813-0000-0000</div>
+            </span>
+          </div>
+        </div>
+        <div class="fields">
+          <div class="field" style="padding:9px 12px"><span class="txt">
+            <span class="val">Personal Info</span></span>
+            <span class="end"><span class="badge ok">Lengkap</span></span></div>
+          <div class="field" style="padding:9px 12px"><span class="txt">
+            <span class="val">Contact &amp; Address</span></span>
+            <span class="end"><span class="badge warn">Belum diisi</span></span></div>
+          <div class="field" style="padding:9px 12px"><span class="txt">
+            <span class="val">Work Experience</span></span>
+            <span class="end"><span style="font-size:12px;color:var(--text-tertiary)">3</span></span></div>
+          <div class="field" style="padding:9px 12px"><span class="txt">
+            <span class="val">Skill</span></span>
+            <span class="end"><span style="font-size:12px;color:var(--text-tertiary)">12</span></span></div>
+        </div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full">&#9998;&nbsp; Edit Profile</button></div>
+    </div></div>
+    <p class="frame-note">Struktur dari img21, identitas sendiri. Satu-satunya interaksi adalah
+    tombol ke options page.</p>
+  </div>
+</div>
+
+<!-- 6. OPTIONS PAGE -->
+<h2>6. Options page — komponen lebar penuh</h2>
+<p class="note">Density berbeda (padding kartu 20px, bukan 12px), token sama persis.
+Bayangan hanya dipakai di sini, tidak pernah di panel.</p>
+
+<div class="grid cols-2">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Entry card — collapsed</h3></div>
+    <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+      <div class="card" style="padding:14px">
+        <div class="entry">
+          <span class="ico">&#128188;</span>
+          <span style="flex:1;min-width:0">
+            <div class="ttl">iOS Developer Learner</div>
+            <div class="sub">Contoh Developer Academy · Bali</div>
+            <div class="date">Mar 2026 — sekarang</div>
+          </span>
+          <button class="btn sm ghost" aria-label="Ubah">&#9998;</button>
+        </div>
+      </div>
+      <div class="card" style="padding:14px">
+        <div class="entry">
+          <span class="ico">&#127891;</span>
+          <span style="flex:1;min-width:0">
+            <div class="ttl">Contoh University</div>
+            <div class="sub">Bachelor's, Informatics</div>
+            <div class="date">2022 — 2026</div>
+          </span>
+          <button class="btn sm ghost" aria-label="Ubah">&#9998;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Form controls</h3></div>
+    <div style="margin-top:14px">
+      <div class="f"><label>Email</label>
+        <input class="inp" value="nama@example.test"></div>
+      <div class="f"><label>Nomor telepon</label>
+        <input class="inp bad" value="0813">
+        <div class="err">Nomor terlihat belum lengkap.</div></div>
+      <div class="f"><label>Tipe pekerjaan</label>
+        <select class="inp"><option>Full-time</option><option>Internship</option></select></div>
+      <div class="f" style="margin-bottom:0"><label>Skill</label>
+        <div class="chips">
+          <span class="chip-tag sel">Swift <button aria-label="hapus Swift">&times;</button></span>
+          <span class="chip-tag sel">SwiftUI <button aria-label="hapus SwiftUI">&times;</button></span>
+          <span class="chip-tag">+ tambah</span>
+        </div></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid cols-2" style="margin-top:16px">
+  <div class="card sh" style="padding:0;overflow:hidden">
+    <div style="padding:var(--pad-card) var(--pad-card) 0">
+      <div class="sec" style="padding-top:0"><h3>Captured Jobs — J2</h3></div>
+      <div class="toolbar" style="margin:14px 0 16px">
+        <span class="search"><span>&#128269;</span>
+          <input class="inp" placeholder="Cari posisi atau perusahaan"></span>
+      </div>
+    </div>
+    <div class="jobrow">
+      <span class="av">C</span>
+      <span class="main"><div class="jt">iOS Developer</div>
+        <div class="jc">PT Contoh Karya Nusantara · Denpasar</div></span>
+      <span class="badge prog">Interviewing</span>
+      <span class="when">8j</span>
+    </div>
+    <div class="jobrow">
+      <span class="av">M</span>
+      <span class="main"><div class="jt">Mobile Engineer (Swift / SwiftUI)</div>
+        <div class="jc">Contoh Digital · Jakarta</div></span>
+      <span class="badge dim">Applied</span>
+      <span class="when">3h</span>
+    </div>
+    <div class="jobrow">
+      <span class="av">S</span>
+      <span class="main"><div class="jt">Frontend Developer</div>
+        <div class="jc">Studio Contoh · Remote</div></span>
+      <span class="badge bad">Rejected</span>
+      <span class="when">2mg</span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card sh">
+      <div class="sec" style="padding-top:0"><h3>Buttons</h3></div>
+      <div class="chips" style="margin-top:14px;align-items:center">
+        <button class="btn pri">Simpan</button>
+        <button class="btn sec">Batal</button>
+        <button class="btn ghost">Lewati</button>
+        <button class="btn danger">Hapus semua</button>
+        <button class="btn pri" disabled>Disabled</button>
+      </div>
+    </div>
+    <div class="card sh">
+      <div class="sec" style="padding-top:0"><h3>Empty state — J3 filtered</h3></div>
+      <div class="empty" style="padding:26px 12px">
+        <div class="ico">&#128269;</div>
+        <h4>Tidak ada yang cocok</h4>
+        <p>Tidak ada lamaran berstatus "Offer" untuk kata kunci itu.</p>
+        <div class="act"><button class="btn sec sm">Reset filter</button></div>
+      </div>
+    </div>
+    <div class="card sh">
+      <div class="sec" style="padding-top:0"><h3>Alert — D3 import error</h3></div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+        <div class="alert bad"><span>&#9888;</span><span><b>Versi file tidak dikenali.</b>
+          File ini dibuat JobFill versi lebih baru (schema 3; extension ini membaca 1&ndash;2).</span></div>
+        <div class="alert warn"><span>&#9888;</span><span>Data disimpan tanpa enkripsi di browser ini.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. ATURAN -->
+<h2>7. Aturan yang tidak boleh dilanggar</h2>
+<div class="card sh">
+  <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.9;color:var(--text-secondary)">
+    <li>Komponen tidak menyebut palet mentah — hanya token semantik.</li>
+    <li><b style="color:var(--text-primary)">Biru bukan warna status.</b> Kalau biru, berarti bisa diklik.</li>
+    <li><code>--text-tertiary</code> tidak pernah membawa arti (2.58:1).</li>
+    <li>Panel tidak pernah scroll horizontal.</li>
+    <li>Bayangan tidak dipakai di panel — kartu dibedakan oleh border.</li>
+    <li>Komponen di luar <code>screens.md</code> §4 tidak dibuat, walau ada di referensi.</li>
+  </ol>
+</div>
+
+</div>
+</body>
+</html>

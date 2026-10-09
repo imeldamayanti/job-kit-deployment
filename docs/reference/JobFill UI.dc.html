@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>JobFill — UI Mockup</title>
+<style>
+  html,body{margin:0}
+  body{background:#EEF1F5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#2563EB;text-decoration:none}
+  a:hover{color:#1D4FD7;text-decoration:underline}
+  ::placeholder{color:#98A2B3}
+  input,select,textarea,button{font-family:inherit}
+  @keyframes fx-spin{to{transform:rotate(360deg)}}
+  @keyframes fx-pop{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="m-success" viewBox="0 0 64 64">
+    <g fill="none" stroke="#1D4FD7" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="15" r="2.2" fill="#2563EB" stroke="none"></circle>
+      <circle cx="55" cy="9" r="1.9" fill="#2563EB" stroke="none"></circle>
+      <path d="M57 17 L60 14" stroke="#2563EB" stroke-width="2.8"></path>
+      <rect x="18.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <rect x="34.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <path d="M14.5 31 L6.5 22" stroke-width="13"></path><path d="M14.5 31 L6.5 22" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M49.5 31 L57.5 22" stroke-width="13"></path><path d="M49.5 31 L57.5 22" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M32 18 V9"></path>
+      <circle cx="32" cy="6.4" r="3.2" fill="#2563EB" stroke="none"></circle>
+      <rect x="14" y="18" width="36" height="34" rx="12" fill="#DBE6FE"></rect>
+      <path d="M21.6 33.4 Q25 29.4 28.4 33.4" stroke-width="3"></path>
+      <path d="M35.6 33.4 Q39 29.4 42.4 33.4" stroke-width="3"></path>
+      <path d="M27 39.5 Q32 44.4 37 39.5" stroke-width="3"></path>
+    </g>
+  </symbol>
+  <symbol id="m-empty" viewBox="0 0 64 64">
+    <g fill="none" stroke="#1D4FD7" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4.5" y="4.5" width="55" height="55" rx="16" stroke="#2563EB" stroke-width="2.4" stroke-dasharray="7 8" opacity=".55"></rect>
+      <rect x="18.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <rect x="34.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <path d="M14.5 36 L6 34" stroke-width="13"></path><path d="M14.5 36 L6 34" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M49.5 36 L58 34" stroke-width="13"></path><path d="M49.5 36 L58 34" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M32 18 V10"></path>
+      <circle cx="32" cy="7.4" r="3.2" fill="#2563EB" stroke="none"></circle>
+      <rect x="14" y="18" width="36" height="34" rx="12" fill="#DBE6FE"></rect>
+      <circle cx="25" cy="33" r="3" fill="#1D4FD7" stroke="none"></circle>
+      <circle cx="39" cy="33" r="3" fill="#1D4FD7" stroke="none"></circle>
+      <path d="M28.5 41 H35.5" stroke-width="3"></path>
+    </g>
+  </symbol>
+  <symbol id="m-processing" viewBox="0 0 64 64">
+    <g fill="none" stroke="#1D4FD7" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <g style="animation:fx-spin 1.4s linear infinite;transform-origin:32px 6.6px">
+        <path d="M32 1.6 A5 5 0 1 1 27.2 8.2" stroke="#2563EB" stroke-width="3"></path>
+      </g>
+      <path d="M32 18 V12"></path>
+      <rect x="18.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <rect x="34.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <path d="M14.5 35 L6.5 32" stroke-width="13"></path><path d="M14.5 35 L6.5 32" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M49.5 35 L57.5 32" stroke-width="13"></path><path d="M49.5 35 L57.5 32" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <rect x="14" y="18" width="36" height="34" rx="12" fill="#DBE6FE"></rect>
+      <circle cx="25" cy="33" r="3" fill="#1D4FD7" stroke="none"></circle>
+      <circle cx="39" cy="33" r="3" fill="#1D4FD7" stroke="none"></circle>
+      <circle cx="32" cy="41" r="2.4" stroke-width="2.8"></circle>
+    </g>
+  </symbol>
+  <symbol id="m-lowmatch" viewBox="0 0 64 64">
+    <g fill="none" stroke="#1D4FD7" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M49.5 32 L57 24" stroke-width="13"></path><path d="M49.5 32 L57 24" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <g transform="rotate(-8 32 38)">
+        <rect x="18.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+        <rect x="34.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+        <path d="M14.5 37 L6.5 35" stroke-width="13"></path><path d="M14.5 37 L6.5 35" stroke="#DBE6FE" stroke-width="6.2"></path>
+        <path d="M32 18 V10"></path>
+        <circle cx="32" cy="7.4" r="3.2" fill="#2563EB" stroke="none"></circle>
+        <rect x="14" y="18" width="36" height="34" rx="12" fill="#DBE6FE"></rect>
+        <path d="M21.5 27.8 L28 25.6" stroke-width="2.8"></path>
+        <path d="M42.5 27.8 L36 25.6" stroke-width="2.8"></path>
+        <circle cx="25" cy="34" r="3" fill="#1D4FD7" stroke="none"></circle>
+        <circle cx="39" cy="34" r="3" fill="#1D4FD7" stroke="none"></circle>
+        <path d="M28 41.6 Q32 39.4 36 41.6" stroke-width="3"></path>
+      </g>
+    </g>
+  </symbol>
+  <symbol id="m-defense" viewBox="0 0 64 64">
+    <g fill="none" stroke="#1D4FD7" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="18.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <rect x="34.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <path d="M14.5 36 L6.5 34" stroke-width="13"></path><path d="M14.5 36 L6.5 34" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M49.5 34 L54.5 41" stroke-width="13"></path><path d="M49.5 34 L54.5 41" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M32 18 V10"></path>
+      <circle cx="32" cy="7.4" r="3.2" fill="#2563EB" stroke="none"></circle>
+      <rect x="14" y="18" width="36" height="34" rx="12" fill="#DBE6FE"></rect>
+      <path d="M21 26.6 Q25 23.4 29 26.6" stroke-width="2.8"></path>
+      <circle cx="25" cy="34" r="3" fill="#1D4FD7" stroke="none"></circle>
+      <path d="M35.6 33.6 H42.4" stroke-width="3.2"></path>
+      <path d="M28.5 41.6 H35.5" stroke-width="3"></path>
+      <g transform="rotate(8 53 46)">
+        <rect x="45" y="37" width="16" height="20" rx="4" fill="#DBE6FE"></rect>
+        <path d="M49 43 H57" stroke="#2563EB" stroke-width="2.6"></path>
+        <path d="M49 49 H54.5" stroke="#2563EB" stroke-width="2.6"></path>
+      </g>
+    </g>
+  </symbol>
+  <symbol id="m-error" viewBox="0 0 64 64">
+    <g fill="none" stroke="#1D4FD7" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="18.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <rect x="34.5" y="46" width="11" height="15" rx="5.5" fill="#DBE6FE"></rect>
+      <path d="M14.5 37 L7 43" stroke-width="13"></path><path d="M14.5 37 L7 43" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M49.5 37 L57 43" stroke-width="13"></path><path d="M49.5 37 L57 43" stroke="#DBE6FE" stroke-width="6.2"></path>
+      <path d="M32 18 L32 13 L27.5 9.5"></path>
+      <circle cx="25.4" cy="7.8" r="3.2" fill="#2563EB" stroke="none"></circle>
+      <rect x="14" y="18" width="36" height="34" rx="12" fill="#DBE6FE"></rect>
+      <path d="M22 30.4 L27.6 36" stroke-width="3"></path>
+      <path d="M27.6 30.4 L22 36" stroke-width="3"></path>
+      <path d="M36.4 30.4 L42 36" stroke-width="3"></path>
+      <path d="M42 30.4 L36.4 36" stroke-width="3"></path>
+      <path d="M27.5 42.4 Q30 39.8 32.5 42.4 T37.5 42.4" stroke-width="2.8"></path>
+    </g>
+  </symbol>
+</svg>
+
+<div style="min-height:100vh;padding:24px 28px 56px;color:#101828">
+
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;max-width:1400px;margin:0 auto 20px">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(180deg,#2563EB,#1D4FD7)"></div>
+        <div style="font-size:20px;font-weight:700;letter-spacing:-.01em">JobFill — Mockup permukaan</div>
+      </div>
+      <div style="margin-top:6px;font-size:13px;color:#475467;max-width:640px;text-wrap:pretty">Dibaca dari <code style="font-size:12px;color:#101828">prd.md</code> §6, <code style="font-size:12px;color:#101828">screens.md</code> §2–§4, dan token <code style="font-size:12px;color:#101828">design-system.md</code> §3. Frame panel lebarnya tepat 400px.</div>
+    </div>
+    <div style="display:flex;background:#E4E7EC;padding:3px;border-radius:999px;gap:2px">
+      <button onClick="{{ showPanel }}" style="{{ surfaceBtnPanel }}">Side panel · 400px</button>
+      <button onClick="{{ showOptions }}" style="{{ surfaceBtnOptions }}">Options page</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ isPanel }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1400px;margin:0 auto;display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="width:300px;flex:0 0 300px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:8px;box-shadow:0 2px 8px rgba(16,24,40,.06)">
+      <div style="padding:10px 10px 8px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#98A2B3">STATE</div>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-for list="{{ railItems }}" as="s" hint-placeholder-count="10">
+          <button onClick="{{ s.onClick }}" style="{{ s.style }}">
+            <span style="{{ s.idStyle }}">{{ s.id }}</span>
+            <span style="display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left">
+              <span style="{{ s.nameStyle }}">{{ s.name }}</span>
+              <span style="{{ s.descStyle }}">{{ s.desc }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="width:400px;background:#FFFFFF;border:1px solid #D0D5DD;border-radius:12px;overflow:hidden;box-shadow:0 12px 32px rgba(16,24,40,.10);display:flex;flex-direction:column;height:660px">
+
+        <div style="background:#FFFFFF;padding:10px 12px 0;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:20px;height:20px;border-radius:6px;background:linear-gradient(180deg,#2563EB,#1D4FD7)"></div>
+            <div style="font-size:13px;font-weight:700">JobFill</div>
+          </div>
+          <div style="display:flex;gap:2px">
+            <div style="width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:#667085;font-size:14px">⌕</div>
+            <div style="width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:#667085;font-size:14px">⚙</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:2px;padding:8px 8px 0;background:#F0F2F6;margin-top:10px">
+          <button onClick="{{ goAutofill }}" style="{{ tabAutofill }}">
+            <span style="{{ tabAutofillInk }}">Autofill</span>
+          </button>
+          <button onClick="{{ goProfile }}" style="{{ tabProfile }}">
+            <span style="{{ tabProfileInk }}">Profile</span>
+          </button>
+        </div>
+
+        <div style="flex:1;overflow:auto;background:#FFFFFF;padding:12px">
+
+          <sc-if value="{{ showSiteHeader }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:8px;padding:2px 2px 10px">
+              <div style="width:16px;height:16px;border-radius:4px;background:#101828;flex:0 0 16px"></div>
+              <div style="min-width:0">
+                <div style="font-size:12px;color:#475467">boards.example.test</div>
+                <div title="Frontend Engineer — Contoh Karya" style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Frontend Engineer — Contoh Karya</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isA4 }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:10px;background:#EFF4FF;border-radius:10px;padding:8px 12px;margin-bottom:10px">
+              <svg width="40" height="40" viewBox="0 0 64 64" style="flex:0 0 40px"><use href="#m-processing"></use></svg>
+              <div style="min-width:0">
+                <div style="font-size:13px;font-weight:600;color:#1D4FD7">Mengisi field ke-6 dari 12…</div>
+                <div style="font-size:12px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Jangan tutup tab ini dulu.</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showSummary }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#EFF4FF;border-radius:10px;padding:10px 12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#101828;font-weight:600">
+                <span>{{ summaryText }}</span>
+                <span style="color:#475467;font-weight:500">{{ summaryPct }}</span>
+              </div>
+              <div style="margin-top:8px;height:4px;border-radius:999px;background:#DBE6FE;overflow:hidden">
+                <div style="{{ summaryBarStyle }}"></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showRows }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;padding:0 2px 6px">
+              <div style="font-size:12px;font-weight:700;letter-spacing:.04em;color:#98A2B3">{{ rowsHeading }}</div>
+              <div style="font-size:12px;color:#475467">{{ rowsAction }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <sc-for list="{{ rows }}" as="f" hint-placeholder-count="8">
+                <div style="{{ f.rowStyle }}">
+                  <div style="{{ f.boxStyle }}">{{ f.glyph }}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="{{ f.labelStyle }}">{{ f.label }}</div>
+                    <div style="{{ f.valueStyle }}">{{ f.value }}</div>
+                  </div>
+                  <sc-if value="{{ f.hasBadge }}" hint-placeholder-val="{{ true }}">
+                    <span style="{{ f.badgeStyle }}">{{ f.badgeText }}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showUnmapped }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:16px;border:1px solid #E4E7EC;border-radius:14px;overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#FFFAEB">
+                <div style="font-size:13px;font-weight:700;color:#B54708">Tidak dikenali (3)</div>
+                <div style="font-size:12px;color:#B54708">Petakan sekali, berlaku terus</div>
+              </div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ unmapped }}" as="u" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #E4E7EC;min-height:44px">
+                    <div style="flex:1;min-width:0">
+                      <div title="{{ u.label }}" style="font-size:13px;color:#101828;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.label }}</div>
+                      <div style="font-size:12px;color:#98A2B3">{{ u.hint }}</div>
+                    </div>
+                    <button style="flex:0 0 auto;height:28px;padding:0 10px;border-radius:8px;border:1px solid #D0D5DD;background:#FFFFFF;color:#101828;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:#F0F2F6">Petakan</button>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isA5 }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:10px;background:#ECFDF3;border-radius:10px;padding:10px 12px">
+              <svg width="44" height="44" viewBox="0 0 64 64" style="flex:0 0 44px;animation:fx-pop 1.8s ease-in-out infinite"><use href="#m-success"></use></svg>
+              <div style="min-width:0">
+                <div style="font-size:13px;font-weight:700;color:#027A48">9 field terisi · 1 dilewati</div>
+                <div style="font-size:12px;color:#027A48;opacity:.85">Cek sekali lagi sebelum submit, ya.</div>
+              </div>
+            </div>
+            <div style="margin-top:12px;border:1px solid #E4E7EC;border-radius:14px;padding:12px">
+              <div style="font-size:13px;font-weight:700">Simpan lowongan ini?</div>
+              <div style="margin-top:2px;font-size:12px;color:#475467">Terbaca dari halaman — bisa dikoreksi.</div>
+              <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+                <div>
+                  <div style="font-size:12px;color:#475467;margin-bottom:4px">Posisi</div>
+                  <input defaultValue="Frontend Engineer" style="width:100%;height:34px;padding:0 10px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:13px;color:#101828" />
+                </div>
+                <div>
+                  <div style="font-size:12px;color:#475467;margin-bottom:4px">Perusahaan</div>
+                  <input defaultValue="Contoh Karya" style="width:100%;height:34px;padding:0 10px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:13px;color:#101828" />
+                </div>
+                <div style="font-size:12px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">boards.example.test/jobs/123 · 2 Sep 2026</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isA1 }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:56px 20px;text-align:center">
+              <svg width="96" height="96" viewBox="0 0 64 64" style="display:block;margin:0 auto"><use href="#m-empty"></use></svg>
+              <div style="margin-top:12px;font-size:15px;font-weight:700">Tidak ada form di halaman ini</div>
+              <div style="margin-top:6px;font-size:13px;color:#475467;text-wrap:pretty">Buka halaman lamaran kerja, lalu panel ini akan mendeteksi field-nya sendiri.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isA6 }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid #E4E7EC;border-radius:14px;padding:12px">
+              <div style="font-size:15px;font-weight:700">Profil belum lengkap</div>
+              <div style="margin-top:4px;font-size:13px;color:#475467;text-wrap:pretty">Form ini menanyakan 4 hal yang belum ada di profil kamu. Isi sekali, lalu autofill berikutnya penuh.</div>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:2px">
+                <sc-for list="{{ missing }}" as="m" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:8px;min-height:44px" style-hover="background:#F0F2F6">
+                    <div style="width:18px;height:18px;border-radius:6px;border:1px dashed #D0D5DD;flex:0 0 18px"></div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:13px;color:#101828;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.label }}</div>
+                      <div style="font-size:12px;color:#98A2B3">{{ m.section }}</div>
+                    </div>
+                    <a href="#" style="font-size:12px;font-weight:600;flex:0 0 auto">Isi →</a>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isA7 }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid #E4E7EC;border-radius:14px;padding:14px">
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <svg width="52" height="52" viewBox="0 0 64 64" style="flex:0 0 52px;margin-top:-4px"><use href="#m-error"></use></svg>
+                <div style="display:inline-flex;align-items:center;gap:6px;background:#FEF3F2;color:#B42318;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;margin-top:6px">Tidak bisa dibaca</div>
+              </div>
+              <div style="margin-top:10px;font-size:15px;font-weight:700">Form ada di iframe terkunci</div>
+              <div style="margin-top:6px;font-size:13px;color:#475467;text-wrap:pretty">Situs ini menaruh formnya di iframe lintas-domain yang di-sandbox, jadi extension tidak diizinkan menulis ke dalamnya.</div>
+              <div style="margin-top:12px;background:#F6F8FA;border-radius:10px;padding:10px 12px;font-size:12px;color:#475467;text-wrap:pretty">Yang bisa dicoba: buka form-nya di tab sendiri (klik kanan → buka di tab baru), lalu jalankan Fill di sana.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isA8 }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid #E4E7EC;border-radius:14px;padding:14px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <svg width="64" height="64" viewBox="0 0 64 64" style="flex:0 0 64px"><use href="#m-lowmatch"></use></svg>
+                <div style="min-width:0">
+                  <div style="display:flex;align-items:baseline;gap:6px">
+                    <div style="font-size:24px;font-weight:700;letter-spacing:-.02em;color:#B54708">42%</div>
+                    <div style="font-size:13px;color:#475467">cocok</div>
+                  </div>
+                  <div style="margin-top:2px;font-size:12px;color:#475467;text-wrap:pretty">3 dari 8 syarat inti belum terpenuhi.</div>
+                </div>
+              </div>
+              <div style="margin-top:12px;height:4px;border-radius:999px;background:#F0F2F6;overflow:hidden">
+                <div style="width:42%;height:100%;border-radius:999px;background:#B54708"></div>
+              </div>
+              <div style="margin-top:14px;font-size:12px;font-weight:700;letter-spacing:.04em;color:#98A2B3">YANG BELUM TERPENUHI</div>
+              <div style="margin-top:6px;display:flex;flex-direction:column;gap:2px">
+                <sc-for list="{{ gaps }}" as="g" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 6px;border-radius:8px;min-height:44px">
+                    <div style="width:18px;height:18px;border-radius:6px;background:#FFFAEB;color:#B54708;display:grid;place-items:center;font-size:11px;flex:0 0 18px;margin-top:2px">!</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:13px;color:#101828">{{ g.need }}</div>
+                      <div style="font-size:12px;color:#98A2B3">{{ g.you }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:10px;background:#F6F8FA;border-radius:10px;padding:10px 12px;font-size:12px;color:#475467;text-wrap:pretty">Skor ini menilai kecocokan teks lowongan dengan profilmu — bukan menilai kamu. Lima syarat lain sudah kamu penuhi, dan itu sering cukup untuk lolos screening.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isA9 }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px">
+              <div style="font-size:12px;font-weight:700;letter-spacing:.04em;color:#98A2B3">CV DEFENSE</div>
+              <div style="font-size:12px;color:#475467">Pertanyaan 2 dari 5</div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:8px">
+              <svg width="52" height="52" viewBox="0 0 64 64" style="flex:0 0 52px"><use href="#m-defense"></use></svg>
+              <div style="flex:1;min-width:0;background:#EFF4FF;border-radius:12px 12px 12px 4px;padding:10px 12px">
+                <div style="font-size:13px;color:#101828;text-wrap:pretty">Di CV kamu tertulis waktu render turun dari 4.1s ke 1.3s. Bagian mana yang sebenarnya kamu ubah, dan bagaimana kamu mengukurnya?</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;padding-left:60px;font-size:12px;color:#98A2B3">Diambil dari Work Experience · Contoh Karya</div>
+            <div style="margin-top:14px">
+              <textarea rows="5" placeholder="Jawab seperti kamu bicara ke pewawancara." style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:13px;color:#101828;resize:vertical"></textarea>
+            </div>
+            <div style="margin-top:10px;border:1px solid #E4E7EC;border-radius:12px;padding:10px 12px">
+              <div style="font-size:12px;font-weight:700;color:#101828">Jawaban kuat biasanya memuat</div>
+              <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+                <span style="height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:#F0F2F6;font-size:12px;color:#475467">teknik konkret</span>
+                <span style="height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:#F0F2F6;font-size:12px;color:#475467">cara mengukur</span>
+                <span style="height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:#F0F2F6;font-size:12px;color:#475467">bagianmu sendiri</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isProfileTab }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ isP1 }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:48px 20px;text-align:center">
+                <div style="width:40px;height:40px;border-radius:999px;background:#F0F2F6;display:grid;place-items:center;margin:0 auto;font-size:18px;color:#667085">◍</div>
+                <div style="margin-top:12px;font-size:15px;font-weight:700">Profil masih kosong</div>
+                <div style="margin-top:6px;font-size:13px;color:#475467;text-wrap:pretty">Autofill hanya seakurat data yang ada. Isi Personal Info dan Contact dulu — sisanya bisa menyusul.</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isP23 }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:10px;padding:2px 2px 12px">
+                <div style="width:38px;height:38px;border-radius:999px;background:#EFF4FF;color:#1D4FD7;display:grid;place-items:center;font-size:14px;font-weight:700;flex:0 0 38px">ID</div>
+                <div style="min-width:0">
+                  <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Imelda Damayanti</div>
+                  <div style="font-size:12px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">imelda@example.test</div>
+                </div>
+              </div>
+              <div style="border:1px solid #E4E7EC;border-radius:14px;overflow:hidden">
+                <sc-for list="{{ profileSections }}" as="p" hint-placeholder-count="7">
+                  <div style="{{ p.rowStyle }}">
+                    <div style="flex:1;min-width:0;font-size:13px;color:#101828;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div>
+                    <div style="{{ p.countStyle }}">{{ p.count }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:10px;font-size:12px;color:#98A2B3;text-wrap:pretty">Preview read-only. Mengedit array pengalaman tidak dilakukan di 400px.</div>
+            </sc-if>
+          </sc-if>
+
+        </div>
+
+        <sc-if value="{{ showFooter }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#FFFFFF;border-top:1px solid #E4E7EC;padding:12px;display:flex;gap:8px">
+            <sc-if value="{{ hasSecondary }}" hint-placeholder-val="{{ true }}">
+              <button style="flex:0 0 auto;height:40px;padding:0 14px;border-radius:10px;border:1px solid #D0D5DD;background:#FFFFFF;color:#101828;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#F0F2F6">{{ secondaryLabel }}</button>
+            </sc-if>
+            <button style="{{ primaryStyle }}" style-hover="{{ primaryHover }}">{{ primaryLabel }}</button>
+          </div>
+        </sc-if>
+
+      </div>
+      <div style="width:400px;font-size:12px;color:#475467;text-wrap:pretty">{{ frameNote }}</div>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isOptions }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1400px;margin:0 auto;background:#F6F8FA;border:1px solid #D0D5DD;border-radius:14px;overflow:hidden;box-shadow:0 12px 32px rgba(16,24,40,.10);display:flex;min-height:760px;position:relative">
+
+    <div style="width:252px;flex:0 0 252px;background:#FFFFFF;border-right:1px solid #E4E7EC;padding:20px 12px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:center;gap:8px;padding:0 8px">
+        <div style="width:22px;height:22px;border-radius:7px;background:linear-gradient(180deg,#2563EB,#1D4FD7)"></div>
+        <div style="font-size:14px;font-weight:700">JobFill</div>
+      </div>
+      <div>
+        <div style="padding:0 8px 8px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#98A2B3">PROFILE</div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <sc-for list="{{ navProfile }}" as="n" hint-placeholder-count="7">
+            <button onClick="{{ n.onClick }}" style="{{ n.style }}">
+              <span style="flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.name }}</span>
+              <span style="{{ n.dotStyle }}"></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div>
+        <div style="padding:0 8px 8px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#98A2B3">DATA</div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <sc-for list="{{ navData }}" as="n" hint-placeholder-count="2">
+            <button onClick="{{ n.onClick }}" style="{{ n.style }}">
+              <span style="flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.name }}</span>
+              <span style="{{ n.dotStyle }}"></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="margin-top:auto;padding:12px;background:#F6F8FA;border-radius:12px;font-size:12px;color:#475467;text-wrap:pretty">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</div>
+    </div>
+
+    <div style="flex:1;min-width:0;overflow:auto;padding:32px 40px 56px">
+      <div style="max-width:880px;margin:0 auto">
+
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px">
+          <div>
+            <div style="font-size:28px;font-weight:700;letter-spacing:-.02em">{{ sectionTitle }}</div>
+            <div style="margin-top:6px;font-size:14px;color:#475467;text-wrap:pretty;max-width:560px">{{ sectionSub }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex:0 0 auto;padding-top:8px">
+            <span style="width:6px;height:6px;border-radius:999px;background:#027A48"></span>
+            <span style="font-size:13px;color:#475467">Tersimpan</span>
+          </div>
+        </div>
+
+        <sc-if value="{{ secPersonal }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:24px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Nama depan</div><input defaultValue="Imelda" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Nama tengah</div><input placeholder="opsional" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Nama belakang</div><input defaultValue="Damayanti" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Tanggal lahir</div><input defaultValue="2003-04-11" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Jenis kelamin</div>
+                <select defaultValue="Perempuan" style="width:100%;height:38px;padding:0 10px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828">
+                  <option>Perempuan</option><option>Laki-laki</option><option>Tidak disebutkan</option>
+                </select>
+                <div style="margin-top:6px;font-size:12px;color:#98A2B3">Dicocokkan longgar ke opsi form (“Female”, “P”).</div>
+              </div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Kewarganegaraan</div><input defaultValue="Indonesia" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ secCustom }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:24px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ customFields }}" as="c" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:280px 1fr 36px;gap:12px;align-items:center">
+                  <input defaultValue="{{ c.key }}" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" />
+                  <input defaultValue="{{ c.value }}" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" />
+                  <button style="width:36px;height:36px;border-radius:8px;border:1px solid #E4E7EC;background:#FFFFFF;color:#B42318;font-size:14px;cursor:pointer" style-hover="background:#FEF3F2">✕</button>
+                </div>
+              </sc-for>
+            </div>
+            <button style="margin-top:16px;height:38px;padding:0 14px;border-radius:10px;border:1px dashed #D0D5DD;background:transparent;color:#101828;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#F0F2F6">+ Tambah field</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ secContact }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:24px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Email</div><input defaultValue="imelda@example.test" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Telepon</div><input defaultValue="+62 812 3456 7890" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">LinkedIn</div><input defaultValue="linkedin.com/in/imelda" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Website / portfolio</div>
+                <input defaultValue="imelda.test" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #B42318;background:#FBFCFD;font-size:14px;color:#101828" />
+                <div style="margin-top:6px;font-size:12px;color:#B42318">Sepertinya belum lengkap — biasanya diawali https://. Tetap disimpan.</div>
+              </div>
+            </div>
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid #E4E7EC">
+              <div style="font-size:16px;font-weight:700;margin-bottom:16px">Alamat</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div style="grid-column:1 / -1"><div style="font-size:13px;color:#475467;margin-bottom:6px">Jalan</div><input defaultValue="Jl. Contoh No. 12" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Kota</div><input defaultValue="Bandung" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Provinsi</div><input defaultValue="Jawa Barat" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Kode pos</div><input defaultValue="40132" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Negara</div><input defaultValue="Indonesia" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ secEducation }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:24px;border:1px dashed #D0D5DD;border-radius:14px;background:#FFFFFF;padding:48px 24px;text-align:center">
+            <div style="width:40px;height:40px;border-radius:999px;background:#F0F2F6;display:grid;place-items:center;margin:0 auto;font-size:18px;color:#667085">◇</div>
+            <div style="margin-top:12px;font-size:16px;font-weight:700">Belum ada riwayat pendidikan</div>
+            <div style="margin-top:6px;font-size:14px;color:#475467;text-wrap:pretty">Institusi, jenjang, jurusan, IPK, dan tahun — empat di antaranya sering ditanya form lamaran.</div>
+            <button style="margin-top:16px;height:40px;padding:0 16px;border-radius:10px;border:0;background:linear-gradient(180deg,#2563EB,#1D4FD7);color:#FFFFFF;font-size:14px;font-weight:600;cursor:pointer">Tambah pendidikan pertama</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ secWork }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:24px;display:flex;flex-direction:column;gap:12px">
+            <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="color:#98A2B3;font-size:14px;cursor:grab">⠿</div>
+                <div style="width:36px;height:36px;border-radius:999px;background:#EFF4FF;color:#1D4FD7;display:grid;place-items:center;font-size:13px;font-weight:700;flex:0 0 36px">CK</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:700">Frontend Engineer Intern</div>
+                  <div style="font-size:13px;color:#475467">Contoh Karya · Magang · Bandung</div>
+                </div>
+                <div style="font-size:13px;color:#98A2B3">Jan 2026 — sekarang</div>
+                <button style="width:32px;height:32px;border-radius:8px;border:1px solid #E4E7EC;background:#FFFFFF;color:#475467;cursor:pointer" style-hover="background:#F0F2F6">▴</button>
+              </div>
+              <div style="margin-top:20px;padding-top:20px;border-top:1px solid #E4E7EC;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Perusahaan</div><input defaultValue="Contoh Karya" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Posisi</div><input defaultValue="Frontend Engineer Intern" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Tipe</div>
+                  <select defaultValue="Magang" style="width:100%;height:38px;padding:0 10px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828"><option>Full-time</option><option>Magang</option><option>Freelance</option></select>
+                </div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Lokasi</div><input defaultValue="Bandung" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Mulai</div><input defaultValue="2026-01" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" /></div>
+                <div><div style="font-size:13px;color:#475467;margin-bottom:6px">Selesai</div><input placeholder="—" disabled="{{ true }}" style="width:100%;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#F0F2F6;font-size:14px;color:#98A2B3" /></div>
+                <label style="grid-column:1 / -1;display:flex;align-items:center;gap:10px;font-size:14px;color:#101828;cursor:pointer">
+                  <input type="checkbox" defaultChecked="{{ true }}" style="width:16px;height:16px;accent-color:#2563EB" />
+                  Masih bekerja di sini
+                </label>
+                <div style="grid-column:1 / -1"><div style="font-size:13px;color:#475467;margin-bottom:6px">Deskripsi</div>
+                  <textarea rows="3" defaultValue="Membangun ulang halaman katalog dengan React, memotong waktu render awal dari 4.1s ke 1.3s." style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828;resize:vertical"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <sc-for list="{{ workCollapsed }}" as="w" hint-placeholder-count="2">
+              <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:16px 20px;box-shadow:0 1px 2px rgba(16,24,40,.05);display:flex;align-items:center;gap:12px">
+                <div style="color:#98A2B3;font-size:14px;cursor:grab">⠿</div>
+                <div style="width:36px;height:36px;border-radius:999px;background:#F2F4F7;color:#475467;display:grid;place-items:center;font-size:13px;font-weight:700;flex:0 0 36px">{{ w.initials }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ w.position }}</div>
+                  <div style="font-size:13px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ w.meta }}</div>
+                </div>
+                <div style="font-size:13px;color:#98A2B3;flex:0 0 auto">{{ w.dates }}</div>
+                <button style="width:32px;height:32px;border-radius:8px;border:1px solid #E4E7EC;background:#FFFFFF;color:#475467;cursor:pointer" style-hover="background:#F0F2F6">▾</button>
+              </div>
+            </sc-for>
+
+            <button style="height:44px;border-radius:12px;border:1px dashed #D0D5DD;background:transparent;color:#101828;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#F0F2F6">+ Tambah pengalaman</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ secSkill }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:24px;display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ skillGroups }}" as="g" hint-placeholder-count="3">
+              <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="font-size:16px;font-weight:700">{{ g.name }}</div>
+                  <div style="font-size:13px;color:#98A2B3">{{ g.count }}</div>
+                </div>
+                <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ g.items }}" as="s" hint-placeholder-count="5">
+                    <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 10px;border-radius:6px;background:#F0F2F6;font-size:13px;color:#101828">
+                      {{ s }}
+                      <span style="width:18px;height:18px;border-radius:5px;display:grid;place-items:center;color:#667085;cursor:pointer;font-size:11px">✕</span>
+                    </span>
+                  </sc-for>
+                  <input placeholder="Tambah + Enter" style="height:30px;min-width:160px;padding:0 10px;border-radius:6px;border:1px dashed #D0D5DD;background:#FBFCFD;font-size:13px;color:#101828" />
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ secAdditional }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:24px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05);display:flex;flex-direction:column;gap:20px">
+            <sc-for list="{{ additionalGroups }}" as="a" hint-placeholder-count="3">
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <div style="font-size:15px;font-weight:700">{{ a.name }}</div>
+                  <button style="height:30px;padding:0 10px;border-radius:8px;border:1px solid #D0D5DD;background:#FFFFFF;font-size:13px;font-weight:600;color:#101828;cursor:pointer" style-hover="background:#F0F2F6">Tambah</button>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <sc-for list="{{ a.items }}" as="i" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #E4E7EC;border-radius:10px;background:#FBFCFD">
+                      <div style="flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ i.title }}</div>
+                      <div style="font-size:13px;color:#98A2B3;flex:0 0 auto">{{ i.meta }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+            <div>
+              <div style="font-size:15px;font-weight:700;margin-bottom:10px">Catatan bebas</div>
+              <textarea rows="3" placeholder="Apa pun yang sering diminta form tapi tidak masuk kategori mana pun." style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828;resize:vertical"></textarea>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ secJobs }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:20px;display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ jobsModes }}" as="m" hint-placeholder-count="2">
+              <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.name }}</button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ jobsEmptyAll }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:20px;background:#FFFFFF;border:1px dashed #D0D5DD;border-radius:14px;padding:64px 24px;text-align:center">
+              <svg width="128" height="128" viewBox="0 0 64 64" style="display:block;margin:0 auto"><use href="#m-empty"></use></svg>
+              <div style="margin-top:16px;font-size:18px;font-weight:700">Belum ada lamaran tersimpan</div>
+              <div style="margin-top:6px;font-size:14px;color:#475467;text-wrap:pretty;max-width:420px;margin-left:auto;margin-right:auto">Setiap kali kamu jalankan Fill di halaman lamaran, lowongannya masuk ke sini beserta snapshot data yang dikirim.</div>
+              <button style="margin-top:18px;height:40px;padding:0 16px;border-radius:10px;border:0;background:linear-gradient(180deg,#2563EB,#1D4FD7);color:#FFFFFF;font-size:14px;font-weight:600;cursor:pointer">Buka halaman lowongan</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ jobsHasAny }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <input placeholder="Cari posisi, perusahaan, atau situs" style="flex:1;min-width:260px;height:40px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FFFFFF;font-size:14px;color:#101828" />
+            <div style="display:flex;gap:6px">
+              <sc-for list="{{ jobFilters }}" as="f" hint-placeholder-count="5">
+                <button onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.name }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <sc-if value="{{ jobsHasResults }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:16px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+              <sc-for list="{{ jobs }}" as="j" hint-placeholder-count="5">
+                <div onClick="{{ j.onClick }}" style="{{ j.rowStyle }}" style-hover="background:#FBFCFD">
+                  <div style="width:36px;height:36px;border-radius:10px;background:#F2F4F7;color:#475467;display:grid;place-items:center;font-size:13px;font-weight:700;flex:0 0 36px">{{ j.initials }}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ j.title }}</div>
+                    <div style="font-size:13px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ j.company }} · {{ j.origin }}</div>
+                  </div>
+                  <div style="font-size:13px;color:#98A2B3;flex:0 0 auto;width:96px">{{ j.date }}</div>
+                  <span style="{{ j.statusStyle }}">{{ j.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ jobsFilteredEmpty }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:16px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:56px 24px;text-align:center;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+              <div style="width:40px;height:40px;border-radius:999px;background:#F0F2F6;display:grid;place-items:center;margin:0 auto;font-size:18px;color:#667085">⌕</div>
+              <div style="margin-top:12px;font-size:16px;font-weight:700">Tidak ada yang cocok dengan filter ini</div>
+              <div style="margin-top:6px;font-size:14px;color:#475467">Belum ada lamaran berstatus {{ activeFilter }}.</div>
+              <button onClick="{{ resetFilter }}" style="margin-top:16px;height:38px;padding:0 14px;border-radius:10px;border:1px solid #D0D5DD;background:#FFFFFF;font-size:14px;font-weight:600;color:#101828;cursor:pointer" style-hover="background:#F0F2F6">Reset filter</button>
+            </div>
+          </sc-if>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ secData }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:20px;display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ dataStates }}" as="d" hint-placeholder-count="5">
+              <button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.name }}</button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ dataIdle }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+              <sc-for list="{{ dataCards }}" as="c" hint-placeholder-count="3">
+                <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05);display:flex;flex-direction:column;gap:8px">
+                  <div style="{{ c.iconStyle }}">{{ c.glyph }}</div>
+                  <div style="font-size:16px;font-weight:700;margin-top:4px">{{ c.title }}</div>
+                  <div style="font-size:13px;color:#475467;text-wrap:pretty;flex:1">{{ c.body }}</div>
+                  <button style="{{ c.btnStyle }}">{{ c.action }}</button>
+                </div>
+              </sc-for>
+            </div>
+            <div style="margin-top:16px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:14px">
+                <div style="font-weight:700">Pemakaian storage</div>
+                <div style="color:#475467">1.8 MB dari 10 MB · 112 entri</div>
+              </div>
+              <div style="margin-top:10px;height:6px;border-radius:999px;background:#F0F2F6;overflow:hidden">
+                <div style="width:18%;height:100%;background:#475467"></div>
+              </div>
+              <div style="margin-top:12px;font-size:13px;color:#475467;text-wrap:pretty">Data disimpan tanpa enkripsi di <code style="font-size:12px">chrome.storage.local</code>. Siapa pun dengan akses ke profil Chrome ini bisa membacanya.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dataPreview }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:20px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:10px;background:#F2F4F7;display:grid;place-items:center;font-size:14px;color:#475467">↧</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:600">jobfill-export-2026-08-19.json</div>
+                  <div style="font-size:13px;color:#98A2B3">schemaVersion 1 · 214 KB</div>
+                </div>
+              </div>
+              <div style="margin-top:18px;font-size:15px;font-weight:700">Yang akan berubah</div>
+              <div style="margin-top:10px;border:1px solid #E4E7EC;border-radius:12px;overflow:hidden">
+                <sc-for list="{{ importDiff }}" as="d" hint-placeholder-count="5">
+                  <div style="{{ d.rowStyle }}">
+                    <div style="flex:1;font-size:14px">{{ d.name }}</div>
+                    <div style="font-size:13px;color:#475467;width:120px">{{ d.before }}</div>
+                    <div style="font-size:13px;color:#98A2B3;width:16px">→</div>
+                    <div style="{{ d.afterStyle }}">{{ d.after }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                <button style="height:40px;padding:0 16px;border-radius:10px;border:0;background:linear-gradient(180deg,#2563EB,#1D4FD7);color:#FFFFFF;font-size:14px;font-weight:600;cursor:pointer">Gabung</button>
+                <button style="height:40px;padding:0 16px;border-radius:10px;border:1px solid #D0D5DD;background:#FFFFFF;color:#101828;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#F0F2F6">Ganti seluruhnya</button>
+                <span style="font-size:13px;color:#475467">Ganti menghapus 8 entri yang tidak ada di file.</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dataError }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:20px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+              <div style="display:flex;align-items:center;gap:12px">
+                <svg width="60" height="60" viewBox="0 0 64 64" style="flex:0 0 60px"><use href="#m-error"></use></svg>
+                <div style="display:inline-flex;align-items:center;gap:6px;background:#FEF3F2;color:#B42318;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600">Import dibatalkan</div>
+              </div>
+              <div style="margin-top:12px;font-size:16px;font-weight:700">Versi schema tidak dikenali (3)</div>
+              <div style="margin-top:6px;font-size:14px;color:#475467;text-wrap:pretty">File ini dibuat oleh JobFill yang lebih baru dari yang terpasang. Membacanya paksa berisiko membuang field yang belum dikenal versi ini.</div>
+              <div style="margin-top:14px;background:#F6F8FA;border-radius:10px;padding:12px 14px;font-size:13px;color:#475467">Yang bisa dilakukan: perbarui extension, lalu import ulang file yang sama. Tidak ada data yang berubah.</div>
+              <button style="margin-top:16px;height:40px;padding:0 16px;border-radius:10px;border:1px solid #D0D5DD;background:#FFFFFF;color:#101828;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#F0F2F6">Pilih file lain</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dataConfirm }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:20px;max-width:520px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:24px;box-shadow:0 12px 32px rgba(16,24,40,.10)">
+              <div style="font-size:18px;font-weight:700">Hapus semua data JobFill?</div>
+              <div style="margin-top:8px;font-size:14px;color:#475467;text-wrap:pretty">Profil, 112 captured jobs, dan semua pemetaan per-situs akan hilang. Tidak ada backup di server — hanya file export kalau kamu punya.</div>
+              <div style="margin-top:18px;font-size:13px;color:#475467;margin-bottom:6px">Ketik <b style="color:#101828">HAPUS</b> untuk melanjutkan</div>
+              <input placeholder="HAPUS" style="width:100%;height:40px;padding:0 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828" />
+              <div style="margin-top:18px;display:flex;gap:10px">
+                <button style="height:40px;padding:0 16px;border-radius:10px;border:1px solid #D0D5DD;background:#FFFFFF;color:#101828;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#F0F2F6">Batal</button>
+                <button disabled="{{ true }}" style="height:40px;padding:0 16px;border-radius:10px;border:0;background:#FEF3F2;color:#B42318;font-size:14px;font-weight:600;opacity:.6">Hapus semua</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dataDone }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:20px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:24px;box-shadow:0 1px 2px rgba(16,24,40,.05);display:flex;align-items:center;gap:14px">
+              <svg width="56" height="56" viewBox="0 0 64 64" style="flex:0 0 56px;animation:fx-pop 1.8s ease-in-out infinite"><use href="#m-success"></use></svg>
+              <div>
+                <div style="font-size:16px;font-weight:700">112 entri diimpor</div>
+                <div style="margin-top:4px;font-size:14px;color:#475467">1 profil digabung · 104 captured jobs ditambah · 7 pemetaan situs diperbarui.</div>
+              </div>
+            </div>
+          </sc-if>
+        </sc-if>
+
+      </div>
+    </div>
+
+    <sc-if value="{{ showJobDetail }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0;background:rgba(16,24,40,.24)" onClick="{{ closeJob }}"></div>
+      <div style="position:absolute;top:0;right:0;bottom:0;width:480px;background:#FFFFFF;border-left:1px solid #E4E7EC;box-shadow:0 12px 32px rgba(16,24,40,.10);display:flex;flex-direction:column">
+        <div style="padding:20px 24px;border-bottom:1px solid #E4E7EC;display:flex;align-items:flex-start;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:18px;font-weight:700;text-wrap:pretty">{{ detailTitle }}</div>
+            <div style="margin-top:4px;font-size:13px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ detailCompany }} · {{ detailUrl }}</div>
+          </div>
+          <button onClick="{{ closeJob }}" style="width:32px;height:32px;border-radius:8px;border:1px solid #E4E7EC;background:#FFFFFF;color:#475467;cursor:pointer;flex:0 0 32px" style-hover="background:#F0F2F6">✕</button>
+        </div>
+        <div style="flex:1;overflow:auto;padding:20px 24px">
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:10px 16px;font-size:14px">
+            <div style="color:#475467">Dilamar</div><div>2 Sep 2026, 10.14</div>
+            <div style="color:#475467">Situs</div><div>boards.example.test</div>
+            <div style="color:#475467">Status</div>
+            <div>
+              <select defaultValue="{{ detailStatus }}" style="height:36px;padding:0 10px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828">
+                <option>Applied</option><option>In Review</option><option>Rejected</option><option>Offer</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:22px;font-size:15px;font-weight:700">Snapshot field yang dikirim</div>
+          <div style="margin-top:4px;font-size:13px;color:#98A2B3;text-wrap:pretty">Nilai saat lamaran dikirim — bukan nilai profil sekarang.</div>
+          <div style="margin-top:12px;border:1px solid #E4E7EC;border-radius:12px;overflow:hidden">
+            <sc-for list="{{ snapshot }}" as="s" hint-placeholder-count="6">
+              <div style="{{ s.rowStyle }}">
+                <div style="width:150px;flex:0 0 150px;font-size:13px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.label }}</div>
+                <div style="flex:1;min-width:0;font-size:13px;color:#101828;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.value }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:22px;font-size:15px;font-weight:700;margin-bottom:8px">Catatan</div>
+          <textarea rows="3" placeholder="Recruiter bilang kabar dalam 2 minggu." style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #E4E7EC;background:#FBFCFD;font-size:14px;color:#101828;resize:vertical"></textarea>
+        </div>
+        <div style="padding:16px 24px;border-top:1px solid #E4E7EC;display:flex;gap:10px">
+          <button style="height:40px;padding:0 16px;border-radius:10px;border:0;background:linear-gradient(180deg,#2563EB,#1D4FD7);color:#FFFFFF;font-size:14px;font-weight:600;cursor:pointer">Simpan perubahan</button>
+          <button style="height:40px;padding:0 14px;border-radius:10px;border:0;background:#FEF3F2;color:#B42318;font-size:14px;font-weight:600;cursor:pointer">Hapus entri</button>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const T = {
+  surface:'#FFFFFF', sunken:'#F6F8FA', subtle:'#F0F2F6', input:'#FBFCFD',
+  border:'#E4E7EC', borderStrong:'#D0D5DD',
+  t1:'#101828', t2:'#475467', t3:'#98A2B3',
+  accent:'#2563EB', accentHover:'#1D4FD7', wash:'#EFF4FF',
+  okFg:'#027A48', okBg:'#ECFDF3', warnFg:'#B54708', warnBg:'#FFFAEB',
+  dangerFg:'#B42318', dangerBg:'#FEF3F2', progFg:'#5925DC', progBg:'#F4F3FF',
+  neutFg:'#475467', neutBg:'#F2F4F7'
+};
+
+const BASE_FIELDS = [
+  ['Nama lengkap','Imelda Damayanti'],
+  ['Email','imelda@example.test'],
+  ['No. telepon','+62 812 3456 7890'],
+  ['LinkedIn','linkedin.com/in/imelda'],
+  ['Kota','Bandung'],
+  ['Institusi','Universitas Contoh'],
+  ['Jurusan','Teknik Informatika'],
+  ['IPK','3.62'],
+  ['Perusahaan terakhir','Contoh Karya'],
+  ['Posisi terakhir','Frontend Engineer Intern'],
+  ['Ekspektasi gaji','Rp 8.000.000'],
+  ['Notice period','2 minggu']
+];
+
+const PANEL_STATES = [
+  {id:'A1', tab:'autofill', name:'no-form', desc:'Halaman tanpa form dikenali'},
+  {id:'A2', tab:'autofill', name:'detected', desc:'12 dari 12 field cocok'},
+  {id:'A3', tab:'autofill', name:'partial', desc:'A2 + section tidak dikenali'},
+  {id:'A4', tab:'autofill', name:'filling', desc:'Progres per baris'},
+  {id:'A5', tab:'autofill', name:'filled', desc:'Undo + simpan lowongan'},
+  {id:'A6', tab:'autofill', name:'incomplete-profile', desc:'Jalur onboarding, bukan error'},
+  {id:'A7', tab:'autofill', name:'error', desc:'Sebab spesifik + jalan keluar'},
+  {id:'A8', tab:'autofill', name:'compatibility', desc:'Skor rendah, nada simpatik'},
+  {id:'A9', tab:'autofill', name:'cv-defense', desc:'Maskot jadi penanya kritis'},
+  {id:'P1', tab:'profile', name:'profil kosong', desc:'Belum ada data sama sekali'},
+  {id:'P2', tab:'profile', name:'profil sebagian', desc:'Bagian kosong ditandai'},
+  {id:'P3', tab:'profile', name:'profil lengkap', desc:'Tujuh bagian terisi'}
+];
+
+const SECTIONS = [
+  {id:'personal', group:'profile', name:'Personal Info', title:'Personal Info', sub:'Bentuk A — form tunggal. Field statis, sekali isi.', done:true},
+  {id:'custom', group:'profile', name:'Custom Field', title:'Custom Field', sub:'Pasangan key–value bebas; ikut dipertimbangkan saat pemetaan field.', done:true},
+  {id:'contact', group:'profile', name:'Contact & Address', title:'Contact & Address', sub:'Validasi ringan: memperingatkan, tidak memblokir.', done:'partial'},
+  {id:'education', group:'profile', name:'Education', title:'Education', sub:'Bentuk B — daftar entri. Belum ada isinya.', done:false},
+  {id:'work', group:'profile', name:'Work Experience', title:'Work Experience', sub:'Bentuk B paling rumit: satu kartu expanded, sisanya collapsed.', done:true},
+  {id:'skill', group:'profile', name:'Skill', title:'Skill', sub:'Pengecualian bentuk B — chip input, dikelompokkan.', done:true},
+  {id:'additional', group:'profile', name:'Additional', title:'Additional', sub:'Sertifikasi, penghargaan, organisasi, catatan bebas.', done:'partial'},
+  {id:'jobs', group:'data', name:'Captured Jobs', title:'Captured Jobs', sub:'Riwayat lamaran, bukan pipeline board. Baris dibuka jadi slide-over.', done:true},
+  {id:'data', group:'data', name:'Data', title:'Data', sub:'Export, import, hapus semua — plus kalimat jujur soal enkripsi.', done:true}
+];
+
+const JOBS = [
+  {initials:'CK', title:'Frontend Engineer', company:'Contoh Karya', origin:'boards.example.test', date:'2 Sep 2026', status:'Applied'},
+  {initials:'NT', title:'Software Engineer, Web Platform (Fresh Graduate Program 2026)', company:'Nusa Teknologi', origin:'careers.nusa.test', date:'29 Agu 2026', status:'In Review'},
+  {initials:'BM', title:'React Developer', company:'Bumi Mandiri', origin:'jobs.bumi.test', date:'24 Agu 2026', status:'Offer'},
+  {initials:'AP', title:'Frontend Engineer (Intern)', company:'Aksara Pagi', origin:'aksara.test', date:'18 Agu 2026', status:'Rejected'},
+  {initials:'SD', title:'Fullstack Engineer', company:'Sinar Data', origin:'boards.example.test', date:'11 Agu 2026', status:'Applied'}
+];
+
+const STATUS_TONE = {
+  'Applied':[T.neutFg,T.neutBg], 'In Review':[T.progFg,T.progBg],
+  'Rejected':[T.dangerFg,T.dangerBg], 'Offer':[T.okFg,T.okBg]
+};
+
+class Component extends DCLogic {
+  state = {
+    surface: 'panel',
+    panelState: 'A3',
+    section: 'work',
+    jobFilter: 'Semua',
+    jobsMode: 'has',
+    openJob: null,
+    dataState: 'idle'
+  };
+
+  // ---- panel field rows -------------------------------------------------
+  rowShell(extra) {
+    return Object.assign({display:'flex',alignItems:'flex-start',gap:10,padding:'8px 10px',borderRadius:8,minHeight:44}, extra||{});
+  }
+  box(kind) {
+    const b = {width:18,height:18,borderRadius:6,flex:'0 0 18px',display:'grid',placeItems:'center',fontSize:11,marginTop:2};
+    if (kind === 'checked') return Object.assign(b,{background:T.accent,color:'#FFFFFF'});
+    if (kind === 'done') return Object.assign(b,{background:T.okBg,color:T.okFg});
+    if (kind === 'busy') return Object.assign(b,{background:T.wash,color:T.accentHover});
+    if (kind === 'empty') return Object.assign(b,{background:T.surface,border:'1px solid '+T.borderStrong,color:'transparent'});
+    return Object.assign(b,{background:T.subtle,color:T.t3});
+  }
+  badge(fg,bg) {
+    return {flex:'0 0 auto',marginTop:2,borderRadius:6,padding:'2px 8px',fontSize:12,fontWeight:600,color:fg,background:bg,whiteSpace:'nowrap'};
+  }
+  label(dim) { return {fontSize:13,color:dim?T.t3:T.t2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}; }
+  value(dim) { return {fontSize:13,color:dim?T.t3:T.t1,fontWeight:500,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}; }
+
+  buildRows(st) {
+    return BASE_FIELDS.map(([label, value], i) => {
+      let kind = 'checked', badge = null, dim = false;
+      if (st === 'A4') {
+        if (i < 5) { kind='done'; badge=['Terisi',T.okFg,T.okBg]; }
+        else if (i === 5) { kind='busy'; badge=['Mengisi…',T.accentHover,T.wash]; }
+        else { kind='dim'; dim=true; }
+      } else if (st === 'A5') {
+        if (i === 10) { kind='empty'; dim=true; badge=['Dilewati',T.neutFg,T.neutBg]; }
+        else { kind='done'; badge=['Terisi',T.okFg,T.okBg]; }
+      } else if (st === 'A2' || st === 'A3') {
+        if (i === 11) { kind='empty'; dim=true; badge=['Dilewati',T.neutFg,T.neutBg]; }
+      }
+      return {
+        label, value, glyph: kind==='checked'?'✓':(kind==='done'?'✓':(kind==='busy'?'•':'')),
+        rowStyle: this.rowShell(dim?{opacity:.72}:null),
+        boxStyle: this.box(kind),
+        labelStyle: this.label(dim),
+        valueStyle: this.value(dim),
+        hasBadge: !!badge,
+        badgeText: badge ? badge[0] : '',
+        badgeStyle: badge ? this.badge(badge[1], badge[2]) : {}
+      };
+    });
+  }
+
+  // ---- nav / rail -------------------------------------------------------
+  railStyle(active) {
+    return {display:'flex',alignItems:'flex-start',gap:10,padding:'9px 10px',borderRadius:10,border:0,cursor:'pointer',
+      background: active ? T.wash : 'transparent', width:'100%'};
+  }
+  navStyle(active) {
+    return {display:'flex',alignItems:'center',gap:8,height:36,padding:'0 10px',borderRadius:8,border:0,cursor:'pointer',
+      fontSize:14,fontWeight:active?600:500,color:active?T.t1:T.t2,background:active?T.wash:'transparent',width:'100%'};
+  }
+  dotStyle(done) {
+    const c = done === true ? T.okFg : (done === 'partial' ? T.warnFg : T.borderStrong);
+    return {width:6,height:6,borderRadius:999,background:c,flex:'0 0 6px'};
+  }
+  chipStyle(active) {
+    return {height:40,padding:'0 12px',borderRadius:8,cursor:'pointer',fontSize:13,fontWeight:600,
+      border:'1px solid '+(active?T.accent:T.border), background:active?T.wash:T.surface, color:active?T.accentHover:T.t2};
+  }
+  miniChip(active) {
+    return {height:32,padding:'0 12px',borderRadius:999,cursor:'pointer',fontSize:13,fontWeight:600,
+      border:'1px solid '+(active?T.accent:T.border), background:active?T.wash:T.surface, color:active?T.accentHover:T.t2};
+  }
+  stripe(i) {
+    return {display:'flex',alignItems:'center',gap:12,padding:'12px 16px',borderTop: i===0?'none':'1px solid '+T.border,
+      background: i%2 ? T.input : T.surface};
+  }
+
+  renderVals() {
+    const st = this.state.panelState;
+    const isPanelTab = PANEL_STATES.find(p => p.id === st).tab === 'autofill';
+    const sec = SECTIONS.find(s => s.id === this.state.section) || SECTIONS[0];
+    const filter = this.state.jobFilter;
+    const jobs = filter === 'Semua' ? JOBS : JOBS.filter(j => j.status === filter);
+    const notes = {
+      A1:'Empty state, tanpa footer aksi — tidak ada yang bisa dilakukan di sini selain pindah halaman.',
+      A2:'Tinggi baris 44px dengan value. Sepuluh baris muat sebelum scroll di panel setinggi jendela biasa.',
+      A3:'A3 = A2 + satu section. Bukan layar terpisah, jadi transisinya section muncul, bukan cut.',
+      A4:'Hampir tak terlihat di form kecil, tapi wajib ada untuk form 40 field di halaman berat.',
+      A5:'Satu-satunya state dengan dua tombol. Undo sekunder, simpan lowongan primer.',
+      A6:'Setiap baris deep-link ke sub-bagian profil terkait — ini jalur onboarding pengguna baru.',
+      A7:'Satu template: slot sebab + slot saran. Empat sebab berbeda memakai layar yang sama.',
+      A8:'Angka besar tetap jujur, tapi maskot dan kalimat penutup memindahkan nada dari penghakiman ke bantuan.',
+      A9:'Satu-satunya state di mana maskot bicara duluan. Pertanyaannya diambil dari klaim di CV, jadi ia terasa membaca, bukan menebak.',
+      P1:'Read-only. Satu-satunya aksi membuka options page.',
+      P2:'Bagian kosong ditandai di kanan, bukan disembunyikan — itu yang bikin orang mengisinya.',
+      P3:'Tujuh bagian dengan jumlah entri. Menjawab satu pertanyaan: data saya masih benar tidak?'
+    };
+    const footer = {
+      A2:['Fill 11 field',null], A3:['Fill 11 field',null], A4:['Mengisi…',null],
+      A5:['Simpan lowongan','Undo'], A6:['Lengkapi profil',null], A7:['Coba lagi',null],
+      A8:['Tetap lamar','Perbaiki CV'], A9:['Kirim jawaban','Lewati'],
+      P1:['Isi profil sekarang',null], P2:['Edit Profile',null], P3:['Edit Profile',null]
+    }[st];
+
+    const primaryStyle = {flex:1,height:40,borderRadius:10,border:0,cursor:'pointer',fontSize:13,fontWeight:600,
+      color:'#FFFFFF',background:'linear-gradient(180deg,'+T.accent+','+T.accentHover+')'};
+
+    return {
+      isPanel: this.state.surface === 'panel',
+      isOptions: this.state.surface === 'options',
+      showPanel: () => this.setState({surface:'panel'}),
+      showOptions: () => this.setState({surface:'options'}),
+      surfaceBtnPanel: this.segStyle(this.state.surface === 'panel'),
+      surfaceBtnOptions: this.segStyle(this.state.surface === 'options'),
+
+      railItems: PANEL_STATES.map(p => ({
+        id: p.id, name: p.name, desc: p.desc,
+        onClick: () => this.setState({panelState: p.id}),
+        style: this.railStyle(p.id === st),
+        idStyle: {flex:'0 0 26px',fontSize:11,fontWeight:700,color: p.id===st?T.accentHover:T.t3,marginTop:1,textAlign:'left'},
+        nameStyle: {fontSize:13,fontWeight: p.id===st?700:600,color:T.t1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},
+        descStyle: {fontSize:12,color:T.t3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}
+      })),
+
+      goAutofill: () => this.setState({panelState:'A3'}),
+      goProfile: () => this.setState({panelState:'P3'}),
+      tabAutofill: this.tabStyle(isPanelTab),
+      tabProfile: this.tabStyle(!isPanelTab),
+      tabAutofillInk: this.tabInk(isPanelTab),
+      tabProfileInk: this.tabInk(!isPanelTab),
+
+      showSiteHeader: ['A2','A3','A4','A5','A6','A8','A9'].indexOf(st) > -1,
+      showSummary: ['A2','A3','A4','A5'].indexOf(st) > -1,
+      showRows: ['A2','A3','A4','A5'].indexOf(st) > -1,
+      showUnmapped: st === 'A3',
+      isA1: st === 'A1', isA4: st === 'A4', isA5: st === 'A5', isA6: st === 'A6', isA7: st === 'A7',
+      isA8: st === 'A8', isA9: st === 'A9',
+      gaps: [
+        {need:'3 tahun pengalaman React profesional', you:'Profilmu: 1 tahun (magang + freelance)'},
+        {need:'Pengalaman memimpin tim kecil', you:'Belum ada di Work Experience'},
+        {need:'Berdomisili di Jakarta / bersedia onsite', you:'Profilmu: Bandung, relokasi belum dijawab'}
+      ],
+      isProfileTab: !isPanelTab, isP1: st === 'P1', isP23: st === 'P2' || st === 'P3',
+
+      summaryText: st === 'A3' ? '9 dari 12 field cocok' : (st === 'A5' ? '9 field terisi' : '12 dari 12 field cocok'),
+      summaryPct: st === 'A3' ? '75%' : '100%',
+      summaryBarStyle: {height:'100%',borderRadius:999,width: st==='A3' ? '75%' : '100%',
+        background: (st==='A4'||st==='A5') ? T.okFg : T.neutFg},
+      rowsHeading: st === 'A5' ? 'HASIL' : 'AKAN DIISI',
+      rowsAction: st === 'A5' ? 'Klik value untuk lihat penuh' : 'Matikan yang tidak perlu',
+      rows: this.buildRows(st),
+
+      unmapped: [
+        {label:'Dari mana kamu tahu lowongan ini?', hint:'select · name="source_channel"'},
+        {label:'Bersedia relokasi?', hint:'radio · label tanpa for'},
+        {label:'Nomor NPWP', hint:'input · placeholder kosong'}
+      ],
+      missing: [
+        {label:'Alamat lengkap', section:'Contact & Address · belum diisi'},
+        {label:'Tahun lulus', section:'Education · belum ada entri'},
+        {label:'Ekspektasi gaji', section:'Custom Field'},
+        {label:'Notice period', section:'Custom Field'}
+      ],
+      profileSections: SECTIONS.filter(s => s.group === 'profile').map((s, i) => {
+        const empty = st === 'P2' && (s.id === 'contact' || s.id === 'education');
+        return {
+          name: s.name,
+          count: empty ? 'belum diisi' : {personal:'lengkap',custom:'4',contact:'lengkap',education:'2',work:'3',skill:'12',additional:'5'}[s.id],
+          rowStyle: {display:'flex',alignItems:'center',gap:10,padding:'11px 12px',borderTop: i===0?'none':'1px solid '+T.border,minHeight:44},
+          countStyle: empty
+            ? {fontSize:12,fontWeight:600,color:T.warnFg,background:T.warnBg,borderRadius:6,padding:'2px 8px',flex:'0 0 auto'}
+            : {fontSize:13,color:T.t3,flex:'0 0 auto'}
+        };
+      }),
+
+      showFooter: !!footer,
+      primaryLabel: footer ? footer[0] : '',
+      secondaryLabel: footer ? footer[1] : '',
+      hasSecondary: !!(footer && footer[1]),
+      primaryStyle: st === 'A4' ? Object.assign({}, primaryStyle, {background:T.borderStrong,cursor:'default'}) : primaryStyle,
+      primaryHover: st === 'A4' ? {} : {filter:'brightness(.96)'},
+      frameNote: notes[st],
+
+      // ---- options page ----
+      navProfile: SECTIONS.filter(s => s.group === 'profile').map(s => ({
+        name: s.name, onClick: () => this.setState({section:s.id, openJob:null}),
+        style: this.navStyle(s.id === this.state.section), dotStyle: this.dotStyle(s.done)
+      })),
+      navData: SECTIONS.filter(s => s.group === 'data').map(s => ({
+        name: s.name, onClick: () => this.setState({section:s.id, openJob:null}),
+        style: this.navStyle(s.id === this.state.section), dotStyle: this.dotStyle(s.done)
+      })),
+      sectionTitle: sec.title,
+      sectionSub: sec.sub,
+      secPersonal: sec.id === 'personal', secCustom: sec.id === 'custom', secContact: sec.id === 'contact',
+      secEducation: sec.id === 'education', secWork: sec.id === 'work', secSkill: sec.id === 'skill',
+      secAdditional: sec.id === 'additional', secJobs: sec.id === 'jobs', secData: sec.id === 'data',
+
+      customFields: [
+        {key:'Ekspektasi gaji', value:'Rp 8.000.000'},
+        {key:'Notice period', value:'2 minggu'},
+        {key:'Nomor NPWP', value:'-'}
+      ],
+      workCollapsed: [
+        {initials:'AP', position:'Web Developer (Freelance)', meta:'Aksara Pagi · Freelance · Remote', dates:'Jun 2025 — Des 2025'},
+        {initials:'HL', position:'Asisten Lab Pemrograman', meta:'Universitas Contoh · Part-time · Bandung', dates:'Sep 2024 — Mei 2025'}
+      ],
+      skillGroups: [
+        {name:'Teknis', count:'8 skill', items:['React','TypeScript','Node.js','PostgreSQL','Flutter','Python','Git','Figma']},
+        {name:'Bahasa', count:'3 skill', items:['Indonesia — native','Inggris — profesional','Jepang — dasar']},
+        {name:'Lainnya', count:'1 skill', items:['Public speaking']}
+      ],
+      additionalGroups: [
+        {name:'Sertifikasi', items:[{title:'AWS Certified Cloud Practitioner', meta:'2026'},{title:'TOEFL ITP 587', meta:'2025'}]},
+        {name:'Organisasi', items:[{title:'Himpunan Mahasiswa Informatika — Ketua Divisi Acara', meta:'2024–2025'}]},
+        {name:'Link tambahan', items:[{title:'github.com/imelda', meta:'repo'},{title:'imelda.test/portfolio', meta:'portfolio'}]}
+      ],
+
+      jobFilters: ['Semua','Applied','In Review','Rejected','Offer'].map(f => ({
+        name: f, onClick: () => this.setState({jobFilter:f}), style: this.chipStyle(f === filter)
+      })),
+      jobs: jobs.map((j, i) => ({
+        initials:j.initials, title:j.title, company:j.company, origin:j.origin, date:j.date, status:j.status,
+        onClick: () => this.setState({openJob:j.title}),
+        rowStyle: {display:'flex',alignItems:'center',gap:14,padding:'14px 16px',cursor:'pointer',
+          borderTop: i===0?'none':'1px solid '+T.border},
+        statusStyle: {flex:'0 0 auto',borderRadius:6,padding:'2px 8px',fontSize:12,fontWeight:600,
+          color:STATUS_TONE[j.status][0], background:STATUS_TONE[j.status][1]}
+      })),
+      jobsModes: [['has','J1 · ada 5 lamaran'],['none','J2 · belum ada lamaran']].map(([id, name]) => ({
+        name, onClick: () => this.setState({jobsMode:id, openJob:null}), style: this.miniChip(id === this.state.jobsMode)
+      })),
+      jobsHasAny: this.state.jobsMode !== 'none',
+      jobsEmptyAll: this.state.jobsMode === 'none',
+      jobsHasResults: jobs.length > 0,
+      jobsFilteredEmpty: jobs.length === 0,
+      activeFilter: filter,
+      resetFilter: () => this.setState({jobFilter:'Semua'}),
+
+      showJobDetail: !!this.state.openJob && sec.id === 'jobs',
+      closeJob: () => this.setState({openJob:null}),
+      detailTitle: this.state.openJob || '',
+      detailCompany: (JOBS.find(j => j.title === this.state.openJob) || {}).company || '',
+      detailUrl: 'boards.example.test/jobs/123',
+      detailStatus: (JOBS.find(j => j.title === this.state.openJob) || {}).status || 'Applied',
+      snapshot: BASE_FIELDS.slice(0, 8).map(([label, value], i) => ({
+        label, value, rowStyle: this.stripe(i)
+      })),
+
+      dataStates: [
+        ['idle','D1 · idle'],['preview','D2 · import preview'],['error','D3 · import error'],
+        ['confirm','D4 · konfirmasi hapus'],['done','D5 · selesai']
+      ].map(([id, name]) => ({
+        name, onClick: () => this.setState({dataState:id}), style: this.miniChip(id === this.state.dataState)
+      })),
+      dataIdle: this.state.dataState === 'idle',
+      dataPreview: this.state.dataState === 'preview',
+      dataError: this.state.dataState === 'error',
+      dataConfirm: this.state.dataState === 'confirm',
+      dataDone: this.state.dataState === 'done',
+      dataCards: [
+        {glyph:'↥', title:'Export', body:'Seluruh profil, captured jobs, dan pemetaan situs ke satu file JSON berversi.', action:'Export JSON', tone:'primary'},
+        {glyph:'↧', title:'Import', body:'Baca file export. Kamu memilih gabung atau ganti setelah melihat pratinjau.', action:'Pilih file', tone:'secondary'},
+        {glyph:'⌫', title:'Hapus semua', body:'Menghapus semuanya dari storage browser ini. Tidak ada backup di server.', action:'Hapus semua', tone:'danger'}
+      ].map(c => ({
+        glyph:c.glyph, title:c.title, body:c.body, action:c.action,
+        iconStyle: {width:36,height:36,borderRadius:10,display:'grid',placeItems:'center',fontSize:15,
+          color: c.tone==='danger'?T.dangerFg:T.t2, background: c.tone==='danger'?T.dangerBg:T.neutBg},
+        btnStyle: c.tone === 'primary'
+          ? {height:40,borderRadius:10,border:0,cursor:'pointer',fontSize:14,fontWeight:600,color:'#FFFFFF',background:'linear-gradient(180deg,'+T.accent+','+T.accentHover+')'}
+          : (c.tone === 'danger'
+            ? {height:40,borderRadius:10,border:0,cursor:'pointer',fontSize:14,fontWeight:600,color:T.dangerFg,background:T.dangerBg}
+            : {height:40,borderRadius:10,cursor:'pointer',fontSize:14,fontWeight:600,color:T.t1,background:T.surface,border:'1px solid '+T.borderStrong})
+      })),
+      importDiff: [
+        {name:'Personal Info', before:'lengkap', after:'diperbarui', tone:'warn'},
+        {name:'Work Experience', before:'3 entri', after:'5 entri', tone:'ok'},
+        {name:'Skill', before:'12 skill', after:'12 skill', tone:'none'},
+        {name:'Captured Jobs', before:'8 entri', after:'112 entri', tone:'ok'},
+        {name:'Pemetaan situs', before:'2 origin', after:'9 origin', tone:'ok'}
+      ].map((d, i) => ({
+        name:d.name, before:d.before, after:d.after,
+        rowStyle: this.stripe(i),
+        afterStyle: {flex:1,fontSize:13,fontWeight:600,
+          color: d.tone==='ok'?T.okFg:(d.tone==='warn'?T.warnFg:T.t3)}
+      }))
+    };
+  }
+
+  segStyle(active) {
+    return {height:34,padding:'0 16px',borderRadius:999,border:0,cursor:'pointer',fontSize:13,fontWeight:600,
+      color: active ? T.t1 : T.t2, background: active ? T.surface : 'transparent',
+      boxShadow: active ? '0 1px 2px rgba(16,24,40,.08)' : 'none'};
+  }
+  tabStyle(active) {
+    return {display:'flex',justifyContent:'center',flex:1,padding:'10px 12px 9px',border:0,cursor:'pointer',
+      borderRadius:'10px 10px 0 0', background: active ? T.surface : 'transparent'};
+  }
+  tabInk(active) {
+    return {fontSize:13,fontWeight: active ? 700 : 550, color: active ? T.t1 : T.t2,
+      paddingBottom:5, borderBottom: active ? '3px solid '+T.accent : '3px solid transparent'};
+  }
+}
+
+</script>
+</body>
+</html>
