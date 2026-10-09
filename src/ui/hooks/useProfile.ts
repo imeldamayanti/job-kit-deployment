@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { createAutosaver, type SaveState } from '../../core/profile/autosave'
+import { createAutosaver, type SaveOutcome, type SaveState } from '../../core/profile/autosave'
 import type { Profile } from '../../core/profile/types'
 import { loadProfile, saveProfile } from '../../platform/storage'
 
@@ -26,5 +26,19 @@ export function useProfile() {
     [saver],
   )
 
-  return { profile, update, saveState }
+  // For a change that must be known to have landed before saying so (Data page): writes at once and
+  // reports the outcome. A refused write leaves both the stored profile and the one on screen as they were.
+  const commit = useCallback(
+    async (next: Profile): Promise<SaveOutcome> => {
+      await saver.flush()
+      setSaveState('saving')
+      const outcome = await saveProfile(next)
+      setSaveState(outcome.ok ? 'saved' : outcome.reason)
+      if (outcome.ok) setProfile(next)
+      return outcome
+    },
+    [saver],
+  )
+
+  return { profile, update, commit, saveState }
 }

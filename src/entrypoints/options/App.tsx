@@ -13,7 +13,7 @@ import { Sidebar } from './Sidebar'
 import { StorageFullNotice } from './StorageFullNotice'
 
 export function App() {
-  const { profile, update, saveState } = useProfile()
+  const { profile, update, commit, saveState } = useProfile()
   const [page, setPage] = useState<PageId>(() => pageFromHash(location.hash))
 
   return (
@@ -31,7 +31,7 @@ export function App() {
             </header>
             {saveState === 'storage-full' && <StorageFullNotice />}
             {page === 'jobs' && <JobsPage />}
-            {page === 'data' && <DataPage profile={profile} update={update} />}
+            {page === 'data' && <DataPage profile={profile} commit={commit} />}
             {profile && page === 'personal' && <PersonalSection profile={profile} update={update} />}
             {profile && page === 'contact' && <ContactSection profile={profile} update={update} />}
             {profile && page === 'education' && <EducationSection profile={profile} update={update} />}

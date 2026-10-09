@@ -7,8 +7,6 @@ import { formatBytes } from '../../core/data/storage-usage'
 import { Button } from '../../ui/primitives/Button'
 import { Checkbox } from '../../ui/primitives/Checkbox'
 
-const UNAVAILABLE = 'Belum tersedia di versi ini'
-
 type Dispatch = (event: DataEvent) => void
 type Of<K extends DataState['kind']> = Extract<DataState, { kind: K }>
 
@@ -90,7 +88,15 @@ function RowValue({ row }: { row: CvRow }) {
   )
 }
 
-export function CvPreview({ state, dispatch }: { state: Of<'import-cv-preview'>; dispatch: Dispatch }) {
+export function CvPreview({
+  state,
+  dispatch,
+  onApply,
+}: {
+  state: Of<'import-cv-preview'>
+  dispatch: Dispatch
+  onApply: () => void
+}) {
   const empty = state.rows.length === 0
   return (
     <Panel>
@@ -161,11 +167,10 @@ export function CvPreview({ state, dispatch }: { state: Of<'import-cv-preview'>;
             {state.selected.length} dari {state.rows.length} dipilih
           </span>
         )}
-        <span className="text-[12px] text-text-secondary">{UNAVAILABLE}</span>
         <Button variant="secondary" onClick={() => dispatch({ type: 'cancel' })}>
           Batal
         </Button>
-        <Button disabled title={UNAVAILABLE}>
+        <Button disabled={state.selected.length === 0} onClick={onApply}>
           Isi profil
         </Button>
       </div>

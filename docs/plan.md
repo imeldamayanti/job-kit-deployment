@@ -375,15 +375,16 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Hasil (2026-10-10, Chrome for Testing 151):** `#data?state=parsing|cv-preview|cv-empty|cv-error-scan|cv-error-locked|cv-error-broken` terlihat di build dev; tanpa overflow horizontal di 420 px. Alur nyata di build produksi dengan `clean-id.pdf`, `two-column-en.pdf`, dan `scan-id.pdf`: profil tidak berubah sebelum konfirmasi, tanpa request keluar dari origin ekstensi, tanpa error konsol. Ukuran akhir: `options` 60,17 kB (naik 20,7 kB), chunk pdf lazy 430 kB, worker 1,26 MB; side panel tetap 20,09 kB.
 
 ### T26 · Sambungkan Import CV ke profil dan uji di Chrome · 1.5h · feature · Medium
-- [ ] **T26 selesai**
+- [x] **T26 selesai** (diuji dengan PDF sintetis buatan sendiri; uji dengan PDF CV asli dari PIC masih menunggu, lihat catatan di bawah)
 
 **Context:** menyatukan T22 sampai T25 dan memverifikasi di ekstensi sungguhan.
 **Acceptance criteria**
-- [ ] Konfirmasi menulis field terpilih lewat `useProfile.update` (satu jalur tulis yang sama dengan form manual); hasil tampil sebagai angka ("8 field diisi, 2 dilewati") (FR-25)
-- [ ] Field yang sudah berisi tidak tertimpa kecuali dipilih eksplisit (FR-25)
-- [ ] Diuji di Chrome sungguhan dengan minimal tiga PDF CV: satu bersih, satu dua kolom, satu hasil scan (harus ditolak) (FR-25)
-- [ ] Penyimpanan penuh saat konfirmasi memakai notice yang sudah ada dan tidak menghilangkan data lama (PRD §8)
-- [ ] README diperbarui: fitur Import CV, batasannya (tanpa OCR, akurasi tergantung layout), dan bahwa PDF tidak meninggalkan peramban
+- [x] Konfirmasi menulis field terpilih lewat jalur tulis yang sama dengan form manual (`saveProfile` di `platform/storage`); hasil tampil sebagai angka ("9 field diisi, 1 dilewati") (FR-25). Catatan: lewat `useProfile.commit` yang baru, bukan `update`, karena `update` tidak melaporkan hasil simpan; Import JSON dan Hapus semua (T18) ikut dipindah ke `commit` agar layar "selesai" tidak muncul saat simpan gagal.
+- [x] Field yang sudah berisi tidak tertimpa kecuali dipilih eksplisit (FR-25). Terbukti di Chrome sungguhan: nama belakang yang sudah berisi tetap, lalu tertimpa setelah dicentang.
+- [x] Diuji di Chrome sungguhan dengan minimal tiga PDF CV: satu bersih (`clean-id.pdf`), satu dua kolom (`two-column-en.pdf`), satu hasil scan (`scan-id.pdf`, ditolak) (FR-25). Ketiganya sintetis, dibuat dari HTML lewat Chrome print-to-PDF.
+- [x] Penyimpanan penuh saat konfirmasi memakai notice yang sudah ada dan tidak menghilangkan data lama (PRD §8). Terbukti di Chrome sungguhan dengan menyisakan 150 byte kuota: notice tampil, layar tetap di pratinjau, profil tersimpan tidak berubah.
+- [x] README diperbarui: fitur Import CV, batasannya (tanpa OCR, akurasi tergantung layout), dan bahwa PDF tidak meninggalkan peramban
+- [ ] Uji dengan 2–3 PDF CV asli dari PIC dan catat akurasinya per field (menunggu berkas; PDF asli tidak boleh masuk repo)
 
 **Done when:** PDF CV uji mengisi profil di Chrome sungguhan, field yang berisi tidak tertimpa, dan PDF scan ditolak dengan pesan jelas.
 

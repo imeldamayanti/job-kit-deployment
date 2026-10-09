@@ -1,10 +1,12 @@
 import { Download, Trash2, Upload } from 'lucide-react'
 import { useReducer, useRef, type ChangeEvent, type ReactNode } from 'react'
 import { buildExport, exportFileName } from '../../core/data/export'
+import { applyCvSelection, summarizeCvImport } from '../../core/cv/apply'
 import { applyImport, summarizeImport } from '../../core/data/import'
 import { previewStateFromHash } from '../../core/data/preview-states'
 import { describeUsage } from '../../core/data/storage-usage'
 import { initialDataState, reduceData } from '../../core/data/state'
+import type { SaveOutcome } from '../../core/profile/autosave'
 import { createEmptyProfile } from '../../core/profile/profile'
 import type { Profile } from '../../core/profile/types'
 import { downloadText } from '../../platform/download'
@@ -76,20 +78,34 @@ function StorageCard() {
   )
 }
 
-export function DataPage({ profile, update }: { profile: Profile | null; update: (next: Profile) => void }) {
+// Every change below is shown as done only once the write has landed. When storage refuses it,
+// the screen stays where it is and the page-level notice explains; the old data is untouched.
+export function DataPage({
+  profile,
+  commit,
+}: {
+  profile: Profile | null
+  commit: (next: Profile) => Promise<SaveOutcome>
+}) {
   const [state, dispatch] = useReducer(reduceData, undefined, startState)
   const fileInput = useRef<HTMLInputElement>(null)
 
-  const applyPreview = () => {
+  const applyPreview = async () => {
     if (!profile || state.kind !== 'import-preview') return
     const next = applyImport(profile, state.profile, state.mode)
-    update(next)
-    dispatch({ type: 'finish', ...summarizeImport(profile, next) })
+    if ((await commit(next)).ok) dispatch({ type: 'finish', ...summarizeImport(profile, next) })
   }
 
-  const confirmDelete = () => {
-    update(createEmptyProfile())
-    dispatch({ type: 'finish', title: 'Semua data dihapus', detail: 'Profil di browser ini sekarang kosong.' })
+  const applyCv = async () => {
+    if (!profile || state.kind !== 'import-cv-preview') return
+    const result = applyCvSelection(profile, state.draft, state.selected, () => crypto.randomUUID())
+    if ((await commit(result.profile)).ok) dispatch({ type: 'finish', ...summarizeCvImport(result) })
+  }
+
+  const confirmDelete = async () => {
+    if ((await commit(createEmptyProfile())).ok) {
+      dispatch({ type: 'finish', title: 'Semua data dihapus', detail: 'Profil di browser ini sekarang kosong.' })
+    }
   }
 
   const importFile = useImportFile(profile, dispatch)
@@ -100,7 +116,7 @@ export function DataPage({ profile, update }: { profile: Profile | null; update:
   }
 
   if (state.kind === 'parsing') return <ImportParsing state={state} />
-  if (state.kind === 'import-cv-preview') return <CvPreview state={state} dispatch={dispatch} />
+  if (state.kind === 'import-cv-preview') return <CvPreview state={state} dispatch={dispatch} onApply={applyCv} />
   if (state.kind === 'import-preview') return <ImportPreview state={state} dispatch={dispatch} onApply={applyPreview} />
   if (state.kind === 'import-error') return <ImportError state={state} dispatch={dispatch} />
   if (state.kind === 'confirm-delete') return <ConfirmDelete state={state} dispatch={dispatch} onConfirm={confirmDelete} />

@@ -13,15 +13,17 @@ Tanpa akun, tanpa server, tanpa AI, tanpa telemetri. Datamu hanya ada di browser
 - **Mengerti label Indonesia dan Inggris.** "Nama Lengkap" dan "Full Name" sama-sama dikenali. Dropdown dan radio dicocokkan longgar ("Laki-laki" memilih "Male", "S1" memilih "Bachelor's Degree").
 - **Aman.** Field yang sudah kamu isi dilewati kecuali kamu pilih Timpa. Undo mengembalikan semua field ke nilai sebelum diisi, selama halaman belum dimuat ulang.
 - **Bekerja di form modern.** Nilai yang diisi diterima form React dan sejenisnya, bukan hanya form HTML biasa.
+- **Isi profil dari CV PDF.** Di halaman Data, pilih CV berformat PDF. job-kit membaca teksnya di browser ini, memetakan nama, kontak, pendidikan, dan pengalaman dengan aturan, lalu menampilkan pratinjau per field. Tidak ada yang tersimpan sebelum kamu menekan Isi profil, dan field yang sudah berisi dilewati kecuali kamu mencentangnya. Field yang meragukan ditandai "Periksa lagi"; teks yang tidak bisa dipetakan ditampilkan apa adanya.
+- **Export, Import, dan Hapus semua.** Halaman Data menyimpan profil ke satu berkas JSON, memulihkannya (Gabung atau Ganti), dan menghapus semuanya setelah kamu mengetik `HAPUS`.
 
 ## Yang tidak dilakukan
 
 - Tidak menekan tombol submit. Kamu yang mengirim form.
 - Tidak mengisi field password.
-- Tidak mengunggah CV ke form. CV PDF hanya dibaca lokal untuk mengisi profil (belum tersedia; direncanakan T22–T26), tanpa OCR dan tanpa layanan luar.
+- Tidak mengunggah CV ke form lamaran. CV PDF hanya dibaca untuk mengisi profil, dan PDF-nya tidak pernah meninggalkan browser.
+- Tidak membaca CV hasil scan atau foto. Import CV hanya membaca PDF yang punya lapisan teks, tanpa OCR dan tanpa AI, sehingga akurasinya bergantung pada tata letak CV. PDF yang dikunci kata sandi juga ditolak. Selalu cek pratinjau sebelum mengisi.
 - Tidak ada fitur AI (cover letter, cek kecocokan lowongan, latihan interview).
-- Tidak ada banyak profil atau sinkron antar perangkat. Halaman Data: Export, Import (berkas JSON hasil Export, Gabung atau Ganti) dan Hapus semua (ketik `HAPUS`) sudah jalan.
-- Hanya browser Chromium, dan baru diuji di Chrome. Tidak ada Safari atau Firefox.
+- Tidak ada banyak profil atau sinkron antar perangkat.- Hanya browser Chromium, dan baru diuji di Chrome. Tidak ada Safari atau Firefox.
 
 ## Pasang
 

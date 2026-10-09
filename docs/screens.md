@@ -111,7 +111,7 @@ Skill adalah pengecualian bentuk B: entrinya terlalu kecil untuk kartu. Bentukny
 
 J4 bisa berupa panel samping (slide-over) atau halaman terpisah. Slide-over lebih pas: pengguna biasanya membandingkan beberapa lamaran berturut-turut.
 
-### 3.3 Data — 5 state
+### 3.3 Data — 5 state, plus 2 untuk Import CV PDF (FR-25)
 
 | # | State | Isi |
 |---|---|---|
@@ -119,7 +119,9 @@ J4 bisa berupa panel samping (slide-over) atau halaman terpisah. Slide-over lebi
 | D2 | `import-preview` | Setelah file dipilih: pratinjau apa yang berubah + pilihan **Ganti** / **Gabung** (FR-DATA-02) |
 | D3 | `import-error` | File tidak valid atau versi tidak dikenali, dengan sebab spesifik (FR-DATA-04) |
 | D4 | `confirm-destructive` | Konfirmasi hapus semua — mengetik ulang kata konfirmasi, bukan cuma tombol OK |
-| D5 | `done` | Konfirmasi berhasil, dengan angka ("112 entri diimpor") |
+| D5 | `done` | Konfirmasi berhasil, dengan angka ("112 entri diimpor", "8 field diisi, 2 dilewati") |
+| D6 | `parsing` | PDF sedang dibaca di browser |
+| D7 | `import-cv-preview` | Pratinjau CV per field: kotak centang, nilai lama dan baru, "Periksa lagi", teks yang tidak bisa dipetakan. Bila tidak ada yang terdeteksi, konfirmasi nonaktif. Error PDF (terenkripsi, tanpa lapisan teks, tak terbaca) memakai D3 |
 
 Halaman ini juga tempat kalimat jujur soal enkripsi (PRD §9.3): data tersimpan tanpa enkripsi di storage browser.
 
