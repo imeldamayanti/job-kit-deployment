@@ -1,12 +1,18 @@
+import { formatFillSummary } from '../../core/fill/summary'
 import { openEditProfile } from '../../platform/navigation'
 import { Button } from '../../ui/primitives/Button'
+import { useFill } from './useFill'
 import { useScan } from './useScan'
 
 export function App() {
   const state = useScan()
+  const { state: fillState, fill, undo } = useFill(
+    state.status === 'ready' ? state.tab : undefined,
+    state.status === 'ready' ? state.plan : null,
+  )
 
   return (
-    <main className="flex min-h-full flex-col gap-3 p-4">
+    <main className="flex min-h-full flex-col gap-3 p-4 pb-20">
       <h1 className="text-[17px] font-bold text-text-primary">job-kit</h1>
 
       {state.status === 'ready' && state.domain && (
@@ -18,6 +24,15 @@ export function App() {
           <p className="rounded-lg bg-accent-wash px-3 py-2 text-[13px] font-semibold text-text-primary">
             {state.plan.matched} dari {state.plan.total} field cocok
           </p>
+
+          {fillState.phase === 'filled' && (
+            <section className="rounded-xl border border-border bg-green-50 p-3">
+              <p className="text-[13px] font-bold text-green-700">
+                {formatFillSummary(fillState.filled, fillState.skipped)}
+              </p>
+              <p className="mt-1 text-text-secondary">Cek sekali lagi sebelum submit, ya.</p>
+            </section>
+          )}
 
           {state.plan.items.length > 0 && (
             <section className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3">
@@ -66,6 +81,20 @@ export function App() {
       <section className="rounded-xl border border-border bg-surface p-3">
         <Button onClick={() => void openEditProfile()}>Edit Profile</Button>
       </section>
+
+      {state.status === 'ready' && state.plan && (
+        <footer className="fixed inset-x-0 bottom-0 border-t border-border bg-surface p-3">
+          {fillState.phase === 'preview' ? (
+            <Button className="w-full" disabled={state.plan.items.length === 0} onClick={() => void fill()}>
+              Fill
+            </Button>
+          ) : (
+            <Button className="w-full" onClick={() => void undo()}>
+              Undo
+            </Button>
+          )}
+        </footer>
+      )}
     </main>
   )
 }
