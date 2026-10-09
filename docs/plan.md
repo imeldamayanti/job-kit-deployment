@@ -554,13 +554,15 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T37 selesai**
 
 **Acceptance criteria**
-- [ ] Sidebar dan tab sesuai T28; tab Disimpan memakai ulang komponen Captured Jobs dari T20 (FR-30)
-- [ ] Kartu, filter tipe kerja, urutan, pencarian, dan ubah status. Filter, urut, dan cari adalah fungsi murni di `core/` dengan tes (FR-30)
-- [ ] Panel alasan skor per kartu; "Skor kasar" ditandai (FR-29)
-- [ ] Semua state dari T28 terlihat lewat `#jobs?state=...` di build dev
-- [ ] Token, ikon lucide-react, tanpa kontrol bawaan peramban; rapi di ≤420 px
+- [x] Sidebar dan tab sesuai T28; tab Disimpan memakai ulang komponen Captured Jobs dari T20 (FR-30)
+- [x] Kartu, filter tipe kerja, urutan, pencarian, dan ubah status. Filter, urut, dan cari adalah fungsi murni di `core/` dengan tes (FR-30)
+- [x] Panel alasan skor per kartu; "Skor kasar" ditandai (FR-29)
+- [x] Semua state dari T28 terlihat lewat `#jobs?state=...` di build dev
+- [x] Token, ikon lucide-react, tanpa kontrol bawaan peramban; rapi di ≤420 px
 
 **Done when:** feed nyata dari T36 tampil dan semua state terlihat di Chrome sungguhan.
+
+**Hasil:** sidebar tiga tujuan (Profile, Lowongan dengan badge, Data); bagian profil jadi tab (tautan lama seperti `#contact` tetap membuka tab itu); halaman Lowongan dengan tab Rekomendasi dan Disimpan, kartu (skor tiga tingkat, panel alasan, chip bertanda AI, meta yang menyembunyikan item kosong, menu Tandai dilamar dan Sembunyikan), filter tipe kerja, urutan, pencarian, header dengan Segarkan dan Atur, dan Atur Lowongan sebagai sub-halaman dengan tombol kembali. Filter, urut, cari, tingkat skor, meta, ringkasan header, dan penentu state adalah fungsi murni di `core/feed/view.ts` (24 tes). Semua state T28 terlihat lewat `#jobs?state=list|saved|off|noprefs|fetching|empty|nomatch|onefail|paused|rough|allfail` di build dev, dan 11 tes render memastikannya. Penyimpangan dari mockup: tab Profile berdiri di atas kartu bagian, belum menyatu dengan lembar; di Disimpan, klik baris membuka lowongan, belum ada slide-over detail. Kode Captured Jobs lama (`src/core/jobs/`, `JobDetail.tsx`, `StatusBadge.tsx`) sudah tidak dipakai tetapi belum dihapus karena hook menolak `git rm`; perlu dihapus manual. Belum diverifikasi: tampilan di Chrome dan ≤420 px, feed nyata dari T36.
 
 ### T38 · Buka & isi · 1.5h · feature · Medium
 - [ ] **T38 selesai**

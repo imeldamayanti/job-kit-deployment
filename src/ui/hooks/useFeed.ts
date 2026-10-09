@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { initialFeedState, type FeedState } from '../../core/feed/schedule'
-import type { Job, SourceRun } from '../../core/feed/types'
-import { loadFeed, loadRuns, loadState, saveState, watchFeed, watchRuns, watchState } from '../../platform/feed-storage'
+import type { Job, JobStatus, SourceRun } from '../../core/feed/types'
+import { setJobStatus } from '../../core/feed/view'
+import { loadFeed, loadRuns, loadState, saveFeed, saveState, watchFeed, watchRuns, watchState } from '../../platform/feed-storage'
 
 // The feed, the per-source runs and the run state, following what the background writes.
 export function useFeed() {
@@ -20,5 +21,8 @@ export function useFeed() {
   // Opening the Lowongan page clears the badge.
   const markSeen = () => void loadState().then((current) => saveState({ ...current, seenAt: new Date().toISOString() }))
 
-  return { feed, runs, state, markSeen }
+  // Reads the stored feed first: the background may have written a newer one than this page holds.
+  const changeStatus = (id: string, status: JobStatus) => void loadFeed().then((stored) => saveFeed(setJobStatus(stored, id, status)))
+
+  return { feed, runs, state, markSeen, changeStatus }
 }

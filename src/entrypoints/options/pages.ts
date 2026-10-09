@@ -1,37 +1,37 @@
-import { PROFILE_SECTIONS, sectionFromHash, type SectionId } from '../../core/profile/sections'
+import { sectionFromHash, type SectionId } from '../../core/profile/sections'
 
-export type PageId = SectionId | 'jobs' | 'jobsettings' | 'data'
+// The sidebar has three places; the profile sections are tabs inside Profile (T28).
+export type PageId = 'profile' | 'jobs' | 'data'
+export type Route = { page: PageId; section: SectionId; settings: boolean }
 
-export const NAV_GROUPS: readonly { label: string; items: readonly { id: PageId; title: string }[] }[] = [
-  { label: 'Profile', items: PROFILE_SECTIONS },
-  {
-    label: 'Data',
-    items: [
-      { id: 'jobs', title: 'Captured Jobs' },
-      // Temporary item: it moves behind the Atur button of the Lowongan page in T37.
-      { id: 'jobsettings', title: 'Atur Lowongan' },
-      { id: 'data', title: 'Data' },
-    ],
-  },
+export const NAV_ITEMS: readonly { id: PageId; title: string }[] = [
+  { id: 'profile', title: 'Profile' },
+  { id: 'jobs', title: 'Lowongan' },
+  { id: 'data', title: 'Data' },
 ]
 
-export const PAGE_SUBTITLES: Record<PageId, string> = {
-  personal: 'Nama dan identitas dasar yang paling sering ditanya form lamaran.',
-  contact: 'Email, telepon, dan alamat untuk bagian kontak di form.',
-  education: 'Riwayat pendidikan, satu kartu per institusi.',
-  experience: 'Pengalaman kerja, satu kartu per posisi.',
-  custom: 'Pertanyaan yang tidak ada di bagian lain, misalnya ekspektasi gaji.',
-  preferences: 'Dipakai untuk mencarikan dan menilai lowongan harian. Tidak dipakai saat mengisi form.',
-  jobs: 'Riwayat lowongan yang sudah kamu lamar.',
-  jobsettings: 'Sumber, jadwal, dan penilaian AI untuk lowongan harian.',
-  data: 'Cadangkan profilmu, atau mulai dari awal.',
-}
+export const profileRoute = (section: SectionId): Route => ({ page: 'profile', section, settings: false })
+export const jobsRoute = (settings = false): Route => ({ page: 'jobs', section: 'personal', settings })
+export const dataRoute: Route = { page: 'data', section: 'personal', settings: false }
 
-export function pageFromHash(hash: string): PageId {
+// Old links such as #contact keep working: they open Profile on that tab.
+export function routeFromHash(hash: string): Route {
   const base = hash.replace(/^#/, '').split('?')[0]
-  return base === 'data' || base === 'jobs' || base === 'jobsettings' ? base : sectionFromHash(hash)
+  if (base === 'data') return dataRoute
+  if (base === 'jobs') return jobsRoute()
+  if (base === 'jobsettings') return jobsRoute(true)
+  return profileRoute(sectionFromHash(hash))
 }
 
-export function pageTitle(id: PageId): string {
-  return NAV_GROUPS.flatMap((group) => group.items).find((item) => item.id === id)?.title ?? ''
+export function routeTitle(route: Route): string {
+  if (route.page === 'jobs') return route.settings ? 'Atur Lowongan' : 'Lowongan'
+  return NAV_ITEMS.find((item) => item.id === route.page)?.title ?? ''
+}
+
+export function routeSubtitle(route: Route): string {
+  if (route.page === 'jobs') return route.settings ? 'Sumber, jadwal, dan penilaian AI untuk lowongan harian.' : 'Lowongan yang cocok dengan profilmu, diambil tiap hari.'
+  if (route.page === 'data') return 'Cadangkan profilmu, atau mulai dari awal.'
+  return route.section === 'preferences'
+    ? 'Dipakai untuk mencarikan dan menilai lowongan harian. Tidak dipakai saat mengisi form.'
+    : 'Data yang dipakai untuk mengisi form lamaran. Tersimpan otomatis.'
 }

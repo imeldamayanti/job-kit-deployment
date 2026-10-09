@@ -25,7 +25,6 @@ import { Select } from '../../ui/primitives/Select'
 import { TextField } from '../../ui/primitives/TextField'
 import { ChipListField } from './ChipListField'
 import { SectionCard } from './SectionCard'
-import type { PageId } from './pages'
 
 const SOURCES: { id: JobSourceId; name: string; about: string }[] = [
   { id: 'greenhouse', name: 'Greenhouse', about: 'Papan lowongan perusahaan pilihanmu' },
@@ -54,7 +53,7 @@ export function JobSettingsPage({
   aiKey,
   update,
   changeKey,
-  go,
+  goPreferences,
   runs,
   state,
 }: {
@@ -63,7 +62,7 @@ export function JobSettingsPage({
   aiKey: string
   update: (next: FeedSettings) => void
   changeKey: (key: string) => void
-  go: (page: PageId) => void
+  goPreferences: () => void
   runs: SourceRun[]
   state: FeedState
 }) {
@@ -124,7 +123,7 @@ export function JobSettingsPage({
       {!ready && (
         <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-50 px-4 py-3 text-[13px] text-amber-700">
           <p className="font-semibold">Preferensi kerja masih kosong, jadi lowongan belum bisa dinyalakan.</p>
-          <Button variant="secondary" onClick={() => go('preferences')}>
+          <Button variant="secondary" onClick={goPreferences}>
             Isi Preferensi kerja
           </Button>
         </div>
@@ -253,7 +252,7 @@ const REASON_TEXT: Record<string, string> = { blocked: 'diblokir sementara', tim
 
 const reasonText = (reason?: string) => (reason?.startsWith('http-') ? `server membalas ${reason.slice(5)}` : (REASON_TEXT[reason ?? ''] ?? 'gagal'))
 
-// Temporary home of "Segarkan" and the last run's result; both move into the Lowongan header in T37.
+// The last run's result in detail; the Lowongan page header only shows the summary.
 function RunStatus({ runs, state, enabled }: { runs: SourceRun[]; state: FeedState; enabled: boolean }) {
   const [answer, setAnswer] = useState('')
   const latest = SOURCES.map(({ id, name }) => ({ name, run: runs.filter((run) => run.source === id).sort((a, b) => b.at.localeCompare(a.at))[0] })).filter((row) => row.run)
