@@ -185,7 +185,7 @@ src/
     primitives/          # Button, Chip, Switch, Card (dipakai >1 layar)
     mascot/
   entrypoints/
-    background/  content/  sidepanel/  options/   # tipis: mount dan wiring
+    background/  page-reader/  sidepanel/  options/   # tipis: mount dan wiring; page-reader = unlisted script yang disuntik lewat scripting.executeScript
   assets/                # tailwind.css (@theme), SVG
 ```
 
@@ -225,4 +225,4 @@ Tidak ada hosting. Build: `npm run build` menghasilkan `.output/chrome-mv3/`. Pa
 
 ### Stack gotchas
 
-(kosong; diisi P6 dan P7)
+- Entrypoint bernama `content` (atau `*.content`) dianggap content script ber-manifest dan wajib punya `matches`. Script yang disuntik manual dinamai lain (`page-reader`) dan ditulis dengan `defineUnlistedScript`; hasil build di `/page-reader.js`.

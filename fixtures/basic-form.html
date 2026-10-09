@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>Contoh Lowongan - Basic Form</title></head>
+  <body>
+    <form id="apply">
+      <label for="full-name">Full Name</label>
+      <input id="full-name" name="full_name" type="text" />
+
+      <label>Email <input name="email" type="email" /></label>
+
+      <label for="phone">Telepon</label>
+      <input id="phone" name="phone" type="tel" />
+
+      <label for="cover">Cover note</label>
+      <textarea id="cover" name="cover"></textarea>
+
+      <label for="city">Kota</label>
+      <select id="city" name="city"><option value="">Pilih</option><option>Jakarta</option></select>
+
+      <input type="hidden" name="csrf" value="abc" />
+      <label for="pw">Password</label>
+      <input id="pw" name="pw" type="password" />
+      <input id="off" name="off" type="text" disabled />
+      <input type="submit" value="Kirim" />
+    </form>
+  </body>
+</html>
