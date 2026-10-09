@@ -4,6 +4,7 @@ export type ScannedField = {
   id: string
   label: string
   autocomplete: string
+  hasText: boolean
   element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 }
 
@@ -22,6 +23,7 @@ export function scanFields(root: ParentNode): ScannedField[] {
       id: `f${index}`,
       label: readLabel(element),
       autocomplete: element.getAttribute('autocomplete') ?? '',
+      hasText: element.value.trim() !== '',
       element,
     }))
 }

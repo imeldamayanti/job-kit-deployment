@@ -17,7 +17,10 @@ export default defineUnlistedScript(() => {
     scan: () => {
       const fields = scanFields(document)
       registry = new Map(fields.map((field) => [field.id, field.element]))
-      return fields.map(({ id, label, autocomplete }) => ({ id, label, autocomplete }))
+      return {
+        fields: fields.map(({ id, label, autocomplete, hasText }) => ({ id, label, autocomplete, hasText })),
+        canUndo: filler.canUndo(),
+      }
     },
     fill: (items) => {
       const targets = items.flatMap(({ fieldId, value }) => {

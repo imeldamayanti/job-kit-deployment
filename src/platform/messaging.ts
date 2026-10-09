@@ -3,11 +3,11 @@ import type { FillOutcome } from '../core/fill/apply'
 import { classifyUnreadablePage, type UnreadableReason } from '../core/fill/page-access'
 import type { ActiveTab } from './tabs'
 
-export type FieldSummary = { id: string; label: string; autocomplete: string }
+export type FieldSummary = { id: string; label: string; autocomplete: string; hasText: boolean }
 export type FillItem = { fieldId: string; value: string }
 
 export type PageScan =
-  | { ok: true; fields: FieldSummary[] }
+  | { ok: true; fields: FieldSummary[]; canUndo: boolean }
   | { ok: false; reason: 'no-form' | UnreadableReason }
 
 type Request =
@@ -15,8 +15,10 @@ type Request =
   | { type: 'fill'; items: FillItem[] }
   | { type: 'undo' }
 
+export type ScanResponse = { fields: FieldSummary[]; canUndo: boolean }
+
 export type Handlers = {
-  scan: () => FieldSummary[]
+  scan: () => ScanResponse
   fill: (items: FillItem[]) => FillOutcome
   undo: () => number
 }
@@ -30,8 +32,8 @@ function isRequest(message: unknown): message is Request {
 export async function requestScan(tab: ActiveTab): Promise<PageScan> {
   try {
     await browser.scripting.executeScript({ target: { tabId: tab.id }, files: [CONTENT_SCRIPT] })
-    const fields: FieldSummary[] = await browser.tabs.sendMessage(tab.id, { type: 'scan' } satisfies Request)
-    return fields.length === 0 ? { ok: false, reason: 'no-form' } : { ok: true, fields }
+    const { fields, canUndo }: ScanResponse = await browser.tabs.sendMessage(tab.id, { type: 'scan' } satisfies Request)
+    return fields.length === 0 ? { ok: false, reason: 'no-form' } : { ok: true, fields, canUndo }
   } catch {
     return { ok: false, reason: classifyUnreadablePage(tab.url) }
   }

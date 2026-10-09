@@ -102,4 +102,16 @@ describe('createFiller', () => {
   it('undo with nothing filled does nothing', () => {
     expect(createFiller().undo()).toBe(0)
   })
+
+  it('knows whether there is anything to undo', () => {
+    const { text } = dom('<input type="text" />')
+    const filler = createFiller()
+    expect(filler.canUndo()).toBe(false)
+
+    filler.fill([{ element: text, value: 'x' }])
+    expect(filler.canUndo()).toBe(true)
+
+    filler.undo()
+    expect(filler.canUndo()).toBe(false)
+  })
 })

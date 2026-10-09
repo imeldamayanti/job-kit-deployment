@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { fakeBrowser } from 'wxt/testing/fake-browser'
 import { createEmptyProfile, setPersonalField } from '../core/profile/profile'
-import { loadProfile, saveProfile } from './storage'
+import { loadProfile, saveProfile, watchProfile } from './storage'
 
 describe('profile storage', () => {
   beforeEach(() => {
@@ -18,5 +18,21 @@ describe('profile storage', () => {
     await saveProfile(profile)
 
     expect((await loadProfile()).personal.firstName).toBe('Imelda')
+  })
+})
+
+describe('watchProfile', () => {
+  beforeEach(() => {
+    fakeBrowser.reset()
+  })
+
+  it('tells the panel when the profile is edited elsewhere', async () => {
+    const seen: string[] = []
+    const stop = watchProfile((profile) => seen.push(profile.personal.firstName))
+
+    await saveProfile(setPersonalField(createEmptyProfile(), 'firstName', 'Imelda'))
+    stop()
+
+    expect(seen).toEqual(['Imelda'])
   })
 })

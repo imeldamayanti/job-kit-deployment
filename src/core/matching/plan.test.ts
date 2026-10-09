@@ -16,8 +16,8 @@ describe('buildPlan', () => {
     )
 
     expect(plan.items).toEqual([
-      { fieldId: 'f0', label: 'Full Name', key: 'fullName', value: 'Imelda Wijaya' },
-      { fieldId: 'f1', label: 'Email', key: 'email', value: 'nama@example.test' },
+      { fieldId: 'f0', label: 'Full Name', key: 'fullName', value: 'Imelda Wijaya', hasExistingText: false },
+      { fieldId: 'f1', label: 'Email', key: 'email', value: 'nama@example.test', hasExistingText: false },
     ])
   })
 
@@ -46,5 +46,11 @@ describe('buildPlan', () => {
     expect(plan.items).toEqual([])
     expect(plan.missing).toEqual([{ fieldId: 'f0', label: 'Telepon', key: 'phone' }])
     expect(plan.matched).toBe(1)
+  })
+
+  it('remembers that a field already holds the user\'s text', () => {
+    const plan = buildPlan([{ id: 'f0', label: 'Email', hasText: true }], withContact)
+
+    expect(plan.items[0]?.hasExistingText).toBe(true)
   })
 })

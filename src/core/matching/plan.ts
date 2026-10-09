@@ -1,8 +1,14 @@
 import type { Profile } from '../profile/types'
 import { matchField, type MatchKey } from './match'
 
-export type PlanField = { id: string; label: string; autocomplete?: string }
-export type PlanItem = { fieldId: string; label: string; key: MatchKey; value: string }
+export type PlanField = { id: string; label: string; autocomplete?: string; hasText?: boolean }
+export type PlanItem = {
+  fieldId: string
+  label: string
+  key: MatchKey
+  value: string
+  hasExistingText: boolean
+}
 export type Plan = {
   items: PlanItem[]
   skipped: { fieldId: string; label: string }[]
@@ -30,7 +36,7 @@ export function buildPlan(fields: PlanField[], profile: Profile): Plan {
     }
     plan.matched += 1
     const value = valueFor(profile, key)
-    if (value) plan.items.push({ fieldId: field.id, label: field.label, key, value })
+    if (value) plan.items.push({ fieldId: field.id, label: field.label, key, value, hasExistingText: field.hasText === true })
     else plan.missing.push({ fieldId: field.id, label: field.label, key })
   }
   return plan

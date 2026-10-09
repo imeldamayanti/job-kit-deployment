@@ -13,3 +13,7 @@ export function loadProfile(): Promise<Profile> {
 export function saveProfile(profile: Profile): Promise<void> {
   return profileItem.setValue(profile)
 }
+
+export function watchProfile(onChange: (profile: Profile) => void): () => void {
+  return profileItem.watch((value) => onChange(value ?? createEmptyProfile()))
+}

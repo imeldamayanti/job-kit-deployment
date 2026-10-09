@@ -5,6 +5,7 @@ export type FillOutcome = { filled: number; skipped: number }
 export type Filler = {
   fill: (targets: FillTarget[]) => FillOutcome
   undo: () => number
+  canUndo: () => boolean
 }
 
 type Writable = HTMLInputElement | HTMLTextAreaElement
@@ -49,5 +50,6 @@ export function createFiller(): Filler {
       originals.clear()
       return restored
     },
+    canUndo: () => originals.size > 0,
   }
 }

@@ -41,4 +41,13 @@ describe('scanFields', () => {
 
     expect(scanFields(document)).toEqual([])
   })
+
+  it('reports whether a field already holds text', () => {
+    document.documentElement.innerHTML =
+      '<body><input name="a" value="sudah ada" /><input name="b" /><input name="c" value="   " /></body>'
+
+    const byName = Object.fromEntries(scanFields(document).map((f) => [f.element.getAttribute('name'), f.hasText]))
+
+    expect(byName).toEqual({ a: true, b: false, c: false })
+  })
 })
