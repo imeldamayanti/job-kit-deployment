@@ -294,12 +294,12 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 - [x] Tabel cakupan: FR-23 → T20, FR-24 → T21 (ditunda).
 
 **Acceptance criteria**
-- [ ] Grup DATA di navigasi berisi dua item: Captured Jobs lalu Data (FR-23)
-- [ ] Di build produksi halaman menampilkan state kosong yang jujur: belum ada lowongan, dan pencatatan otomatis belum tersedia di versi ini. Tidak ada tombol yang tampak berfungsi tetapi tidak melakukan apa-apa (FR-23)
-- [ ] Daftar (pencarian dan filter Semua, Applied, In Review, Rejected, Offer berfungsi pada data contoh), state filter tanpa hasil dengan "Reset filter", dan slide-over detail (status, snapshot field, catatan) ada sebagai komponen yang bisa dilihat lewat `#jobs?state=list|empty|filtered-empty|detail` hanya di build dev (FR-23)
-- [ ] Filter dan format tanggal ("2 Sep 2026") adalah fungsi murni di `core/` dengan tes
-- [ ] Tombol "Simpan perubahan" dan "Hapus entri" di slide-over nonaktif dengan alasan "Belum tersedia di versi ini"
-- [ ] Semua kontrol, termasuk pilihan status, bergaya sesuai token tanpa kontrol bawaan browser
+- [x] Grup DATA di navigasi berisi dua item: Captured Jobs lalu Data (FR-23)
+- [x] Di build produksi halaman menampilkan state kosong yang jujur: belum ada lowongan, dan pencatatan otomatis belum tersedia di versi ini. Tidak ada tombol yang tampak berfungsi tetapi tidak melakukan apa-apa (FR-23)
+- [x] Daftar (pencarian dan filter Semua, Applied, In Review, Rejected, Offer berfungsi pada data contoh), state filter tanpa hasil dengan "Reset filter", dan slide-over detail (status, snapshot field, catatan) ada sebagai komponen yang bisa dilihat lewat `#jobs?state=list|empty|filtered-empty|detail` hanya di build dev (FR-23)
+- [x] Filter dan format tanggal ("2 Sep 2026") adalah fungsi murni di `core/` dengan tes
+- [x] Tombol "Simpan perubahan" dan "Hapus entri" di slide-over nonaktif dengan alasan "Belum tersedia di versi ini"
+- [x] Semua kontrol, termasuk pilihan status, bergaya sesuai token tanpa kontrol bawaan browser
 
 **Done when:** halaman terlihat sesuai mockup di build dev dengan data contoh, dan build produksi hanya menampilkan state kosong yang jujur.
 

@@ -5,6 +5,7 @@ import { CustomSection } from './CustomSection'
 import { DataPage } from './DataPage'
 import { EducationSection } from './EducationSection'
 import { ExperienceSection } from './ExperienceSection'
+import { JobsPage } from './JobsPage'
 import { PAGE_SUBTITLES, pageFromHash, pageTitle, type PageId } from './pages'
 import { PersonalSection } from './PersonalSection'
 import { SaveIndicator } from './SaveIndicator'
@@ -29,6 +30,7 @@ export function App() {
               <SaveIndicator state={saveState} />
             </header>
             {saveState === 'storage-full' && <StorageFullNotice />}
+            {page === 'jobs' && <JobsPage />}
             {page === 'data' && <DataPage profile={profile} />}
             {profile && page === 'personal' && <PersonalSection profile={profile} update={update} />}
             {profile && page === 'contact' && <ContactSection profile={profile} update={update} />}

@@ -2,13 +2,14 @@ import { useId, type InputHTMLAttributes } from 'react'
 
 type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> & {
   label: string
+  hideLabel?: boolean
 }
 
-export function TextField({ label, className = '', ...props }: TextFieldProps) {
+export function TextField({ label, hideLabel = false, className = '', ...props }: TextFieldProps) {
   const id = useId()
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <label htmlFor={id} className="text-[12px] font-semibold text-text-secondary">
+      <label htmlFor={id} className={hideLabel ? 'sr-only' : 'text-[12px] font-semibold text-text-secondary'}>
         {label}
       </label>
       <input
