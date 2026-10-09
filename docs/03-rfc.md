@@ -103,17 +103,19 @@ alarm 15 menit → isRunDue (maks 1 run otomatis/hari; mengejar hari yang terlew
 
 **AI.** Klien Anthropic di `platform/ai-client.ts` dengan kunci milik pengguna (BYOK), header `anthropic-dangerous-direct-browser-access`, timeout, dan pemetaan `invalid-key | quota | network | server | bad-request`. Yang dikirim hanya `ProfileSummary` (`core/ai/score.ts`): role, level, skill, judul dan lama pengalaman, jenjang pendidikan, lokasi, tipe kerja; tes memastikan nama, email, telepon, alamat, tanggal lahir, sekolah, perusahaan, dan custom field tidak ada di payload. Skor di-cache dengan hash ringkasan itu.
 
-**Hasil spike T27 (dari terminal, bukan dari service worker; belum dikonfirmasi di Chrome):**
+**Hasil spike T27 (2026-10-09; terminal dan Chrome sungguhan lewat `spikes/t27/`):**
 
-| Sumber | Hasil | Catatan |
+| Sumber | Hasil | Dari service worker, tanpa izin host |
 |---|---|---|
-| Greenhouse | 732 lowongan, 5,7 MB, 1,3 dtk | tanpa tipe kerja dan gaji terstruktur |
-| Lever | papan penuh >1 MB dan lambat (>25 dtk); `limit=30` 276 KB, 2,2 dtk | `workplaceType`, `commitment` ada |
-| Ashby | 68 lowongan, 2,2 MB, 1,0 dtk | paling lengkap: `workplaceType`, `employmentType`, ringkasan gaji |
-| Remotive | 17 lowongan, 0,3 dtk | API kecil dan dibatasi; ada pemberitahuan legal |
-| LinkedIn guest | 9 halaman × 10 kartu berturut-turut tanpa 429 (~0,8 dtk/halaman) | level dan tipe kontrak hanya di request detail |
+| Greenhouse | 729–732 lowongan, 5,7 MB, 0,3–0,8 dtk | berhasil (CORS terbuka) |
+| Lever | papan penuh >1 MB dan lambat (>25 dtk di terminal); `limit=30` 276 KB, 0,7–0,8 dtk (satu kali 10 dtk) | berhasil |
+| Ashby | 68 lowongan, 2,2 MB, 0,01–1,4 dtk | berhasil |
+| Remotive | 17 lowongan, 0,1–1,3 dtk | berhasil |
+| LinkedIn guest | tanpa izin: `Failed to fetch`. Dengan izin: 8 halaman × 10 kartu berturut-turut, semua 200, ~0,5 dtk/halaman, tanpa 429 | butuh izin host |
 
-Belum terbukti (menunggu spike di Chrome, `spikes/t27/`): fetch dari service worker dengan dan tanpa izin host, `chrome.permissions.request` dari options, request AI dari service worker, dan `chrome.sidePanel.open` dari klik di options untuk tab lain.
+Terbukti di Chrome: fetch dari service worker; `chrome.permissions.request` dari halaman options (izin wajib tidak bertambah selain `offscreen`); parser DOM di offscreen document (8 halaman LinkedIn terbaca); `chrome.sidePanel.open` dari klik di options membuka panel di tab lain (`sp2`) dan di tab yang baru dibuat (`sp1`, tiga kali berhasil). Akibatnya Greenhouse, Lever, Ashby, dan Remotive tidak butuh izin host; hanya LinkedIn yang butuh.
+
+Belum terbukti: request AI dengan kunci sah (uji tanpa kunci mencapai server dan dibalas `401 x-api-key header is required`, jadi tidak ada penghalang CORS, tetapi belum diuji dengan kunci); LinkedIn lewat sekitar 8 halaman belum pernah kena 429 sehingga batas sebenarnya belum diketahui.
 
 **Risiko yang diketahui.** Service worker MV3 bisa dimatikan Chrome di tengah run panjang (state `running` dianggap macet setelah 10 menit); scraping LinkedIn bisa berhenti kapan saja; Lever penuh terlalu besar tanpa `limit`.
 

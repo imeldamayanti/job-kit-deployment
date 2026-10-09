@@ -411,14 +411,16 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Context:** risiko terbesar fitur ini. Buktikan dari build ekstensi di Chrome sungguhan bahwa tiap jenis sumber bisa diambil dari service worker MV3. Parsing HTML dilakukan di offscreen document karena service worker tidak punya `DOMParser`. Kandidat: Greenhouse (`boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true`), Lever (`api.lever.co/v0/postings/{company}?mode=json`), Ashby (`api.ashbyhq.com/posting-api/job-board/{name}`), Remotive (`remotive.com/api/remote-jobs`), dan halaman pencarian publik LinkedIn tanpa login. Endpoint dicek ulang saat spike; tidak ada yang dianggap stabil.
 
 **Acceptance criteria**
-- [ ] Per sumber dicatat di tiket ini: berhasil atau tidak, jumlah lowongan, waktu, ukuran respons, field yang tersedia (terutama tipe kerja, gaji, deadline, teks deskripsi) (FR-27, FR-28)
-- [ ] LinkedIn: request memakai `credentials: 'omit'`; dicatat berapa halaman berturut-turut sebelum kena 429 atau halaman blokir, dan selector yang dipakai (FR-27)
-- [ ] `optional_host_permissions` dan `chrome.permissions.request` terbukti jalan dari halaman options; izin wajib di manifest tidak bertambah (FR-32)
+- [x] Per sumber dicatat di tiket ini: berhasil atau tidak, jumlah lowongan, waktu, ukuran respons, field yang tersedia (terutama tipe kerja, gaji, deadline, teks deskripsi) (FR-27, FR-28)
+- [x] LinkedIn: request memakai `credentials: 'omit'`; dicatat berapa halaman berturut-turut sebelum kena 429 atau halaman blokir, dan selector yang dipakai (FR-27)
+- [x] `optional_host_permissions` dan `chrome.permissions.request` terbukti jalan dari halaman options; izin wajib di manifest tidak bertambah (FR-32)
 - [ ] Satu request ke penyedia AI dari service worker berhasil, termasuk header yang dibutuhkan penyedia untuk request dari browser (FR-29)
-- [ ] `chrome.sidePanel.open` dari klik di halaman options terbukti membuka panel di tab lain, atau dicatat bahwa tidak bisa (FR-31)
-- [ ] Ringkasan arsitektur pipeline ditambahkan ke `docs/03-rfc.md`
+- [x] `chrome.sidePanel.open` dari klik di halaman options terbukti membuka panel di tab lain, atau dicatat bahwa tidak bisa (FR-31)
+- [x] Ringkasan arsitektur pipeline ditambahkan ke `docs/03-rfc.md`
 
 **Done when:** tabel hasil per sumber ada di tiket ini dan PIC memutuskan daftar sumber v1 (PRD §11).
+
+**Hasil (2026-10-09):** tabel per sumber dan ringkasan pipeline ada di `docs/03-rfc.md` §3.3b. Greenhouse, Lever, Ashby, dan Remotive berhasil dari service worker tanpa izin host; LinkedIn butuh izin dan berhasil 8 halaman berturut-turut tanpa 429 dengan jeda acak. `permissions.request` dari options dan `sidePanel.open` (tab lain dan tab baru) berhasil. Belum: request AI dengan kunci sah. Keputusan PIC yang masih terbuka: daftar sumber v1 dan batas halaman LinkedIn per run (bawaan sekarang 5).
 
 ### T28 · Mockup Lowongan di design system · 1.5h · design · Highest
 - [ ] **T28 selesai**
