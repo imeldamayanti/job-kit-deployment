@@ -13,3 +13,13 @@ export async function hasSiteAccess(url: string | undefined): Promise<boolean> {
   if (!origin) return false
   return browser.permissions.contains({ origins: [origin] })
 }
+
+// Host permissions for job sources and the AI provider are optional and asked for one at a time
+// (FR-32). `request` must start inside a click, before any await.
+export function requestOrigins(origins: string[]): Promise<boolean> {
+  return browser.permissions.request({ origins })
+}
+
+export function hasOrigins(origins: string[]): Promise<boolean> {
+  return browser.permissions.contains({ origins })
+}

@@ -512,13 +512,15 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T34 selesai**
 
 **Acceptance criteria**
-- [ ] S6 sesuai T28: nyala/mati per sumber, daftar perusahaan ATS, jam ambil, penyedia, model, kunci API (input tersembunyi), Tes koneksi dengan hasil jelas (FR-32)
-- [ ] Izin host diminta saat sumber atau AI dinyalakan; menolak izin membuat sumber itu tetap mati (FR-32)
-- [ ] Kunci di `storage.local` terpisah dari profil, tidak ikut Export, ikut Hapus semua (FR-32)
-- [ ] Klien AI di `platform/` dengan timeout dan pemetaan error (`invalid-key`, `quota`, `network`)
-- [ ] Lowongan tidak bisa dinyalakan selama Preferensi kerja kosong (PRD §8)
+- [x] S6 sesuai T28: nyala/mati per sumber, daftar perusahaan ATS, jam ambil, penyedia, model, kunci API (input tersembunyi), Tes koneksi dengan hasil jelas (FR-32)
+- [x] Izin host diminta saat sumber atau AI dinyalakan; menolak izin membuat sumber itu tetap mati (FR-32)
+- [x] Kunci di `storage.local` terpisah dari profil, tidak ikut Export, ikut Hapus semua (FR-32)
+- [x] Klien AI di `platform/` dengan timeout dan pemetaan error (`invalid-key`, `quota`, `network`)
+- [x] Lowongan tidak bisa dinyalakan selama Preferensi kerja kosong (PRD §8)
 
 **Done when:** Tes koneksi berhasil dengan kunci sah dan gagal dengan pesan spesifik untuk kunci salah.
+
+**Hasil:** pengaturan (`FeedSettings`) dan kunci API di storage terpisah (`local:feedSettings`, `local:aiKey`; tidak masuk Export; Hapus semua ikut menghapus). Izin host diminta per sumber saat dinyalakan lewat `requestOrigins` dari klik, menolak membuat sumber tetap mati, izin yang dicabut menampilkan 'Izin dibutuhkan' + Beri izin. Klien Anthropic di `platform/ai-client.ts` (timeout, pemetaan error `invalid-key`, `quota`, `network`, `server`, `bad-request`). Sumber tidak bisa dinyalakan tanpa minimal satu role incaran. S6 jadi halaman 'Atur Lowongan' sementara di sidebar (pindah di balik tombol Atur pada T37); daftar perusahaan tampil per ATS yang dinyalakan, bukan satu daftar bersama. 457 tes hijau, typecheck dan build lolos. Belum diverifikasi: Tes koneksi dengan kunci sungguhan, dialog izin Chrome, dan tampilan halaman.
 
 ### T35 · Skor AI dan alasan · 2h · feature · High
 - [ ] **T35 selesai**

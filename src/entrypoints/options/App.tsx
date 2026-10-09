@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useFeedSettings } from '../../ui/hooks/useFeedSettings'
 import { useProfile } from '../../ui/hooks/useProfile'
 import { ContactSection } from './ContactSection'
 import { CustomSection } from './CustomSection'
 import { DataPage } from './DataPage'
 import { EducationSection } from './EducationSection'
 import { ExperienceSection } from './ExperienceSection'
+import { JobSettingsPage } from './JobSettingsPage'
 import { JobsPage } from './JobsPage'
 import { PAGE_SUBTITLES, pageFromHash, pageTitle, type PageId } from './pages'
 import { PersonalSection } from './PersonalSection'
@@ -15,6 +17,7 @@ import { StorageFullNotice } from './StorageFullNotice'
 
 export function App() {
   const { profile, update, commit, saveState } = useProfile()
+  const feed = useFeedSettings()
   const [page, setPage] = useState<PageId>(() => pageFromHash(location.hash))
 
   return (
@@ -32,6 +35,9 @@ export function App() {
             </header>
             {saveState === 'storage-full' && <StorageFullNotice />}
             {page === 'jobs' && <JobsPage />}
+            {page === 'jobsettings' && feed.settings && (
+              <JobSettingsPage profile={profile} settings={feed.settings} aiKey={feed.key} update={feed.update} changeKey={feed.changeKey} go={setPage} />
+            )}
             {page === 'data' && <DataPage profile={profile} commit={commit} />}
             {profile && page === 'personal' && <PersonalSection profile={profile} update={update} />}
             {profile && page === 'contact' && <ContactSection profile={profile} update={update} />}
