@@ -25,3 +25,23 @@ export function createEmptyProfile(): Profile {
 export function setPersonalField(profile: Profile, key: PersonalKey, value: string): Profile {
   return { ...profile, personal: { ...profile.personal, [key]: value } }
 }
+
+export function setContactField(profile: Profile, key: ContactKey, value: string): Profile {
+  return { ...profile, contact: { ...profile.contact, [key]: value } }
+}
+
+export function addCustomField(profile: Profile, id: string): Profile {
+  return { ...profile, custom: [...profile.custom, { id, key: '', value: '' }] }
+}
+
+export function updateCustomField(
+  profile: Profile,
+  id: string,
+  change: Partial<{ key: string; value: string }>,
+): Profile {
+  return { ...profile, custom: profile.custom.map((pair) => (pair.id === id ? { ...pair, ...change } : pair)) }
+}
+
+export function removeCustomField(profile: Profile, id: string): Profile {
+  return { ...profile, custom: profile.custom.filter((pair) => pair.id !== id) }
+}

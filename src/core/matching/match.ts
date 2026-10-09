@@ -1,6 +1,6 @@
 import type { ContactKey, PersonalKey } from '../profile/types'
 
-export type MatchKey = 'fullName' | PersonalKey | ContactKey
+export type MatchKey = 'fullName' | PersonalKey | ContactKey | `custom:${string}`
 
 type Rule = { key: MatchKey; phrases: string[]; exact?: string[] }
 
@@ -44,7 +44,7 @@ const AUTOCOMPLETE: Record<string, MatchKey> = {
   url: 'website',
 }
 
-function normalize(text: string): string {
+export function normalize(text: string): string {
   return text
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')

@@ -53,4 +53,29 @@ describe('buildPlan', () => {
 
     expect(plan.items[0]?.hasExistingText).toBe(true)
   })
+
+  it('fills a field from a custom key-value pair the user added', () => {
+    const custom = { ...withContact, custom: [{ id: 'c1', key: 'Ekspektasi gaji', value: '10 juta' }] }
+
+    const plan = buildPlan([{ id: 'f0', label: 'Ekspektasi gaji (per bulan)' }], custom)
+
+    expect(plan.items).toEqual([
+      { fieldId: 'f0', label: 'Ekspektasi gaji (per bulan)', key: 'custom:c1', value: '10 juta', hasExistingText: false },
+    ])
+    expect(plan.matched).toBe(1)
+  })
+
+  it('lets an exact custom key win over a built-in guess', () => {
+    const custom = { ...withContact, custom: [{ id: 'c1', key: 'Email kantor', value: 'kantor@example.test' }] }
+
+    const plan = buildPlan([{ id: 'f0', label: 'Email kantor' }], custom)
+
+    expect(plan.items[0]?.value).toBe('kantor@example.test')
+  })
+
+  it('ignores a custom pair whose key is blank', () => {
+    const custom = { ...withContact, custom: [{ id: 'c1', key: '', value: 'x' }] }
+
+    expect(buildPlan([{ id: 'f0', label: 'Cover note' }], custom).matched).toBe(0)
+  })
 })
