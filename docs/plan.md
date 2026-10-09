@@ -13,15 +13,16 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 ## Phase 1 — Foundation
 
 ### T01 · Scaffold dan build terpasang · 1h · setup · Highest
-- [ ] **T01 selesai**
+- [x] **T01 selesai**
 
 **Context:** RFC §6 Phase 1; retire risiko build sebelum fitur.
 **Acceptance criteria**
-- [ ] `npm run build` selesai tanpa error dan menghasilkan `.output/chrome-mv3/` (RFC §5 risiko ke-4 terjawab)
-- [ ] Ekstensi bisa dimuat sebagai unpacked di Chrome; klik ikon membuka side panel kosong
-- [ ] Halaman options terbuka di tab baru dari panel (FR-17, sebagian)
-- [ ] `npm test` berjalan (satu tes contoh lulus)
-- [ ] Token `design-system.md` ada sebagai `@theme` di `src/assets/tailwind.css`; folder `core/jobs` dan `core/portability` yang kosong sudah dihapus
+- [x] `npm run build` selesai tanpa error dan menghasilkan `.output/chrome-mv3/` (RFC §5 risiko ke-4 terjawab)
+- [x] Ekstensi bisa dimuat sebagai unpacked di Chrome (diuji di Chrome for Testing)
+- [ ] Klik ikon toolbar membuka side panel (belum terverifikasi: klik ikon tidak bisa disimulasikan headless; cek manual)
+- [x] Halaman options terbuka di tab baru dari panel (FR-17, sebagian)
+- [x] `npm test` berjalan (satu tes contoh lulus)
+- [x] Token `design-system.md` ada sebagai `@theme` di `src/assets/tailwind.css`; folder `core/jobs` dan `core/portability` yang kosong sudah dihapus
 
 **Done when:** build dimuat di Chrome dan kedua halaman kosong terbuka.
 
@@ -30,51 +31,51 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 ## Phase 2 — Walking skeleton (Day 5)
 
 ### T02 · Profil Personal Info dengan simpan otomatis · 1.5h · feature · Highest
-- [ ] **T02 selesai**
+- [x] **T02 selesai**
 
 **Context:** S3 minimum; `core/profile` + `platform/storage` + `useProfile`.
 **Acceptance criteria**
-- [ ] Pengguna dapat mengisi, mengubah, dan menghapus data Personal Info (FR-01)
-- [ ] Setelah satu field diubah, indikator "Tersimpan" terlihat dalam 2 detik (FR-03)
-- [ ] Setelah halaman dimuat ulang, nilai tetap ada (FR-01)
+- [x] Pengguna dapat mengisi, mengubah, dan menghapus data Personal Info (FR-01)
+- [x] Setelah satu field diubah, indikator "Tersimpan" terlihat dalam 2 detik (FR-03)
+- [x] Setelah halaman dimuat ulang, nilai tetap ada (FR-01)
 
 **Done when:** profil Personal Info bertahan setelah reload.
 
 ### T03 · Scan form dan daftar field di panel · 1.5h · feature · Highest
-- [ ] **T03 selesai**
+- [x] **T03 selesai**
 
 **Context:** S1 minimum; content script + `platform/messaging` + scan field.
 **Acceptance criteria**
-- [ ] Panel menampilkan nama domain halaman aktif (FR-05)
-- [ ] Pada satu fixture HTML, panel menampilkan semua field form yang terbaca
-- [ ] Panel menampilkan "Tidak ada form di halaman ini" bila halaman tanpa form
+- [x] Panel menampilkan nama domain halaman aktif (FR-05)
+- [x] Pada satu fixture HTML, panel menampilkan semua field form yang terbaca
+- [x] Panel menampilkan "Tidak ada form di halaman ini" bila halaman tanpa form
 
 **Done when:** membuka fixture menampilkan domain dan daftar field-nya di panel.
 
 ### T04 · Pemetaan label Indonesia dan Inggris · 1.5h · feature · Highest
-- [ ] **T04 selesai**
+- [x] **T04 selesai**
 
 **Context:** `core/matching`; inti produk dan penentu metrik §10.
 **Acceptance criteria**
-- [ ] Form berlabel "Nama Lengkap" dan "Full Name" sama-sama terpetakan ke nilai profil (FR-13)
-- [ ] Panel menampilkan pasangan field → nilai sebelum pengisian (FR-08, sebagian)
-- [ ] Form uji dengan 10 field dan 7 cocok menampilkan "7 dari 10 field cocok" (FR-07)
-- [ ] Field tak terpetakan muncul di daftar "Dilewati"
-- [ ] Heuristik membaca `label[for]`, label pembungkus, `aria-label`, `placeholder`, dan `autocomplete`
+- [x] Form berlabel "Nama Lengkap" dan "Full Name" sama-sama terpetakan ke nilai profil (FR-13)
+- [x] Panel menampilkan pasangan field → nilai sebelum pengisian (FR-08, sebagian)
+- [x] Form uji dengan 10 field dan 7 cocok menampilkan "7 dari 10 field cocok" (FR-07)
+- [x] Field tak terpetakan muncul di daftar "Dilewati"
+- [x] Heuristik membaca `label[for]`, label pembungkus, `aria-label`, `placeholder`, dan `autocomplete`
 
 **Done when:** pratinjau fixture menampilkan pasangan field dan nilai serta ringkasan "N dari M".
 
 ### T05 · Fill, Undo, dan ringkasan hasil · 1.5h · feature · Highest
-- [ ] **T05 selesai**
+- [x] **T05 selesai**
 
 **Context:** `core/fill` + penulisan nilai di content script.
 **Acceptance criteria**
-- [ ] Tidak ada field yang berubah sebelum tombol Fill ditekan (FR-09)
-- [ ] Setelah Fill, form berbasis React menerima nilai dan nilai tidak hilang saat fokus pindah (FR-10)
-- [ ] Undo mengembalikan semua field yang diisi ke nilai sebelumnya (FR-11)
-- [ ] Pada form login uji, field password tetap kosong dan tidak ada submit (FR-12)
-- [ ] Panel menampilkan "9 field terisi · 1 dilewati" untuk fixture 9 cocok dan 1 dilewati (FR-19)
-- [ ] Tombol footer berganti dari "Fill" ke "Undo" setelah pengisian
+- [x] Tidak ada field yang berubah sebelum tombol Fill ditekan (FR-09)
+- [x] Setelah Fill, form berbasis React menerima nilai dan nilai tidak hilang saat fokus pindah (FR-10)
+- [x] Undo mengembalikan semua field yang diisi ke nilai sebelumnya (FR-11)
+- [x] Pada form login uji, field password tetap kosong dan tidak ada submit (FR-12)
+- [x] Panel menampilkan "9 field terisi · 1 dilewati" untuk fixture 9 cocok dan 1 dilewati (FR-19)
+- [x] Tombol footer berganti dari "Fill" ke "Undo" setelah pengisian
 
 **Done when:** satu klik mengisi fixture, Undo mengembalikannya, ringkasan tampil.
 

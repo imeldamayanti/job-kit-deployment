@@ -226,3 +226,4 @@ Tidak ada hosting. Build: `npm run build` menghasilkan `.output/chrome-mv3/`. Pa
 ### Stack gotchas
 
 - Entrypoint bernama `content` (atau `*.content`) dianggap content script ber-manifest dan wajib punya `matches`. Script yang disuntik manual dinamai lain (`page-reader`) dan ditulis dengan `defineUnlistedScript`; hasil build di `/page-reader.js`.
+- Chrome 137 ke atas mengabaikan `--load-extension` kecuali dijalankan dengan `--disable-features=DisableLoadExtensionCommandLineSwitch`; build hasil `wxt build` tidak ikut termuat tanpa flag itu saat diuji otomatis.
