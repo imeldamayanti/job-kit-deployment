@@ -256,6 +256,191 @@ code{background:var(--surface-subtle);padding:1px 5px;border-radius:4px;font-siz
 .alert.info{background:var(--accent-wash);color:var(--accent-pressed)}
 .alert b{font-weight:700}
 
+/* ---------- OPTIONS: SHELL + SIDEBAR RINGKAS + TAB PROFILE ---------- */
+.opt{display:flex;background:var(--surface-sunken);border:1px solid var(--border-strong);
+  border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-lg);font-size:14px;line-height:1.5}
+.opt-side{flex:0 0 240px;background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;
+  display:flex;flex-direction:column;gap:20px}
+.opt-side .brand{padding:0 8px;margin:0}
+.opt-side .brand-mark{width:28px;height:28px;border-radius:var(--radius-md);background:var(--accent)}
+.opt-side .brand-mark svg{width:16px;height:16px}
+.opt-side .brand-name{font-size:14px;font-weight:700}
+.opt-nav{display:flex;flex-direction:column;gap:4px}
+.opt-nav button{height:36px;border:0;border-radius:var(--radius-md);background:transparent;font:inherit;
+  font-size:14px;font-weight:500;color:var(--text-secondary);text-align:left;padding:0 12px;cursor:pointer;
+  transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease)}
+.opt-nav button:hover{background:var(--surface-subtle);color:var(--text-primary)}
+.opt-nav button[aria-current=page]{background:var(--accent-wash);color:var(--text-primary);font-weight:600}
+.opt-nav button:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+.opt-nav .grp{padding:0 8px 4px;font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--text-tertiary)}
+.opt-nav .grp~.grp{padding-top:16px}
+.opt-side .foot{margin:auto 0 0;background:var(--surface-sunken);border-radius:var(--radius-lg);
+  padding:12px;font-size:12px;color:var(--text-secondary)}
+.opt-main{flex:1;min-width:0;padding:32px 40px}
+/* header halaman: judul kiri, indikator simpan kanan — sama dengan App.tsx */
+.opt-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.opt-head h1{font-size:28px;margin:0;line-height:1.2}
+.opt-head p{margin:4px 0 0;font-size:14px;color:var(--text-secondary)}
+
+/* tab folder versi options — pola sama dengan .tabs panel; rak & lembar berbagi border
+   dan padding kiri yang sama, jadi label tab pertama segaris dengan isi lembar */
+.opt-tabs{display:flex;background:var(--surface-subtle);border:1px solid var(--border);border-bottom:0;
+  border-radius:var(--radius-xl) var(--radius-xl) 0 0;overflow-x:auto;scrollbar-width:none}
+.opt-tabs::-webkit-scrollbar{display:none}
+.opt-tabs button{flex:0 0 auto;border:0;background:transparent;font:inherit;font-size:14px;font-weight:500;
+  color:var(--text-secondary);padding:12px var(--pad-card) 0;cursor:pointer;white-space:nowrap;
+  transition:background var(--dur-base) var(--ease),color var(--dur-base) var(--ease)}
+.opt-tabs button:first-child{border-top-left-radius:calc(var(--radius-xl) - 1px)}
+.opt-tabs button span::after{content:"";display:block;height:3px;border-radius:2px;background:transparent;margin-top:10px}
+.opt-tabs button:hover{color:var(--text-primary)}
+.opt-tabs button[aria-selected=true]{background:var(--surface);color:var(--text-primary);font-weight:600}
+.opt-tabs button[aria-selected=true]:not(:first-child){border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+.opt-tabs button[aria-selected=true] span::after{background:var(--accent)}
+.opt-tabs button:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-3px}
+.opt-sheet{background:var(--surface);border:1px solid var(--border);border-top:0;
+  border-radius:0 0 var(--radius-xl) var(--radius-xl);padding:var(--pad-card)}
+.opt-sheet .two{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.opt-sheet .two .f{margin:0}
+/* entry card = EntryCard.tsx apa adanya (tertutup) */
+.ecard{display:flex;align-items:center;gap:4px;padding:8px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-md)}
+.ecard .tog{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:6px 8px;border-radius:var(--radius-md)}
+.ecard .tog:hover{background:var(--surface-subtle)}
+.ecard .av{flex:0 0 32px;height:32px;border-radius:var(--radius-full);background:var(--accent-wash);
+  color:var(--accent);display:grid;place-items:center;font-size:12px;font-weight:700}
+.ecard .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.ecard .tx b,.ecard .tx span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ecard .tx b{font-size:14px;font-weight:600}
+.ecard .tx span,.ecard .per{font-size:12px;color:var(--text-secondary)}
+.ecard .per{flex:0 0 auto;font-variant-numeric:tabular-nums}
+.ecard svg{width:16px;height:16px;flex:0 0 16px}
+.ecard .chev{color:var(--text-secondary);transform:rotate(-90deg)}
+.icn{width:32px;height:32px;display:inline-grid;place-items:center;border:0;background:transparent;
+  border-radius:var(--radius-md);color:var(--text-secondary);cursor:pointer}
+.icn:hover{background:var(--surface-subtle);color:var(--text-primary)}
+.icn[disabled]{color:var(--text-tertiary);cursor:not-allowed;background:transparent}
+.elist{display:flex;flex-direction:column;gap:12px}
+.saved{white-space:nowrap;font-size:12px;color:var(--status-success-fg);font-weight:600}
+@media(max-width:760px){
+  .opt{flex-direction:column}
+  .opt-side{flex:0 0 auto;border-right:0;border-bottom:1px solid var(--border)}
+  .opt-nav:not(.col){flex-direction:row;flex-wrap:wrap}
+  .opt-nav:not(.col) .grp,.opt-side .foot{display:none}
+  .opt-main{padding:24px 16px}
+  .opt-sheet .two{grid-template-columns:1fr}
+  .ecard .per{display:none}
+}
+
+/* ---------- LOWONGAN (T28) — hanya token. Chip filter = FilterChip.tsx; baris Disimpan = .jobrow ---------- */
+.i{width:16px;height:16px;flex:0 0 16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.opt-nav button.has{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.count{font-size:11px;font-weight:700;line-height:1;padding:3px 7px;border-radius:var(--radius-full);
+  background:var(--status-warning-bg);color:var(--status-warning-fg);font-variant-numeric:tabular-nums}
+.opt-head .acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.opt-head .sync{font-size:13px;color:var(--text-secondary);white-space:nowrap}
+.opt-tabs .cnt{font-style:normal;font-size:12px;font-weight:600;margin-left:6px;color:var(--text-secondary);
+  font-variant-numeric:tabular-nums}
+.opt-sheet .stack{display:flex;flex-direction:column;gap:12px}
+
+.jbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.jbar .search{min-width:180px}
+.fgroup{display:flex;gap:6px;flex-wrap:wrap}
+.fchip{height:40px;padding:0 12px;border-radius:var(--radius-lg);border:1px solid var(--border-strong);
+  background:var(--surface);font:inherit;font-size:13px;font-weight:600;color:var(--text-primary);cursor:pointer;
+  transition:background var(--dur-fast) var(--ease)}
+.fchip:hover{background:var(--surface-subtle)}
+.fchip[aria-pressed=true]{border-color:var(--accent);background:var(--accent-wash);color:var(--accent)}
+.fchip:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+select.inp.fit{width:auto;height:40px;padding:0 10px;font-size:13px;font-weight:600}
+
+.jlist{display:flex;flex-direction:column;gap:12px}
+.jcard{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:0 14px;align-items:start;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:16px 20px}
+.jcard.mopen{margin-bottom:84px}
+.jcard .logo{width:44px;height:44px;border-radius:var(--radius-lg);background:var(--surface-subtle);
+  display:grid;place-items:center;font-size:14px;font-weight:700;color:var(--text-secondary)}
+.jcard .jt{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.jcard .jco{margin-top:2px;font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;
+  flex-wrap:wrap;min-width:0}
+.jcard .jco .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.jchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.jchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:4px 9px;
+  border-radius:var(--radius-sm);background:var(--surface-subtle);color:var(--text-primary)}
+.jchip .i{width:13px;height:13px;flex-basis:13px;color:var(--text-secondary)}
+.jchip.ai::after{content:"AI";font-size:10px;font-weight:700;color:var(--text-secondary);
+  border:1px solid var(--border-strong);border-radius:4px;padding:0 3px;margin-left:2px}
+.jmeta{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:10px;font-size:13px;color:var(--text-secondary)}
+.jmeta b{color:var(--text-primary);font-weight:650}
+.jacts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.jacts .btn{padding:7px 12px}
+.menuwrap{position:relative;display:inline-block}
+.menu{position:absolute;z-index:2;top:calc(100% + 4px);left:0;min-width:190px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:4px;
+  display:flex;flex-direction:column}
+.menu button{border:0;background:transparent;font:inherit;font-size:13px;text-align:left;padding:8px 10px;
+  border-radius:var(--radius-md);cursor:pointer;display:flex;gap:8px;align-items:center;color:var(--text-primary)}
+.menu button:hover{background:var(--surface-subtle)}
+
+.score{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;border-radius:var(--radius-full);
+  padding:4px 10px 4px 12px;font:inherit;font-size:12px;font-weight:650;cursor:pointer;white-space:nowrap}
+.score b{font-size:15px;font-variant-numeric:tabular-nums}
+.score .i{width:14px;height:14px;flex-basis:14px;transition:transform var(--dur-base) var(--ease)}
+.score[aria-expanded=true] .i{transform:rotate(180deg)}
+.score.hi{background:var(--status-success-bg);color:var(--status-success-fg)}
+.score.mid{background:var(--status-warning-bg);color:var(--status-warning-fg)}
+.score.lo{background:var(--status-neutral-bg);color:var(--status-neutral-fg)}
+.score.rough{background:var(--surface);border:1px dashed var(--border-strong);color:var(--text-secondary)}
+.score:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.why{margin-top:12px;background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;font-size:13px}
+.why h5{margin:0 0 6px;font-size:12px;font-weight:650;letter-spacing:.03em;text-transform:uppercase;
+  color:var(--text-secondary)}
+.why ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.why li{display:flex;gap:7px;align-items:flex-start;line-height:1.45}
+.why li .i{margin-top:2px;width:14px;height:14px;flex-basis:14px}
+.why .y .i{color:var(--status-success-fg)}
+.why .n .i{color:var(--status-warning-fg)}
+.why p{grid-column:1 / -1;margin:0;padding-top:10px;border-top:1px solid var(--border)}
+
+.srow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.srow:first-of-type{padding-top:0}
+.srow:last-child{border-bottom:0;padding-bottom:0}
+.srow input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:var(--accent)}
+.srow .tx{flex:1;min-width:0}
+.srow .tx b{display:block;font-size:14px;font-weight:600}
+.srow .tx span{display:block;font-size:13px;color:var(--text-secondary)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.row2 .f{margin:0}
+.hint{font-size:12px;color:var(--text-secondary);margin-top:5px}
+.page-back{margin:0 0 12px -10px}
+.stage{display:flex;flex-direction:column;gap:16px}
+.mini{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* lebar sempit (≤420px): sama dengan @media (max-width:760px) di atas, tapi dipicu kelas supaya
+   bisa ditampilkan berdampingan di halaman preview */
+.opt.narrow{flex-direction:column;max-width:100%}
+.opt.narrow .opt-side{flex:0 0 auto;border-right:0;border-bottom:1px solid var(--border)}
+.opt.narrow .opt-nav:not(.col){flex-direction:row;flex-wrap:wrap}
+.opt.narrow .opt-nav:not(.col) .grp,.opt.narrow .opt-side .foot{display:none}
+.opt.narrow .opt-main{padding:20px 12px}
+.opt.narrow .opt-head{flex-direction:column;gap:12px}
+.opt.narrow .opt-head h1{font-size:24px}
+.opt.narrow .opt-head .acts{justify-content:flex-start}
+.opt.narrow .opt-sheet{padding:12px}
+.opt.narrow .jcard{padding:14px 12px;gap:0 10px;grid-template-columns:40px minmax(0,1fr) auto}
+.opt.narrow .jcard .logo{width:40px;height:40px}
+.opt.narrow .why{grid-template-columns:1fr}
+.opt.narrow .jbar .search{flex:1 1 100%}
+.opt.narrow .row2{grid-template-columns:1fr}
+@media(max-width:520px){
+  .jcard{padding:14px 12px;gap:0 10px;grid-template-columns:40px minmax(0,1fr) auto}
+  .jcard .logo{width:40px;height:40px}
+  .why,.row2{grid-template-columns:1fr}
+  .jbar .search{flex:1 1 100%}
+}
+
 .type-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}
 .type-row:last-child{border-bottom:0}
 .type-row .tag{flex:0 0 160px;font-size:11px;color:var(--text-tertiary);
@@ -263,6 +448,19 @@ code{background:var(--surface-subtle);padding:1px 5px;border-radius:4px;font-siz
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-brand" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+  <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="m2 2 20 20"/></symbol>
+</defs></svg>
 <div class="wrap">
 
 <h1>JobFill — Design System</h1>
@@ -745,8 +943,640 @@ Bayangan hanya dipakai di sini, tidak pernah di panel.</p>
   </div>
 </div>
 
-<!-- 7. ATURAN -->
-<h2>7. Aturan yang tidak boleh dilanggar</h2>
+<!-- 7. OPTIONS NAV -->
+<h2>7. Options page — navigasi ringkas</h2>
+<p class="note">Usulan: sidebar sekarang memecah Profile jadi 5 item sehingga total 7 baris. Di sini
+sidebar cuma memuat tiga tujuan (<b>Profile</b>, <b>Captured Jobs</b>, <b>Data</b>), dan lima bagian
+Profile pindah jadi tab di dalam halaman. Tab memakai pola folder yang sama dengan side panel
+(§3): tab aktif putih menyatu dengan lembar di bawahnya, underline biru menandai aktif.
+<b>Yang berubah cuma navigasi</b> (sidebar + rak tab). Isi tiap bagian &mdash; field, entry card,
+tombol tambah &mdash; tetap komponen yang sekarang; lembar tab cuma menggantikan <code>SectionCard</code>.</p>
+
+<div class="grid cols-2" style="margin-bottom:24px">
+  <div>
+    <p class="frame-cap">Sekarang &mdash; 7 baris</p>
+    <div class="opt" style="box-shadow:none">
+      <div class="opt-side" style="flex:1;border-right:0">
+        <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></span><span class="brand-name">job-kit</span></div>
+        <nav class="opt-nav col" aria-label="Sekarang">
+          <span class="grp">Profile</span>
+          <button aria-current="page">Personal Info</button>
+          <button>Contact &amp; Address</button>
+          <button>Education</button>
+          <button>Work Experience</button>
+          <button>Custom Field</button>
+          <span class="grp">Data</span>
+          <button>Captured Jobs</button>
+          <button>Data</button>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <div>
+    <p class="frame-cap">Usulan &mdash; 3 baris</p>
+    <div class="opt" style="box-shadow:none">
+      <div class="opt-side" style="flex:1;border-right:0">
+        <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></span><span class="brand-name">job-kit</span></div>
+        <nav class="opt-nav" aria-label="Usulan">
+          <button aria-current="page">Profile</button>
+          <button>Captured Jobs</button>
+          <button>Data</button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="frame-cap">Halaman Profile &mdash; tab Personal Info</p>
+<div class="opt" style="margin-bottom:28px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button aria-current="page">Profile</button>
+      <button>Captured Jobs</button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Profile</h1><p>Data yang dipakai untuk mengisi form lamaran. Tersimpan otomatis.</p></div>
+      <span class="saved">&#10003; Tersimpan</span>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="true"><span>Personal Info</span></button>
+      <button role="tab" aria-selected="false"><span>Contact &amp; Address</span></button>
+      <button role="tab" aria-selected="false"><span>Education</span></button>
+      <button role="tab" aria-selected="false"><span>Work Experience</span></button>
+      <button role="tab" aria-selected="false"><span>Custom Field</span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="two">
+        <div class="f"><label>Nama depan</label><input class="inp" value="Nama"></div>
+        <div class="f"><label>Nama tengah</label><input class="inp" placeholder="Sari"></div>
+        <div class="f"><label>Nama belakang</label><input class="inp" value="Contoh"></div>
+        <div class="f"><label>Tanggal lahir</label><input class="inp" value="12 Mei 2003"></div>
+        <div class="f"><label>Jenis kelamin</label><input class="inp" value="Perempuan"></div>
+        <div class="f"><label>Kewarganegaraan</label><input class="inp" value="Indonesia"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<p class="frame-cap">Halaman Profile &mdash; tab Work Experience</p>
+<div class="opt">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button aria-current="page">Profile</button>
+      <button>Captured Jobs</button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Profile</h1><p>Data yang dipakai untuk mengisi form lamaran. Tersimpan otomatis.</p></div>
+      <span class="saved">&#10003; Tersimpan</span>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="false"><span>Personal Info</span></button>
+      <button role="tab" aria-selected="false"><span>Contact &amp; Address</span></button>
+      <button role="tab" aria-selected="false"><span>Education</span></button>
+      <button role="tab" aria-selected="true"><span>Work Experience</span></button>
+      <button role="tab" aria-selected="false"><span>Custom Field</span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="elist">
+        <div class="ecard">
+          <div class="tog"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span class="av">i</span>
+            <span class="tx"><b>iOS Developer Learner</b><span>Contoh Developer Academy</span></span><span class="per">Mar 2026 - sekarang</span></div>
+          <button class="icn" aria-label="Naikkan" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+          <button class="icn" aria-label="Turunkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></button>
+          <button class="icn" aria-label="Hapus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
+        </div>
+        <div class="ecard">
+          <div class="tog"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span class="av">F</span>
+            <span class="tx"><b>Frontend Intern</b><span>Studio Contoh</span></span><span class="per">Jun 2025 - Des 2025</span></div>
+          <button class="icn" aria-label="Naikkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+          <button class="icn" aria-label="Turunkan" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></button>
+          <button class="icn" aria-label="Hapus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
+        </div>
+        <div><button class="btn sec">+ Tambah pengalaman</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none;margin-top:12px">Bagian Profile sudah dipilih lewat
+hash URL (<code>#education</code> dst.), jadi tautan lama tetap valid kalau diterapkan. Di layar
+sempit sidebar jadi baris atas dan tab bisa digeser mendatar.</p>
+
+<!-- 8. LOWONGAN (T28) -->
+<h2>8. Options page — Lowongan</h2>
+<p class="note">Mockup T28 untuk fitur Lowongan harian (PRD §6.7, FR-26 sampai FR-32). Label sidebar
+<b>Captured Jobs</b> di §7 diganti <b>Lowongan</b>; tab <b>Disimpan</b> menggantikan halaman Captured Jobs
+(FR-30). Hanya token dan komponen yang sudah ada: kartu, badge, chip, tombol, input, alert, empty state,
+tab folder, baris <code>.jobrow</code>, dan maskot dari <code>src/ui/mascot/</code>. Chip filter memakai
+bentuk <code>FilterChip</code> di <code>JobsPage.tsx</code>. Semua nama, perusahaan, dan angka adalah contoh.</p>
+
+<!-- 8.1 S4 Rekomendasi -->
+<p class="frame-cap">S4 &mdash; Lowongan &middot; tab Rekomendasi (kartu: skor terbuka, menu terbuka, skor kasar)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lowongan</h1><p>Lowongan yang cocok dengan profilmu, diambil tiap hari.</p></div>
+      <div class="acts">
+        <span class="sync">Diperbarui 08.00 &middot; 24 baru</span>
+        <button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Segarkan</button>
+        <button class="btn sec sm"><svg class="i"><use href="#i-sliders"/></svg>Atur</button>
+      </div>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="true"><span>Rekomendasi<i class="cnt">24</i></span></button>
+      <button role="tab" aria-selected="false"><span>Disimpan<i class="cnt">3</i></span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="jbar">
+        <div class="fgroup" role="group" aria-label="Tipe kerja">
+          <button class="fchip" aria-pressed="true">Semua</button>
+          <button class="fchip" aria-pressed="false">Remote</button>
+          <button class="fchip" aria-pressed="false">Hybrid</button>
+          <button class="fchip" aria-pressed="false">On-site</button>
+        </div>
+        <select class="inp fit" aria-label="Urutkan"><option>Urut: Skor</option><option>Urut: Terbaru</option></select>
+        <span class="search"><span>&#128269;</span><input class="inp" placeholder="Cari judul atau perusahaan" aria-label="Cari lowongan"></span>
+      </div>
+
+      <div class="jlist">
+        <!-- A: Cocok, alasan terbuka, semua meta terisi -->
+        <article class="jcard">
+          <span class="logo" aria-hidden="true">CK</span>
+          <div>
+            <h4 class="jt">Frontend Engineer (React)</h4>
+            <div class="jco"><span class="nm">PT Contoh Karya &middot; Greenhouse</span><span class="badge warn">Baru</span></div>
+            <div class="jchips">
+              <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Jakarta</span>
+              <span class="jchip">Remote</span>
+              <span class="jchip">Full-time</span>
+              <span class="jchip ai" title="Level diisi AI dari teks lowongan">Mid Level</span>
+            </div>
+            <div class="jmeta">
+              <span>Gaji: <b>Rp 20&ndash;30 jt</b></span>
+              <span>Pengalaman: <b>3+ tahun</b></span>
+              <span>Deadline: <b>12 Nov</b></span>
+            </div>
+            <div class="why" role="region" aria-label="Alasan skor">
+              <div class="y"><h5>Yang cocok</h5><ul>
+                <li><svg class="i"><use href="#i-check"/></svg>React dan TypeScript ada di skill kamu</li>
+                <li><svg class="i"><use href="#i-check"/></svg>Remote sesuai tipe kerja yang kamu pilih</li>
+                <li><svg class="i"><use href="#i-check"/></svg>Level Mid sama dengan targetmu</li></ul></div>
+              <div class="n"><h5>Yang kurang</h5><ul>
+                <li><svg class="i"><use href="#i-minus"/></svg>Meminta GraphQL, belum ada di skill</li>
+                <li><svg class="i"><use href="#i-minus"/></svg>Meminta 3+ tahun, pengalamanmu sekitar 2 tahun</li></ul></div>
+              <p>Cocok di stack dan cara kerja; kurang di GraphQL dan lama pengalaman.</p>
+            </div>
+            <div class="jacts">
+              <button class="btn pri sm">Buka &amp; isi</button>
+              <button class="btn sec sm"><svg class="i"><use href="#i-bookmark"/></svg>Simpan</button>
+              <button class="icn" aria-label="Menu lainnya"><svg class="i"><use href="#i-more"/></svg></button>
+            </div>
+          </div>
+          <button class="score hi" aria-expanded="true" aria-label="Skor 86, Cocok. Tampilkan alasan"><b>86</b>Cocok<svg class="i"><use href="#i-chev"/></svg></button>
+        </article>
+
+        <!-- B: Lumayan, judul panjang (2 baris lalu ellipsis), meta kosong disembunyikan, menu terbuka -->
+        <article class="jcard mopen">
+          <span class="logo" aria-hidden="true">SC</span>
+          <div>
+            <h4 class="jt">Web Developer &mdash; Platform Pembayaran dan Integrasi Mitra Bisnis (Kontrak 12 Bulan, Penempatan Sementara)</h4>
+            <div class="jco"><span class="nm">Studio Contoh &middot; Lever</span></div>
+            <div class="jchips">
+              <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Bandung</span>
+              <span class="jchip">Hybrid</span>
+              <span class="jchip">Kontrak</span>
+            </div>
+            <div class="jmeta"><span><b>Diposting 2 hari lalu</b></span></div>
+            <div class="jacts">
+              <button class="btn pri sm">Buka &amp; isi</button>
+              <button class="btn sec sm"><svg class="i"><use href="#i-bookmark"/></svg>Simpan</button>
+              <span class="menuwrap">
+                <button class="icn" aria-label="Menu lainnya" aria-expanded="true"><svg class="i"><use href="#i-more"/></svg></button>
+                <span class="menu" role="menu">
+                  <button role="menuitem"><svg class="i"><use href="#i-check"/></svg>Tandai dilamar</button>
+                  <button role="menuitem"><svg class="i"><use href="#i-eyeoff"/></svg>Sembunyikan</button>
+                </span>
+              </span>
+            </div>
+          </div>
+          <button class="score mid" aria-expanded="false" aria-label="Skor 64, Lumayan. Tampilkan alasan"><b>64</b>Lumayan<svg class="i"><use href="#i-chev"/></svg></button>
+        </article>
+
+        <!-- C: skor kasar (tanpa AI) -->
+        <article class="jcard">
+          <span class="logo" aria-hidden="true">CR</span>
+          <div>
+            <h4 class="jt">Senior Frontend Developer</h4>
+            <div class="jco"><span class="nm">Contoh Remote Co &middot; Remotive</span></div>
+            <div class="jchips">
+              <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Worldwide</span>
+              <span class="jchip">Remote</span>
+              <span class="jchip">Full-time</span>
+              <span class="jchip">Senior Level</span>
+            </div>
+            <div class="jmeta">
+              <span>Gaji: <b>USD 3&ndash;4 rb / bulan</b></span>
+              <span><b>Diposting 5 hari lalu</b></span>
+            </div>
+            <div class="jacts">
+              <button class="btn pri sm">Buka &amp; isi</button>
+              <button class="btn sec sm"><svg class="i"><use href="#i-bookmark"/></svg>Simpan</button>
+              <button class="icn" aria-label="Menu lainnya"><svg class="i"><use href="#i-more"/></svg></button>
+            </div>
+          </div>
+          <button class="score rough" aria-expanded="false" aria-label="Skor kasar 58. Tampilkan alasan"><b>58</b>Skor kasar<svg class="i"><use href="#i-chev"/></svg></button>
+        </article>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">
+<b>Skor</b> tiga tingkat: &ge;75 <b>Cocok</b> (hijau), 50&ndash;74 <b>Lumayan</b> (amber), &lt;50 <b>Kurang</b> (slate, bukan rose
+&mdash; rose berarti merusak). <b>Skor kasar</b> berbingkai putus-putus, tanpa tingkat. Skor adalah tombol (ada panah) yang membuka alasan.
+<b>Baru</b> memakai amber (perlu perhatian), bukan biru. Chip bertanda <b>AI</b> berarti field itu diisi AI dari teks (FR-28).
+Kartu B: item meta kosong (gaji, pengalaman, deadline) tidak dirender, tidak ada &ldquo;Negotiable&rdquo;; judul 2 baris lalu ellipsis (D3).</p>
+
+<!-- 8.2 Disimpan -->
+<p class="frame-cap" style="margin-top:28px">S4 &mdash; Lowongan &middot; tab Disimpan (menggantikan Captured Jobs)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lowongan</h1><p>Lowongan yang cocok dengan profilmu, diambil tiap hari.</p></div>
+      <div class="acts">
+        <span class="sync">Diperbarui 08.00 &middot; 24 baru</span>
+        <button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Segarkan</button>
+        <button class="btn sec sm"><svg class="i"><use href="#i-sliders"/></svg>Atur</button>
+      </div>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="false"><span>Rekomendasi<i class="cnt">24</i></span></button>
+      <button role="tab" aria-selected="true"><span>Disimpan<i class="cnt">3</i></span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel" style="padding:var(--pad-card) 0 0">
+      <div class="jbar" style="padding:0 var(--pad-card)">
+        <div class="fgroup" role="group" aria-label="Status">
+          <button class="fchip" aria-pressed="true">Semua</button>
+          <button class="fchip" aria-pressed="false">Disimpan</button>
+          <button class="fchip" aria-pressed="false">Dilamar</button>
+          <button class="fchip" aria-pressed="false">Disembunyikan</button>
+        </div>
+        <span class="search"><span>&#128269;</span><input class="inp" placeholder="Cari judul atau perusahaan" aria-label="Cari lowongan"></span>
+      </div>
+      <div class="jobrow" style="border-top:1px solid var(--border)">
+        <span class="av">CK</span>
+        <span class="main"><div class="jt">Frontend Engineer (React)</div><div class="jc">PT Contoh Karya &middot; Greenhouse</div></span>
+        <span class="badge ok">Dilamar</span><span class="when">2h</span>
+      </div>
+      <div class="jobrow">
+        <span class="av">MN</span>
+        <span class="main"><div class="jt">UI Engineer</div><div class="jc">Contoh Digital Nusantara &middot; Ashby</div></span>
+        <span class="badge dim">Disimpan</span><span class="when">3h</span>
+      </div>
+      <div class="jobrow">
+        <span class="av">CR</span>
+        <span class="main"><div class="jt">Senior Frontend Developer</div><div class="jc">Contoh Remote Co &middot; Remotive</div></span>
+        <span class="badge dim">Disimpan</span><span class="when">5h</span>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">Baris memakai ulang komponen Captured Jobs (<code>JobsPage.tsx</code>); klik baris membuka slide-over
+<code>JobDetail</code> yang sudah ada, tidak digambar ulang. Filter status ditambah <b>Disembunyikan</b> supaya lowongan yang disembunyikan bisa dikembalikan.
+<b>Dilamar</b> hijau (hasil berhasil), <b>Disimpan</b> slate.</p>
+
+<!-- 8.3 State -->
+<p class="frame-cap" style="margin-top:28px">S4 &mdash; state (PRD &sect;8)</p>
+<div class="grid cols-2" style="margin-bottom:12px">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Belum dinyalakan</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <img src="../src/ui/mascot/empty.svg" alt="" width="72" height="72" style="margin-bottom:10px">
+      <h4>Lowongan belum dinyalakan</h4>
+      <p>Isi Preferensi kerja dan pilih sumber. Setelah itu job-kit mencarikan lowongan tiap hari.</p>
+      <div class="act"><button class="btn pri">Atur Lowongan</button></div>
+    </div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Preferensi kerja kosong</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <img src="../src/ui/mascot/empty.svg" alt="" width="72" height="72" style="margin-bottom:10px">
+      <h4>Preferensi kerja masih kosong</h4>
+      <p>Isi role incaran dulu supaya job-kit tahu lowongan apa yang dicari.</p>
+      <div class="act"><button class="btn pri">Isi Preferensi kerja</button></div>
+    </div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Sedang mengambil</h3></div>
+    <div class="mini" style="justify-content:space-between;margin:12px 0">
+      <span class="sync" style="font-size:13px;color:var(--text-secondary)">Diperbarui kemarin 08.00</span>
+      <span class="mini"><button class="btn sec sm" disabled><svg class="i"><use href="#i-refresh"/></svg>Sedang mengambil&hellip;</button>
+        <button class="btn sec sm"><svg class="i"><use href="#i-sliders"/></svg>Atur</button></span>
+    </div>
+    <div class="summary"><div class="row"><span>Mengambil dari 3 sumber</span><em>2 selesai</em></div>
+      <div class="bar"><i style="width:66%"></i></div></div>
+    <div class="hint">Kartu lama tetap tampil di bawahnya selama pengambilan berjalan.</div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Kosong hari ini</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <img src="../src/ui/mascot/empty.svg" alt="" width="72" height="72" style="margin-bottom:10px">
+      <h4>Belum ada lowongan baru hari ini</h4>
+      <p>Pengambilan berikutnya besok 08.00, atau tekan Segarkan.</p>
+      <div class="act"><button class="btn sec"><svg class="i"><use href="#i-refresh"/></svg>Segarkan</button></div>
+    </div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Filter tanpa hasil</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <div class="ico">&#128269;</div>
+      <h4>Tidak ada yang cocok</h4>
+      <p>Tidak ada lowongan Hybrid dengan kata kunci &ldquo;android&rdquo;.</p>
+      <div class="act"><button class="btn sec sm">Reset filter</button></div>
+    </div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Semua sumber gagal</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <img src="../src/ui/mascot/error.svg" alt="" width="72" height="72" style="margin-bottom:10px">
+      <h4>Semua sumber gagal hari ini</h4>
+      <p>Lowongan lama tetap tersimpan. Coba Segarkan nanti, atau cek sumber di Atur Lowongan.</p>
+      <div class="act mini" style="justify-content:center"><button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Segarkan</button>
+        <button class="btn ghost sm">Atur Lowongan</button></div>
+    </div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Satu sumber gagal</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><span>&#9888;</span><span><b>LinkedIn tidak bisa diambil hari ini (diblokir sementara).</b> Sumber lain tetap jalan.</span></div>
+      <div class="alert warn"><span>&#9888;</span><span><b>LinkedIn dijeda setelah 3 kali gagal berturut-turut.</b> Nyalakan lagi di Atur Lowongan.</span></div>
+    </div>
+    <div class="hint">Pesan pertama untuk kegagalan sekali; yang kedua untuk sumber yang dijeda. Daftar tetap tampil di bawahnya.</div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Skor kasar</h3></div>
+    <div style="margin-top:12px">
+      <div class="alert info"><span>&#9432;</span><span><b>Skor kasar &mdash; kunci API ditolak.</b> Lowongan tetap tampil dengan skor dari aturan.
+        <button class="btn ghost sm" style="padding:0 0 0 6px;color:var(--accent);text-decoration:underline">Buka Atur Lowongan</button></span></div>
+    </div>
+    <div class="hint">Sebab lain memakai pola yang sama: kunci kosong, kuota habis, request gagal, output tidak valid. Tiap kartu juga memakai badge <b>Skor kasar</b> (lihat kartu C).</div>
+  </div>
+</div>
+
+<!-- 8.4 S5 -->
+<p class="frame-cap" style="margin-top:28px">S5 &mdash; Profile &middot; tab Preferensi kerja (tab baru setelah Custom Field)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button aria-current="page">Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Profile</h1><p>Data yang dipakai untuk mengisi form lamaran. Tersimpan otomatis.</p></div>
+      <span class="saved">&#10003; Tersimpan</span>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="false"><span>Personal Info</span></button>
+      <button role="tab" aria-selected="false"><span>Contact &amp; Address</span></button>
+      <button role="tab" aria-selected="false"><span>Education</span></button>
+      <button role="tab" aria-selected="false"><span>Work Experience</span></button>
+      <button role="tab" aria-selected="false"><span>Custom Field</span></button>
+      <button role="tab" aria-selected="true"><span>Preferensi kerja</span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="f"><label>Role incaran</label>
+        <div class="chips" style="margin-bottom:8px">
+          <span class="chip-tag sel">Frontend Engineer <button aria-label="hapus Frontend Engineer">&times;</button></span>
+          <span class="chip-tag sel">UI Engineer <button aria-label="hapus UI Engineer">&times;</button></span>
+        </div>
+        <input class="inp" placeholder="Tambah role, mis. Frontend Engineer"></div>
+      <div class="f"><label>Level</label>
+        <div class="fgroup" role="group" aria-label="Level">
+          <button class="fchip" aria-pressed="false">Junior</button>
+          <button class="fchip" aria-pressed="true">Mid</button>
+          <button class="fchip" aria-pressed="false">Senior</button>
+          <button class="fchip" aria-pressed="false">Lead</button>
+        </div></div>
+      <div class="f"><label>Lokasi incaran</label>
+        <div class="chips" style="margin-bottom:8px">
+          <span class="chip-tag sel">Jakarta <button aria-label="hapus Jakarta">&times;</button></span>
+        </div>
+        <input class="inp" placeholder="Tambah lokasi, mis. Jakarta"></div>
+      <div class="f"><label>Tipe kerja <span style="font-weight:400;color:var(--text-secondary)">(boleh lebih dari satu)</span></label>
+        <div class="fgroup" role="group" aria-label="Tipe kerja">
+          <button class="fchip" aria-pressed="true">Remote</button>
+          <button class="fchip" aria-pressed="true">Hybrid</button>
+          <button class="fchip" aria-pressed="false">On-site</button>
+        </div></div>
+      <div class="row2">
+        <div class="f"><label>Kata kunci wajib</label>
+          <div class="chips" style="margin-bottom:8px">
+            <span class="chip-tag sel">React <button aria-label="hapus React">&times;</button></span>
+            <span class="chip-tag sel">TypeScript <button aria-label="hapus TypeScript">&times;</button></span>
+          </div>
+          <input class="inp" placeholder="Tambah kata kunci">
+          <div class="hint">Lowongan harus memuat kata ini.</div></div>
+        <div class="f"><label>Kata kunci yang dihindari</label>
+          <div class="chips" style="margin-bottom:8px">
+            <span class="chip-tag sel">PHP <button aria-label="hapus PHP">&times;</button></span>
+            <span class="chip-tag sel">magang <button aria-label="hapus magang">&times;</button></span>
+          </div>
+          <input class="inp" placeholder="Tambah kata kunci">
+          <div class="hint">Lowongan yang memuat kata ini tidak ditampilkan.</div></div>
+      </div>
+      <div class="f" style="margin:14px 0 0;max-width:300px"><label>Gaji minimum <span style="font-weight:400;color:var(--text-secondary)">(opsional)</span></label>
+        <input class="inp" placeholder="Kosongkan bila tidak ada batas"></div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">Kontrol dari komponen yang ada: <code>.chip-tag.sel</code> untuk daftar (seperti Skill),
+<code>.fchip</code> untuk pilihan tetap, <code>.inp</code> untuk teks. Level dibuat pilihan tunggal, tipe kerja pilihan ganda (FR-26).
+Tersimpan otomatis, tanpa tombol simpan, sama dengan tab lain.</p>
+
+<!-- 8.5 S6 -->
+<p class="frame-cap" style="margin-top:28px">S6 &mdash; Atur Lowongan (dibuka dari tombol Atur; bukan tujuan sidebar)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <button class="btn ghost sm page-back"><svg class="i"><use href="#i-back"/></svg>Lowongan</button>
+    <div class="opt-head">
+      <div><h1>Atur Lowongan</h1><p>Sumber, jadwal, dan penilaian AI untuk lowongan harian.</p></div>
+      <span class="saved">&#10003; Tersimpan</span>
+    </div>
+    <div class="stage">
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Sumber</h3></div>
+        <div style="margin-top:12px">
+          <label class="srow"><input type="checkbox" checked><span class="tx"><b>Greenhouse</b><span>Papan lowongan perusahaan pilihanmu</span></span><span class="badge ok">Aktif</span></label>
+          <label class="srow"><input type="checkbox" checked><span class="tx"><b>Lever</b><span>Papan lowongan perusahaan pilihanmu</span></span><span class="badge ok">Aktif</span></label>
+          <label class="srow"><input type="checkbox"><span class="tx"><b>Ashby</b><span>Papan lowongan perusahaan pilihanmu</span></span><span class="badge dim">Mati</span></label>
+          <label class="srow"><input type="checkbox" checked><span class="tx"><b>Remotive</b><span>Papan lowongan remote</span></span><span class="badge ok">Aktif</span></label>
+          <label class="srow"><input type="checkbox" checked><span class="tx"><b>LinkedIn</b><span>Halaman pencarian publik, tanpa login</span></span>
+            <span class="badge warn">Izin dibutuhkan</span><button class="btn sec sm" type="button">Beri izin</button></label>
+        </div>
+        <div class="alert warn" style="margin-top:14px"><span>&#9888;</span><span><b>Izin untuk linkedin.com belum diberikan.</b> Chrome akan meminta izin saat kamu menekan Beri izin.</span></div>
+      </div>
+
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Perusahaan untuk sumber ATS</h3></div>
+        <div style="margin-top:12px">
+          <div class="chips" style="margin-bottom:8px">
+            <span class="chip-tag sel">contohkarya <button aria-label="hapus contohkarya">&times;</button></span>
+            <span class="chip-tag sel">studiocontoh <button aria-label="hapus studiocontoh">&times;</button></span>
+            <span class="chip-tag sel">contohdigital <button aria-label="hapus contohdigital">&times;</button></span>
+          </div>
+          <input class="inp" placeholder="Nama papan perusahaan, mis. contohkarya">
+          <div class="hint">Nama yang dipakai di alamat papan lowongan perusahaan itu.</div>
+        </div>
+      </div>
+
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Jadwal</h3></div>
+        <div class="f" style="margin:12px 0 0;max-width:220px"><label>Jam ambil harian</label><input class="inp" type="time" value="08:00">
+          <div class="hint">Bila Chrome tertutup, pengambilan jalan saat Chrome dibuka berikutnya.</div></div>
+      </div>
+
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Penilaian AI</h3></div>
+        <div style="margin-top:12px">
+          <div class="row2">
+            <div class="f"><label>Penyedia</label><select class="inp"><option>Anthropic</option></select></div>
+            <div class="f"><label>Model</label><input class="inp" value="claude-haiku-5-5"></div>
+          </div>
+          <div class="f" style="margin-top:12px"><label>Kunci API</label>
+            <input class="inp" type="password" value="sk-contoh-0000000000" autocomplete="off">
+            <div class="hint">Disimpan di perangkat ini. Tidak ikut Export; terhapus oleh Hapus semua.</div></div>
+          <div class="mini" style="margin-bottom:12px">
+            <button class="btn sec" type="button">Tes koneksi</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="alert ok"><span>&#10003;</span><span><b>Tersambung.</b> Model menjawab dengan benar.</span></div>
+            <div class="alert bad"><span>&#9888;</span><span><b>Kunci ditolak penyedia.</b> Periksa kunci, lalu coba lagi.</span></div>
+          </div>
+          <div class="hint" style="margin-bottom:12px">Dua hasil Tes koneksi di atas ditampilkan bersamaan hanya untuk mockup; di produk hanya satu yang tampil.</div>
+          <div class="alert info"><span>&#9432;</span><span><b>Yang dikirim ke penyedia AI:</b> role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe kerja.
+            Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim.</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">Sumber ditandai satu baris per sumber: kotak centang menyala/mematikan (FR-32), badge menyebut keadaannya.
+Izin host diminta saat sumber dinyalakan, bukan saat instal, jadi baris LinkedIn menampilkan <b>Izin dibutuhkan</b> + <b>Beri izin</b> sampai Chrome menyetujui.
+Pesan Tes koneksi memakai teks PRD &sect;6.7 (&ldquo;Kunci ditolak penyedia&rdquo;, &ldquo;Izin untuk linkedin.com belum diberikan&rdquo;).</p>
+
+<!-- 8.6 Sempit -->
+<p class="frame-cap" style="margin-top:28px">Lebar &le;420&nbsp;px &mdash; S4 Rekomendasi (sidebar jadi baris atas, kartu bertumpuk)</p>
+<div style="max-width:400px;margin-bottom:12px">
+  <div class="opt narrow">
+    <aside class="opt-side">
+      <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+      <nav class="opt-nav" aria-label="Options">
+        <button>Profile</button>
+        <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+        <button>Data</button>
+      </nav>
+    </aside>
+    <main class="opt-main">
+      <div class="opt-head">
+        <div><h1>Lowongan</h1><p>Lowongan yang cocok dengan profilmu, diambil tiap hari.</p></div>
+        <div class="acts">
+          <span class="sync">Diperbarui 08.00 &middot; 24 baru</span>
+          <button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Segarkan</button>
+          <button class="btn sec sm"><svg class="i"><use href="#i-sliders"/></svg>Atur</button>
+        </div>
+      </div>
+      <div class="opt-tabs" role="tablist">
+        <button role="tab" aria-selected="true"><span>Rekomendasi<i class="cnt">24</i></span></button>
+        <button role="tab" aria-selected="false"><span>Disimpan<i class="cnt">3</i></span></button>
+      </div>
+      <div class="opt-sheet" role="tabpanel">
+        <div class="jbar">
+          <div class="fgroup" role="group" aria-label="Tipe kerja">
+            <button class="fchip" aria-pressed="true">Semua</button>
+            <button class="fchip" aria-pressed="false">Remote</button>
+            <button class="fchip" aria-pressed="false">Hybrid</button>
+            <button class="fchip" aria-pressed="false">On-site</button>
+          </div>
+          <select class="inp fit" aria-label="Urutkan"><option>Urut: Skor</option><option>Urut: Terbaru</option></select>
+          <span class="search"><span>&#128269;</span><input class="inp" placeholder="Cari judul atau perusahaan" aria-label="Cari lowongan"></span>
+        </div>
+        <div class="jlist">
+          <article class="jcard">
+            <span class="logo" aria-hidden="true">CK</span>
+            <div>
+              <h4 class="jt">Frontend Engineer (React)</h4>
+              <div class="jco"><span class="nm">PT Contoh Karya &middot; Greenhouse</span><span class="badge warn">Baru</span></div>
+              <div class="jchips">
+                <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Jakarta</span>
+                <span class="jchip">Remote</span>
+                <span class="jchip">Full-time</span>
+                <span class="jchip ai">Mid Level</span>
+              </div>
+              <div class="jmeta">
+                <span>Gaji: <b>Rp 20&ndash;30 jt</b></span>
+                <span>Pengalaman: <b>3+ tahun</b></span>
+                <span>Deadline: <b>12 Nov</b></span>
+              </div>
+              <div class="jacts">
+                <button class="btn pri sm">Buka &amp; isi</button>
+                <button class="btn sec sm"><svg class="i"><use href="#i-bookmark"/></svg>Simpan</button>
+                <button class="icn" aria-label="Menu lainnya"><svg class="i"><use href="#i-more"/></svg></button>
+              </div>
+            </div>
+            <button class="score hi" aria-expanded="false" aria-label="Skor 86, Cocok. Tampilkan alasan"><b>86</b><svg class="i"><use href="#i-chev"/></svg></button>
+          </article>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<p class="frame-note" style="max-width:none">Di lebar sempit badge skor hanya menampilkan angka (tingkatnya tetap ada di <code>aria-label</code>); chip dan meta membungkus ke baris berikutnya.</p>
+
+<!-- 9. ATURAN -->
+<h2>9. Aturan yang tidak boleh dilanggar</h2>
 <div class="card sh">
   <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.9;color:var(--text-secondary)">
     <li>Komponen tidak menyebut palet mentah — hanya token semantik.</li>
