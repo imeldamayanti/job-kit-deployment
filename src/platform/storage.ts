@@ -1,3 +1,4 @@
+import { browser } from 'wxt/browser'
 import { storage } from 'wxt/utils/storage'
 import type { SaveOutcome } from '../core/profile/autosave'
 import { createEmptyProfile } from '../core/profile/profile'
@@ -25,4 +26,11 @@ export async function saveProfile(profile: Profile): Promise<SaveOutcome> {
 
 export function watchProfile(onChange: (profile: Profile) => void): () => void {
   return profileItem.watch((value) => onChange(value ?? createEmptyProfile()))
+}
+
+export type StorageUsage = { used: number; quota: number }
+
+export async function loadStorageUsage(): Promise<StorageUsage> {
+  const used = await browser.storage.local.getBytesInUse(null)
+  return { used, quota: browser.storage.local.QUOTA_BYTES }
 }
