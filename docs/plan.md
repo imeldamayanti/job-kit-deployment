@@ -454,13 +454,15 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T30 selesai**
 
 **Acceptance criteria**
-- [ ] Tipe `Job` (bentuk FR-28), `JobStatus` (`new`, `saved`, `applied`, `hidden`), dan `SourceRun` (sumber, waktu, jumlah, sebab gagal) di `core/` (FR-27, FR-28, FR-30)
-- [ ] Kunci dedupe: URL kanonik (tanpa parameter pelacak), cadangan judul + perusahaan yang dinormalkan. Lowongan yang sudah ada diperbarui datanya tanpa mereset status dan skor (FR-28)
-- [ ] Pemangkasan: lowongan `new` dan `hidden` yang lebih dari 30 hari atau di atas 500 entri dibuang dari yang tertua; `saved` dan `applied` tidak pernah dibuang otomatis (PRD §8)
-- [ ] Kunci storage terpisah dari profil; Hapus semua ikut menghapusnya; Export memuat lowongan `saved` dan `applied`
-- [ ] Tes ditulis lebih dulu
+- [x] Tipe `Job` (bentuk FR-28), `JobStatus` (`new`, `saved`, `applied`, `hidden`), dan `SourceRun` (sumber, waktu, jumlah, sebab gagal) di `core/` (FR-27, FR-28, FR-30)
+- [x] Kunci dedupe: URL kanonik (tanpa parameter pelacak), cadangan judul + perusahaan yang dinormalkan. Lowongan yang sudah ada diperbarui datanya tanpa mereset status dan skor (FR-28)
+- [x] Pemangkasan: lowongan `new` dan `hidden` yang lebih dari 30 hari atau di atas 500 entri dibuang dari yang tertua; `saved` dan `applied` tidak pernah dibuang otomatis (PRD §8)
+- [x] Kunci storage terpisah dari profil; Hapus semua ikut menghapusnya; Export memuat lowongan `saved` dan `applied`
+- [x] Tes ditulis lebih dulu
 
 **Done when:** tes merge, dedupe, dan pemangkasan lulus.
+
+**Hasil:** tipe `Job`, `JobStatus`, `SourceRun` di `src/core/feed/` (nama folder baru supaya tidak bentrok dengan `CapturedJob` lama); dedupe lewat URL kanonik dengan cadangan judul+perusahaan, merge tidak mereset status, skor, dan tanda AI; pemangkasan 30 hari / 500 entri hanya untuk new dan hidden; storage terpisah (`local:feed`, `local:feedRuns`); Hapus semua ikut menghapusnya; Export memuat lowongan saved dan applied (Import belum membaca `jobs`). 368 tes hijau, typecheck lolos.
 
 ### T31 · Normalisasi, kategori tipe kerja, saringan, dan skor kasar · 1.5h · feature · High
 - [ ] **T31 selesai**

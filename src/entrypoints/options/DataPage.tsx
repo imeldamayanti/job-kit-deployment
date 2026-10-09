@@ -8,6 +8,7 @@ import { describeUsage } from '../../core/data/storage-usage'
 import { initialDataState, reduceData } from '../../core/data/state'
 import type { SaveOutcome } from '../../core/profile/autosave'
 import { createEmptyProfile } from '../../core/profile/profile'
+import { clearFeedData, loadFeed } from '../../platform/feed-storage'
 import type { Profile } from '../../core/profile/types'
 import { downloadText } from '../../platform/download'
 import { useImportFile } from '../../ui/hooks/useImportFile'
@@ -104,6 +105,7 @@ export function DataPage({
 
   const confirmDelete = async () => {
     if ((await commit(createEmptyProfile())).ok) {
+      await clearFeedData()
       dispatch({ type: 'finish', title: 'Semua data dihapus', detail: 'Profil di browser ini sekarang kosong.' })
     }
   }
@@ -122,10 +124,10 @@ export function DataPage({
   if (state.kind === 'confirm-delete') return <ConfirmDelete state={state} dispatch={dispatch} onConfirm={confirmDelete} />
   if (state.kind === 'done') return <Done state={state} dispatch={dispatch} />
 
-  const exportProfile = () => {
+  const exportProfile = async () => {
     if (!profile) return
     const now = new Date()
-    downloadText(exportFileName(now), buildExport(profile, now))
+    downloadText(exportFileName(now), buildExport(profile, now, await loadFeed()))
   }
 
   return (
@@ -136,7 +138,7 @@ export function DataPage({
           title="Export"
           body="Seluruh profil ke satu file JSON berversi."
         >
-          <Button disabled={!profile} onClick={exportProfile}>
+          <Button disabled={!profile} onClick={() => void exportProfile()}>
             Export JSON
           </Button>
         </ActionCard>
