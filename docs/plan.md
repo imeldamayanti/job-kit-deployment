@@ -3,7 +3,7 @@
 Pengganti P5: backlog lokal, tanpa Jira dan tanpa CSV. Sumber: `docs/02-prd.md` (APPROVED) dan `docs/03-rfc.md` (APPROVED).
 Aturan tetap berlaku: maksimal 18 tiket, total ≤20 jam, tiap tiket ≤2 jam, walking skeleton selesai dalam 8 jam pertama.
 
-**Total estimasi: 19.5 jam · 15 tiket** (video demo dibuang atas keputusan PIC; sisa 0.5 jam jadi cadangan)
+**Total estimasi: 21.0 jam · 16 tiket** (video demo dibuang atas keputusan PIC; T16 ditambah 2026-10-09 atas permintaan PIC dan melewati 20 jam sebesar 1 jam. PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras.)
 **Walking skeleton: T01–T05 = 7.0 jam**
 
 Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
@@ -202,6 +202,39 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 ---
 
+## Tambahan atas permintaan PIC (2026-10-09)
+
+### T16 · Tandai field yang belum terisi dengan outline kuning · 1.5h · feature · Medium
+- [ ] **T16 selesai**
+
+**Context:** JobFill lama menandai field yang tidak terisi dengan outline kuning di halaman, supaya pengguna langsung tahu mana yang harus diisi sendiri. job-kit baru menampilkan daftar di panel, tetapi tidak menandai halamannya. Dokumen JobFill lama tidak mendefinisikan perilaku ini, jadi rinciannya di bawah adalah asumsi yang perlu dikonfirmasi PIC.
+
+**Asumsi (konfirmasi PIC sebelum dikerjakan)**
+1. **Kapan:** outline muncul setelah Fill ditekan, bukan saat panel baru membaca halaman. Ini menjaga prinsip FR-09 bahwa halaman tidak berubah sebelum Fill.
+2. **Field mana:** semua field yang masih kosong setelah Fill, yaitu yang tak terpetakan, yang datanya tidak ada di profil, dan yang dimatikan pengguna. Field yang berisi (oleh job-kit atau oleh pengguna) tidak ditandai. Pertanyaan esai yang tak terpetakan ikut ditandai; kalau terlalu ramai, bisa dibatasi ke field wajib.
+3. **Warna:** amber dari token desain (`amber-600`, #DC6803), outline 2px dengan jarak 2px. Kalau PIC ingin kuning yang lebih terang, ganti warnanya; tidak ada konsekuensi lain.
+4. **Hilang kapan:** dari satu field begitu pengguna mengisinya; semuanya saat Undo; dan saat halaman dimuat ulang.
+
+**Perubahan dokumen yang ikut (butuh persetujuan PIC karena PRD dan RFC sudah APPROVED)**
+- [ ] PRD: tambah **FR-20** (Should) di §7, satu baris di §8 ("Field yang tidak terisi setelah Fill ditandai di halaman"), satu catatan di §6.2 layar S1, dan tandai sebagai penambahan 2026-10-09.
+- [ ] RFC §2: baris **Complexity ban** menyebut "tanpa UI yang disuntik ke halaman lamaran". Ubah menjadi "tanpa elemen baru di halaman lamaran; satu-satunya perubahan visual adalah outline pada field yang sudah ada".
+- [ ] RFC §8: tambah keputusan **D9** dengan baris Cost (mengubah tampilan halaman milik situs lain; bisa bentrok dengan gaya situs; outline situs sendiri harus dipulihkan).
+- [ ] Tabel cakupan di bawah: tambah baris FR-20 → T16.
+
+**Acceptance criteria**
+- [ ] Setelah Fill, setiap field yang masih kosong dan terlihat di halaman memiliki outline amber yang jelas (FR-20)
+- [ ] Sebelum Fill ditekan, tidak ada field yang diberi outline (FR-09)
+- [ ] Field yang terisi oleh job-kit, dan field yang sudah berisi teks pengguna, tidak diberi outline (FR-20)
+- [ ] Outline sebuah field hilang begitu pengguna mengisinya (FR-20)
+- [ ] Undo menghapus semua outline, dan outline milik situs sendiri pada field itu kembali seperti sebelumnya (FR-11, FR-20)
+- [ ] Field tersembunyi tidak ditandai, dan jumlah elemen di halaman tidak bertambah (RFC §2)
+- [ ] Panel memberi tahu bahwa field yang belum terisi ditandai di halaman, dengan kalimat yang ditulis ramah dan singkat (FR-20)
+- [ ] Dropdown dan grup radio yang tidak terisi juga ditandai; untuk grup radio, yang ditandai adalah grupnya, bukan tiap tombol (FR-20)
+
+**Done when:** setelah Fill di form uji dan di satu form sungguhan, field yang harus diisi sendiri langsung terlihat di halaman, dan Undo mengembalikan halaman seperti semula.
+
+---
+
 ## Cakupan
 
 **FR → tiket**
@@ -217,7 +250,7 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 | FR-07 | T04 | FR-17 | T01, T09 |
 | FR-08 | T04, T06 | FR-18 | T10 |
 | FR-09 | T05 | FR-19 | T05 |
-| FR-10 | T05 | | |
+| FR-10 | T05 | FR-20 (usulan) | T16 |
 
 **Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11.
 
