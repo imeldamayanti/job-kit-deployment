@@ -344,17 +344,19 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Catatan:** akurasi baru diuji pada fixture sintetis dan dua PDF hasil Chrome; PDF CV asli diuji di T26.
 
 ### T24 · Parser CV: pendidikan dan pengalaman · 2h · feature · Medium
-- [ ] **T24 selesai**
+- [x] **T24 selesai**
 
 **Context:** lanjutan T23, bagian yang paling beragam. Heading dikenali dalam dua bahasa ("Pendidikan", "Education", "Pengalaman Kerja", "Work Experience", dan variannya).
 **Acceptance criteria**
-- [ ] Memisahkan blok per heading, lalu per entri; setiap entri pendidikan mendapat institusi, jurusan, IPK jika ada, dan periode (FR-25)
-- [ ] Setiap entri pengalaman mendapat posisi, perusahaan, periode, dan deskripsi jika ada (FR-25)
-- [ ] Periode dengan "Sekarang" atau "Present" dikenali sebagai masih berjalan (FR-25)
-- [ ] Entri yang strukturnya tidak jelas tidak ditebak; teks mentahnya dikembalikan sebagai `unparsed` agar bisa ditampilkan di pratinjau (FR-25)
-- [ ] Tes ditulis lebih dulu memakai fixture yang sama dengan T23 ditambah variasi heading
+- [x] Memisahkan blok per heading, lalu per entri; setiap entri pendidikan mendapat institusi, jenjang, jurusan, IPK jika ada, dan tahun selesai (FR-25). Periode disimpan apa adanya; profil memakai satu field `year`, jadi yang diambil tahun akhir.
+- [x] Setiap entri pengalaman mendapat posisi, perusahaan, periode, dan deskripsi jika ada (FR-25)
+- [x] Periode dengan "Sekarang", "Saat ini" atau "Present" dikenali sebagai masih berjalan (FR-25)
+- [x] Entri yang strukturnya tidak jelas tidak ditebak; teks mentahnya dikembalikan sebagai `unparsed` agar bisa ditampilkan di pratinjau (FR-25)
+- [x] Tes ditulis lebih dulu memakai fixture yang sama dengan T23 ditambah variasi heading
 
 **Done when:** fixture lulus, dan entri yang tidak bisa dibaca muncul sebagai `unparsed`, bukan hilang.
+
+**Batas yang diketahui:** institusi tanpa kata kunci (mis. singkatan "ITB") jatuh ke `unparsed`; judul dan perusahaan yang dipisah dua baris tanpa penanda perusahaan (PT, CV, Ltd, ...) diberi `low`; baris deskripsi tanpa titik yang tepat di atas periode entri berikutnya bisa terbaca sebagai judul. Akurasi pada CV asli diuji di T26.
 
 ### T25 · Pratinjau Import CV per field · 2h · feature · Medium
 - [ ] **T25 selesai**

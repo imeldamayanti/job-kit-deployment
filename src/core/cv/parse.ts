@@ -1,13 +1,7 @@
 import { headingKind } from './headings'
 import { findCity, isProvince } from './places'
-
-export type Confidence = 'high' | 'low'
-export type Detected = { value: string; confidence: Confidence }
-
-export type CvDraft = {
-  personal: Partial<Record<'firstName' | 'middleName' | 'lastName', Detected>>
-  contact: Partial<Record<'email' | 'phone' | 'linkedin' | 'city', Detected>>
-}
+import { parseSections } from './sections'
+import type { CvDraft, Detected } from './types'
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g
 const PHONE = /(?<![\d+])\(?\+?\d[\d\s().-]{6,}\d(?!\d)/g
@@ -148,5 +142,6 @@ export function parseCv(text: string): CvDraft {
       ...(linkedin ? { linkedin } : {}),
       ...(city ? { city } : {}),
     },
+    ...parseSections(lines),
   }
 }

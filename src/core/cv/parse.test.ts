@@ -79,9 +79,10 @@ describe('parseCv identity and contact', () => {
   })
 
   it('returns an empty result, not an error, when nothing is recognised', () => {
-    expect(parseCv(NO_IDENTITY)).toEqual({ personal: {}, contact: {} })
-    expect(parseCv('')).toEqual({ personal: {}, contact: {} })
-    expect(parseCv('   \n  ')).toEqual({ personal: {}, contact: {} })
+    const empty = { personal: {}, contact: {}, education: [], experience: [], unparsed: [] }
+    expect(parseCv(NO_IDENTITY)).toEqual(empty)
+    expect(parseCv('')).toEqual(empty)
+    expect(parseCv('   \n  ')).toEqual(empty)
   })
 })
 
