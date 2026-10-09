@@ -3,16 +3,20 @@ import { classifyUnreadablePage, domainOf, originPatternOf } from './page-access
 
 describe('classifyUnreadablePage', () => {
   it('treats ordinary web pages as missing permission', () => {
-    expect(classifyUnreadablePage('https://boards.greenhouse.io/acme/jobs/1')).toBe('no-permission')
+    expect(classifyUnreadablePage('https://boards.greenhouse.io/acme/jobs/1', false)).toBe('no-permission')
+  })
+
+  it('treats a web page we already have permission for as unreachable, e.g. a PDF', () => {
+    expect(classifyUnreadablePage('https://example.test/lowongan.pdf', true)).toBe('unreachable-page')
   })
 
   it('treats browser-internal pages as unreachable', () => {
-    expect(classifyUnreadablePage('chrome://extensions')).toBe('unreachable-page')
-    expect(classifyUnreadablePage('chrome-extension://abc/options.html')).toBe('unreachable-page')
+    expect(classifyUnreadablePage('chrome://extensions', false)).toBe('unreachable-page')
+    expect(classifyUnreadablePage('chrome-extension://abc/options.html', false)).toBe('unreachable-page')
   })
 
   it('treats an unknown url as unreachable', () => {
-    expect(classifyUnreadablePage(undefined)).toBe('unreachable-page')
+    expect(classifyUnreadablePage(undefined, false)).toBe('unreachable-page')
   })
 })
 

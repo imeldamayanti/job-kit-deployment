@@ -1,6 +1,7 @@
 import { browser } from 'wxt/browser'
 import type { FillOutcome } from '../core/fill/apply'
 import { classifyUnreadablePage, type UnreadableReason } from '../core/fill/page-access'
+import { hasSiteAccess } from './permissions'
 import type { ActiveTab } from './tabs'
 
 export type FieldSummary = { id: string; label: string; autocomplete: string; hasText: boolean }
@@ -8,14 +9,14 @@ export type FillItem = { fieldId: string; value: string }
 
 export type PageScan =
   | { ok: true; fields: FieldSummary[]; canUndo: boolean }
-  | { ok: false; reason: 'no-form' | UnreadableReason }
+  | { ok: false; reason: 'no-form' | 'locked-frame' | UnreadableReason }
 
 type Request =
   | { type: 'scan' }
   | { type: 'fill'; items: FillItem[] }
   | { type: 'undo' }
 
-export type ScanResponse = { fields: FieldSummary[]; canUndo: boolean }
+export type ScanResponse = { fields: FieldSummary[]; canUndo: boolean; lockedFrame: boolean }
 
 export type Handlers = {
   scan: () => ScanResponse
@@ -32,10 +33,11 @@ function isRequest(message: unknown): message is Request {
 export async function requestScan(tab: ActiveTab): Promise<PageScan> {
   try {
     await browser.scripting.executeScript({ target: { tabId: tab.id }, files: [CONTENT_SCRIPT] })
-    const { fields, canUndo }: ScanResponse = await browser.tabs.sendMessage(tab.id, { type: 'scan' } satisfies Request)
-    return fields.length === 0 ? { ok: false, reason: 'no-form' } : { ok: true, fields, canUndo }
+    const { fields, canUndo, lockedFrame }: ScanResponse = await browser.tabs.sendMessage(tab.id, { type: 'scan' } satisfies Request)
+    if (fields.length > 0) return { ok: true, fields, canUndo }
+    return { ok: false, reason: lockedFrame ? 'locked-frame' : 'no-form' }
   } catch {
-    return { ok: false, reason: classifyUnreadablePage(tab.url) }
+    return { ok: false, reason: classifyUnreadablePage(tab.url, await hasSiteAccess(tab.url)) }
   }
 }
 

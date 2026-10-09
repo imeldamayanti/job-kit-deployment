@@ -1,7 +1,8 @@
 export type UnreadableReason = 'no-permission' | 'unreachable-page'
 
-export function classifyUnreadablePage(url: string | undefined): UnreadableReason {
-  if (url && /^https?:\/\//.test(url)) return 'no-permission'
+// A web page we could not read is either one we lack permission for, or one the browser keeps closed (PDF, error pages).
+export function classifyUnreadablePage(url: string | undefined, hasAccess: boolean): UnreadableReason {
+  if (url && /^https?:\/\//.test(url) && !hasAccess) return 'no-permission'
   return 'unreachable-page'
 }
 

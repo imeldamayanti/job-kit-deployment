@@ -1,5 +1,6 @@
 import { defineUnlistedScript } from 'wxt/utils/define-unlisted-script'
 import { createFiller } from '../../core/fill/apply'
+import { hasLockedFrame } from '../../core/fill/frames'
 import { scanFields, type ScannedField } from '../../core/fill/scan'
 import { listen } from '../../platform/messaging'
 
@@ -20,6 +21,7 @@ export default defineUnlistedScript(() => {
       return {
         fields: fields.map(({ id, label, autocomplete, hasText }) => ({ id, label, autocomplete, hasText })),
         canUndo: filler.canUndo(),
+        lockedFrame: hasLockedFrame(document),
       }
     },
     fill: (items) => {

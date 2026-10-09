@@ -183,6 +183,22 @@ export function App() {
           {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'unreachable-page' && (
             <section className="rounded-xl border border-border bg-surface p-4">
               <h2 className="text-[13px] font-bold text-text-primary">Tidak bisa dibaca</h2>
+              <p className="mt-1 text-text-secondary">
+                {state.domain
+                  ? 'Browser tidak mengizinkan ekstensi membaca halaman ini, misalnya PDF atau halaman yang dibatasi.'
+                  : 'Ini halaman bawaan browser, dan browser tidak mengizinkan ekstensi membacanya.'}
+              </p>
+              <p className="mt-1 text-text-secondary">Buka halaman lamaran kerja di tab lain.</p>
+            </section>
+          )}
+
+          {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'locked-frame' && (
+            <section className="rounded-xl border border-border bg-surface p-4">
+              <h2 className="text-[13px] font-bold text-text-primary">Tidak bisa dibaca</h2>
+              <p className="mt-1 text-text-secondary">
+                Form ada di dalam frame yang terkunci, jadi job-kit tidak bisa mengisinya.
+              </p>
+              <p className="mt-1 text-text-secondary">Kalau situs menyediakan tautan form lamaran langsung, buka tautan itu di tab baru.</p>
             </section>
           )}
         </main>

@@ -84,63 +84,63 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 ## Phase 3 — Fitur penuh
 
 ### T06 · Toggle per field dan field sudah berisi · 1h · feature · Medium
-- [ ] **T06 selesai**
+- [x] **T06 selesai**
 
 **Context:** S1 penuh bagian "Akan diisi"; PRD §8.
 **Acceptance criteria**
-- [ ] Mematikan satu field membuat field itu tidak berubah setelah Fill (FR-08)
-- [ ] Field yang sudah berisi tulisan pengguna ditandai "Sudah berisi" dengan pilihan timpa atau lewati; bawaannya lewati (PRD §8)
-- [ ] Fill kedua mengganti nilai yang sama, dan Undo tetap mengembalikan ke nilai sebelum Fill pertama (PRD §8)
-- [ ] Setelah halaman dimuat ulang, Undo tidak tersedia dan panel menyatakan nilai awal sudah tidak tersimpan (PRD §8)
+- [x] Mematikan satu field membuat field itu tidak berubah setelah Fill (FR-08)
+- [x] Field yang sudah berisi tulisan pengguna ditandai "Sudah berisi" dengan pilihan timpa atau lewati; bawaannya lewati (PRD §8)
+- [x] Fill kedua mengganti nilai yang sama, dan Undo tetap mengembalikan ke nilai sebelum Fill pertama (PRD §8)
+- [x] Setelah halaman dimuat ulang, Undo tidak tersedia dan panel menyatakan nilai awal sudah tidak tersimpan (PRD §8)
 
 **Done when:** keempat perilaku di atas terlihat di fixture.
 
 ### T07 · Contact & Address, Custom Field, navigasi options · 1.5h · feature · Medium
-- [ ] **T07 selesai**
+- [x] **T07 selesai**
 
 **Context:** S3; navigasi kiri satu grup Profile.
 **Acceptance criteria**
-- [ ] Contact & Address dapat dibuat, diubah, dan dihapus, dan bertahan setelah reload (FR-01)
-- [ ] Pengguna dapat menambah pasangan key–value kustom, dan form yang menanyakannya terisi (FR-04)
-- [ ] Navigasi kiri hanya memuat bagian yang ada di v1; tidak ada Additional, Captured Jobs, atau Data (PRD §6.6 butir 13)
-- [ ] Form dua kolom tidak meluber keluar kartu (PRD §6.6 butir 14)
+- [x] Contact & Address dapat dibuat, diubah, dan dihapus, dan bertahan setelah reload (FR-01)
+- [x] Pengguna dapat menambah pasangan key–value kustom, dan form yang menanyakannya terisi (FR-04)
+- [x] Navigasi kiri hanya memuat bagian yang ada di v1; tidak ada Additional, Captured Jobs, atau Data (PRD §6.6 butir 13)
+- [x] Form dua kolom tidak meluber keluar kartu (PRD §6.6 butir 14)
 
 **Done when:** tiga bagian profil terisi dan Custom Field memengaruhi hasil Fill.
 
 ### T08 · Education dan Work Experience · 2h · feature · Medium
-- [ ] **T08 selesai**
+- [x] **T08 selesai**
 
 **Context:** S3; kartu entri bisa tambah, hapus, ubah urutan.
 **Acceptance criteria**
-- [ ] Pengguna dapat menambah 3 entri, mengubah urutan, memuat ulang, dan urutannya sama (FR-02)
-- [ ] Work Experience punya pilihan "Masih bekerja di sini"
-- [ ] Kartu terlipat menampilkan ringkasan satu baris
-- [ ] Education kosong menampilkan "Belum ada riwayat pendidikan" dan tombol "Tambah pendidikan pertama"
+- [x] Pengguna dapat menambah 3 entri, mengubah urutan, memuat ulang, dan urutannya sama (FR-02)
+- [x] Work Experience punya pilihan "Masih bekerja di sini"
+- [x] Kartu terlipat menampilkan ringkasan satu baris
+- [x] Education kosong menampilkan "Belum ada riwayat pendidikan" dan tombol "Tambah pendidikan pertama"
 
 **Done when:** entri tersimpan, terurut, dan terlipat dengan benar setelah reload.
 
 ### T09 · Tab Profile di panel dan profil kosong · 1h · feature · Medium
-- [ ] **T09 selesai**
+- [x] **T09 selesai**
 
 **Context:** S2; satu-satunya jalan ke halaman edit.
 **Acceptance criteria**
-- [ ] Panel punya dua tab, Autofill dan Profile; tab Profile menampilkan nama, email, dan jumlah entri per bagian (FR-17)
-- [ ] Klik "Edit Profile" membuka halaman edit di tab baru tanpa memuat situs eksternal (FR-17)
-- [ ] Profil kosong total menampilkan "Profil masih kosong" dan tombol "Isi profil sekarang"; Fill tidak aktif dan menyebut sebabnya (PRD §8)
-- [ ] Field yang datanya kosong di profil ditandai dan ditaut "Isi →" ke bagian profil terkait (PRD §8)
+- [x] Panel punya dua tab, Autofill dan Profile; tab Profile menampilkan nama, email, dan jumlah entri per bagian (FR-17)
+- [x] Klik "Edit Profile" membuka halaman edit di tab baru tanpa memuat situs eksternal (FR-17)
+- [x] Profil kosong total menampilkan "Profil masih kosong" dan tombol "Isi profil sekarang"; Fill tidak aktif dan menyebut sebabnya (PRD §8)
+- [x] Field yang datanya kosong di profil ditandai dan ditaut "Isi →" ke bagian profil terkait (PRD §8)
 
 **Done when:** panel berpindah antar tab dan profil kosong menampilkan ajakan.
 
 ### T10 · Izin situs, ikut tab aktif, dan state gagal · 2h · feature · Medium
-- [ ] **T10 selesai**
+- [x] **T10 selesai**
 
 **Context:** RFC D5; PRD §8; risiko RFC §5 ke-3.
 **Acceptance criteria**
-- [ ] Pada situs yang belum diizinkan, panel menyebut nama domain dan menampilkan "Beri izin untuk situs ini", dan tidak menampilkan "Tidak ada form" (FR-18, PRD §8)
-- [ ] Setelah izin diberikan, field langsung terdeteksi tanpa muat ulang manual
-- [ ] Pindah tab atau halaman membuat daftar field milik halaman baru, bukan yang lama (FR-06)
-- [ ] Halaman browser internal dan PDF: panel menyebut sebabnya dan tanpa tombol Fill (PRD §8)
-- [ ] Form di frame terkunci: panel menyebut form tidak bisa diisi dan tidak mencoba mengisinya (PRD §8)
+- [x] Pada situs yang belum diizinkan, panel menyebut nama domain dan menampilkan "Beri izin untuk situs ini", dan tidak menampilkan "Tidak ada form" (FR-18, PRD §8)
+- [x] Setelah izin diberikan, field langsung terdeteksi tanpa muat ulang manual
+- [x] Pindah tab atau halaman membuat daftar field milik halaman baru, bukan yang lama (FR-06)
+- [x] Halaman browser internal dan PDF: panel menyebut sebabnya dan tanpa tombol Fill (PRD §8). Halaman browser internal terbukti E2E; cabang PDF hanya lewat tes unit (Chrome headless tidak punya penampil PDF), cek manual disarankan.
+- [x] Form di frame terkunci: panel menyebut form tidak bisa diisi dan tidak mencoba mengisinya (PRD §8)
 
 **Done when:** semua lima state tampil benar di situs uji.
 

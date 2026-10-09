@@ -7,3 +7,9 @@ export async function requestSiteAccess(url: string | undefined): Promise<boolea
   if (!origin) return false
   return browser.permissions.request({ origins: [origin] })
 }
+
+export async function hasSiteAccess(url: string | undefined): Promise<boolean> {
+  const origin = originPatternOf(url)
+  if (!origin) return false
+  return browser.permissions.contains({ origins: [origin] })
+}
