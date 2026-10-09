@@ -41,7 +41,7 @@ UNKNOWN — no real research yet.
 | Satu klik mengisi form lamaran dari profil. | Tidak ada akun, login, atau sinkron antar perangkat. |
 | Pengguna melihat apa yang akan diisi sebelum menekan Fill. | Tidak ada fitur AI: cover letter, cek kecocokan lowongan, latihan interview. |
 | Pengguna bisa membatalkan pengisian. | Tidak ada pencatatan riwayat lowongan (Captured Jobs) di v1. |
-| Profil diketik sekali di satu tempat. | Tidak ada export atau import data di v1. |
+| Profil diketik sekali di satu tempat. | Import dan Hapus semua belum berfungsi di v1; UI-nya ada (keputusan PIC 2026-10-09). |
 | | Tidak ada tombol submit otomatis; pengguna yang mengirim form. |
 | | Tidak ada membaca CV PDF menjadi profil. |
 | | Tidak ada upload file CV otomatis. |
@@ -188,7 +188,7 @@ Hal yang ditunjukkan referensi tapi tidak disebut §6.2 awal, atau yang spesifik
 10. **Nama produk di referensi masih "JobFill"**; layar baru memakai "job-kit".
 11. **Display type hanya 1,3×–2× body.** Menurut aturan P3b, itu cenderung terlihat datar. **PIC putuskan 2026-10-09:** dibiarkan 17px / 28px.
 12. **Tab Profile di mockup memuat bagian Additional · 5**, padahal Additional di luar lingkup v1 (§9). Tab Profile v1 hanya 6 bagian: Personal Info, Custom Field, Contact & Address, Education, Work Experience, Skill.
-13. **Navigasi kiri di mockup options page memuat Additional, Captured Jobs, dan Data.** Ketiganya di luar lingkup v1 (§9). Navigasi v1 hanya satu grup Profile dengan 6 item; grup DATA tidak ada.
+13. **Navigasi kiri di mockup options page memuat Additional, Captured Jobs, dan Data.** Additional dan Captured Jobs di luar lingkup v1 (§9). **PIC putuskan 2026-10-09:** grup DATA masuk v1 dengan satu item, Data (FR-21); Import dan Hapus semua belum berfungsi (FR-22, ditunda).
 14. **Mockup options page punya bug layout:** kolom kanan (Nama tengah, Tanggal lahir, Kewarganegaraan) meluber melewati tepi kartu. Bentuk dua kolom dipakai, tata letak mockup tidak ditiru persis.
 15. **Timpa atau lewati field yang sudah berisi** punya bawaan "lewati" (§8) tapi referensi tidak menggambarkannya. Tampilannya belum diputuskan.
 
@@ -215,6 +215,8 @@ Hal yang ditunjukkan referensi tapi tidak disebut §6.2 awal, atau yang spesifik
 | FR-17 | Side panel punya dua tab, Autofill dan Profile; tab Profile menampilkan nama, email, jumlah entri per bagian, dan satu tombol Edit Profile yang membuka halaman edit profil lebar penuh, yang ada di dalam extension (bukan situs web), di tab baru. | Klik Edit Profile; halaman edit terbuka di tab baru tanpa memuat situs eksternal. | Must |
 | FR-18 | Bila job-kit belum boleh membaca halaman aktif, panel menyatakan itu dan menawarkan satu tombol untuk memberi izin pada situs itu. | Buka situs baru tanpa izin; panel menampilkan tombol izin dan tidak menampilkan "Tidak ada form". | Must |
 | FR-19 | Setelah Fill, panel menampilkan jumlah field terisi dan jumlah field dilewati. | Fill form dengan 9 cocok dan 1 dilewati; panel menampilkan "9 field terisi · 1 dilewati". | Must |
+| FR-21 | Halaman Data (grup DATA di navigasi options) menampilkan kartu Export, Import, Hapus semua, pemakaian storage nyata, dan kalimat jujur soal enkripsi. Export berfungsi; Import dan Hapus semua tampil nonaktif dengan alasan "Belum tersedia di versi ini". | Buka Data; angka storage sesuai `getBytesInUse`; Export mengunduh satu berkas JSON berversi; Import dan Hapus semua nonaktif. | Should |
+| FR-22 | Import dan Hapus semua berfungsi (ganti atau gabung, konfirmasi dengan mengetik ulang kata). Ditunda ke T18. | Export, ubah profil, Import (Ganti); profil kembali seperti berkas. | Could |
 
 ## 8. Edge cases & error states
 
@@ -234,9 +236,9 @@ Hal yang ditunjukkan referensi tapi tidak disebut §6.2 awal, atau yang spesifik
 
 ## 9. Scope IN and OUT
 
-**IN:** profil (Personal, Contact & Address, Education, Work Experience, Custom Field, Skill), deteksi field, pratinjau, Fill, Undo, state error dan state kosong, pencocokan label Indonesia dan Inggris.
+**IN:** profil (Personal, Contact & Address, Education, Work Experience, Custom Field, Skill), halaman Data sebagai UI (Export berfungsi; Import dan Hapus semua belum; keputusan PIC 2026-10-09), deteksi field, pratinjau, Fill, Undo, state error dan state kosong, pencocokan label Indonesia dan Inggris.
 
-**OUT:** Captured Jobs, export/import, hapus semua data, bagian Additional (sertifikasi, penghargaan), pemetaan manual per situs, badge pada ikon, field tanggal dengan format khusus, validasi format email/URL/telepon, semua fitur AI, Safari.
+**OUT:** Captured Jobs, perilaku import dan hapus semua data (ditunda ke T18), bagian Additional (sertifikasi, penghargaan), pemetaan manual per situs, badge pada ikon, field tanggal dengan format khusus, validasi format email/URL/telepon, semua fitur AI, Safari.
 
 **Cut list (urutan potong, tanpa diskusi di Day 8):**
 1. FR-16 — Skill.

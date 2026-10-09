@@ -20,7 +20,7 @@ Tanpa akun, tanpa server, tanpa AI, tanpa telemetri. Datamu hanya ada di browser
 - Tidak mengisi field password.
 - Tidak mengunggah CV, dan tidak membaca CV PDF.
 - Tidak ada fitur AI (cover letter, cek kecocokan lowongan, latihan interview).
-- Tidak ada banyak profil, sinkron antar perangkat, atau export/import data.
+- Tidak ada banyak profil, sinkron antar perangkat, atau import dan hapus semua data (halaman Data baru berupa UI, Export sudah jalan).
 - Hanya browser Chromium, dan baru diuji di Chrome. Tidak ada Safari atau Firefox.
 
 ## Pasang

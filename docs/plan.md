@@ -243,11 +243,11 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Context:** mockup menampilkan halaman Data (Export, Import, Hapus semua, pemakaian storage). PRD v1 sebelumnya mengeluarkannya (§4, §9, §6.6 #13). PIC memasukkannya ke v1 pada 2026-10-09, **secara UI dulu**; perilaku Import dan Hapus semua ditunda ke T18. Layar dan state dirujuk dari `docs/screens.md` §3.3 (D1 sampai D5) dan mockup `docs/reference/JobFill UI.dc.html`.
 
 **Perubahan dokumen yang ikut (PRD dan RFC sudah APPROVED, jadi ini keputusan PIC yang dicatat)**
-- [ ] PRD §4: hapus "Tidak ada export atau import data di v1" dari non-goals dan ganti dengan "Import dan Hapus semua belum berfungsi di v1; UI-nya ada".
-- [ ] PRD §9: pindahkan halaman Data (UI) dari OUT ke IN; "export/import, hapus semua data" tetap OUT sebagai perilaku sampai T18.
-- [ ] PRD §6.6 #13: perbarui; grup DATA kini berisi satu item, Data. Captured Jobs dan Additional tetap di luar.
-- [ ] PRD §7: tambah **FR-21** (Should): halaman Data menampilkan kartu Export, Import, Hapus semua, pemakaian storage nyata, dan kalimat jujur soal enkripsi. **FR-22** (Could, T18 ditunda): ketiga aksi berfungsi.
-- [ ] Tabel cakupan: FR-21 → T17, FR-22 → T18 (ditunda).
+- [x] PRD §4: hapus "Tidak ada export atau import data di v1" dari non-goals dan ganti dengan "Import dan Hapus semua belum berfungsi di v1; UI-nya ada".
+- [x] PRD §9: pindahkan halaman Data (UI) dari OUT ke IN; "export/import, hapus semua data" tetap OUT sebagai perilaku sampai T18.
+- [x] PRD §6.6 #13: perbarui; grup DATA kini berisi satu item, Data. Captured Jobs dan Additional tetap di luar.
+- [x] PRD §7: tambah **FR-21** (Should): halaman Data menampilkan kartu Export, Import, Hapus semua, pemakaian storage nyata, dan kalimat jujur soal enkripsi. **FR-22** (Could, T18 ditunda): ketiga aksi berfungsi.
+- [x] Tabel cakupan: FR-21 → T17, FR-22 → T18 (ditunda).
 
 **Acceptance criteria**
 - [ ] Navigasi kiri punya grup DATA dengan satu item "Data"; grup PROFILE tetap seperti sekarang (FR-21)
@@ -302,8 +302,8 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 | FR-08 | T04, T06 | FR-18 | T10 |
 | FR-09 | T05 | FR-19 | T05 |
 | FR-10 | T05 | FR-20 (usulan) | T16 |
-| | | FR-21 (usulan) | T17 |
-| | | FR-22 (usulan, ditunda) | T18 |
+| | | FR-21 | T17 |
+| | | FR-22 (ditunda) | T18 |
 
 **Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11.
 
