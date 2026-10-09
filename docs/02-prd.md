@@ -40,7 +40,7 @@ UNKNOWN — no real research yet.
 |---|---|
 | Satu klik mengisi form lamaran dari profil. | Tidak ada akun, login, atau sinkron antar perangkat. |
 | Pengguna melihat apa yang akan diisi sebelum menekan Fill. | Tidak ada fitur AI: cover letter, cek kecocokan lowongan, latihan interview. |
-| Pengguna bisa membatalkan pengisian. | Tidak ada pencatatan riwayat lowongan (Captured Jobs) di v1. |
+| Pengguna bisa membatalkan pengisian. | Captured Jobs di v1 hanya UI; lowongan belum tercatat otomatis (keputusan PIC 2026-10-09). |
 | Profil diketik sekali di satu tempat. | Import dan Hapus semua belum berfungsi di v1; UI-nya ada (keputusan PIC 2026-10-09). |
 | | Tidak ada tombol submit otomatis; pengguna yang mengirim form. |
 | | Tidak ada membaca CV PDF menjadi profil. |
@@ -188,7 +188,7 @@ Hal yang ditunjukkan referensi tapi tidak disebut §6.2 awal, atau yang spesifik
 10. **Nama produk di referensi masih "JobFill"**; layar baru memakai "job-kit".
 11. **Display type hanya 1,3×–2× body.** Menurut aturan P3b, itu cenderung terlihat datar. **PIC putuskan 2026-10-09:** dibiarkan 17px / 28px.
 12. **Tab Profile di mockup memuat bagian Additional · 5**, padahal Additional di luar lingkup v1 (§9). Tab Profile v1 hanya 6 bagian: Personal Info, Custom Field, Contact & Address, Education, Work Experience, Skill.
-13. **Navigasi kiri di mockup options page memuat Additional, Captured Jobs, dan Data.** Additional dan Captured Jobs di luar lingkup v1 (§9). **PIC putuskan 2026-10-09:** grup DATA masuk v1 dengan satu item, Data (FR-21); Import dan Hapus semua belum berfungsi (FR-22, ditunda).
+13. **Navigasi kiri di mockup options page memuat Additional, Captured Jobs, dan Data.** Additional di luar lingkup v1 (§9). **PIC putuskan 2026-10-09:** grup DATA masuk v1 dengan dua item, Captured Jobs (FR-23, UI saja; FR-24 ditunda) dan Data (FR-21); Import dan Hapus semua belum berfungsi (FR-22, ditunda).
 14. **Mockup options page punya bug layout:** kolom kanan (Nama tengah, Tanggal lahir, Kewarganegaraan) meluber melewati tepi kartu. Bentuk dua kolom dipakai, tata letak mockup tidak ditiru persis.
 15. **Timpa atau lewati field yang sudah berisi** punya bawaan "lewati" (§8) tapi referensi tidak menggambarkannya. Tampilannya belum diputuskan.
 
@@ -217,6 +217,8 @@ Hal yang ditunjukkan referensi tapi tidak disebut §6.2 awal, atau yang spesifik
 | FR-19 | Setelah Fill, panel menampilkan jumlah field terisi dan jumlah field dilewati. | Fill form dengan 9 cocok dan 1 dilewati; panel menampilkan "9 field terisi · 1 dilewati". | Must |
 | FR-21 | Halaman Data (grup DATA di navigasi options) menampilkan kartu Export, Import, Hapus semua, pemakaian storage nyata, dan kalimat jujur soal enkripsi. Export berfungsi; Import dan Hapus semua tampil nonaktif dengan alasan "Belum tersedia di versi ini". | Buka Data; angka storage sesuai `getBytesInUse`; Export mengunduh satu berkas JSON berversi; Import dan Hapus semua nonaktif. | Should |
 | FR-22 | Import dan Hapus semua berfungsi (ganti atau gabung, konfirmasi dengan mengetik ulang kata). Ditunda ke T18. | Export, ubah profil, Import (Ganti); profil kembali seperti berkas. | Could |
+| FR-23 | Halaman Captured Jobs (grup DATA di navigasi options) menampilkan daftar lowongan dengan pencarian dan filter status, state kosong, state filter tanpa hasil, dan slide-over detail (status, snapshot field, catatan). Tanpa data tersimpan, halaman menampilkan state kosong yang menyatakan bahwa pencatatan belum tersedia. | Buka Captured Jobs di build produksi; state kosong tampil, tidak ada kontrol palsu. Di build dev, `#jobs?state=list` menampilkan daftar contoh. | Could |
+| FR-24 | Setelah Fill, lowongan (judul, perusahaan, situs, tanggal, snapshot field) tercatat otomatis dan tampil di Captured Jobs. Ditunda ke T21. | Fill di form uji; lowongan muncul di Captured Jobs dengan snapshot yang sama dengan yang dikirim. | Could |
 
 ## 8. Edge cases & error states
 
@@ -236,9 +238,9 @@ Hal yang ditunjukkan referensi tapi tidak disebut §6.2 awal, atau yang spesifik
 
 ## 9. Scope IN and OUT
 
-**IN:** profil (Personal, Contact & Address, Education, Work Experience, Custom Field, Skill), halaman Data sebagai UI (Export berfungsi; Import dan Hapus semua belum; keputusan PIC 2026-10-09), deteksi field, pratinjau, Fill, Undo, state error dan state kosong, pencocokan label Indonesia dan Inggris.
+**IN:** profil (Personal, Contact & Address, Education, Work Experience, Custom Field, Skill), halaman Captured Jobs sebagai UI (tanpa data; keputusan PIC 2026-10-09), halaman Data sebagai UI (Export berfungsi; Import dan Hapus semua belum; keputusan PIC 2026-10-09), deteksi field, pratinjau, Fill, Undo, state error dan state kosong, pencocokan label Indonesia dan Inggris.
 
-**OUT:** Captured Jobs, perilaku import dan hapus semua data (ditunda ke T18), bagian Additional (sertifikasi, penghargaan), pemetaan manual per situs, badge pada ikon, field tanggal dengan format khusus, validasi format email/URL/telepon, semua fitur AI, Safari.
+**OUT:** pencatatan lowongan otomatis setelah Fill (FR-24, ditunda ke T21), perilaku import dan hapus semua data (ditunda ke T18), bagian Additional (sertifikasi, penghargaan), pemetaan manual per situs, badge pada ikon, field tanggal dengan format khusus, validasi format email/URL/telepon, semua fitur AI, Safari.
 
 **Cut list (urutan potong, tanpa diskusi di Day 8):**
 1. FR-16 — Skill.
@@ -260,7 +262,7 @@ Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lev
 | Nama produk | job-kit (nama repo). "JobFill" tidak dipakai. |
 | Label dwibahasa sejak awal? | Ya, Indonesia dan Inggris (FR-13). |
 | Satu atau banyak profil? | Satu profil. Banyak profil di luar v1. |
-| Batas jumlah Captured Jobs | Tidak relevan; Captured Jobs di luar v1. |
+| Batas jumlah Captured Jobs | Tidak relevan; belum ada yang tercatat di v1. |
 | Sprint ini nyata atau portfolio? | Portfolio solo; 20 jam dan Day 10 jadi panduan, bukan batas keras. |
 | Tagline | "Ketik sekali, lamar di mana saja." Disetujui PIC 2026-10-09. |
 | Acuan nada | Duolingo. Disetujui PIC 2026-10-09. |

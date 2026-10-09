@@ -3,7 +3,7 @@
 Pengganti P5: backlog lokal, tanpa Jira dan tanpa CSV. Sumber: `docs/02-prd.md` (APPROVED) dan `docs/03-rfc.md` (APPROVED).
 Aturan tetap berlaku: maksimal 18 tiket, total ≤20 jam, tiap tiket ≤2 jam, walking skeleton selesai dalam 8 jam pertama.
 
-**Total estimasi: 24.0 jam · 18 tiket** (video demo dibuang atas keputusan PIC; T16, T17, dan T19 ditambah 2026-10-09 atas permintaan PIC dan melewati 20 jam sebesar 4 jam. PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras. T18 ditunda dan tidak dihitung.)
+**Total estimasi: 25.5 jam · 19 tiket** (video demo dibuang atas keputusan PIC; T16, T17, T19, dan T20 ditambah 2026-10-09 atas permintaan PIC dan melewati 20 jam sebesar 5.5 jam. PRD §11 menyebut 20 jam sebagai panduan, bukan batas keras. T18 dan T21 ditunda dan tidak dihitung.)
 **Walking skeleton: T01–T05 = 7.0 jam**
 
 Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
@@ -284,6 +284,34 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 **Done when:** layar sebelum dan sesudah, dibandingkan dengan mockup, hanya berbeda pada hal yang sengaja diputuskan.
 
+### T20 · Halaman Captured Jobs di options (UI saja) · 1.5h · feature · Medium
+- [ ] **T20 selesai**
+
+**Context:** mockup menampilkan halaman Captured Jobs (daftar, pencarian, filter status, slide-over detail). PRD v1 sebelumnya mengeluarkannya (§4, §9, §6.6 #13). PIC memasukkannya ke v1 pada 2026-10-09, **secara UI dulu**; belum ada yang mencatat lowongan setelah Fill (itu T21). Layar dan state dirujuk dari `docs/screens.md` §3.2 (J1 sampai J4) dan mockup `docs/reference/JobFill UI.dc.html`.
+
+**Perubahan dokumen yang ikut (dicatat sebagai keputusan PIC 2026-10-09)**
+- [x] PRD §4, §6.6 #13, §9 (IN dan OUT), §8 (batas jumlah), §7: **FR-23** (Could) dan **FR-24** (Could, ditunda).
+- [x] Tabel cakupan: FR-23 → T20, FR-24 → T21 (ditunda).
+
+**Acceptance criteria**
+- [ ] Grup DATA di navigasi berisi dua item: Captured Jobs lalu Data (FR-23)
+- [ ] Di build produksi halaman menampilkan state kosong yang jujur: belum ada lowongan, dan pencatatan otomatis belum tersedia di versi ini. Tidak ada tombol yang tampak berfungsi tetapi tidak melakukan apa-apa (FR-23)
+- [ ] Daftar (pencarian dan filter Semua, Applied, In Review, Rejected, Offer berfungsi pada data contoh), state filter tanpa hasil dengan "Reset filter", dan slide-over detail (status, snapshot field, catatan) ada sebagai komponen yang bisa dilihat lewat `#jobs?state=list|empty|filtered-empty|detail` hanya di build dev (FR-23)
+- [ ] Filter dan format tanggal ("2 Sep 2026") adalah fungsi murni di `core/` dengan tes
+- [ ] Tombol "Simpan perubahan" dan "Hapus entri" di slide-over nonaktif dengan alasan "Belum tersedia di versi ini"
+- [ ] Semua kontrol, termasuk pilihan status, bergaya sesuai token tanpa kontrol bawaan browser
+
+**Done when:** halaman terlihat sesuai mockup di build dev dengan data contoh, dan build produksi hanya menampilkan state kosong yang jujur.
+
+### T21 · Lowongan tercatat otomatis setelah Fill · 2h · feature · Medium · **ditunda**
+- [ ] **T21 selesai** (belum dijadwalkan; menunggu keputusan PIC setelah T20)
+
+**Context:** menyambungkan Captured Jobs ke data nyata (FR-24).
+**Acceptance criteria (rancangan)**
+- [ ] Setelah Fill, lowongan tersimpan dengan judul halaman, domain, tanggal, dan snapshot field yang dikirim (FR-24)
+- [ ] Status bisa diubah dan catatan bisa disimpan; hapus entri meminta konfirmasi (FR-24)
+- [ ] Export dan Hapus semua ikut mencakup lowongan tercatat (FR-24)
+
 ---
 
 ## Cakupan
@@ -304,6 +332,8 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 | FR-10 | T05 | FR-20 (usulan) | T16 |
 | | | FR-21 | T17 |
 | | | FR-22 (ditunda) | T18 |
+| | | FR-23 | T20 |
+| | | FR-24 (ditunda) | T21 |
 
 **Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11.
 
