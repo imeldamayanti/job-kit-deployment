@@ -2,7 +2,7 @@
 
 Target PRD §10: **≥70% field terpetakan dengan benar pada 10 situs lamaran uji.**
 
-**Status: sebagian.** 6 dari 10 situs yang diminta tidak bisa saya uji (lihat "Belum diuji"). Angka di bawah berasal dari 6 form publik yang terbaca, ditambah satu form yang tidak terbaca. Jangan baca ini sebagai metrik 10 situs yang sudah lulus.
+**Status: sebagian.** 5 dari 10 situs yang diminta belum teruji (lihat "Belum diuji"). Angka di bawah berasal dari 7 form yang terbaca (6 publik dan 1 form kustom perusahaan yang dibuka pengguna), ditambah satu form yang tidak terbaca. Jangan baca ini sebagai metrik 10 situs yang sudah lulus.
 
 ## Cara mengukur
 
@@ -24,11 +24,12 @@ Target PRD §10: **≥70% field terpetakan dengan benar pada 10 situs lamaran uj
 | Ashby (Ramp) | 11 | 4 | 4 | "Legal Name" awalnya terlewat. |
 | Ashby (Notion) | 10 | 5 | 5 | Termasuk dropdown gender EEO. |
 | Workable | 9 | 4 | 4 | |
-| **Total (6 situs terbaca)** | | **34** | **34 (100%)** | |
+| Form kustom (careers.intikom.com, dibuka pengguna dengan login) | 13 | 7 | 7 | "Domicile" awalnya terlewat (hanya ada padanan "domisili"); sudah diperbaiki. Gaji dan notice period tidak ada di profil, tetapi bisa dijawab lewat Custom Field. Kolom alamat memunculkan saran alamat sendiri. |
+| **Total (7 situs terbaca)** | | **41** | **41 (100%)** | |
 
-**Sebelum penyetelan:** 30 dari 34 (88%), dan 1 pengisian salah (pertanyaan visa "...in the country in which the job..." terisi "Indonesia"). Penyetelan menambah frasa `legal name`, `current location`, `lokasi`, `domisili`, menolak label berupa pertanyaan atau label panjang yang hanya menyebut kata kunci di tengah, membuang id mesin dari label, dan mengenali iframe platform lamaran. Semuanya punya tes di `src/core/matching` dan `src/core/fill`.
+**Sebelum penyetelan:** 30 dari 34 (88%) pada 6 situs pertama, dan 1 pengisian salah (pertanyaan visa "...in the country in which the job..." terisi "Indonesia"). Penyetelan menambah frasa `legal name`, `current location`, `lokasi`, `domisili`, `domicile`, menolak label berupa pertanyaan atau label panjang yang hanya menyebut kata kunci di tengah, membuang id mesin dari label, dan mengenali iframe platform lamaran. Semuanya punya tes di `src/core/matching` dan `src/core/fill`.
 
-**Peringatan:** penyetelan dilakukan pada situs yang sama dengan pengukurannya, jadi 100% itu optimistis. Sampelnya juga kecil dan semuanya platform berbahasa Inggris untuk perusahaan teknologi, tidak ada form Indonesia. Anggap 88% (sebelum penyetelan) sebagai perkiraan yang lebih jujur untuk situs baru.
+**Peringatan:** penyetelan dilakukan pada situs yang sama dengan pengukurannya, jadi 100% itu optimistis. Sampelnya juga kecil dan semuanya platform berbahasa Inggris untuk perusahaan teknologi, tidak ada form Indonesia. Pada form kustom, yang tidak ikut menyetel, 6 dari 7 (86%) terpetakan benar sebelum perbaikan. Anggap sekitar 86 sampai 88% sebagai perkiraan yang lebih jujur untuk situs baru.
 
 ## Apakah Fill bertahan di form asli (FR-10)
 
@@ -62,6 +63,5 @@ Keenam form memakai React atau sejenisnya, jadi ini bukti bahwa cara tulis nilai
 | Kalibrr | Sama. |
 | LinkedIn Easy Apply | Sama. |
 | Google Forms | Tidak ada URL form publik. Kirim satu URL form lamaran dan saya ukur. |
-| Satu form kustom perusahaan | PRD masih menandainya TBD. |
 
 Cara menguji sisanya sendiri: buka form lamaran sambil masuk ke akun, buka panel job-kit, catat "N dari M field cocok", tekan Fill, dan catat field mana yang salah atau terlewat padahal ada di profil. Kirim catatannya dan saya masukkan ke tabel ini.

@@ -25,7 +25,7 @@ const RULES: Rule[] = [
   { key: 'nationality', phrases: ['kewarganegaraan', 'nationality', 'citizenship'] },
   { key: 'postalCode', phrases: ['kode pos', 'postal code', 'zip code', 'postcode'], exact: ['zip'] },
   { key: 'province', phrases: ['provinsi', 'province'], exact: ['state'] },
-  { key: 'city', phrases: ['kota', 'city', 'kabupaten', 'current location', 'lokasi saat ini', 'domisili'], exact: ['location', 'lokasi'] },
+  { key: 'city', phrases: ['kota', 'city', 'kabupaten', 'current location', 'lokasi saat ini', 'domisili', 'domicile', 'place of residence', 'city of residence'], exact: ['location', 'lokasi'] },
   { key: 'country', phrases: ['negara', 'country'] },
   { key: 'street', phrases: ['alamat', 'street address', 'address', 'street'] },
 ]

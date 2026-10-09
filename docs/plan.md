@@ -161,7 +161,7 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 **Context:** PRD §10; risiko RFC §5 ke-1.
 **Acceptance criteria**
-- [~] Hasil uji tiap situs dicatat di `docs/site-results.md`. Tercatat: Greenhouse (2), Lever (2), Ashby (2), Workable. Belum: Workday, Jobstreet, Glints, Kalibrr, LinkedIn Easy Apply (butuh login), Google Forms dan form kustom (butuh URL)
+- [~] Hasil uji tiap situs dicatat di `docs/site-results.md`. Tercatat: Greenhouse (2), Lever (2), Ashby (2), Workable, dan satu form kustom (Intikom). Belum: Workday, Jobstreet, Glints, Kalibrr, LinkedIn Easy Apply (butuh login), Google Forms (butuh URL)
 - [x] Angka akhir "N dari M field terpetakan benar" tercatat dan dibandingkan dengan target ≥70%
 - [x] Sinonim label yang ditambah dari hasil uji punya tes di `core/matching`
 

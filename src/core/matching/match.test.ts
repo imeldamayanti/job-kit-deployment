@@ -47,6 +47,9 @@ describe('matchField by label', () => {
     ['Location', 'city'],
     ['Lokasi saat ini', 'city'],
     ['Domisili', 'city'],
+    ['Domicile*Required', 'city'],
+    ['Place of residence', 'city'],
+    ['City of residence', 'city'],
   ])('%s -> %s', (label, expected) => {
     expect(matchField({ label })).toBe(expected)
   })
