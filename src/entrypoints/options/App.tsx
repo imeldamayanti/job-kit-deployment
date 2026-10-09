@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useProfile } from '../../ui/hooks/useProfile'
 import { ContactSection } from './ContactSection'
 import { CustomSection } from './CustomSection'
+import { EducationSection } from './EducationSection'
+import { ExperienceSection } from './ExperienceSection'
 import { PersonalSection } from './PersonalSection'
 import { SaveIndicator } from './SaveIndicator'
 import { Sidebar } from './Sidebar'
@@ -22,6 +24,8 @@ export function App() {
           <Sidebar current={section} onSelect={setSection} />
           {section === 'personal' && <PersonalSection profile={profile} update={update} />}
           {section === 'contact' && <ContactSection profile={profile} update={update} />}
+          {section === 'education' && <EducationSection profile={profile} update={update} />}
+          {section === 'experience' && <ExperienceSection profile={profile} update={update} />}
           {section === 'custom' && <CustomSection profile={profile} update={update} />}
         </div>
       )}
