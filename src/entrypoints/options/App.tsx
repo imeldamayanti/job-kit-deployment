@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { sectionFromHash } from '../../core/profile/sections'
 import { useProfile } from '../../ui/hooks/useProfile'
 import { ContactSection } from './ContactSection'
 import { CustomSection } from './CustomSection'
@@ -11,7 +12,7 @@ import type { SectionId } from './sections'
 
 export function App() {
   const { profile, update, saveState } = useProfile()
-  const [section, setSection] = useState<SectionId>('personal')
+  const [section, setSection] = useState<SectionId>(() => sectionFromHash(location.hash))
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-8">

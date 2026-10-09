@@ -17,4 +17,12 @@ describe('openEditProfile', () => {
       url: expect.stringMatching(/\/options\.html$/),
     })
   })
+
+  it('can open straight on a profile section', async () => {
+    const create = vi.spyOn(fakeBrowser.tabs, 'create')
+
+    await openEditProfile('contact')
+
+    expect(create).toHaveBeenCalledWith({ url: expect.stringMatching(/\/options\.html#contact$/) })
+  })
 })
