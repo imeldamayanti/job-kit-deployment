@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { formIsLocked } from '../../core/fill/frames'
 import { formatFillSummary } from '../../core/fill/summary'
 import { buildPlan } from '../../core/matching/plan'
 import { selectItems } from '../../core/matching/selection'
@@ -33,6 +34,7 @@ export function App() {
 
   const scan = state.status === 'ready' ? state.scan : undefined
   const plan = useMemo(() => (scan?.ok && profile ? buildPlan(scan.fields, profile) : null), [scan, profile])
+  const frameLocked = scan?.ok === true && plan !== null && formIsLocked(plan.matched, scan.lockedFrame)
 
   useEffect(() => {
     setDisabled(new Set())
@@ -67,9 +69,9 @@ export function App() {
             <p className="text-[12px] font-semibold text-text-secondary">{state.domain}</p>
           )}
 
-          {plan && profileEmpty && <EmptyProfile />}
+          {plan && !frameLocked && profileEmpty && <EmptyProfile />}
 
-          {plan && !profileEmpty && (
+          {plan && !frameLocked && !profileEmpty && (
             <>
               <p className="rounded-lg bg-accent-wash px-3 py-2 text-[13px] font-semibold text-text-primary">
                 {plan.matched} dari {plan.total} field cocok
@@ -198,7 +200,7 @@ export function App() {
             </section>
           )}
 
-          {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'locked-frame' && (
+          {((state.status === 'ready' && !state.scan.ok && state.scan.reason === 'locked-frame') || frameLocked) && (
             <section className="flex flex-col items-start gap-2 rounded-xl border border-border bg-surface p-4">
               <Mascot state="error" />
               <h2 className="text-[13px] font-bold text-text-primary">Tidak bisa dibaca</h2>
@@ -211,7 +213,7 @@ export function App() {
         </main>
       )}
 
-      {tab === 'autofill' && plan && (
+      {tab === 'autofill' && plan && !frameLocked && (
         <footer className="fixed inset-x-0 bottom-0 flex flex-col gap-2 border-t border-border bg-surface p-3">
           {phase === 'preview' && profileEmpty && (
             <p className="text-[12px] text-text-secondary">Profil masih kosong — isi dulu</p>

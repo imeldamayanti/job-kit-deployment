@@ -145,35 +145,35 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Done when:** semua lima state tampil benar di situs uji.
 
 ### T11 · Penyimpanan penuh dan maskot · 1.5h · polish · Medium
-- [ ] **T11 selesai**
+- [x] **T11 selesai**
 
 **Context:** S1 dan S3 decorative; RFC D2.
 **Acceptance criteria**
-- [ ] Saat penyimpanan penuh, pengguna melihat "Tidak tersimpan — penyimpanan penuh. Data lama aman." dan data lama tetap ada (PRD §8)
-- [ ] Maskot tampil hanya di empty state, error, dan ringkasan hasil (PRD §6.6 butir 9)
-- [ ] Ada tiga state maskot yang dipakai: netral, error, berhasil
-- [ ] Judul ukuran 17px (panel) dan 28px (options)
+- [x] Saat penyimpanan penuh, pengguna melihat "Tidak tersimpan — penyimpanan penuh. Data lama aman." dan data lama tetap ada (PRD §8)
+- [x] Maskot tampil hanya di empty state, error, dan ringkasan hasil (PRD §6.6 butir 9)
+- [x] Ada tiga state maskot yang dipakai: netral, error, berhasil
+- [x] Judul ukuran 17px (panel) dan 28px (options)
 
 **Done when:** state penyimpanan penuh dan ketiga maskot terlihat di layar yang tepat.
 
 ### T12 · Uji 10 situs dan setel pemetaan · 1.5h · feature · Medium
-- [ ] **T12 selesai**
+- [~] **T12 sebagian** (6 dari 10 situs terukur; lihat `docs/site-results.md`)
 
 **Context:** PRD §10; risiko RFC §5 ke-1.
 **Acceptance criteria**
-- [ ] Hasil uji tiap situs dicatat di `docs/site-results.md`: Greenhouse, Lever, Workday, Ashby, Jobstreet, Glints, Kalibrr, LinkedIn Easy Apply, Google Forms, dan satu form kustom
-- [ ] Angka akhir "N dari M field terpetakan benar" tercatat dan dibandingkan dengan target ≥70%
-- [ ] Sinonim label yang ditambah dari hasil uji punya tes di `core/matching`
+- [~] Hasil uji tiap situs dicatat di `docs/site-results.md`. Tercatat: Greenhouse (2), Lever (2), Ashby (2), Workable. Belum: Workday, Jobstreet, Glints, Kalibrr, LinkedIn Easy Apply (butuh login), Google Forms dan form kustom (butuh URL)
+- [x] Angka akhir "N dari M field terpetakan benar" tercatat dan dibandingkan dengan target ≥70%
+- [x] Sinonim label yang ditambah dari hasil uji punya tes di `core/matching`
 
 **Done when:** `docs/site-results.md` berisi angka metrik §10.
 
 ### T13 · Pencocokan longgar dropdown dan radio · 1h · feature · Medium · `cut-list`
-- [ ] **T13 selesai**
+- [x] **T13 selesai**
 
 **Context:** FR-14; urutan potong nomor 3.
 **Acceptance criteria**
-- [ ] Form uji dengan opsi "Male" memilih opsi itu untuk profil "Laki-laki" (FR-14)
-- [ ] Radio dan dropdown dengan teks opsi berbeda bahasa tetap cocok
+- [x] Form uji dengan opsi "Male" memilih opsi itu untuk profil "Laki-laki" (FR-14)
+- [x] Radio dan dropdown dengan teks opsi berbeda bahasa tetap cocok
 
 **Done when:** gender dan jenjang pendidikan terpilih di fixture dropdown dan radio.
 

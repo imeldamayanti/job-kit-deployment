@@ -16,7 +16,7 @@ export type FieldSummary = {
 export type FillItem = { fieldId: string; value: string; choice?: number }
 
 export type PageScan =
-  | { ok: true; fields: FieldSummary[]; canUndo: boolean }
+  | { ok: true; fields: FieldSummary[]; canUndo: boolean; lockedFrame: boolean }
   | { ok: false; reason: 'no-form' | 'locked-frame' | UnreadableReason }
 
 type Request =
@@ -42,7 +42,7 @@ export async function requestScan(tab: ActiveTab): Promise<PageScan> {
   try {
     await browser.scripting.executeScript({ target: { tabId: tab.id }, files: [CONTENT_SCRIPT] })
     const { fields, canUndo, lockedFrame }: ScanResponse = await browser.tabs.sendMessage(tab.id, { type: 'scan' } satisfies Request)
-    if (fields.length > 0) return { ok: true, fields, canUndo }
+    if (fields.length > 0) return { ok: true, fields, canUndo, lockedFrame }
     return { ok: false, reason: lockedFrame ? 'locked-frame' : 'no-form' }
   } catch {
     return { ok: false, reason: classifyUnreadablePage(tab.url, await hasSiteAccess(tab.url)) }

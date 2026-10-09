@@ -14,7 +14,7 @@ const RULES: Rule[] = [
   { key: 'firstName', phrases: ['nama depan', 'first name', 'given name', 'forename'] },
   { key: 'middleName', phrases: ['nama tengah', 'middle name'] },
   { key: 'lastName', phrases: ['nama belakang', 'last name', 'surname', 'family name'] },
-  { key: 'fullName', phrases: ['nama lengkap', 'full name', 'your name'], exact: ['nama', 'name'] },
+  { key: 'fullName', phrases: ['nama lengkap', 'full name', 'legal name', 'full legal name', 'nama sesuai ktp'], exact: ['nama', 'name'] },
   {
     key: 'educationLevel',
     phrases: ['jenjang pendidikan', 'tingkat pendidikan', 'pendidikan terakhir', 'education level', 'level of education', 'highest education', 'degree'],
@@ -25,7 +25,7 @@ const RULES: Rule[] = [
   { key: 'nationality', phrases: ['kewarganegaraan', 'nationality', 'citizenship'] },
   { key: 'postalCode', phrases: ['kode pos', 'postal code', 'zip code', 'postcode'], exact: ['zip'] },
   { key: 'province', phrases: ['provinsi', 'province'], exact: ['state'] },
-  { key: 'city', phrases: ['kota', 'city', 'kabupaten'] },
+  { key: 'city', phrases: ['kota', 'city', 'kabupaten', 'current location', 'lokasi saat ini', 'domisili'], exact: ['location', 'lokasi'] },
   { key: 'country', phrases: ['negara', 'country'] },
   { key: 'street', phrases: ['alamat', 'street address', 'address', 'street'] },
 ]
@@ -58,12 +58,36 @@ export function normalize(text: string): string {
     .trim()
 }
 
+// Questions ("Are you authorised to work in this country?") often contain a known word without asking for it,
+// and a label can carry widget text after the real name ("Current location No location found...").
+// A short label may mention the phrase anywhere; a long one only counts when it starts with it.
+const MAX_LABEL_WORDS = 6
+const LEAD_IN = /^(please|kindly|enter|provide|type|input|your|the|what is|what s)\s+/
+const QUESTION_START = /^(do|does|did|are|is|will|have|has|can|could|would|should|why|how|when|which|who|what)\s/
+const MACHINE_ID = /^(?=.*\d)[0-9a-f]{4,}$/
+
+function withoutLeadIn(text: string): string {
+  let rest = text
+  for (let next = rest.replace(LEAD_IN, ''); next !== rest; next = rest.replace(LEAD_IN, '')) rest = next
+  return rest
+}
+
+function readable(label: string): string {
+  const words = normalize(label)
+    .split(' ')
+    .filter((word) => !MACHINE_ID.test(word))
+  return withoutLeadIn(words.join(' '))
+}
+
 function matchByLabel(label: string): MatchKey | null {
-  const text = normalize(label)
+  const text = readable(label)
+  if (QUESTION_START.test(`${text} `)) return null
+  const long = text.split(' ').length > MAX_LABEL_WORDS
   const padded = ` ${text} `
+  const hasPhrase = (phrase: string) => (long ? padded.startsWith(` ${phrase} `) : padded.includes(` ${phrase} `))
   for (const rule of RULES) {
     if (rule.exact?.includes(text)) return rule.key
-    if (rule.phrases.some((phrase) => padded.includes(` ${phrase} `))) return rule.key
+    if (rule.phrases.some(hasPhrase)) return rule.key
   }
   return null
 }
