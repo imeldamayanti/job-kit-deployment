@@ -9,3 +9,9 @@ export function domainOf(url: string | undefined): string {
   if (!url || !/^https?:\/\//.test(url)) return ''
   return new URL(url).hostname
 }
+
+export function originPatternOf(url: string | undefined): string | null {
+  if (!url || !/^https?:\/\//.test(url)) return null
+  const { protocol, hostname } = new URL(url)
+  return `${protocol}//${hostname}/*`
+}

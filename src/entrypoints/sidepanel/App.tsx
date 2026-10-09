@@ -1,11 +1,12 @@
 import { formatFillSummary } from '../../core/fill/summary'
 import { openEditProfile } from '../../platform/navigation'
+import { requestSiteAccess } from '../../platform/permissions'
 import { Button } from '../../ui/primitives/Button'
 import { useFill } from './useFill'
 import { useScan } from './useScan'
 
 export function App() {
-  const state = useScan()
+  const { state, rescan } = useScan()
   const { state: fillState, fill, undo } = useFill(
     state.status === 'ready' ? state.tab : undefined,
     state.status === 'ready' ? state.plan : null,
@@ -72,7 +73,24 @@ export function App() {
         </section>
       )}
 
-      {state.status === 'ready' && !state.scan.ok && state.scan.reason !== 'no-form' && (
+      {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'no-permission' && (
+        <section className="rounded-xl border border-border bg-surface p-4">
+          <h2 className="text-[13px] font-bold text-text-primary">Butuh izin untuk situs ini</h2>
+          <p className="mt-1 text-text-secondary">
+            job-kit perlu izin untuk membaca field di {state.domain}.
+          </p>
+          <Button
+            className="mt-3"
+            onClick={() => {
+              void requestSiteAccess(state.tab?.url).then((granted) => granted && rescan())
+            }}
+          >
+            Beri izin untuk situs ini
+          </Button>
+        </section>
+      )}
+
+      {state.status === 'ready' && !state.scan.ok && state.scan.reason === 'unreachable-page' && (
         <section className="rounded-xl border border-border bg-surface p-4">
           <h2 className="text-[13px] font-bold text-text-primary">Tidak bisa dibaca</h2>
         </section>

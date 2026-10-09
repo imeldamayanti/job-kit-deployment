@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { domainOf } from '../../core/fill/page-access'
 import { buildPlan, type Plan } from '../../core/matching/plan'
 import { requestScan, type PageScan } from '../../platform/messaging'
@@ -9,8 +9,10 @@ export type ScanState =
   | { status: 'loading' }
   | { status: 'ready'; tab: ActiveTab | undefined; domain: string; scan: PageScan; plan: Plan | null }
 
-export function useScan(): ScanState {
+export function useScan(): { state: ScanState; rescan: () => void } {
   const [state, setState] = useState<ScanState>({ status: 'loading' })
+  const [round, setRound] = useState(0)
+  const rescan = useCallback(() => setRound((value) => value + 1), [])
 
   useEffect(() => {
     let cancelled = false
@@ -23,7 +25,7 @@ export function useScan(): ScanState {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [round])
 
-  return state
+  return { state, rescan }
 }
