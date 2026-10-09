@@ -114,4 +114,56 @@ describe('createFiller', () => {
     filler.undo()
     expect(filler.canUndo()).toBe(false)
   })
+
+  it('chooses a dropdown option and undo returns to the earlier choice', () => {
+    document.body.innerHTML = '<select><option value="">Pilih</option><option value="m">Male</option><option value="f">Female</option></select>'
+    const select = document.querySelector('select')!
+    const changes: string[] = []
+    select.addEventListener('change', () => changes.push(select.value))
+    const filler = createFiller()
+
+    const outcome = filler.fill([{ kind: 'select', element: select, value: 'm' }])
+
+    expect(select.value).toBe('m')
+    expect(outcome).toEqual({ filled: 1, skipped: 0 })
+    filler.undo()
+    expect(select.value).toBe('')
+    expect(changes).toEqual(['m', ''])
+  })
+
+  it('checks a radio and undo puts back the one that was checked before', () => {
+    document.body.innerHTML = '<input type="radio" name="g" value="m" /><input type="radio" name="g" value="f" checked />'
+    const radios = Array.from(document.querySelectorAll('input'))
+    const filler = createFiller()
+
+    filler.fill([{ kind: 'radio', radios, index: 0 }])
+    expect(radios.map((r) => r.checked)).toEqual([true, false])
+
+    filler.undo()
+    expect(radios.map((r) => r.checked)).toEqual([false, true])
+  })
+
+  it('undo unchecks a radio group that had nothing checked', () => {
+    document.body.innerHTML = '<input type="radio" name="g" value="m" /><input type="radio" name="g" value="f" />'
+    const radios = Array.from(document.querySelectorAll('input'))
+    const filler = createFiller()
+
+    filler.fill([{ kind: 'radio', radios, index: 1 }])
+    filler.undo()
+
+    expect(radios.map((r) => r.checked)).toEqual([false, false])
+  })
+
+  it('skips a disabled dropdown and disabled radios', () => {
+    document.body.innerHTML = '<select disabled><option value="m">Male</option></select><input type="radio" name="g" disabled />'
+    const select = document.querySelector('select')!
+    const radios = Array.from(document.querySelectorAll('input'))
+
+    const outcome = createFiller().fill([
+      { kind: 'select', element: select, value: 'm' },
+      { kind: 'radio', radios, index: 0 },
+    ])
+
+    expect(outcome).toEqual({ filled: 0, skipped: 2 })
+  })
 })

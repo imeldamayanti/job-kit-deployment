@@ -1,6 +1,6 @@
 import type { ContactKey, PersonalKey } from '../profile/types'
 
-export type MatchKey = 'fullName' | PersonalKey | ContactKey | `custom:${string}`
+export type MatchKey = 'fullName' | 'educationLevel' | PersonalKey | ContactKey | `custom:${string}`
 
 type Rule = { key: MatchKey; phrases: string[]; exact?: string[] }
 
@@ -15,6 +15,11 @@ const RULES: Rule[] = [
   { key: 'middleName', phrases: ['nama tengah', 'middle name'] },
   { key: 'lastName', phrases: ['nama belakang', 'last name', 'surname', 'family name'] },
   { key: 'fullName', phrases: ['nama lengkap', 'full name', 'your name'], exact: ['nama', 'name'] },
+  {
+    key: 'educationLevel',
+    phrases: ['jenjang pendidikan', 'tingkat pendidikan', 'pendidikan terakhir', 'education level', 'level of education', 'highest education', 'degree'],
+    exact: ['education', 'pendidikan'],
+  },
   { key: 'birthDate', phrases: ['tanggal lahir', 'tgl lahir', 'date of birth', 'birth date', 'birthday', 'dob'] },
   { key: 'gender', phrases: ['jenis kelamin', 'gender'] },
   { key: 'nationality', phrases: ['kewarganegaraan', 'nationality', 'citizenship'] },

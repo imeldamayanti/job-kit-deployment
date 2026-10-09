@@ -78,4 +78,37 @@ describe('buildPlan', () => {
 
     expect(buildPlan([{ id: 'f0', label: 'Cover note' }], custom).matched).toBe(0)
   })
+
+  it('picks the option of a dropdown that fits the profile value', () => {
+    const profile = setPersonalField(withContact, 'gender', 'Laki-laki')
+    const options = [
+      { label: 'Female', value: 'f' },
+      { label: 'Male', value: 'm' },
+    ]
+
+    const plan = buildPlan([{ id: 'f0', label: 'Gender', kind: 'select', options }], profile)
+
+    expect(plan.items).toEqual([
+      { fieldId: 'f0', label: 'Gender', key: 'gender', value: 'Male', choice: 1, hasExistingText: false },
+    ])
+  })
+
+  it('skips a choice field whose options do not fit the profile value', () => {
+    const profile = setPersonalField(withContact, 'gender', 'Laki-laki')
+    const options = [{ label: 'Yes', value: 'y' }, { label: 'No', value: 'n' }]
+
+    const plan = buildPlan([{ id: 'f0', label: 'Gender', kind: 'radio', options }], profile)
+
+    expect(plan.items).toEqual([])
+    expect(plan.skipped).toEqual([{ fieldId: 'f0', label: 'Gender' }])
+  })
+
+  it('reads the education level from the first education entry', () => {
+    const profile = { ...withContact, education: [{ id: 'e1', institution: 'ITB', level: 'S1', major: '', gpa: '', year: '' }] }
+    const options = [{ label: "Bachelor's Degree", value: 'b' }]
+
+    const plan = buildPlan([{ id: 'f0', label: 'Highest level of education', kind: 'select', options }], profile)
+
+    expect(plan.items[0]?.value).toBe("Bachelor's Degree")
+  })
 })

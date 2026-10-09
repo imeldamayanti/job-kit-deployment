@@ -50,4 +50,41 @@ describe('scanFields', () => {
 
     expect(byName).toEqual({ a: true, b: false, c: false })
   })
+
+  it('reads a dropdown with its options, without the empty placeholder', () => {
+    document.documentElement.innerHTML =
+      '<body><label for="c">Kota</label><select id="c" name="c"><option value="">Pilih</option><option value="jkt">Jakarta</option><option value="bdg">Bandung</option></select></body>'
+
+    const [field] = scanFields(document)
+
+    expect(field?.kind).toBe('select')
+    expect(field?.options).toEqual([
+      { label: 'Jakarta', value: 'jkt' },
+      { label: 'Bandung', value: 'bdg' },
+    ])
+    expect(field?.hasText).toBe(false)
+  })
+
+  it('treats a dropdown with a chosen option as already filled', () => {
+    document.documentElement.innerHTML =
+      '<body><select name="c"><option value="">Pilih</option><option value="jkt" selected>Jakarta</option></select></body>'
+
+    expect(scanFields(document)[0]?.hasText).toBe(true)
+  })
+
+  it('reads a radio group as one field with its options', () => {
+    document.documentElement.innerHTML =
+      '<body><fieldset><legend>Jenis kelamin</legend><label><input type="radio" name="g" value="m" /> Laki-laki</label><label><input type="radio" name="g" value="f" /> Perempuan</label></fieldset></body>'
+
+    const fields = scanFields(document)
+
+    expect(fields).toHaveLength(1)
+    expect(fields[0]?.kind).toBe('radio')
+    expect(fields[0]?.label).toBe('Jenis kelamin')
+    expect(fields[0]?.options).toEqual([
+      { label: 'Laki-laki', value: 'm' },
+      { label: 'Perempuan', value: 'f' },
+    ])
+    expect(fields[0]?.radios).toHaveLength(2)
+  })
 })

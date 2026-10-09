@@ -21,7 +21,7 @@ export function useFill({ tab, canUndo, items, total, rescan }: Args) {
 
   const fill = useCallback(async () => {
     if (!tab) return
-    const outcome = await requestFill(tab, items.map(({ fieldId, value }) => ({ fieldId, value })))
+    const outcome = await requestFill(tab, items.map(({ fieldId, value, choice }) => ({ fieldId, value, choice })))
     results.current.set(tab.id, { url: tab.url, filled: outcome.filled, skipped: total - outcome.filled })
     rescan()
   }, [tab, items, total, rescan])

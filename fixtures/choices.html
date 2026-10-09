@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>Lowongan - dropdown dan radio</title></head>
+  <body>
+    <form>
+      <label for="g">Gender</label>
+      <select id="g" name="gender">
+        <option value="">Select</option>
+        <option value="f">Female</option>
+        <option value="m">Male</option>
+        <option value="o">Prefer not to say</option>
+      </select>
+
+      <fieldset>
+        <legend>Jenis kelamin</legend>
+        <label><input type="radio" name="jk" value="p" /> Perempuan</label>
+        <label><input type="radio" name="jk" value="l" /> Laki-laki</label>
+      </fieldset>
+
+      <label for="edu">Highest level of education</label>
+      <select id="edu" name="edu">
+        <option value="">Select</option>
+        <option value="hs">High School</option>
+        <option value="ba">Bachelor's Degree</option>
+        <option value="ma">Master's Degree</option>
+        <option value="phd">Doctorate</option>
+      </select>
+
+      <div role="radiogroup" aria-label="Education level">
+        <label><input type="radio" name="lvl" value="sma" /> SMA/SMK</label>
+        <label><input type="radio" name="lvl" value="s1" /> S1</label>
+        <label><input type="radio" name="lvl" value="s2" /> S2</label>
+      </div>
+
+      <label for="c">Country</label>
+      <select id="c" name="country">
+        <option value="">Select</option>
+        <option value="sg">Singapore</option>
+        <option value="id">Indonesia</option>
+      </select>
+    </form>
+  </body>
+</html>

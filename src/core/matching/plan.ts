@@ -1,12 +1,21 @@
 import type { Profile } from '../profile/types'
+import { chooseOption, type ChoiceOption } from './choice'
 import { matchField, normalize, type MatchKey } from './match'
 
-export type PlanField = { id: string; label: string; autocomplete?: string; hasText?: boolean }
+export type PlanField = {
+  id: string
+  label: string
+  autocomplete?: string
+  hasText?: boolean
+  kind?: 'text' | 'select' | 'radio'
+  options?: ChoiceOption[]
+}
 export type PlanItem = {
   fieldId: string
   label: string
   key: MatchKey
   value: string
+  choice?: number
   hasExistingText: boolean
 }
 export type Plan = {
@@ -29,6 +38,7 @@ function matchCustom(label: string, profile: Profile, mode: 'exact' | 'contains'
 
 function valueFor(profile: Profile, key: MatchKey): string {
   if (key.startsWith('custom:')) return profile.custom.find((pair) => `custom:${pair.id}` === key)?.value ?? ''
+  if (key === 'educationLevel') return profile.education.find((entry) => entry.level.trim() !== '')?.level ?? ''
   if (key === 'fullName') {
     const { firstName, middleName, lastName } = profile.personal
     return [firstName, middleName, lastName].filter(Boolean).join(' ')
@@ -47,8 +57,22 @@ export function buildPlan(fields: PlanField[], profile: Profile): Plan {
     }
     plan.matched += 1
     const value = valueFor(profile, key)
-    if (value) plan.items.push({ fieldId: field.id, label: field.label, key, value, hasExistingText: field.hasText === true })
-    else plan.missing.push({ fieldId: field.id, label: field.label, key })
+    if (!value) {
+      plan.missing.push({ fieldId: field.id, label: field.label, key })
+      continue
+    }
+    const hasExistingText = field.hasText === true
+    if (field.kind === 'select' || field.kind === 'radio') {
+      const options = field.options ?? []
+      const choice = chooseOption(key, value, options)
+      if (choice === null) {
+        plan.skipped.push({ fieldId: field.id, label: field.label })
+        continue
+      }
+      plan.items.push({ fieldId: field.id, label: field.label, key, value: options[choice]?.label ?? value, choice, hasExistingText })
+    } else {
+      plan.items.push({ fieldId: field.id, label: field.label, key, value, hasExistingText })
+    }
   }
   return plan
 }

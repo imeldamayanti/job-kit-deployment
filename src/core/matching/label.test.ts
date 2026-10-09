@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { readLabel } from './label'
+import { readGroupLabel, readLabel } from './label'
 
 function field(html: string): HTMLInputElement {
   document.body.innerHTML = html
@@ -37,5 +37,34 @@ describe('readLabel', () => {
 
   it('prefers the label element over the placeholder', () => {
     expect(readLabel(field('<label for="a">Email</label><input id="a" placeholder="nama@contoh.com" />'))).toBe('Email')
+  })
+})
+
+describe('readGroupLabel', () => {
+  function radios(html: string): HTMLInputElement[] {
+    document.body.innerHTML = html
+    return Array.from(document.querySelectorAll('input'))
+  }
+
+  it('reads the legend of the fieldset around the radios', () => {
+    const group = radios('<fieldset><legend>Jenis kelamin</legend><label><input type="radio" name="g" /> Laki-laki</label></fieldset>')
+
+    expect(readGroupLabel(group)).toBe('Jenis kelamin')
+  })
+
+  it('reads aria-labelledby on a radiogroup', () => {
+    const group = radios('<span id="t">Gender</span><div role="radiogroup" aria-labelledby="t"><input type="radio" name="g" /></div>')
+
+    expect(readGroupLabel(group)).toBe('Gender')
+  })
+
+  it('reads aria-label on a radiogroup', () => {
+    const group = radios('<div role="radiogroup" aria-label="Education level"><input type="radio" name="g" /></div>')
+
+    expect(readGroupLabel(group)).toBe('Education level')
+  })
+
+  it('falls back to the name attribute', () => {
+    expect(readGroupLabel(radios('<input type="radio" name="gender" />'))).toBe('gender')
   })
 })

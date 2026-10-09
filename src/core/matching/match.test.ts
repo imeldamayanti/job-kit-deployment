@@ -35,6 +35,11 @@ describe('matchField by label', () => {
     ['Gender', 'gender'],
     ['Kewarganegaraan', 'nationality'],
     ['Nationality', 'nationality'],
+    ['Jenjang Pendidikan', 'educationLevel'],
+    ['Pendidikan terakhir', 'educationLevel'],
+    ['Highest level of education', 'educationLevel'],
+    ['Education level', 'educationLevel'],
+    ['Degree', 'educationLevel'],
   ])('%s -> %s', (label, expected) => {
     expect(matchField({ label })).toBe(expected)
   })

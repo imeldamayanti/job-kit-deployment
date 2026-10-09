@@ -1,11 +1,19 @@
 import { browser } from 'wxt/browser'
 import type { FillOutcome } from '../core/fill/apply'
+import type { ChoiceOption } from '../core/matching/choice'
 import { classifyUnreadablePage, type UnreadableReason } from '../core/fill/page-access'
 import { hasSiteAccess } from './permissions'
 import type { ActiveTab } from './tabs'
 
-export type FieldSummary = { id: string; label: string; autocomplete: string; hasText: boolean }
-export type FillItem = { fieldId: string; value: string }
+export type FieldSummary = {
+  id: string
+  label: string
+  autocomplete: string
+  hasText: boolean
+  kind: 'text' | 'select' | 'radio'
+  options: ChoiceOption[]
+}
+export type FillItem = { fieldId: string; value: string; choice?: number }
 
 export type PageScan =
   | { ok: true; fields: FieldSummary[]; canUndo: boolean }
