@@ -182,21 +182,21 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 ## Launch
 
 ### T14 · Paket build bersih · 0.5h · launch · Medium
-- [ ] **T14 selesai**
+- [x] **T14 selesai**
 
 **Context:** pengganti "deploy ke produksi"; tidak ada hosting.
 **Acceptance criteria**
-- [ ] `npm run zip` menghasilkan satu berkas zip
-- [ ] Zip dimuat di profil Chrome bersih dan alur utama (isi profil → Fill → Undo) berjalan
+- [x] `npm run zip` menghasilkan satu berkas zip
+- [x] Zip dimuat di profil Chrome bersih dan alur utama (isi profil → Fill → Undo) berjalan (diuji dari isi zip yang diekstrak, di profil Chrome for Testing baru; instal manual lewat Load unpacked tetap perlu dicoba sekali oleh pengguna)
 
 **Done when:** zip terpasang di profil bersih dan alur utama lulus.
 
 ### T15 · README · 0.5h · launch · Medium
-- [ ] **T15 selesai**
+- [x] **T15 selesai**
 
 **Acceptance criteria**
-- [ ] README menjelaskan apa itu job-kit, cara pasang unpacked, dan cara pakai dalam tiga langkah
-- [ ] README menyatakan dengan jelas apa yang tidak dilakukan (tanpa akun, tanpa AI, tanpa telemetri)
+- [x] README menjelaskan apa itu job-kit, cara pasang unpacked, dan cara pakai dalam tiga langkah
+- [x] README menyatakan dengan jelas apa yang tidak dilakukan (tanpa akun, tanpa AI, tanpa telemetri)
 
 **Done when:** orang lain bisa memasang dan memakai dari README saja.
 
