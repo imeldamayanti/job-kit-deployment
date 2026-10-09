@@ -60,14 +60,14 @@ function Empty({ mascot, icon, title, body, children }: { mascot?: 'neutral' | '
   )
 }
 
-function SavedRow({ job, onStatus }: { job: Job; onStatus: (id: string, status: JobStatus) => void }) {
+function SavedRow({ job, onStatus, onOpenJob }: { job: Job; onStatus: (id: string, status: JobStatus) => void; onOpenJob: (job: Job) => void }) {
   const badge = STATUS_BADGE[job.status]
   return (
     <li className="flex items-center gap-3 px-4 py-3">
       <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-[13px] font-bold text-text-secondary">
         {initialsOf(job.company)}
       </span>
-      <button type="button" onClick={() => void openJob(job)} className="flex min-w-0 flex-1 flex-col text-left focus-visible:outline-2 focus-visible:outline-focus-ring">
+      <button type="button" onClick={() => onOpenJob(job)} className="flex min-w-0 flex-1 flex-col text-left focus-visible:outline-2 focus-visible:outline-focus-ring">
         <span className="line-clamp-2 text-[14px] font-semibold text-text-primary">{job.title}</span>
         <span className="truncate text-[13px] text-text-secondary">
           {job.company} · {SOURCE_NAMES[job.source]}
@@ -121,6 +121,10 @@ export function JobsPage({
     void requestRefresh().then((status) => setAnswer(status === 'busy' ? 'Masih ada pengambilan yang berjalan.' : status === 'no-prefs' ? 'Isi role incaran di Preferensi kerja dulu.' : ''))
   }
   const change = preview ? () => {} : live.changeStatus
+  const open = (job: Job) => {
+    if (preview) return
+    void openJob(job).then((result) => setAnswer(result === 'tab-only' ? 'Tab terbuka. Klik ikon job-kit untuk mengisi.' : ''))
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -225,13 +229,13 @@ export function JobsPage({
           ) : onRecommended ? (
             <div className="flex flex-col gap-3">
               {shown.map((job, index) => (
-                <JobCard key={job.id} job={job} now={now} startOpen={Boolean(preview) && index === 0} onOpen={(j) => void openJob(j)} onStatus={change} />
+                <JobCard key={job.id} job={job} now={now} startOpen={Boolean(preview) && index === 0} onOpen={open} onStatus={change} />
               ))}
             </div>
           ) : (
             <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-md">
               {shown.map((job) => (
-                <SavedRow key={job.id} job={job} onStatus={change} />
+                <SavedRow key={job.id} job={job} onStatus={change} onOpenJob={open} />
               ))}
             </ul>
           )}

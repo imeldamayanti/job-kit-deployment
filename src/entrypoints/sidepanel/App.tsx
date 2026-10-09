@@ -13,6 +13,7 @@ import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { Logo } from '../../ui/primitives/Logo'
 import { EmptyProfile } from './EmptyProfile'
+import { FromFeed } from './FromFeed'
 import { PlanRow } from './PlanRow'
 import { ProfileTab } from './ProfileTab'
 import { Tabs, type TabId } from './Tabs'
@@ -68,6 +69,7 @@ export function App() {
 
       {tab === 'autofill' && (
         <main id="panel-autofill" role="tabpanel" aria-labelledby="tab-autofill" className="flex flex-col gap-5 p-4 pb-24">
+          {state.status === 'ready' && <FromFeed tabId={state.tab?.id} />}
           {state.status === 'ready' && state.domain && (
             <div className="flex items-center gap-3">
               <span

@@ -568,12 +568,14 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T38 selesai**
 
 **Acceptance criteria**
-- [ ] Buka & isi membuka URL di tab baru dan side panel di tab itu (sesuai hasil T27) (FR-31)
-- [ ] Panel menampilkan konteks kecil "Dari Lowongan · skor 86" bila tab berasal dari feed
-- [ ] Fill berhasil di tab itu → status lowongan jadi Dilamar (FR-31). Untuk lowongan dari feed, ini menggantikan T21 (FR-24)
-- [ ] Bila panel tidak bisa dibuka otomatis, tab tetap terbuka dengan petunjuk "Klik ikon job-kit untuk mengisi"
+- [x] Buka & isi membuka URL di tab baru dan side panel di tab itu (sesuai hasil T27) (FR-31)
+- [x] Panel menampilkan konteks kecil "Dari Lowongan · skor 86" bila tab berasal dari feed
+- [x] Fill berhasil di tab itu → status lowongan jadi Dilamar (FR-31). Untuk lowongan dari feed, ini menggantikan T21 (FR-24)
+- [x] Bila panel tidak bisa dibuka otomatis, tab tetap terbuka dengan petunjuk "Klik ikon job-kit untuk mengisi"
 
 **Done when:** alur dari kartu sampai status Dilamar jalan di Chrome pada satu form Greenhouse.
+
+**Hasil:** Buka & isi membuka URL di tab baru lalu `sidePanel.open` di tab itu; tab dicatat di `session:openedJobs` (`platform/opened-jobs.ts`, dibersihkan saat tab ditutup). Panel menampilkan 'Dari Lowongan · skor 86' (atau 'skor kasar 58') di tab Autofill. Fill yang mengisi minimal satu field di tab itu menandai lowongan Dilamar (`shouldMarkApplied`, 6 tes untuk fungsi murninya). Bila panel menolak dibuka, tab tetap terbuka dan halaman Lowongan menampilkan 'Tab terbuka. Klik ikon job-kit untuk mengisi.' Belum diverifikasi di Chrome: apakah `sidePanel.open` dari halaman options setelah `tabs.create` masih dianggap user gesture (itu yang diukur spike T27, langkah 5), dan alur penuh pada form Greenhouse.
 
 ### T39 · Uji 5 hari dan README · 1h · launch · Medium
 - [ ] **T39 selesai**

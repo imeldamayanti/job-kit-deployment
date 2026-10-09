@@ -1,6 +1,8 @@
 import { useCallback, useRef } from 'react'
 import type { PlanItem } from '../../core/matching/plan'
 import { requestFill, requestUndo } from '../../platform/messaging'
+import { shouldMarkApplied } from '../../core/feed/opened'
+import { loadOpened, markApplied } from '../../platform/opened-jobs'
 import type { ActiveTab } from '../../platform/tabs'
 
 type FillResult = { url: string | undefined; filled: number; skipped: number }
@@ -23,6 +25,9 @@ export function useFill({ tab, canUndo, items, total, rescan }: Args) {
     if (!tab) return
     const outcome = await requestFill(tab, items.map(({ fieldId, value, choice }) => ({ fieldId, value, choice })))
     results.current.set(tab.id, { url: tab.url, filled: outcome.filled, skipped: total - outcome.filled })
+    // A tab that came from the Lowongan page counts as applied once Fill worked (FR-31).
+    const opened = await loadOpened(tab.id)
+    if (opened && shouldMarkApplied(opened, outcome.filled)) await markApplied(opened.jobId)
     rescan()
   }, [tab, items, total, rescan])
 

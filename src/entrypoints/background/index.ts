@@ -3,6 +3,7 @@ import { defineBackground } from 'wxt/utils/define-background'
 import { isRunDue } from '../../core/feed/schedule'
 import { executeRun } from '../../platform/feed-runner'
 import { loadSettings, loadState } from '../../platform/feed-storage'
+import { watchClosedTabs } from '../../platform/opened-jobs'
 
 const ALARM = 'feed-tick'
 // The tick only compares dates; the real limit of one automatic run a day is `isRunDue`.
@@ -19,6 +20,7 @@ async function maybeRunToday() {
 
 export default defineBackground(() => {
   void browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+  watchClosedTabs()
 
   const schedule = () => browser.alarms.create(ALARM, { periodInMinutes: DEV ? 1 : 15 })
   browser.runtime.onInstalled.addListener(schedule)
