@@ -468,13 +468,15 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T31 selesai**
 
 **Acceptance criteria**
-- [ ] `classifyWorkplace(job)` → `remote | hybrid | onsite | unknown`: field terstruktur sumber dulu (`workplaceType`, `isRemote`), lalu kata kunci di lokasi dan judul ("Remote", "WFH", "Hybrid", "Anywhere") (FR-28)
-- [ ] Saringan aturan membuang lowongan dengan kata kunci dihindari, atau tipe kerja dan lokasi di luar preferensi, sebelum AI dipanggil (FR-29)
-- [ ] Skor kasar: kecocokan role dan skill, level dibanding lama pengalaman, kebaruan (FR-29)
-- [ ] Deskripsi HTML dibersihkan jadi teks polos dan dipotong untuk prompt
-- [ ] Fungsi murni di `core/` dengan fixture dari T27
+- [x] `classifyWorkplace(job)` → `remote | hybrid | onsite | unknown`: field terstruktur sumber dulu (`workplaceType`, `isRemote`), lalu kata kunci di lokasi dan judul ("Remote", "WFH", "Hybrid", "Anywhere") (FR-28)
+- [x] Saringan aturan membuang lowongan dengan kata kunci dihindari, atau tipe kerja dan lokasi di luar preferensi, sebelum AI dipanggil (FR-29)
+- [x] Skor kasar: kecocokan role dan skill, level dibanding lama pengalaman, kebaruan (FR-29)
+- [x] Deskripsi HTML dibersihkan jadi teks polos dan dipotong untuk prompt
+- [x] Fungsi murni di `core/` dengan fixture dari T27
 
 **Done when:** fixture tiap sumber tergolong benar dan saringan terbukti di tes.
+
+**Hasil:** fungsi murni di `src/core/feed/`: `classifyWorkplace`, `passesRules` (kata dihindari, tipe kerja, lokasi), `roughScore`, `htmlToText`/`truncateText`. Fixture respons asli dari spike T27 di `fixtures/jobs/` dan diuji (Ashby, Lever, Greenhouse, Remotive). Keputusan: kata kunci wajib tidak menyaring (sesuai FR-29), hanya menambah skor; teks bantuan di Preferensi kerja diubah. Greenhouse tidak punya field tipe kerja, jadi hanya teks lokasi yang menentukan (sisanya unknown, bisa diisi AI di T35).
 
 ### T32 · Adapter sumber API: ATS dan Remotive · 2h · feature · High
 - [ ] **T32 selesai**

@@ -58,7 +58,7 @@ export function PreferencesSection({ profile, update }: { profile: Profile; upda
           <ChipListField
             label="Kata kunci wajib"
             placeholder="React"
-            hint="Lowongan harus memuat kata ini."
+            hint="Menambah skor bila lowongan memuat kata ini."
             items={prefs.mustHave}
             onChange={(mustHave) => set({ mustHave })}
           />
