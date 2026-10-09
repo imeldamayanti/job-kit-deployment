@@ -1,7 +1,15 @@
 import { Logo } from '../../ui/primitives/Logo'
 import { NAV_GROUPS, type PageId } from './pages'
 
-export function Sidebar({ current, onSelect }: { current: PageId; onSelect: (id: PageId) => void }) {
+export function Sidebar({
+  current,
+  onSelect,
+  badges = {},
+}: {
+  current: PageId
+  onSelect: (id: PageId) => void
+  badges?: Partial<Record<PageId, number>>
+}) {
   return (
     <aside className="flex w-full shrink-0 flex-col border-b border-border bg-surface px-3 py-5 md:w-[260px] md:border-r md:border-b-0">
       <div className="flex items-center gap-2 px-2 pb-5">
@@ -19,7 +27,7 @@ export function Sidebar({ current, onSelect }: { current: PageId; onSelect: (id:
                 aria-current={id === current ? 'page' : undefined}
                 onClick={() => onSelect(id)}
                 className={
-                  'h-9 rounded-md px-3 text-left text-[14px] transition-colors duration-150 ' +
+                  'flex h-9 items-center justify-between gap-2 rounded-md px-3 text-left text-[14px] transition-colors duration-150 ' +
                   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring ' +
                   (id === current
                     ? 'bg-accent-wash font-semibold text-text-primary'
@@ -27,6 +35,14 @@ export function Sidebar({ current, onSelect }: { current: PageId; onSelect: (id:
                 }
               >
                 {title}
+                {(badges[id] ?? 0) > 0 && (
+                  <span
+                    aria-label={`${badges[id]} lowongan baru`}
+                    className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold leading-none text-amber-700"
+                  >
+                    {badges[id]}
+                  </span>
+                )}
               </button>
             ))}
           </div>

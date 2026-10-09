@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { countNew } from '../../core/feed/schedule'
+import { useFeed } from '../../ui/hooks/useFeed'
 import { useFeedSettings } from '../../ui/hooks/useFeedSettings'
 import { useProfile } from '../../ui/hooks/useProfile'
 import { ContactSection } from './ContactSection'
@@ -18,12 +20,18 @@ import { StorageFullNotice } from './StorageFullNotice'
 export function App() {
   const { profile, update, commit, saveState } = useProfile()
   const feed = useFeedSettings()
+  const live = useFeed()
   const [page, setPage] = useState<PageId>(() => pageFromHash(location.hash))
+
+  const choose = (id: PageId) => {
+    setPage(id)
+    if (id === 'jobs') live.markSeen()
+  }
 
   return (
     <div className="min-h-full bg-neutral-100 p-4 md:p-7">
       <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-[1200px] flex-col overflow-hidden rounded-xl border border-border-strong bg-surface-sunken shadow-lg md:flex-row">
-        <Sidebar current={page} onSelect={setPage} />
+        <Sidebar current={page} onSelect={choose} badges={{ jobs: countNew(live.feed, live.state.seenAt) }} />
         <main className="min-w-0 flex-1 px-5 py-8 md:px-10">
           <div className="mx-auto flex max-w-[880px] flex-col gap-6">
             <header className="flex items-start justify-between gap-4">
@@ -36,7 +44,7 @@ export function App() {
             {saveState === 'storage-full' && <StorageFullNotice />}
             {page === 'jobs' && <JobsPage />}
             {page === 'jobsettings' && feed.settings && (
-              <JobSettingsPage profile={profile} settings={feed.settings} aiKey={feed.key} update={feed.update} changeKey={feed.changeKey} go={setPage} />
+              <JobSettingsPage profile={profile} settings={feed.settings} aiKey={feed.key} update={feed.update} changeKey={feed.changeKey} go={setPage} runs={live.runs} state={live.state} />
             )}
             {page === 'data' && <DataPage profile={profile} commit={commit} />}
             {profile && page === 'personal' && <PersonalSection profile={profile} update={update} />}

@@ -1,4 +1,4 @@
-export type AiFailure = 'invalid-key' | 'quota' | 'network' | 'server' | 'bad-request' | 'no-permission' | 'invalid-output'
+export type AiFailure = 'invalid-key' | 'quota' | 'network' | 'server' | 'bad-request' | 'no-permission' | 'invalid-output' | 'no-key'
 
 export class AiError extends Error {
   constructor(public reason: AiFailure) {
@@ -23,6 +23,7 @@ const MESSAGES: Record<AiFailure, string> = {
   'bad-request': 'Penyedia menolak permintaan. Periksa nama model.',
   'no-permission': 'Izin untuk api.anthropic.com belum diberikan.',
   'invalid-output': 'Jawaban penyedia tidak bisa dibaca.',
+  'no-key': 'Kunci API belum diisi.',
 }
 
 export const aiErrorMessage = (reason: AiFailure) => MESSAGES[reason]

@@ -541,12 +541,14 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [ ] **T36 selesai**
 
 **Acceptance criteria**
-- [ ] `chrome.alarms` sekali sehari pada jam dari S6; run yang terlewat berjalan saat Chrome dibuka; paling banyak satu run otomatis per hari (FR-27, PRD §8)
-- [ ] Pipeline: sumber paralel → normalisasi → dedupe/merge → saringan → skor → simpan. Progres per tahap dikirim ke halaman yang terbuka
-- [ ] Segarkan menjalankan run sekarang; selama berjalan tombol nonaktif "Sedang mengambil…" dan run kedua ditolak (PRD §8)
-- [ ] Badge jumlah lowongan baru di item Lowongan di sidebar; hilang setelah halaman dibuka
+- [x] `chrome.alarms` sekali sehari pada jam dari S6; run yang terlewat berjalan saat Chrome dibuka; paling banyak satu run otomatis per hari (FR-27, PRD §8)
+- [x] Pipeline: sumber paralel → normalisasi → dedupe/merge → saringan → skor → simpan. Progres per tahap dikirim ke halaman yang terbuka
+- [x] Segarkan menjalankan run sekarang; selama berjalan tombol nonaktif "Sedang mengambil…" dan run kedua ditolak (PRD §8)
+- [x] Badge jumlah lowongan baru di item Lowongan di sidebar; hilang setelah halaman dibuka
 
 **Done when:** alarm uji (interval dipendekkan di build dev) menjalankan run penuh tanpa halaman options terbuka.
+
+**Hasil:** pipeline murni `runFeed` (sumber paralel → saringan aturan → merge/prune → skor; sumber yang gagal tiga kali dilewati) dan jadwal murni (`isRunDue`, `nextRunTime`, `canStartRun`, `countNew`) di `src/core/feed/`, 23 tes. Di platform: `executeRun` menjaga satu run sekaligus dan menulis `feedState` supaya halaman terbuka bisa mengikuti tahapnya; background memakai alarm `feed-tick` tiap 15 menit (1 menit di build dev) yang hanya membandingkan tanggal, dengan batas satu run otomatis per hari dari `isRunDue`, dan mengejar run yang terlewat saat Chrome dibuka; pesan `feed:refresh` untuk Segarkan. Badge jumlah baru di sidebar (sementara di item Captured Jobs), hilang saat halaman dibuka. Tombol Segarkan dan status run terakhir sementara ada di halaman Atur Lowongan (pindah ke header Lowongan di T37). Risiko: service worker MV3 bisa dimatikan Chrome di tengah run yang panjang. Belum diverifikasi di Chrome: alarm uji dan run penuh tanpa halaman options terbuka.
 
 ### T37 · Halaman Lowongan · 2h · feature · High
 - [ ] **T37 selesai**

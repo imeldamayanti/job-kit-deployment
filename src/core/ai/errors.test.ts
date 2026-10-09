@@ -22,7 +22,7 @@ describe('mapAiFailure', () => {
 describe('aiErrorMessage', () => {
   it('has a specific sentence for every reason', () => {
     expect(aiErrorMessage('invalid-key')).toBe('Kunci ditolak penyedia.')
-    for (const reason of ['quota', 'network', 'server', 'bad-request', 'no-permission', 'invalid-output'] as const) {
+    for (const reason of ['quota', 'network', 'server', 'bad-request', 'no-permission', 'invalid-output', 'no-key'] as const) {
       expect(aiErrorMessage(reason).length).toBeGreaterThan(10)
     }
   })

@@ -12,7 +12,11 @@ import {
   type AtsSource,
   type FeedSettings,
 } from '../../core/feed/settings'
-import type { JobSourceId } from '../../core/feed/types'
+import type { FeedState } from '../../core/feed/schedule'
+import type { JobSourceId, SourceRun } from '../../core/feed/types'
+import { clearRunsFor } from '../../core/feed/pipeline'
+import { requestRefresh } from '../../platform/feed-control'
+import { loadRuns, saveRuns } from '../../platform/feed-storage'
 import type { Profile } from '../../core/profile/types'
 import { createAnthropicClient } from '../../platform/ai-client'
 import { hasOrigins, requestOrigins } from '../../platform/permissions'
@@ -51,6 +55,8 @@ export function JobSettingsPage({
   update,
   changeKey,
   go,
+  runs,
+  state,
 }: {
   profile: Profile | null
   settings: FeedSettings
@@ -58,6 +64,8 @@ export function JobSettingsPage({
   update: (next: FeedSettings) => void
   changeKey: (key: string) => void
   go: (page: PageId) => void
+  runs: SourceRun[]
+  state: FeedState
 }) {
   const [granted, setGranted] = useState<Partial<Record<JobSourceId, boolean>>>({})
   const [notice, setNotice] = useState<Notice | null>(null)
@@ -84,6 +92,7 @@ export function JobSettingsPage({
     void requestOrigins(originsForSource(id)).then((ok) => {
       setGranted((current) => ({ ...current, [id]: ok }))
       if (ok) {
+        void loadRuns().then((all) => saveRuns(clearRunsFor(all, id)))
         update(setSourceEnabled(settings, id, true))
         setNotice(null)
       } else {
@@ -120,6 +129,8 @@ export function JobSettingsPage({
           </Button>
         </div>
       )}
+
+      <RunStatus runs={runs} state={state} enabled={SOURCES.some(({ id }) => settings.sources[id])} />
 
       <SectionCard>
         <h2 className="mb-3 text-[12px] font-bold uppercase tracking-[0.06em] text-text-secondary">Sumber</h2>
@@ -234,5 +245,48 @@ export function JobSettingsPage({
         </div>
       </SectionCard>
     </div>
+  )
+}
+
+const STAGE_TEXT = { idle: '', fetch: 'Mengambil lowongan…', merge: 'Menggabungkan dan menyaring…', score: 'Menilai lowongan…', save: 'Menyimpan…' } as const
+const REASON_TEXT: Record<string, string> = { blocked: 'diblokir sementara', timeout: 'terlalu lama menjawab', parse: 'struktur halaman berubah', network: 'tidak terhubung' }
+
+const reasonText = (reason?: string) => (reason?.startsWith('http-') ? `server membalas ${reason.slice(5)}` : (REASON_TEXT[reason ?? ''] ?? 'gagal'))
+
+// Temporary home of "Segarkan" and the last run's result; both move into the Lowongan header in T37.
+function RunStatus({ runs, state, enabled }: { runs: SourceRun[]; state: FeedState; enabled: boolean }) {
+  const [answer, setAnswer] = useState('')
+  const latest = SOURCES.map(({ id, name }) => ({ name, run: runs.filter((run) => run.source === id).sort((a, b) => b.at.localeCompare(a.at))[0] })).filter((row) => row.run)
+  const refresh = () => {
+    setAnswer('')
+    void requestRefresh().then((status) => setAnswer(status === 'busy' ? 'Masih ada pengambilan yang berjalan.' : status === 'no-prefs' ? 'Isi role incaran di Preferensi kerja dulu.' : ''))
+  }
+  return (
+    <SectionCard>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[12px] font-bold uppercase tracking-[0.06em] text-text-secondary">Pengambilan terakhir</h2>
+          <p className="mt-1 text-[13px] text-text-secondary">
+            {state.running ? STAGE_TEXT[state.stage] : state.lastRunAt ? `Selesai ${new Date(state.lastRunAt).toLocaleString('id-ID')} · ${state.newJobs} baru` : 'Belum pernah jalan.'}
+          </p>
+        </div>
+        <Button variant="secondary" disabled={state.running || !enabled} onClick={refresh}>
+          {state.running ? 'Sedang mengambil…' : 'Segarkan'}
+        </Button>
+      </div>
+      {answer && <p className="mt-2 text-[13px] text-amber-700">{answer}</p>}
+      {latest.length > 0 && (
+        <ul className="mt-3 flex flex-col gap-1 text-[13px]">
+          {latest.map(({ name, run }) => (
+            <li key={name} className={run?.ok ? 'text-text-secondary' : 'text-rose-700'}>
+              {name}: {run?.ok ? `${run.count} lowongan` : `${reasonText(run?.reason)}`}
+            </li>
+          ))}
+        </ul>
+      )}
+      {state.paused.length > 0 && <p className="mt-2 text-[13px] text-amber-700">Dijeda setelah 3 kali gagal berturut-turut: {state.paused.join(', ')}. Matikan lalu nyalakan lagi untuk memulai ulang.</p>}
+      {state.aiProblem && <p className="mt-2 text-[13px] text-amber-700">Skor kasar: {aiErrorMessage(state.aiProblem)}</p>}
+      {state.usage.inputTokens > 0 && <p className="mt-2 text-[12px] text-text-secondary">Token run terakhir: {state.usage.inputTokens} masuk, {state.usage.outputTokens} keluar.</p>}
+    </SectionCard>
   )
 }
