@@ -427,7 +427,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil (2026-10-09):** tabel per sumber dan ringkasan pipeline ada di `docs/03-rfc.md` §3.3b. Greenhouse, Lever, Ashby, dan Remotive berhasil dari service worker tanpa izin host; LinkedIn butuh izin dan berhasil 8 halaman berturut-turut tanpa 429 dengan jeda acak. `permissions.request` dari options dan `sidePanel.open` (tab lain dan tab baru) berhasil. Belum: request AI dengan kunci sah. Keputusan PIC yang masih terbuka: daftar sumber v1 dan batas halaman LinkedIn per run (bawaan sekarang 5).
 
 ### T28 · Mockup Lowongan di design system · 1.5h · design · Highest
-- [x] **T28 selesai**
+- [x] **T28 selesai** (mockup disetujui PIC 2026-10-16)
 
 **Context:** sama seperti §7 "Options page navigation", mockup dibuat dulu di `docs/design-system.html` tanpa menyentuh produk. Referensi kartu: gambar kartu lowongan dari PIC (logo, judul, perusahaan, chip, baris meta). Sidebar mengikuti usulan tiga tujuan, dengan Captured Jobs diganti Lowongan.
 
@@ -439,7 +439,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 - [x] S5 Preferensi kerja dan S6 Atur Lowongan (FR-26, FR-32)
 - [x] Hanya token dan komponen yang sudah ada; rapi di desktop dan ≤420 px tanpa overflow horizontal
 
-**Hasil:** mockup di `docs/design-system.html` §8 (S4 Rekomendasi, S4 Disimpan, 8 kartu state, S5, S6, lebar ≤420 px). Overflow horizontal dicek lewat skrip di viewport 420 px: tidak ada selain rak tab yang memang bisa digeser. Menunggu persetujuan PIC.
+**Hasil:** mockup di `docs/design-system.html` §8 (S4 Rekomendasi, S4 Disimpan, 8 kartu state, S5, S6, lebar ≤420 px). Overflow horizontal dicek lewat skrip di viewport 420 px: tidak ada selain rak tab yang memang bisa digeser. Disetujui PIC 2026-10-16.
 
 **Done when:** PIC menyetujui mockup.
 
