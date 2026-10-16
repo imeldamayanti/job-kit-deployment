@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "job-kit T27 spike",
+  "version": "0.0.1",
+  "description": "Spike T27 - bukan produk. Buang setelah selesai.",
+  "permissions": ["storage", "sidePanel", "scripting", "tabs", "offscreen"],
+  "optional_host_permissions": ["*://*/*"],
+  "background": { "service_worker": "sw.js" },
+  "options_page": "options.html",
+  "side_panel": { "default_path": "panel.html" },
+  "action": { "default_title": "T27 spike" }
+}

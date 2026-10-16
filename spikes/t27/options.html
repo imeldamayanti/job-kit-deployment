@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>T27 spike</title>
+<style>body{font:14px system-ui;max-width:860px;margin:24px auto;padding:0 16px}button{margin:4px 4px 4px 0;padding:6px 10px}pre{background:#f4f5f7;padding:12px;overflow:auto;max-height:420px}</style>
+<h2>job-kit T27 spike</h2>
+<p><b>1.</b> Tanpa izin host (cek apakah fetch dari service worker jalan tanpa izin):</p>
+<button data-src="greenhouse">Greenhouse</button><button data-src="lever">Lever</button><button data-src="ashby">Ashby</button><button data-src="remotive">Remotive</button><button id="li1">LinkedIn 3 halaman</button>
+<p><b>2.</b> Minta izin host dari halaman ini (klik = user gesture):</p>
+<button id="perm">Minta izin 5 domain + api.anthropic.com</button> <button id="has">Cek izin</button>
+<p><b>3.</b> Ulangi langkah 1 setelah izin diberikan. <button id="all">Jalankan semua sumber</button> <button id="li5">LinkedIn 8 halaman</button></p>
+<p><b>4.</b> AI (kunci tidak disimpan, hanya dikirim sekali): <input id="key" type="password" placeholder="kunci API" size="30"> <input id="model" value="claude-haiku-5-5" size="20"> <button id="ai">Tes AI</button></p>
+<p><b>5.</b> Side panel dari options: <button id="sp1">Buka tab baru + sidePanel.open (tabId)</button> <button id="sp2">sidePanel.open (windowId, tab aktif lain)</button></p>
+<pre id="out">hasil muncul di sini</pre>
+<script src="options.js"></script>
