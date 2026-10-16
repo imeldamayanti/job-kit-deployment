@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyProfile } from '../profile/profile'
 import type { Profile } from '../profile/types'
+import { EMPTY_APPLICATION_DATA, type Application, type ApplicationData } from '../applications/types'
 import { buildExport } from './export'
-import { applyImport, diffImport, eventForImportFile, mergeProfile, parseImport, summarizeImport } from './import'
+import { applyImport, diffApplications, diffImport, eventForImportFile, mergeProfile, parseImport, summarizeImport } from './import'
 
 const NOW = new Date('2026-10-10T08:00:00Z')
 
@@ -10,6 +11,15 @@ function profileWith(change: (profile: Profile) => void): Profile {
   const profile = createEmptyProfile()
   change(profile)
   return profile
+}
+
+function application(id: string, jobId: string | null = `job-${id}`): Application {
+  const at = '2026-10-15T08:00:00.000Z'
+  return {
+    id, jobId, status: 'draft', cvId: null, letterId: null, followUpAt: null, notes: '', createdAt: at, updatedAt: at,
+    job: { title: `Judul ${id}`, company: `PT ${id}`, url: `https://x.test/${id}`, source: 'lever', description: '', capturedAt: at },
+    events: [{ at, type: 'created' }],
+  }
 }
 
 const sample = profileWith((p) => {
@@ -25,7 +35,23 @@ const sample = profileWith((p) => {
 describe('parseImport', () => {
   it('reads a file produced by Export', () => {
     const result = parseImport(buildExport(sample, NOW))
-    expect(result).toEqual({ ok: true, profile: sample })
+    expect(result).toEqual({ ok: true, profile: sample, applications: EMPTY_APPLICATION_DATA })
+  })
+
+  it('reads the applications, CVs and letters of a version 3 file', () => {
+    const data = { applications: [application('a1')], cvs: [], letters: [] }
+    const result = parseImport(buildExport(sample, NOW, [], data))
+    expect(result).toEqual({ ok: true, profile: sample, applications: data })
+  })
+
+  it('says a version 1 or 2 file has no applications, so importing it cannot wipe the ones already here', () => {
+    const v2 = JSON.stringify({ app: 'job-kit', version: 2, profile: sample, jobs: [] })
+    expect(parseImport(v2)).toEqual({ ok: true, profile: sample, applications: null })
+  })
+
+  it('ignores applications that are malformed instead of refusing the whole file', () => {
+    const text = JSON.stringify({ app: 'job-kit', version: 3, profile: sample, applications: [{ id: 'x', status: 'ghosted' }, 'junk'], cvs: 7, letters: {} })
+    expect(parseImport(text)).toEqual({ ok: true, profile: sample, applications: EMPTY_APPLICATION_DATA })
   })
 
   it('rejects text that is not JSON', () => {
@@ -45,7 +71,7 @@ describe('parseImport', () => {
       p.jobPrefs.minSalary = '15000000'
     })
     const result = parseImport(buildExport(withPrefs, NOW))
-    expect(result).toEqual({ ok: true, profile: withPrefs })
+    expect(result).toEqual({ ok: true, profile: withPrefs, applications: EMPTY_APPLICATION_DATA })
   })
 
   it('still reads an older version 1 file that has no job preferences', () => {
@@ -59,8 +85,8 @@ describe('parseImport', () => {
   })
 
   it('rejects an unknown version and says which one', () => {
-    const text = JSON.stringify({ app: 'job-kit', version: 3, profile: sample })
-    expect(parseImport(text)).toEqual({ ok: false, reason: 'unknown-version', detail: '3' })
+    const text = JSON.stringify({ app: 'job-kit', version: 4, profile: sample })
+    expect(parseImport(text)).toEqual({ ok: false, reason: 'unknown-version', detail: '4' })
   })
 
   it('fills fields missing from an older file and drops unknown ones', () => {
@@ -221,11 +247,21 @@ describe('eventForImportFile', () => {
       fileName: 'job-kit-export.json',
       fileSize: 321,
       profile: sample,
+      applications: EMPTY_APPLICATION_DATA,
       changes: {
         merge: diffImport(createEmptyProfile(), sample, 'merge'),
         replace: diffImport(createEmptyProfile(), sample, 'replace'),
       },
     })
+  })
+
+  it('adds the application changes to the preview', () => {
+    const data: ApplicationData = { applications: [application('a1'), application('a2')], cvs: [], letters: [] }
+    const event = eventForImportFile(file, buildExport(sample, NOW, [], data), sample, EMPTY_APPLICATION_DATA)
+    if (event.type !== 'preview-import') throw new Error('expected a preview')
+    expect(event.applications).toEqual(data)
+    expect(event.changes.merge).toEqual([{ label: 'Lamaran', before: '0 lamaran', after: '2 lamaran' }])
+    expect(event.changes.replace).toEqual([{ label: 'Lamaran', before: '0 lamaran', after: '2 lamaran' }])
   })
 
   it('turns a bad file into a rejection that names the cause', () => {
@@ -235,5 +271,34 @@ describe('eventForImportFile', () => {
       reason: 'not-json',
       detail: '',
     })
+  })
+})
+
+describe('diffApplications', () => {
+  const two: ApplicationData = { applications: [application('a1'), application('a2')], cvs: [], letters: [] }
+  const one: ApplicationData = { applications: [application('a1')], cvs: [], letters: [] }
+
+  it('shows merge adding the applications that are new', () => {
+    expect(diffApplications(one, two, 'merge')).toEqual([{ label: 'Lamaran', before: '1 lamaran', after: '2 lamaran' }])
+  })
+
+  it('shows replace removing the ones the file does not have', () => {
+    expect(diffApplications(two, one, 'replace')).toEqual([{ label: 'Lamaran', before: '2 lamaran', after: '1 lamaran' }])
+  })
+
+  it('is empty when nothing would change, and when the file has no applications at all', () => {
+    expect(diffApplications(one, one, 'merge')).toEqual([])
+    expect(diffApplications(two, null, 'replace')).toEqual([])
+  })
+
+  it('shows a replace that swaps one application for another', () => {
+    const other: ApplicationData = { applications: [application('b1')], cvs: [], letters: [] }
+    expect(diffApplications(one, other, 'replace')).toEqual([{ label: 'Lamaran', before: '1 lamaran', after: '1 lamaran' }])
+  })
+})
+
+describe('summarizeImport with applications', () => {
+  it('counts the applications that were added', () => {
+    expect(summarizeImport(sample, sample, 3)).toEqual({ title: '3 entri diimpor', detail: '3 lamaran ditambah.' })
   })
 })

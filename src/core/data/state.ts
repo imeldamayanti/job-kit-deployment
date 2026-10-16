@@ -1,3 +1,4 @@
+import type { ApplicationData } from '../applications/types'
 import { defaultSelection, toggleSelection, type CvRow } from '../cv/preview'
 import type { CvDraft, UnparsedBlock } from '../cv/types'
 import type { Profile } from '../profile/types'
@@ -32,6 +33,7 @@ export type DataState =
       fileSize: number
       mode: ImportMode
       profile: Profile
+      applications: ApplicationData | null
       changes: Record<ImportMode, ImportChange[]>
     }
   | { kind: 'import-error'; fileName: string; reason: ImportErrorReason; detail: string }
@@ -39,7 +41,14 @@ export type DataState =
   | { kind: 'done'; title: string; detail: string }
 
 export type DataEvent =
-  | { type: 'preview-import'; fileName: string; fileSize: number; profile: Profile; changes: Record<ImportMode, ImportChange[]> }
+  | {
+      type: 'preview-import'
+      fileName: string
+      fileSize: number
+      profile: Profile
+      applications: ApplicationData | null
+      changes: Record<ImportMode, ImportChange[]>
+    }
   | { type: 'start-parsing'; fileName: string }
   | { type: 'preview-cv'; fileName: string; fileSize: number; draft: CvDraft; rows: CvRow[]; unparsed: UnparsedBlock[] }
   | { type: 'toggle-field'; id: string }
@@ -66,6 +75,7 @@ export function reduceData(state: DataState, event: DataEvent): DataState {
         fileSize: event.fileSize,
         mode: 'merge',
         profile: event.profile,
+        applications: event.applications,
         changes: event.changes,
       }
     case 'start-parsing':

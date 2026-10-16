@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fakeBrowser } from 'wxt/testing/fake-browser'
-import { openEditProfile } from './navigation'
+import { openApplicationPage, openEditProfile } from './navigation'
 
 describe('openEditProfile', () => {
   beforeEach(() => {
@@ -24,5 +24,19 @@ describe('openEditProfile', () => {
     await openEditProfile('contact')
 
     expect(create).toHaveBeenCalledWith({ url: expect.stringMatching(/\/options\.html#contact$/) })
+  })
+})
+
+describe('openApplicationPage (Lihat lamaran)', () => {
+  beforeEach(() => {
+    fakeBrowser.reset()
+  })
+
+  it('opens the options page on the detail of that application', async () => {
+    const create = vi.spyOn(fakeBrowser.tabs, 'create')
+
+    await openApplicationPage('app-123')
+
+    expect(create).toHaveBeenCalledWith({ url: expect.stringMatching(/\/options\.html#applications\/app-123$/) })
   })
 })

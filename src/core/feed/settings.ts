@@ -4,11 +4,18 @@ import { JOB_SOURCE_IDS, type JobSourceId } from './types'
 export const ATS_SOURCES = ['greenhouse', 'lever', 'ashby'] as const
 export type AtsSource = (typeof ATS_SOURCES)[number]
 
-export const AI_PROVIDERS = ['anthropic', 'opencode-zen'] as const
+export const AI_PROVIDERS = ['anthropic', 'gemini', 'opencode-zen'] as const
 export type AiProvider = (typeof AI_PROVIDERS)[number]
 
-export const DEFAULT_MODELS: Record<AiProvider, string> = { anthropic: 'claude-haiku-5-5', 'opencode-zen': 'space-bunny-free' }
+export const DEFAULT_MODELS: Record<AiProvider, string> = {
+  anthropic: 'claude-haiku-5-5',
+  gemini: 'gemini-3.5-flash-lite',
+  'opencode-zen': 'space-bunny-free',
+}
 export const DEFAULT_TIME = '08:00'
+// Calls a day for CVs and letters (FR-46), apart from the 50 for scoring jobs.
+export const DEFAULT_DOCUMENT_LIMIT = 20
+export const MAX_DOCUMENT_LIMIT = 200
 
 // Zen free models the docs promise are not kept or trained on; every other model there may be.
 const ZEN_PRIVATE_MODELS = ['space-bunny-free', 'longcat-2.5-preview-free', 'step-5-preview-free']
@@ -20,6 +27,8 @@ export type FeedSettings = {
   // Local time of the daily run, HH:MM.
   fetchTime: string
   ai: { provider: AiProvider; model: string }
+  // Most CVs and letters the AI may write in one day.
+  documentLimit: number
 }
 
 const ORIGINS: Record<JobSourceId, string[]> = {
@@ -32,6 +41,7 @@ const ORIGINS: Record<JobSourceId, string[]> = {
 
 const AI_ORIGINS: Record<AiProvider, string[]> = {
   anthropic: ['https://api.anthropic.com/*'],
+  gemini: ['https://generativelanguage.googleapis.com/*'],
   'opencode-zen': ['https://opencode.ai/*'],
 }
 
@@ -46,6 +56,7 @@ export function createDefaultSettings(): FeedSettings {
     companies: { greenhouse: [], lever: [], ashby: [] },
     fetchTime: DEFAULT_TIME,
     ai: { provider: 'anthropic', model: DEFAULT_MODELS.anthropic },
+    documentLimit: DEFAULT_DOCUMENT_LIMIT,
   }
 }
 
@@ -64,6 +75,11 @@ export function setCompanies(settings: FeedSettings, source: AtsSource, names: s
   return { ...settings, companies: { ...settings.companies, [source]: clean } }
 }
 
+// A whole number from 1 to 200; anything else is the default (a settings file from before T48 has none).
+export function normalizeDocumentLimit(value: unknown): number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= MAX_DOCUMENT_LIMIT ? value : DEFAULT_DOCUMENT_LIMIT
+}
+
 // Reads what was stored, keeping only what this version knows.
 export function normalizeSettings(raw: unknown): FeedSettings {
   const base = createDefaultSettings()
@@ -80,6 +96,7 @@ export function normalizeSettings(raw: unknown): FeedSettings {
     ) as FeedSettings['companies'],
     fetchTime: typeof source.fetchTime === 'string' && isValidTime(source.fetchTime) ? source.fetchTime : DEFAULT_TIME,
     ai: { provider, model: typeof ai.model === 'string' && ai.model.trim() !== '' ? ai.model.trim() : DEFAULT_MODELS[provider] },
+    documentLimit: normalizeDocumentLimit(source.documentLimit),
   }
 }
 

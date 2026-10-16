@@ -1,37 +1,46 @@
 import { sectionFromHash, type SectionId } from '../../core/profile/sections'
 
-// The sidebar has three places; the profile sections are tabs inside Profile (T28).
-export type PageId = 'profile' | 'jobs' | 'data'
-export type Route = { page: PageId; section: SectionId; settings: boolean }
+// The sidebar has four places; the profile sections are tabs inside Profile (T28). Lamaran has a
+// board and, behind it, the detail of one application (a sub-page, not a place in the sidebar).
+export type PageId = 'profile' | 'jobs' | 'applications' | 'data'
+export type Route = { page: PageId; section: SectionId; settings: boolean; applicationId: string | null }
 
 export const NAV_ITEMS: readonly { id: PageId; title: string }[] = [
   { id: 'profile', title: 'Profile' },
   { id: 'jobs', title: 'Lowongan' },
+  { id: 'applications', title: 'Lamaran' },
   { id: 'data', title: 'Data' },
 ]
 
-export const profileRoute = (section: SectionId): Route => ({ page: 'profile', section, settings: false })
-export const jobsRoute = (settings = false): Route => ({ page: 'jobs', section: 'personal', settings })
-export const dataRoute: Route = { page: 'data', section: 'personal', settings: false }
+const route = (page: PageId, extra: Partial<Route> = {}): Route => ({ page, section: 'personal', settings: false, applicationId: null, ...extra })
+
+export const profileRoute = (section: SectionId): Route => route('profile', { section })
+export const jobsRoute = (settings = false): Route => route('jobs', { settings })
+export const applicationsRoute = (): Route => route('applications')
+export const applicationRoute = (applicationId: string): Route => route('applications', { applicationId })
+export const dataRoute: Route = route('data')
 
 // Old links such as #contact keep working: they open Profile on that tab.
 export function routeFromHash(hash: string): Route {
-  const base = hash.replace(/^#/, '').split('?')[0]
+  const base = hash.replace(/^#/, '').split('?')[0] ?? ''
   if (base === 'data') return dataRoute
   if (base === 'jobs') return jobsRoute()
   if (base === 'jobsettings') return jobsRoute(true)
+  if (base === 'applications') return applicationsRoute()
+  if (base.startsWith('applications/')) return applicationRoute(base.slice('applications/'.length))
   return profileRoute(sectionFromHash(hash))
 }
 
-export function routeTitle(route: Route): string {
-  if (route.page === 'jobs') return route.settings ? 'Atur Lowongan' : 'Lowongan'
-  return NAV_ITEMS.find((item) => item.id === route.page)?.title ?? ''
+export function routeTitle(current: Route): string {
+  if (current.page === 'jobs') return current.settings ? 'Atur Lowongan' : 'Lowongan'
+  return NAV_ITEMS.find((item) => item.id === current.page)?.title ?? ''
 }
 
-export function routeSubtitle(route: Route): string {
-  if (route.page === 'jobs') return route.settings ? 'Sumber, jadwal, dan penilaian AI untuk lowongan harian.' : 'Lowongan yang cocok dengan profilmu, diambil tiap hari.'
-  if (route.page === 'data') return 'Cadangkan profilmu, atau mulai dari awal.'
-  return route.section === 'preferences'
+export function routeSubtitle(current: Route): string {
+  if (current.page === 'jobs') return current.settings ? 'Sumber, jadwal, dan penilaian AI untuk lowongan harian.' : 'Lowongan yang cocok dengan profilmu, diambil tiap hari.'
+  if (current.page === 'applications') return 'Semua lowongan yang kamu lamar, dari draf sampai hasil akhir.'
+  if (current.page === 'data') return 'Cadangkan profilmu, atau mulai dari awal.'
+  return current.section === 'preferences'
     ? 'Dipakai untuk mencarikan dan menilai lowongan harian. Tidak dipakai saat mengisi form.'
     : 'Data yang dipakai untuk mengisi form lamaran. Tersimpan otomatis.'
 }

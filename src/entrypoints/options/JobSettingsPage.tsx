@@ -12,6 +12,8 @@ import {
   setCompanies,
   setSourceEnabled,
   zenMayTrainOn,
+  MAX_DOCUMENT_LIMIT,
+  normalizeDocumentLimit,
   type AiProvider,
   type AtsSource,
   type FeedSettings,
@@ -42,6 +44,7 @@ type Notice = { kind: 'warn' | 'ok' | 'bad'; text: string }
 
 const PROVIDER_TEXT: Record<AiProvider, { name: string; keyHint: string }> = {
   anthropic: { name: 'Anthropic', keyHint: 'sk-ant-…' },
+  gemini: { name: 'Google Gemini', keyHint: 'Kunci dari aistudio.google.com' },
   'opencode-zen': { name: 'OpenCode Zen', keyHint: 'Kunci dari opencode.ai/zen' },
 }
 
@@ -118,7 +121,7 @@ export function JobSettingsPage({
       if (!ok) return setTest({ kind: 'bad', text: aiErrorMessage('no-permission') })
       setTest('running')
       try {
-        await createAiClient(settings.ai.provider).complete({ key: aiKey, model: settings.ai.model, system: '', user: 'Balas satu kata: ok', maxTokens: 10 })
+        await createAiClient(settings.ai.provider).complete({ key: aiKey, model: settings.ai.model, system: '', user: 'Balas satu kata: ok', maxTokens: 128 })
         setTest({ kind: 'ok', text: 'Tersambung. Model menjawab dengan benar.' })
       } catch (error) {
         const reason: AiFailure = error instanceof AiError ? error.reason : 'network'
@@ -237,6 +240,9 @@ export function JobSettingsPage({
             </Select>
             <TextField label="Model" value={settings.ai.model} onChange={(event) => update({ ...settings, ai: { ...settings.ai, model: event.target.value } })} />
           </div>
+          <div className="max-w-[260px]">
+            <DocumentLimitField value={settings.documentLimit} onChange={(documentLimit) => update({ ...settings, documentLimit })} />
+          </div>
           <div>
             <TextField
               label="Kunci API"
@@ -257,6 +263,9 @@ export function JobSettingsPage({
             </Button>
           </div>
           {test && test !== 'running' && <Alert notice={test} />}
+          {settings.ai.provider === 'gemini' && (
+            <Alert notice={{ kind: 'warn', text: 'Di paket gratis, Google boleh memakai isi permintaan untuk memperbaiki produknya. Yang dikirim hanya data tanpa identitas, seperti dijelaskan di bawah.' }} />
+          )}
           {settings.ai.provider === 'opencode-zen' && zenMayTrainOn(settings.ai.model) && (
             <Alert
               notice={{
@@ -270,9 +279,34 @@ export function JobSettingsPage({
               <b>Yang dikirim ke penyedia AI:</b> role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe
               kerja. Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim.
             </p>
+            <p className="mt-1.5">
+              <b>Untuk CV:</b> skill, butir deskripsi tiap pengalaman, judul jabatan, jenjang dan jurusan, serta teks lowongan. Nama perusahaan dan kampus
+              diganti kode lalu dipulihkan di browser ini; nama, kontak, tautan, dan IPK tidak dikirim.
+            </p>
           </div>
         </div>
       </SectionCard>
+    </div>
+  )
+}
+
+// Typed freely, kept only when it is a whole number in range; the box shows the saved value again when it loses focus.
+function DocumentLimitField({ value, onChange }: { value: number; onChange: (limit: number) => void }) {
+  const [text, setText] = useState(String(value))
+  return (
+    <div>
+      <TextField
+        label="Batas CV dan surat per hari"
+        inputMode="numeric"
+        value={text}
+        onChange={(event) => {
+          setText(event.target.value)
+          const next = Number(event.target.value)
+          if (event.target.value.trim() !== '' && normalizeDocumentLimit(next) === next) onChange(next)
+        }}
+        onBlur={() => setText(String(value))}
+      />
+      <p className="mt-1.5 text-[12px] text-text-secondary">1 sampai {MAX_DOCUMENT_LIMIT}. Tiap CV atau surat memakai 1 panggilan AI, terpisah dari penilaian lowongan. Kembali tengah malam.</p>
     </div>
   )
 }

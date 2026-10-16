@@ -1,3 +1,5 @@
+import { applyApplicationData, normalizeApplicationData } from '../applications/data'
+import { EMPTY_APPLICATION_DATA, type ApplicationData } from '../applications/types'
 import {
   addListItem,
   countJobPreferences,
@@ -14,7 +16,10 @@ import {
 } from '../profile/types'
 import type { DataEvent, ImportChange, ImportErrorReason, ImportMode } from './state'
 
-export type ParsedImport = { ok: true; profile: Profile } | { ok: false; reason: ImportErrorReason; detail: string }
+// `applications` is null for a version 1 or 2 file, which has none: importing it must not touch the applications already here.
+export type ParsedImport =
+  | { ok: true; profile: Profile; applications: ApplicationData | null }
+  | { ok: false; reason: ImportErrorReason; detail: string }
 
 type Loose = Record<string, unknown>
 
@@ -83,10 +88,14 @@ export function parseImport(source: string): ParsedImport {
   if (!isRecord(data) || data.app !== 'job-kit' || !isRecord(data.profile)) {
     return { ok: false, reason: 'wrong-shape', detail: '' }
   }
-  if (data.version !== 1 && data.version !== 2) {
+  if (data.version !== 1 && data.version !== 2 && data.version !== 3) {
     return { ok: false, reason: 'unknown-version', detail: String(data.version) }
   }
-  return { ok: true, profile: normalizeProfile(data.profile) }
+  return {
+    ok: true,
+    profile: normalizeProfile(data.profile),
+    applications: data.version === 3 ? normalizeApplicationData(data) : null,
+  }
 }
 
 const norm = (value: string) => value.trim().toLowerCase()
@@ -193,6 +202,15 @@ export function diffImport(current: Profile, incoming: Profile, mode: ImportMode
   return changes
 }
 
+const plural = (count: number) => `${count} lamaran`
+
+// "Lamaran" row of the import preview. Empty when the result would be the same as what is here.
+export function diffApplications(current: ApplicationData, incoming: ApplicationData | null, mode: ImportMode): ImportChange[] {
+  const next = applyApplicationData(current, incoming, mode)
+  if (same(current, next)) return []
+  return [{ label: 'Lamaran', before: plural(current.applications.length), after: plural(next.applications.length) }]
+}
+
 function changedFields(before: Record<string, string>, after: Record<string, string>): number {
   return Object.keys(after).filter((key) => (after[key] ?? '').trim() !== '' && after[key] !== before[key]).length
 }
@@ -203,13 +221,14 @@ function addedEntries<T>(before: T[], after: T[], keyOf: (item: T) => string): n
 }
 
 // The numbers shown on the "done" screen after an import.
-export function summarizeImport(before: Profile, after: Profile): { title: string; detail: string } {
+export function summarizeImport(before: Profile, after: Profile, applicationsAdded = 0): { title: string; detail: string } {
   const fields = changedFields(before.personal, after.personal) + changedFields(before.contact, after.contact)
   const lists: [number, string][] = [
     [addedEntries(before.education, after.education, educationKey), 'pendidikan'],
     [addedEntries(before.experience, after.experience, experienceKey), 'pengalaman'],
     [addedEntries(before.skills, after.skills, skillKey), 'skill'],
     [addedEntries(before.custom, after.custom, customKey), 'custom field'],
+    [applicationsAdded, 'lamaran'],
   ]
   const prefs = Math.max(0, countJobPreferences(after.jobPrefs) - countJobPreferences(before.jobPrefs))
   const added = lists.filter(([count]) => count > 0)
@@ -229,6 +248,7 @@ export function eventForImportFile(
   file: { name: string; size: number },
   content: string,
   current: Profile,
+  currentApplications: ApplicationData = EMPTY_APPLICATION_DATA,
 ): Extract<DataEvent, { type: 'preview-import' | 'reject-import' }> {
   const parsed = parseImport(content)
   if (!parsed.ok) {
@@ -239,9 +259,10 @@ export function eventForImportFile(
     fileName: file.name,
     fileSize: file.size,
     profile: parsed.profile,
+    applications: parsed.applications,
     changes: {
-      merge: diffImport(current, parsed.profile, 'merge'),
-      replace: diffImport(current, parsed.profile, 'replace'),
+      merge: [...diffImport(current, parsed.profile, 'merge'), ...diffApplications(currentApplications, parsed.applications, 'merge')],
+      replace: [...diffImport(current, parsed.profile, 'replace'), ...diffApplications(currentApplications, parsed.applications, 'replace')],
     },
   }
 }

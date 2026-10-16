@@ -43,6 +43,7 @@ export const PREVIEW_STATES: Record<string, DataState> = {
     fileSize: 4300,
     mode: 'merge',
     profile: createEmptyProfile(),
+    applications: null,
     changes: {
       merge: [
         { label: 'Personal Info', before: '2 field', after: '5 field' },

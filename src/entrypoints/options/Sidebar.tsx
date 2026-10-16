@@ -1,6 +1,12 @@
 import { Logo } from '../../ui/primitives/Logo'
 import { NAV_ITEMS, type PageId } from './pages'
 
+// What a badge counts, spoken for screen readers. Lamaran counts follow-ups that are due, not applications.
+const BADGE_LABEL: Partial<Record<PageId, (count: number) => string>> = {
+  jobs: (count) => `${count} lowongan baru`,
+  applications: (count) => `${count} perlu tindak lanjut`,
+}
+
 export function Sidebar({
   current,
   onSelect,
@@ -34,7 +40,7 @@ export function Sidebar({
             {title}
             {(badges[id] ?? 0) > 0 && (
               <span
-                aria-label={`${badges[id]} lowongan baru`}
+                aria-label={BADGE_LABEL[id]?.(badges[id] ?? 0)}
                 className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold leading-none text-amber-700"
               >
                 {badges[id]}

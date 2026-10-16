@@ -112,3 +112,69 @@ describe('buildPlan', () => {
     expect(plan.items[0]?.value).toBe("Bachelor's Degree")
   })
 })
+
+describe('buildPlan: cover letter (T52)', () => {
+  const LETTER = 'Yth. Tim Rekrutmen,\n\nSaya melamar posisi ini.\n\nHormat saya,\nImelda Wijaya'
+  const area = (label: string, change = {}) => ({ id: 'f0', label, multiline: true, ...change })
+
+  it('fills a cover letter textarea from the letter of the linked application', () => {
+    const plan = buildPlan([area('Cover Letter')], withContact, { coverLetter: LETTER })
+    expect(plan.items).toEqual([{ fieldId: 'f0', label: 'Cover Letter', key: 'coverLetter', value: LETTER, hasExistingText: false }])
+    expect(plan.matched).toBe(1)
+  })
+
+  it('reads "Surat lamaran" and "Letter of motivation" the same way', () => {
+    for (const label of ['Surat lamaran', 'Letter of motivation']) {
+      expect(buildPlan([area(label)], withContact, { coverLetter: LETTER }).items.map((i) => i.key)).toEqual(['coverLetter'])
+    }
+  })
+
+  it('skips the field when there is no letter: the Profile cannot answer it, so it is not "Profil belum punya"', () => {
+    for (const documents of [undefined, {}, { coverLetter: '' }, { coverLetter: '  ' }]) {
+      const plan = buildPlan([area('Cover Letter')], withContact, documents)
+      expect(plan.items).toEqual([])
+      expect(plan.missing).toEqual([])
+      expect(plan.skipped).toEqual([{ fieldId: 'f0', label: 'Cover Letter' }])
+      expect(plan.matched).toBe(0)
+    }
+  })
+
+  it('skips a single-line input with that label: a letter does not fit there', () => {
+    const plan = buildPlan([{ id: 'f0', label: 'Surat lamaran', multiline: false }, { id: 'f1', label: 'Cover letter' }], withContact, { coverLetter: LETTER })
+    expect(plan.items).toEqual([])
+    expect(plan.skipped.map((s) => s.fieldId)).toEqual(['f0', 'f1'])
+  })
+
+  it('leaves an essay textarea alone even when a letter exists', () => {
+    const plan = buildPlan([area('Why do you want to work here?')], withContact, { coverLetter: LETTER })
+    expect(plan.items).toEqual([])
+    expect(plan.skipped).toHaveLength(1)
+  })
+
+  it('marks a textarea that already has text, so the panel asks before overwriting', () => {
+    const plan = buildPlan([area('Cover Letter', { hasText: true })], withContact, { coverLetter: LETTER })
+    expect(plan.items[0]?.hasExistingText).toBe(true)
+  })
+
+  it('does not change how other fields are filled', () => {
+    const plan = buildPlan([{ id: 'f0', label: 'Email' }, area('Cover Letter')].map((f, i) => ({ ...f, id: `f${i}` })), withContact, { coverLetter: LETTER })
+    expect(plan.items.map((i) => i.key)).toEqual(['email', 'coverLetter'])
+  })
+  it('carries "required" onto skipped and missing fields so the panel can say Wajib', () => {
+    const plan = buildPlan(
+      [
+        { id: 'f0', label: 'Referral *', required: true },
+        { id: 'f1', label: 'Catatan' },
+        { id: 'f2', label: 'Kota', required: true },
+        { id: 'f3', label: 'Email' },
+      ],
+      withContact,
+    )
+
+    expect(plan.skipped).toEqual([
+      { fieldId: 'f0', label: 'Referral *', required: true },
+      { fieldId: 'f1', label: 'Catatan' },
+    ])
+    expect(plan.missing).toEqual([{ fieldId: 'f2', label: 'Kota', key: 'city', required: true }])
+  })
+})

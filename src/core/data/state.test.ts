@@ -16,6 +16,7 @@ const preview: DataState = {
   fileSize: 4096,
   mode: 'merge',
   profile: createEmptyProfile(),
+  applications: null,
   changes,
 }
 
@@ -31,9 +32,10 @@ describe('reduceData', () => {
       fileName: 'a.json',
       fileSize: 10,
       profile,
+      applications: null,
       changes,
     })
-    expect(next).toEqual({ kind: 'import-preview', fileName: 'a.json', fileSize: 10, mode: 'merge', profile, changes })
+    expect(next).toEqual({ kind: 'import-preview', fileName: 'a.json', fileSize: 10, mode: 'merge', profile, applications: null, changes })
   })
 
   it('switches between merge and replace only while previewing', () => {

@@ -9,11 +9,19 @@ type PlanRowProps = {
   onOverwrite: (overwrite: boolean) => void
 }
 
+// Next to a field the form insists on and job-kit left for the user; the same field is outlined on the page (FR-20).
+export function RequiredBadge() {
+  return <span className="rounded-sm bg-amber-50 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700">Wajib</span>
+}
+
 function Pair({ item }: { item: PlanItem }) {
   return (
     <span className="flex flex-col">
       <span className="text-[12px] text-text-secondary">{item.label}</span>
-      <span className="break-words text-[13px] font-semibold text-text-primary">{item.value}</span>
+      <span className="line-clamp-3 break-words text-[13px] font-semibold text-text-primary">{item.value}</span>
+      {item.key === 'coverLetter' && (
+        <span className="mt-1 self-start rounded-sm bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold text-text-secondary">Dari Lamaran</span>
+      )}
     </span>
   )
 }

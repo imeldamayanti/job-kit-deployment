@@ -1,9 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { formatFillSummary, matchPercent } from './summary'
+import { formatFillSummary, formatMarkedNotice, matchPercent } from './summary'
 
 describe('formatFillSummary', () => {
   it('writes the result as in the screen spec', () => {
     expect(formatFillSummary(9, 1)).toBe('9 field terisi · 1 dilewati')
+  })
+})
+
+describe('formatMarkedNotice', () => {
+  it('says how many required fields are outlined on the page', () => {
+    expect(formatMarkedNotice(3)).toBe('3 field wajib belum terisi, sudah ditandai kuning di halaman.')
+  })
+
+  it('says nothing when none are outlined', () => {
+    expect(formatMarkedNotice(0)).toBeUndefined()
   })
 })
 

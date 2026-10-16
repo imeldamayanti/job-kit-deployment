@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { bannerText, openedFrom, shouldMarkApplied } from './opened'
+import type { Application } from '../applications/types'
+import { bannerText, openedFrom, openedFromApplication, shouldMarkApplied } from './opened'
 import type { Job } from './types'
 
 const job = (change: Partial<Job> = {}) => ({ id: 'j1', title: 'Frontend Engineer', score: null, ...change }) as Job
@@ -12,6 +13,22 @@ describe('openedFrom', () => {
 
   it('has no score when the job has none', () => {
     expect(openedFrom(job())).toEqual({ jobId: 'j1', title: 'Frontend Engineer', score: null, rough: false })
+  })
+})
+
+describe('openedFromApplication', () => {
+  const application = { id: 'a1', jobId: 'j1', job: { title: 'Salinan Judul' } } as Application
+
+  it('takes the title from the application, and the score from the job when the feed still has it', () => {
+    expect(openedFromApplication(application, job({ score: score(86) }))).toEqual({ jobId: 'j1', applicationId: 'a1', title: 'Salinan Judul', score: 86, rough: false })
+  })
+
+  it('still works when the feed has pruned the job: no score, same job id', () => {
+    expect(openedFromApplication(application, undefined)).toEqual({ jobId: 'j1', applicationId: 'a1', title: 'Salinan Judul', score: null, rough: false })
+  })
+
+  it('has an empty job id for an application that is not tied to a feed job, but still names the application', () => {
+    expect(openedFromApplication({ ...application, jobId: null }, undefined)).toMatchObject({ jobId: '', applicationId: 'a1' })
   })
 })
 

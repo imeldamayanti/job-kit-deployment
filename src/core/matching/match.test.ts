@@ -65,6 +65,21 @@ describe('matchField by label', () => {
   })
 })
 
+describe('matchField for the cover letter (T52)', () => {
+  it('knows the three labels of a cover letter, in English and Indonesian', () => {
+    expect(matchField({ label: 'Cover letter' })).toBe('coverLetter')
+    expect(matchField({ label: 'Cover Letter (optional)' })).toBe('coverLetter')
+    expect(matchField({ label: 'Surat lamaran' })).toBe('coverLetter')
+    expect(matchField({ label: 'Letter of motivation' })).toBe('coverLetter')
+  })
+
+  it('leaves essays and other long answers alone', () => {
+    expect(matchField({ label: 'Why do you want to work here?' })).toBeNull()
+    expect(matchField({ label: 'Tell us about yourself' })).toBeNull()
+    expect(matchField({ label: 'Cover note' })).toBeNull()
+  })
+})
+
 describe('matchField by autocomplete', () => {
   it('uses the autocomplete token when present', () => {
     expect(matchField({ label: 'Field 7', autocomplete: 'given-name' })).toBe('firstName')

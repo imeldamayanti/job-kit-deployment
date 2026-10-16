@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>Frontend Engineer, PT Contoh Karya - Apply (fixture)</title></head>
+  <body>
+    <!-- Mirrors the shape of a Greenhouse application: text fields, a CV upload, a cover letter textarea, and an essay. -->
+    <form id="application_form">
+      <label for="first_name">First Name</label>
+      <input id="first_name" name="first_name" type="text" />
+
+      <label for="last_name">Last Name</label>
+      <input id="last_name" name="last_name" type="text" />
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" />
+
+      <label for="resume">Resume/CV</label>
+      <input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx" />
+
+      <label for="cover_letter">Cover Letter</label>
+      <textarea id="cover_letter" name="cover_letter" rows="8"></textarea>
+
+      <label for="cover_letter_file">Cover Letter (attach a file)</label>
+      <input id="cover_letter_file" name="cover_letter_file" type="file" />
+
+      <label for="why">Why do you want to work here?</label>
+      <textarea id="why" name="why" rows="4"></textarea>
+
+      <input type="submit" value="Submit Application" />
+    </form>
+  </body>
+</html>

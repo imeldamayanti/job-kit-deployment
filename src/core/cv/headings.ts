@@ -2,7 +2,7 @@ export type HeadingKind = 'education' | 'experience' | 'skills' | 'contact' | 'o
 
 // Section headings seen on Indonesian and English CVs, lower-case.
 const HEADINGS: Record<HeadingKind, string[]> = {
-  education: ['pendidikan', 'riwayat pendidikan', 'pendidikan formal', 'education', 'educational background', 'academic background'],
+  education: ['pendidikan', 'riwayat pendidikan', 'pendidikan formal', 'education', 'educations', 'educational background', 'academic background'],
   experience: [
     'pengalaman',
     'pengalaman kerja',
@@ -10,6 +10,11 @@ const HEADINGS: Record<HeadingKind, string[]> = {
     'pengalaman profesional',
     'pengalaman organisasi',
     'work experience',
+    'work experiences',
+    'experiences',
+    'professional experiences',
+    'internship',
+    'internships',
     'professional experience',
     'experience',
     'employment',

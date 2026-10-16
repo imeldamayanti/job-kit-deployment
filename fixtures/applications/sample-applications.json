@@ -1,0 +1,948 @@
+{
+  "app": "job-kit",
+  "version": 3,
+  "exportedAt": "2026-10-15T07:42:58.468Z",
+  "profile": {
+    "version": 2
+  },
+  "jobs": [],
+  "applications": [
+    {
+      "id": "sample-01",
+      "jobId": "sample-job-1",
+      "job": {
+        "title": "Frontend Engineer (React)",
+        "company": "PT Contoh Karya",
+        "source": "greenhouse",
+        "url": "https://example.test/sample/1",
+        "description": "Frontend Engineer (React) di PT Contoh Karya.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-05T03:00:00.000Z"
+      },
+      "status": "offer",
+      "cvId": "sample-01-cv",
+      "letterId": "sample-01-letter",
+      "followUpAt": null,
+      "notes": "Offer: gaji Rp 22 jt. Jawab paling lambat minggu depan.",
+      "events": [
+        {
+          "at": "2026-09-05T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-06T03:00:00.000Z",
+          "type": "cv"
+        },
+        {
+          "at": "2026-09-06T03:00:00.000Z",
+          "type": "letter"
+        },
+        {
+          "at": "2026-09-07T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-09-15T03:00:00.000Z",
+          "type": "status",
+          "from": "applied",
+          "to": "in-review"
+        },
+        {
+          "at": "2026-09-23T03:00:00.000Z",
+          "type": "status",
+          "from": "in-review",
+          "to": "interview"
+        },
+        {
+          "at": "2026-10-05T03:00:00.000Z",
+          "type": "status",
+          "from": "interview",
+          "to": "offer"
+        }
+      ],
+      "createdAt": "2026-09-05T03:00:00.000Z",
+      "updatedAt": "2026-10-05T03:00:00.000Z"
+    },
+    {
+      "id": "sample-02",
+      "jobId": "sample-job-2",
+      "job": {
+        "title": "Fullstack Engineer",
+        "company": "Sinar Data",
+        "source": "lever",
+        "url": "https://example.test/sample/2",
+        "description": "Fullstack Engineer di Sinar Data.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-15T03:00:00.000Z"
+      },
+      "status": "interview",
+      "cvId": "sample-02-cv",
+      "letterId": null,
+      "followUpAt": "2026-10-17",
+      "notes": "Interview teknis dengan Pak Dodi.",
+      "events": [
+        {
+          "at": "2026-09-15T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-16T03:00:00.000Z",
+          "type": "cv"
+        },
+        {
+          "at": "2026-09-17T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-09-25T03:00:00.000Z",
+          "type": "status",
+          "from": "applied",
+          "to": "in-review"
+        },
+        {
+          "at": "2026-10-09T03:00:00.000Z",
+          "type": "status",
+          "from": "in-review",
+          "to": "interview"
+        }
+      ],
+      "createdAt": "2026-09-15T03:00:00.000Z",
+      "updatedAt": "2026-10-09T03:00:00.000Z"
+    },
+    {
+      "id": "sample-03",
+      "jobId": "sample-job-3",
+      "job": {
+        "title": "Web Developer",
+        "company": "Studio Contoh",
+        "source": "lever",
+        "url": "https://example.test/sample/3",
+        "description": "Web Developer di Studio Contoh.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-10T03:00:00.000Z"
+      },
+      "status": "rejected",
+      "cvId": "sample-03-cv",
+      "letterId": "sample-03-letter",
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-10T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-11T03:00:00.000Z",
+          "type": "cv"
+        },
+        {
+          "at": "2026-09-11T03:00:00.000Z",
+          "type": "letter"
+        },
+        {
+          "at": "2026-09-12T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-09-20T03:00:00.000Z",
+          "type": "status",
+          "from": "applied",
+          "to": "in-review"
+        },
+        {
+          "at": "2026-09-27T03:00:00.000Z",
+          "type": "status",
+          "from": "in-review",
+          "to": "interview"
+        },
+        {
+          "at": "2026-10-03T03:00:00.000Z",
+          "type": "status",
+          "from": "interview",
+          "to": "rejected"
+        }
+      ],
+      "createdAt": "2026-09-10T03:00:00.000Z",
+      "updatedAt": "2026-10-03T03:00:00.000Z"
+    },
+    {
+      "id": "sample-04",
+      "jobId": "sample-job-4",
+      "job": {
+        "title": "UI Engineer",
+        "company": "Contoh Digital Nusantara",
+        "source": "ashby",
+        "url": "https://example.test/sample/4",
+        "description": "UI Engineer di Contoh Digital Nusantara.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-10-03T03:00:00.000Z"
+      },
+      "status": "in-review",
+      "cvId": "sample-04-cv",
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-10-03T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-10-04T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-10-04T03:00:00.000Z",
+          "type": "cv"
+        },
+        {
+          "at": "2026-10-11T03:00:00.000Z",
+          "type": "status",
+          "from": "applied",
+          "to": "in-review"
+        }
+      ],
+      "createdAt": "2026-10-03T03:00:00.000Z",
+      "updatedAt": "2026-10-11T03:00:00.000Z"
+    },
+    {
+      "id": "sample-05",
+      "jobId": "sample-job-5",
+      "job": {
+        "title": "Software Engineer, Web Platform",
+        "company": "Bumi Teknologi",
+        "source": "greenhouse",
+        "url": "https://example.test/sample/5",
+        "description": "Software Engineer, Web Platform di Bumi Teknologi.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-19T03:00:00.000Z"
+      },
+      "status": "rejected",
+      "cvId": null,
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-19T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-21T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-09-29T03:00:00.000Z",
+          "type": "status",
+          "from": "applied",
+          "to": "in-review"
+        },
+        {
+          "at": "2026-10-06T03:00:00.000Z",
+          "type": "status",
+          "from": "in-review",
+          "to": "rejected"
+        }
+      ],
+      "createdAt": "2026-09-19T03:00:00.000Z",
+      "updatedAt": "2026-10-06T03:00:00.000Z"
+    },
+    {
+      "id": "sample-06",
+      "jobId": "sample-job-6",
+      "job": {
+        "title": "Product Engineer",
+        "company": "Kita Studio",
+        "source": "ashby",
+        "url": "https://example.test/sample/6",
+        "description": "Product Engineer di Kita Studio.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-21T03:00:00.000Z"
+      },
+      "status": "rejected",
+      "cvId": "sample-06-cv",
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-21T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-22T03:00:00.000Z",
+          "type": "cv"
+        },
+        {
+          "at": "2026-09-23T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-10-01T03:00:00.000Z",
+          "type": "status",
+          "from": "applied",
+          "to": "in-review"
+        },
+        {
+          "at": "2026-10-08T03:00:00.000Z",
+          "type": "status",
+          "from": "in-review",
+          "to": "rejected"
+        }
+      ],
+      "createdAt": "2026-09-21T03:00:00.000Z",
+      "updatedAt": "2026-10-08T03:00:00.000Z"
+    },
+    {
+      "id": "sample-07",
+      "jobId": "sample-job-7",
+      "job": {
+        "title": "Frontend Engineer (Intern)",
+        "company": "Nusa Teknologi",
+        "source": "linkedin",
+        "url": "https://example.test/sample/7",
+        "description": "Frontend Engineer (Intern) di Nusa Teknologi.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-25T03:00:00.000Z"
+      },
+      "status": "rejected",
+      "cvId": null,
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-25T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-27T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-10-04T03:00:00.000Z",
+          "type": "status",
+          "from": "applied",
+          "to": "rejected"
+        }
+      ],
+      "createdAt": "2026-09-25T03:00:00.000Z",
+      "updatedAt": "2026-10-04T03:00:00.000Z"
+    },
+    {
+      "id": "sample-08",
+      "jobId": "sample-job-8",
+      "job": {
+        "title": "React Developer",
+        "company": "Bumi Mandiri",
+        "source": "remotive",
+        "url": "https://example.test/sample/8",
+        "description": "React Developer di Bumi Mandiri.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-17T03:00:00.000Z"
+      },
+      "status": "applied",
+      "cvId": "sample-08-cv",
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-17T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-18T03:00:00.000Z",
+          "type": "cv"
+        },
+        {
+          "at": "2026-09-19T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        }
+      ],
+      "createdAt": "2026-09-17T03:00:00.000Z",
+      "updatedAt": "2026-09-19T03:00:00.000Z"
+    },
+    {
+      "id": "sample-09",
+      "jobId": "sample-job-9",
+      "job": {
+        "title": "Senior Frontend Developer",
+        "company": "Contoh Remote Co",
+        "source": "remotive",
+        "url": "https://example.test/sample/9",
+        "description": "Senior Frontend Developer di Contoh Remote Co.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-13T03:00:00.000Z"
+      },
+      "status": "applied",
+      "cvId": "sample-09-cv",
+      "letterId": "sample-09-letter",
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-13T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-14T03:00:00.000Z",
+          "type": "cv"
+        },
+        {
+          "at": "2026-09-14T03:00:00.000Z",
+          "type": "letter"
+        },
+        {
+          "at": "2026-09-15T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        }
+      ],
+      "createdAt": "2026-09-13T03:00:00.000Z",
+      "updatedAt": "2026-09-15T03:00:00.000Z"
+    },
+    {
+      "id": "sample-10",
+      "jobId": "sample-job-10",
+      "job": {
+        "title": "Web Engineer",
+        "company": "Lintas Kode",
+        "source": "greenhouse",
+        "url": "https://example.test/sample/10",
+        "description": "Web Engineer di Lintas Kode.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-08-31T03:00:00.000Z"
+      },
+      "status": "applied",
+      "cvId": null,
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-08-31T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-03T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        }
+      ],
+      "createdAt": "2026-08-31T03:00:00.000Z",
+      "updatedAt": "2026-09-03T03:00:00.000Z"
+    },
+    {
+      "id": "sample-11",
+      "jobId": "sample-job-11",
+      "job": {
+        "title": "JavaScript Developer",
+        "company": "Aksara Pagi",
+        "source": "linkedin",
+        "url": "https://example.test/sample/11",
+        "description": "JavaScript Developer di Aksara Pagi.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-24T03:00:00.000Z"
+      },
+      "status": "applied",
+      "cvId": null,
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-24T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-09-25T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        }
+      ],
+      "createdAt": "2026-09-24T03:00:00.000Z",
+      "updatedAt": "2026-09-25T03:00:00.000Z"
+    },
+    {
+      "id": "sample-12",
+      "jobId": "sample-job-12",
+      "job": {
+        "title": "Frontend Developer",
+        "company": "Warung Digital",
+        "source": "lever",
+        "url": "https://example.test/sample/12",
+        "description": "Frontend Developer di Warung Digital.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-10-09T03:00:00.000Z"
+      },
+      "status": "applied",
+      "cvId": "sample-12-cv",
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-10-09T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-10-10T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "applied"
+        },
+        {
+          "at": "2026-10-10T03:00:00.000Z",
+          "type": "cv"
+        }
+      ],
+      "createdAt": "2026-10-09T03:00:00.000Z",
+      "updatedAt": "2026-10-10T03:00:00.000Z"
+    },
+    {
+      "id": "sample-13",
+      "jobId": "sample-job-13",
+      "job": {
+        "title": "Frontend Engineer",
+        "company": "Mitra Solusi",
+        "source": "greenhouse",
+        "url": "https://example.test/sample/13",
+        "description": "Frontend Engineer di Mitra Solusi.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-10-12T03:00:00.000Z"
+      },
+      "status": "draft",
+      "cvId": "sample-13-cv",
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-10-12T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-10-13T03:00:00.000Z",
+          "type": "cv"
+        }
+      ],
+      "createdAt": "2026-10-12T03:00:00.000Z",
+      "updatedAt": "2026-10-13T03:00:00.000Z"
+    },
+    {
+      "id": "sample-14",
+      "jobId": "sample-job-14",
+      "job": {
+        "title": "Mobile Web Developer",
+        "company": "Tanpa Teks Co",
+        "source": "lever",
+        "url": "https://example.test/sample/14",
+        "description": "",
+        "capturedAt": "2026-10-13T03:00:00.000Z"
+      },
+      "status": "draft",
+      "cvId": null,
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-10-13T03:00:00.000Z",
+          "type": "created"
+        }
+      ],
+      "createdAt": "2026-10-13T03:00:00.000Z",
+      "updatedAt": "2026-10-13T03:00:00.000Z"
+    },
+    {
+      "id": "sample-15",
+      "jobId": "sample-job-15",
+      "job": {
+        "title": "Design Engineer",
+        "company": "Lentera Kreatif",
+        "source": "ashby",
+        "url": "https://example.test/sample/15",
+        "description": "Design Engineer di Lentera Kreatif.\nMembangun antarmuka web dengan React dan TypeScript.\nKerja sama dengan tim produk dan desain.",
+        "capturedAt": "2026-09-30T03:00:00.000Z"
+      },
+      "status": "withdrawn",
+      "cvId": null,
+      "letterId": null,
+      "followUpAt": null,
+      "notes": "",
+      "events": [
+        {
+          "at": "2026-09-30T03:00:00.000Z",
+          "type": "created"
+        },
+        {
+          "at": "2026-10-07T03:00:00.000Z",
+          "type": "status",
+          "from": "draft",
+          "to": "withdrawn"
+        }
+      ],
+      "createdAt": "2026-09-30T03:00:00.000Z",
+      "updatedAt": "2026-10-07T03:00:00.000Z"
+    }
+  ],
+  "cvs": [
+    {
+      "id": "sample-01-cv",
+      "applicationId": "sample-01",
+      "createdAt": "2026-09-06T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-02-cv",
+      "applicationId": "sample-02",
+      "createdAt": "2026-09-16T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-03-cv",
+      "applicationId": "sample-03",
+      "createdAt": "2026-09-11T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-04-cv",
+      "applicationId": "sample-04",
+      "createdAt": "2026-10-04T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-06-cv",
+      "applicationId": "sample-06",
+      "createdAt": "2026-09-22T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-08-cv",
+      "applicationId": "sample-08",
+      "createdAt": "2026-09-18T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-09-cv",
+      "applicationId": "sample-09",
+      "createdAt": "2026-09-14T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-12-cv",
+      "applicationId": "sample-12",
+      "createdAt": "2026-10-10T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    },
+    {
+      "id": "sample-13-cv",
+      "applicationId": "sample-13",
+      "createdAt": "2026-10-13T03:00:00.000Z",
+      "profileHash": "sample",
+      "skills": [
+        "TypeScript",
+        "React"
+      ],
+      "experience": [],
+      "education": [],
+      "coverage": {
+        "required": [
+          "React",
+          "TypeScript",
+          "GraphQL"
+        ],
+        "covered": [
+          "React",
+          "TypeScript"
+        ],
+        "missing": [
+          "GraphQL"
+        ]
+      },
+      "edited": false,
+      "aiVersion": {
+        "skills": [
+          "TypeScript",
+          "React"
+        ],
+        "experience": [],
+        "education": []
+      }
+    }
+  ],
+  "letters": [
+    {
+      "id": "sample-01-letter",
+      "applicationId": "sample-01",
+      "createdAt": "2026-09-06T03:00:00.000Z",
+      "profileHash": "sample",
+      "lang": "id",
+      "tone": "formal",
+      "body": "Yth. Tim Rekrutmen,\n\n(Surat contoh.)",
+      "aiBody": "Yth. Tim Rekrutmen,\n\n(Surat contoh.)",
+      "edited": false
+    },
+    {
+      "id": "sample-03-letter",
+      "applicationId": "sample-03",
+      "createdAt": "2026-09-11T03:00:00.000Z",
+      "profileHash": "sample",
+      "lang": "id",
+      "tone": "formal",
+      "body": "Yth. Tim Rekrutmen,\n\n(Surat contoh.)",
+      "aiBody": "Yth. Tim Rekrutmen,\n\n(Surat contoh.)",
+      "edited": false
+    },
+    {
+      "id": "sample-09-letter",
+      "applicationId": "sample-09",
+      "createdAt": "2026-09-14T03:00:00.000Z",
+      "profileHash": "sample",
+      "lang": "id",
+      "tone": "formal",
+      "body": "Yth. Tim Rekrutmen,\n\n(Surat contoh.)",
+      "aiBody": "Yth. Tim Rekrutmen,\n\n(Surat contoh.)",
+      "edited": false
+    }
+  ]
+}

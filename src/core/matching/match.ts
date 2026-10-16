@@ -1,12 +1,14 @@
 import type { ContactKey, PersonalKey } from '../profile/types'
 
-export type MatchKey = 'fullName' | 'educationLevel' | PersonalKey | ContactKey | `custom:${string}`
+// 'coverLetter' is answered by the cover letter of the linked application, not by the Profile (FR-44).
+export type MatchKey = 'fullName' | 'educationLevel' | 'coverLetter' | PersonalKey | ContactKey | `custom:${string}`
 
 type Rule = { key: MatchKey; phrases: string[]; exact?: string[] }
 
 // Order matters: the first rule that matches wins, so specific keys come before generic ones
 // ("alamat email" must reach email before street).
 const RULES: Rule[] = [
+  { key: 'coverLetter', phrases: ['cover letter', 'surat lamaran', 'letter of motivation'] },
   { key: 'email', phrases: ['email', 'e mail', 'surel'] },
   { key: 'linkedin', phrases: ['linkedin'] },
   { key: 'website', phrases: ['website', 'portfolio', 'situs web'] },

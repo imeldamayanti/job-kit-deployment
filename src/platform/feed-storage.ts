@@ -41,7 +41,12 @@ export async function saveSettings(settings: FeedSettings): Promise<SaveOutcome>
 }
 
 export const loadAiKey = () => keyItem.getValue()
-export const saveAiKey = (key: string) => keyItem.setValue(key.trim())
+// A new key may fix what the provider complained about, so the stored problem is cleared and the next try decides.
+export async function saveAiKey(key: string): Promise<void> {
+  await keyItem.setValue(key.trim())
+  const state = await loadState()
+  if (state.aiProblem !== null) await saveState({ ...state, aiProblem: null })
+}
 
 // Hapus semua: the feed goes with the profile.
 export async function clearFeedData(): Promise<void> {

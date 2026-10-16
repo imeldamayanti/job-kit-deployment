@@ -101,7 +101,9 @@ export function ImportPreview({
       <p className="text-[12px] text-text-secondary">
         {state.mode === 'merge'
           ? 'Gabung menambah data dari berkas tanpa menimpa yang sudah ada.'
-          : 'Ganti menimpa seluruh profil dengan isi berkas.'}
+          : state.applications === null
+            ? 'Ganti menimpa seluruh profil dengan isi berkas. Berkas ini dibuat sebelum ada fitur Lamaran, jadi lamaranmu tidak berubah.'
+            : 'Ganti menimpa seluruh profil dan semua lamaran dengan isi berkas.'}
       </p>
       <div className="flex items-center justify-end gap-3">
         <Button variant="secondary" onClick={() => dispatch({ type: 'cancel' })}>
@@ -157,7 +159,7 @@ export function ConfirmDelete({
       <div>
         <h2 className="text-[14px] font-bold text-text-primary">Hapus semua data job-kit?</h2>
         <p className="mt-1 text-[13px] text-text-secondary">
-          Profil kamu akan hilang dari storage browser ini. Tidak ada backup di server, hanya berkas Export kalau kamu punya.
+          Profil, lowongan tersimpan, dan lamaran kamu beserta CV dan suratnya akan hilang dari storage browser ini. Tidak ada backup di server, hanya berkas Export kalau kamu punya.
         </p>
       </div>
       <TextField

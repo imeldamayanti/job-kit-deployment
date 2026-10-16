@@ -9,6 +9,7 @@ import {
   UNVOUCHED_NAME,
 } from '../../../fixtures/cv/text-fixtures'
 import { parseCv } from './parse'
+import { parseSections } from './sections'
 
 const high = (value: string) => ({ value, confidence: 'high' })
 const low = (value: string) => ({ value, confidence: 'low' })
@@ -237,5 +238,26 @@ S1 Hukum
     expect(cv.education).toEqual([])
     expect(cv.experience).toEqual([])
     expect(cv.unparsed).toEqual([])
+  })
+})
+
+describe('CV without institution line or dates', () => {
+  const lines = [
+    'Education',
+    'Bachelor of Informatics',
+    '• GPA: 3.87/4.00',
+    'Work Experiences',
+    'iOS Developer Learner',
+    '• Led end-to-end development of KIDA, a kids’ animation app',
+    '• Designed and built 4+ iOS applications in Swift',
+    'WordPress Developer',
+    '• Plan, create, and design internet sites',
+  ]
+
+  it('reads the degree, GPA and undated entries', () => {
+    const result = parseSections(lines)
+    expect(result.education).toEqual([{ level: { value: 'Bachelor', confidence: 'high' }, major: { value: 'Informatics', confidence: 'high' }, gpa: { value: '3.87', confidence: 'high' } }])
+    expect(result.experience.map((entry) => entry.title?.value)).toEqual(['iOS Developer Learner', 'WordPress Developer'])
+    expect(result.experience[0]?.description?.value).toContain('Designed and built')
   })
 })

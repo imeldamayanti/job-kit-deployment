@@ -1,20 +1,21 @@
 import { Globe } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { formIsLocked } from '../../core/fill/frames'
-import { formatFillSummary, matchPercent } from '../../core/fill/summary'
+import { formatFillSummary, formatMarkedNotice, matchPercent } from '../../core/fill/summary'
 import { buildPlan } from '../../core/matching/plan'
 import { selectItems } from '../../core/matching/selection'
 import { sectionForKey } from '../../core/profile/sections'
 import { isProfileEmpty } from '../../core/profile/summary'
-import { openEditProfile } from '../../platform/navigation'
+import { openApplicationPage, openEditProfile } from '../../platform/navigation'
 import { requestSiteAccess } from '../../platform/permissions'
+import { usePanelTab } from '../../ui/hooks/usePanelTab'
 import { useStoredProfile } from '../../ui/hooks/useStoredProfile'
 import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { Logo } from '../../ui/primitives/Logo'
 import { EmptyProfile } from './EmptyProfile'
-import { FromFeed } from './FromFeed'
-import { PlanRow } from './PlanRow'
+import { FillNotice, FromFeed, UploadRows } from './PanelContext'
+import { PlanRow, RequiredBadge } from './PlanRow'
 import { ProfileTab } from './ProfileTab'
 import { Tabs, type TabId } from './Tabs'
 import { useFill } from './useFill'
@@ -36,7 +37,9 @@ export function App() {
   const profileEmpty = profile !== null && isProfileEmpty(profile)
 
   const scan = state.status === 'ready' ? state.scan : undefined
-  const plan = useMemo(() => (scan?.ok && profile ? buildPlan(scan.fields, profile) : null), [scan, profile])
+  const panelTab = usePanelTab(state.status === 'ready' ? state.tab?.id : undefined)
+  const coverLetter = panelTab?.context?.coverLetter
+  const plan = useMemo(() => (scan?.ok && profile ? buildPlan(scan.fields, profile, { coverLetter }) : null), [scan, profile, coverLetter])
   const frameLocked = scan?.ok === true && plan !== null && formIsLocked(plan.matched, scan.lockedFrame)
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export function App() {
   }, [scan])
 
   const selected = useMemo(() => (plan ? selectItems(plan.items, { disabled, overwrite }) : []), [plan, disabled, overwrite])
-  const { phase, summary, undoLost, fill, undo } = useFill({
+  const { phase, summary, record, undoLost, fill, undo } = useFill({
     tab: state.status === 'ready' ? state.tab : undefined,
     canUndo: scan?.ok === true && scan.canUndo,
     items: selected,
@@ -69,7 +72,7 @@ export function App() {
 
       {tab === 'autofill' && (
         <main id="panel-autofill" role="tabpanel" aria-labelledby="tab-autofill" className="flex flex-col gap-5 p-4 pb-24">
-          {state.status === 'ready' && <FromFeed tabId={state.tab?.id} />}
+          {state.status === 'ready' && <FromFeed tab={panelTab} />}
           {state.status === 'ready' && state.domain && (
             <div className="flex items-center gap-3">
               <span
@@ -107,9 +110,12 @@ export function App() {
                   <div>
                     <p className="text-[13px] font-bold text-green-700">{formatFillSummary(summary.filled, summary.skipped)}</p>
                     <p className="mt-1 text-text-secondary">Cek sekali lagi sebelum submit, ya.</p>
+                    {formatMarkedNotice(summary.marked) && <p className="mt-1 text-amber-700">{formatMarkedNotice(summary.marked)}</p>}
                   </div>
                 </section>
               )}
+
+              {phase === 'filled' && <FillNotice record={record} onOpen={(id) => void openApplicationPage(id)} />}
 
               {undoLost && (
                 <section className="rounded-xl border border-border bg-amber-50 p-3">
@@ -139,7 +145,7 @@ export function App() {
                         ) : (
                           <span className="flex flex-col">
                             <span className="text-[12px] text-text-secondary">{item.label}</span>
-                            <span className="break-words text-[13px] text-text-primary">{item.value}</span>
+                            <span className="line-clamp-3 break-words text-[13px] text-text-primary">{item.value}</span>
                           </span>
                         )}
                       </li>
@@ -148,13 +154,16 @@ export function App() {
                 </section>
               )}
 
+              {scan?.ok && <UploadRows uploads={scan.uploads} context={panelTab?.context} />}
+
               {plan.skipped.length > 0 && (
                 <section className="flex flex-col gap-2">
                   <h2 className="text-[11px] font-bold uppercase tracking-[0.08em] text-neutral-400">Dilewati</h2>
                   <ul className="flex flex-col gap-1">
                     {plan.skipped.map((field) => (
-                      <li key={field.fieldId} className="text-[13px] text-text-secondary">
+                      <li key={field.fieldId} className="flex items-center gap-2 text-[13px] text-text-secondary">
                         {field.label}
+                        {field.required && <RequiredBadge />}
                       </li>
                     ))}
                   </ul>
@@ -167,7 +176,10 @@ export function App() {
                   <ul className="flex flex-col gap-1">
                     {plan.missing.map((field) => (
                       <li key={field.fieldId} className="flex items-center justify-between gap-3">
-                        <span className="text-[13px] text-text-primary">{field.label}</span>
+                        <span className="flex items-center gap-2 text-[13px] text-text-primary">
+                          {field.label}
+                          {field.required && <RequiredBadge />}
+                        </span>
                         <button
                           type="button"
                           onClick={() => void openEditProfile(sectionForKey(field.key))}

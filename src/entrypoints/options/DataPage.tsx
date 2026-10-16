@@ -1,5 +1,6 @@
 import { Download, Trash2, Upload } from 'lucide-react'
 import { useReducer, useRef, type ChangeEvent, type ReactNode } from 'react'
+import { applyApplicationData, countAddedApplications } from '../../core/applications/data'
 import { buildExport, exportFileName } from '../../core/data/export'
 import { applyCvSelection, summarizeCvImport } from '../../core/cv/apply'
 import { applyImport, summarizeImport } from '../../core/data/import'
@@ -8,6 +9,8 @@ import { describeUsage } from '../../core/data/storage-usage'
 import { initialDataState, reduceData } from '../../core/data/state'
 import type { SaveOutcome } from '../../core/profile/autosave'
 import { createEmptyProfile } from '../../core/profile/profile'
+import { clearApplicationData, loadApplicationData, saveApplicationData } from '../../platform/application-storage'
+import { syncFeedWithApplications } from '../../platform/applications'
 import { clearFeedData, loadFeed } from '../../platform/feed-storage'
 import type { Profile } from '../../core/profile/types'
 import { downloadText } from '../../platform/download'
@@ -94,7 +97,21 @@ export function DataPage({
   const applyPreview = async () => {
     if (!profile || state.kind !== 'import-preview') return
     const next = applyImport(profile, state.profile, state.mode)
-    if ((await commit(next)).ok) dispatch({ type: 'finish', ...summarizeImport(profile, next) })
+    if (!(await commit(next)).ok) return
+    // Applications come with the file only from version 3 on; an older file leaves them as they are.
+    const current = await loadApplicationData()
+    const nextApplications = applyApplicationData(current, state.applications, state.mode)
+    const added = countAddedApplications(current, nextApplications)
+    if (nextApplications !== current && !(await saveApplicationData(nextApplications)).ok) {
+      dispatch({
+        type: 'finish',
+        title: 'Profil diimpor, lamaran belum',
+        detail: 'Penyimpanan penuh, jadi lamaran dari berkas tidak tersimpan. Lamaran yang sudah ada tidak berubah.',
+      })
+      return
+    }
+    await syncFeedWithApplications()
+    dispatch({ type: 'finish', ...summarizeImport(profile, next, added) })
   }
 
   const applyCv = async () => {
@@ -106,7 +123,8 @@ export function DataPage({
   const confirmDelete = async () => {
     if ((await commit(createEmptyProfile())).ok) {
       await clearFeedData()
-      dispatch({ type: 'finish', title: 'Semua data dihapus', detail: 'Profil di browser ini sekarang kosong.' })
+      await clearApplicationData()
+      dispatch({ type: 'finish', title: 'Semua data dihapus', detail: 'Profil, lowongan, dan lamaran di browser ini sekarang kosong.' })
     }
   }
 
@@ -127,7 +145,7 @@ export function DataPage({
   const exportProfile = async () => {
     if (!profile) return
     const now = new Date()
-    downloadText(exportFileName(now), buildExport(profile, now, await loadFeed()))
+    downloadText(exportFileName(now), buildExport(profile, now, await loadFeed(), await loadApplicationData()))
   }
 
   return (
@@ -136,7 +154,7 @@ export function DataPage({
         <ActionCard
           icon={<Download size={18} strokeWidth={2} />}
           title="Export"
-          body="Seluruh profil ke satu file JSON berversi."
+          body="Profil, lowongan tersimpan, dan lamaran beserta CV dan suratnya ke satu file JSON berversi."
         >
           <Button disabled={!profile} onClick={() => void exportProfile()}>
             Export JSON
@@ -162,7 +180,7 @@ export function DataPage({
           icon={<Trash2 size={18} strokeWidth={2} />}
           tone="danger"
           title="Hapus semua"
-          body="Menghapus profil dari storage browser ini. Tidak ada backup di server."
+          body="Menghapus profil, lowongan, dan lamaran beserta CV dan suratnya dari storage browser ini. Tidak ada backup di server."
         >
           <Button variant="danger" disabled={!profile} onClick={() => dispatch({ type: 'ask-delete' })}>
             Hapus semua

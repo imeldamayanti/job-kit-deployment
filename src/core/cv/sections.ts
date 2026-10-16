@@ -54,8 +54,8 @@ const yearOfEnd = (end: string) => (isCurrent(end) ? undefined : end.match(YEAR)
 const isInstitutionLine = (line: string) =>
   INSTITUTION.test(line) && line.length <= MAX_HEADER_LENGTH && !line.endsWith('.')
 
-function readEducation(chunk: string[]): { entry: EducationEntry; leftover: string[] } {
-  const [firstRaw = '', ...rest] = chunk
+function readEducation(chunk: string[], hasInstitution = true): { entry: EducationEntry; leftover: string[] } {
+  const [firstRaw = '', ...rest] = hasInstitution ? chunk : ['', ...chunk]
   let year: string | undefined
   let gpa: string | undefined
   let level: string | undefined
@@ -70,11 +70,11 @@ function readEducation(chunk: string[]): { entry: EducationEntry; leftover: stri
     .map(clean)
     .filter(Boolean)
   const institutionIndex = Math.max(0, parts.findIndex((part) => INSTITUTION.test(part)))
-  const institution = parts[institutionIndex] ?? clean(firstRaw)
+  const institution = hasInstitution ? (parts[institutionIndex] ?? clean(firstRaw)) : ''
   const details = [...parts.filter((_, index) => index !== institutionIndex), ...rest]
 
   for (const raw of details) {
-    let text = raw
+    let text = raw.replace(BULLET, '')
     const period = text.match(PERIOD)
     if (period) {
       year = yearOfEnd(period[2] ?? '')
@@ -103,7 +103,7 @@ function readEducation(chunk: string[]): { entry: EducationEntry; leftover: stri
   }
 
   const schoolLevel = institution.match(/^(SMA|SMK|SMP)\b/i)?.[1]
-  const entry: EducationEntry = { institution: high(institution) }
+  const entry: EducationEntry = institution ? { institution: high(institution) } : {}
   const finalLevel = level ?? schoolLevel
   if (finalLevel) entry.level = high(finalLevel)
   if (major) entry.major = major
@@ -115,7 +115,15 @@ function readEducation(chunk: string[]): { entry: EducationEntry; leftover: stri
 function parseEducation(lines: string[]): { entries: EducationEntry[]; unparsed: string[] } {
   const starts = lines.flatMap((line, index) => (isInstitutionLine(line) ? [index] : []))
   const first = starts[0]
-  if (first === undefined) return { entries: [], unparsed: lines.length > 0 ? [lines.join('\n')] : [] }
+  if (first === undefined) {
+    // No institution line: a degree line such as "Bachelor of Informatics" still opens an entry.
+    const degrees = lines.flatMap((line, index) => (LEVEL.test(line) && !BULLET.test(line) ? [index] : []))
+    const head = degrees[0]
+    if (head === undefined) return { entries: [], unparsed: lines.length > 0 ? [lines.join('\n')] : [] }
+    const found = degrees.map((start, index) => readEducation(lines.slice(start, degrees[index + 1] ?? lines.length), false))
+    const lead = head > 0 ? [lines.slice(0, head).join('\n')] : []
+    return { entries: found.map((item) => item.entry), unparsed: [...lead, ...found.flatMap((item) => (item.leftover.length > 0 ? [item.leftover.join('\n')] : []))] }
+  }
 
   const unparsed: string[] = first > 0 ? [lines.slice(0, first).join('\n')] : []
   const entries: EducationEntry[] = []
@@ -169,6 +177,20 @@ function joinDescription(lines: string[]): string {
     .join('\n')
 }
 
+// CVs without dates: a short title line followed by bullet lines is one entry.
+function parseUndated(lines: string[]): { entries: ExperienceEntry[]; unparsed: string[] } {
+  const starts = lines.flatMap((line, index) => (isHeaderLike(line) && BULLET.test(lines[index + 1] ?? '') ? [index] : []))
+  const head = starts[0]
+  if (head === undefined) return { entries: [], unparsed: lines.length > 0 ? [lines.join('\n')] : [] }
+  const entries = starts.map((start, index): ExperienceEntry => {
+    const description = joinDescription(lines.slice(start + 1, starts[index + 1] ?? lines.length))
+    const entry: ExperienceEntry = { title: low(clean(lines[start] as string)), current: false }
+    if (description) entry.description = high(description)
+    return entry
+  })
+  return { entries, unparsed: head > 0 ? [lines.slice(0, head).join('\n')] : [] }
+}
+
 type Anchor = { index: number; start: string; end: string; inline: string }
 
 function parseExperience(lines: string[]): { entries: ExperienceEntry[]; unparsed: string[] } {
@@ -178,7 +200,7 @@ function parseExperience(lines: string[]): { entries: ExperienceEntry[]; unparse
     return [{ index, start: clean(match[1] ?? ''), end: clean(match[2] ?? ''), inline: clean(line.replace(PERIOD, '')) }]
   })
   const first = anchors[0]
-  if (first === undefined) return { entries: [], unparsed: lines.length > 0 ? [lines.join('\n')] : [] }
+  if (first === undefined) return parseUndated(lines)
 
   // Each period anchors one entry. Its heading lines sit above the period, or below it when the CV
   // opens every entry with the period; `from` is where the entry's own lines begin.

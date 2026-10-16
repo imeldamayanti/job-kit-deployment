@@ -11,6 +11,8 @@ import {
   aiOrigins,
   setAiProvider,
   zenMayTrainOn,
+  DEFAULT_DOCUMENT_LIMIT,
+  normalizeDocumentLimit,
 } from './settings'
 
 describe('createDefaultSettings', () => {
@@ -46,6 +48,24 @@ describe('isValidTime', () => {
   })
 })
 
+describe('documentLimit (FR-46)', () => {
+  it('defaults to 20 CVs and letters a day', () => {
+    expect(createDefaultSettings().documentLimit).toBe(20)
+    expect(DEFAULT_DOCUMENT_LIMIT).toBe(20)
+  })
+
+  it('keeps a whole number from 1 to 200 and repairs anything else to the default', () => {
+    expect(normalizeDocumentLimit(5)).toBe(5)
+    expect(normalizeDocumentLimit(200)).toBe(200)
+    for (const bad of [0, -3, 201, 2.5, NaN, '10', null, undefined]) expect(normalizeDocumentLimit(bad)).toBe(20)
+  })
+
+  it('reads it from stored settings, and settings stored before it existed get the default', () => {
+    expect(normalizeSettings({ documentLimit: 8 }).documentLimit).toBe(8)
+    expect(normalizeSettings({ fetchTime: '09:00' }).documentLimit).toBe(20)
+  })
+})
+
 describe('normalizeSettings', () => {
   it('returns defaults for anything unusable', () => {
     expect(normalizeSettings(undefined)).toEqual(createDefaultSettings())
@@ -78,6 +98,12 @@ describe('AI provider', () => {
   it('names the host each provider needs', () => {
     expect(aiOrigins('anthropic')).toEqual(['https://api.anthropic.com/*'])
     expect(aiOrigins('opencode-zen')).toEqual(['https://opencode.ai/*'])
+    expect(aiOrigins('gemini')).toEqual(['https://generativelanguage.googleapis.com/*'])
+  })
+
+  it('defaults Gemini to a Flash-Lite model', () => {
+    expect(setAiProvider(createDefaultSettings(), 'gemini').ai).toEqual({ provider: 'gemini', model: 'gemini-3.5-flash-lite' })
+    expect(normalizeSettings({ ai: { provider: 'gemini', model: '' } }).ai).toEqual({ provider: 'gemini', model: 'gemini-3.5-flash-lite' })
   })
 
   it('goes back to the new provider’s default model when the provider changes', () => {

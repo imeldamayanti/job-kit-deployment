@@ -1,9 +1,10 @@
-import { RefreshCw, SearchX, SlidersHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import { RefreshCw, SlidersHorizontal } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { aiErrorMessage } from '../../core/ai/errors'
 import { canEnableFeed, type FeedSettings } from '../../core/feed/settings'
 import { countNew, type FeedState } from '../../core/feed/schedule'
 import { previewFeedFromHash } from '../../core/feed/preview'
+import type { Application } from '../../core/applications/types'
 import type { Job, JobStatus, SourceRun } from '../../core/feed/types'
 import {
   describeFeed,
@@ -20,12 +21,13 @@ import {
   type WorkplaceFilter,
 } from '../../core/feed/view'
 import type { Profile } from '../../core/profile/types'
+import { prepareApplication } from '../../platform/applications'
 import { requestRefresh } from '../../platform/feed-control'
 import { openJob } from '../../platform/open-job'
-import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { FilterChip } from '../../ui/primitives/FilterChip'
 import { TextField } from '../../ui/primitives/TextField'
+import { Empty } from './EmptyState'
 import { ActionMenu, JobCard } from './JobCard'
 import { FolderTabs } from './FolderTabs'
 
@@ -44,23 +46,19 @@ const STATUS_BADGE: Record<JobStatus, { text: string; tone: string }> = {
   hidden: { text: 'Disembunyikan', tone: 'bg-neutral-100 text-text-secondary' },
 }
 
-function Empty({ mascot, icon, title, body, children }: { mascot?: 'neutral' | 'error'; icon?: boolean; title: string; body: string; children?: React.ReactNode }) {
-  return (
-    <section className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border-strong bg-surface px-6 py-12 text-center">
-      {mascot && <Mascot state={mascot} size={88} />}
-      {icon && (
-        <span aria-hidden="true" className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-text-secondary">
-          <SearchX size={18} strokeWidth={2} />
-        </span>
-      )}
-      <h2 className="mt-1 text-[16px] font-bold text-text-primary">{title}</h2>
-      <p className="max-w-[46ch] text-[14px] text-text-secondary">{body}</p>
-      {children && <div className="mt-2 flex flex-wrap justify-center gap-2">{children}</div>}
-    </section>
-  )
-}
-
-function SavedRow({ job, onStatus, onOpenJob }: { job: Job; onStatus: (id: string, status: JobStatus) => void; onOpenJob: (job: Job) => void }) {
+function SavedRow({
+  job,
+  application,
+  onStatus,
+  onOpenJob,
+  onOpenApplication,
+}: {
+  job: Job
+  application: Application | undefined
+  onStatus: (id: string, status: JobStatus) => void
+  onOpenJob: (job: Job) => void
+  onOpenApplication: (id: string) => void
+}) {
   const badge = STATUS_BADGE[job.status]
   return (
     <li className="flex items-center gap-3 px-4 py-3">
@@ -74,8 +72,35 @@ function SavedRow({ job, onStatus, onOpenJob }: { job: Job; onStatus: (id: strin
         </span>
       </button>
       <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-bold ${badge.tone}`}>{badge.text}</span>
-      <ActionMenu job={job} onStatus={onStatus} />
+      {application && (
+        <Button variant="secondary" onClick={() => onOpenApplication(application.id)}>
+          Buka lamaran
+        </Button>
+      )}
+      {!application && <ActionMenu job={job} onStatus={onStatus} />}
     </li>
+  )
+}
+
+// Filter row stays visible while the list scrolls; the shadow shows only once it is actually stuck.
+function StickyBar({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [stuck, setStuck] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver((entries) => setStuck((entries[0]?.intersectionRatio ?? 1) < 1), { threshold: [1] })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return (
+    <div
+      ref={ref}
+      style={{ top: -1 }}
+      className={'sticky z-10 -mx-2 flex flex-wrap items-center gap-2 bg-surface-sunken px-2 py-2 transition-shadow duration-150 ' + (stuck ? 'shadow-md' : '')}
+    >
+      {children}
+    </div>
   )
 }
 
@@ -83,12 +108,16 @@ export function JobsPage({
   profile,
   settings,
   live,
+  applications,
+  onOpenApplication,
   onSettings,
   onPreferences,
 }: {
   profile: Profile | null
   settings: FeedSettings | null
   live: Live
+  applications: readonly Application[]
+  onOpenApplication: (id: string) => void
   onSettings: () => void
   onPreferences: () => void
 }) {
@@ -105,6 +134,7 @@ export function JobsPage({
   const [answer, setAnswer] = useState('')
   const now = new Date()
   const set = (change: Partial<FeedFilter>) => setFilter({ ...filter, ...change })
+  const applicationOf = (job: Job) => applications.find((app) => app.jobId === job.id)
 
   const recommended = data.feed.filter((job) => job.status === 'new')
   const saved = data.feed.filter((job) => job.status === 'saved' || job.status === 'applied')
@@ -124,6 +154,14 @@ export function JobsPage({
   const open = (job: Job) => {
     if (preview) return
     void openJob(job).then((result) => setAnswer(result === 'tab-only' ? 'Tab terbuka. Klik ikon job-kit untuk mengisi.' : ''))
+  }
+
+  // "Siapkan lamaran" (FR-34): makes the application, saves the job, and opens the application.
+  const prepare = (job: Job) => {
+    if (preview) return
+    void prepareApplication(job).then((result) =>
+      result.ok ? onOpenApplication(result.app.id) : setAnswer('Penyimpanan penuh. Lamaran belum tersimpan, dan lowongan lain tidak berubah.'),
+    )
   }
 
   return (
@@ -191,7 +229,7 @@ export function JobsPage({
 
       {(view === 'list' || view === 'no-match') && (
         <>
-          <div className="flex flex-wrap items-center gap-2">
+          <StickyBar>
             {onRecommended && (
               <div role="group" aria-label="Tipe kerja" className="flex flex-wrap gap-1.5">
                 {WORKPLACES.map(({ id, title }) => (
@@ -220,7 +258,7 @@ export function JobsPage({
             <div className="min-w-[200px] flex-1">
               <TextField label="Cari lowongan" hideLabel className="h-10" placeholder="Cari judul atau perusahaan" value={filter.query} onChange={(event) => set({ query: event.target.value })} />
             </div>
-          </div>
+          </StickyBar>
 
           {view === 'no-match' ? (
             <Empty icon title="Tidak ada yang cocok" body="Tidak ada lowongan yang cocok dengan filter dan pencarian ini.">
@@ -229,13 +267,23 @@ export function JobsPage({
           ) : onRecommended ? (
             <div className="flex flex-col gap-3">
               {shown.map((job, index) => (
-                <JobCard key={job.id} job={job} now={now} startOpen={Boolean(preview) && index === 0} onOpen={open} onStatus={change} />
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  now={now}
+                  application={applicationOf(job)}
+                  startOpen={Boolean(preview) && index === 0}
+                  onOpen={open}
+                  onStatus={change}
+                  onPrepare={prepare}
+                  onOpenApplication={onOpenApplication}
+                />
               ))}
             </div>
           ) : (
             <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-md">
               {shown.map((job) => (
-                <SavedRow key={job.id} job={job} onStatus={change} onOpenJob={open} />
+                <SavedRow key={job.id} job={job} application={applicationOf(job)} onStatus={change} onOpenJob={open} onOpenApplication={onOpenApplication} />
               ))}
             </ul>
           )}

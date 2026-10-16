@@ -1,8 +1,12 @@
-import { Bookmark, Check, ChevronDown, EyeOff, MapPin, Minus, MoreHorizontal, RotateCcw } from 'lucide-react'
+import { Bookmark, Check, ChevronDown, EyeOff, FileText, MapPin, Minus, MoreHorizontal, RotateCcw, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { documentMarks } from '../../core/applications/view'
+import type { Application } from '../../core/applications/types'
 import type { Job, JobStatus } from '../../core/feed/types'
 import { initialsOf, jobMeta, scoreTier, SOURCE_NAMES } from '../../core/feed/view'
 import { Button } from '../../ui/primitives/Button'
+import { AppStatusBadge } from './AppStatusBadge'
+import { DocChip } from '../../ui/primitives/DocChip'
 
 const WORKPLACE_TEXT = { remote: 'Remote', hybrid: 'Hybrid', onsite: 'On-site', unknown: '' } as const
 const TIER_STYLE = { hi: 'bg-green-50 text-green-700', mid: 'bg-amber-50 text-amber-700', lo: 'bg-neutral-100 text-text-secondary' } as const
@@ -124,12 +128,19 @@ export function JobCard({
   now,
   onOpen,
   onStatus,
+  onPrepare,
+  onOpenApplication,
+  application,
   startOpen = false,
 }: {
   job: Job
   now: Date
   onOpen: (job: Job) => void
   onStatus: (id: string, status: JobStatus) => void
+  onPrepare: (job: Job) => void
+  onOpenApplication: (id: string) => void
+  // A job with an application takes its status from it (D11), so it has no status menu of its own.
+  application?: Application
   startOpen?: boolean
 }) {
   const [reasons, setReasons] = useState(startOpen)
@@ -181,16 +192,39 @@ export function JobCard({
           </p>
         )}
         {reasons && <Reasons job={job} />}
+        {application && (
+          <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[13px] text-text-secondary">
+            Lamaran <AppStatusBadge status={application.status} />
+            <DocChip kind="cv" ok={documentMarks(application).cv} />
+            <DocChip kind="letter" ok={documentMarks(application).letter} />
+          </p>
+        )}
         <div className="mt-3.5 flex flex-wrap items-center gap-2">
           <Button onClick={() => onOpen(job)}>Buka &amp; isi</Button>
-          {job.status === 'new' && (
-            <Button variant="secondary" onClick={() => onStatus(job.id, 'saved')}>
-              <Bookmark size={16} strokeWidth={2} aria-hidden="true" />
-              Simpan
+          {application ? (
+            <Button variant="secondary" onClick={() => onOpenApplication(application.id)}>
+              <FileText size={16} strokeWidth={2} aria-hidden="true" />
+              Buka lamaran
+            </Button>
+          ) : (
+            <Button variant="secondary" onClick={() => onPrepare(job)}>
+              <Sparkles size={16} strokeWidth={2} aria-hidden="true" />
+              Siapkan lamaran
             </Button>
           )}
-          {saved && <span className="text-[13px] font-semibold text-text-secondary">Disimpan</span>}
-          <ActionMenu job={job} onStatus={onStatus} />
+          {job.status === 'new' && !application && (
+            <button
+              type="button"
+              aria-label="Simpan lowongan"
+              title="Simpan lowongan"
+              onClick={() => onStatus(job.id, 'saved')}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border-strong text-text-secondary hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring"
+            >
+              <Bookmark size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+          )}
+          {saved && !application && <span className="text-[13px] font-semibold text-text-secondary">Disimpan</span>}
+          {!application && <ActionMenu job={job} onStatus={onStatus} />}
         </div>
       </div>
       <ScoreBadge job={job} open={reasons} onToggle={() => setReasons(!reasons)} />

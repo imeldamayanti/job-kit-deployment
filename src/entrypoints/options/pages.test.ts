@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dataRoute, jobsRoute, profileRoute, routeFromHash, routeSubtitle, routeTitle } from './pages'
+import { applicationRoute, applicationsRoute, dataRoute, jobsRoute, NAV_ITEMS, profileRoute, routeFromHash, routeSubtitle, routeTitle } from './pages'
 
 describe('routeFromHash', () => {
   it('opens Profile on the tab an old link names', () => {
@@ -18,6 +18,28 @@ describe('routeFromHash', () => {
     expect(routeFromHash('#jobs')).toEqual(jobsRoute())
     expect(routeFromHash('#jobs?state=empty')).toEqual(jobsRoute())
     expect(routeFromHash('#jobsettings')).toEqual(jobsRoute(true))
+  })
+})
+
+describe('Lamaran routes', () => {
+  it('sits between Lowongan and Data in the sidebar', () => {
+    expect(NAV_ITEMS.map((item) => item.title)).toEqual(['Profile', 'Lowongan', 'Lamaran', 'Data'])
+  })
+
+  it('opens the board, with or without a preview query', () => {
+    expect(routeFromHash('#applications')).toEqual(applicationsRoute())
+    expect(routeFromHash('#applications?state=empty')).toEqual(applicationsRoute())
+  })
+
+  it('opens one application from its id', () => {
+    expect(routeFromHash('#applications/abc-123')).toEqual(applicationRoute('abc-123'))
+    expect(applicationRoute('abc-123')).toMatchObject({ page: 'applications', applicationId: 'abc-123' })
+    expect(applicationsRoute().applicationId).toBeNull()
+  })
+
+  it('titles the page Lamaran', () => {
+    expect(routeTitle(applicationsRoute())).toBe('Lamaran')
+    expect(routeSubtitle(applicationsRoute())).toBe('Semua lowongan yang kamu lamar, dari draf sampai hasil akhir.')
   })
 })
 

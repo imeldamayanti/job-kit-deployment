@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AiError } from '../core/ai/errors'
-import { createAnthropicClient, createZenClient, zenUsesResponses } from './ai-client'
+import { createAnthropicClient, createGeminiClient, createZenClient, zenUsesResponses } from './ai-client'
 
 const ok = (text: string) => new Response(JSON.stringify({ content: [{ type: 'text', text }], usage: { input_tokens: 12, output_tokens: 3 } }), { status: 200 })
 
@@ -39,6 +39,34 @@ describe('createAnthropicClient', () => {
   it('treats a reply without text as a server problem', async () => {
     const client = createAnthropicClient(async () => new Response(JSON.stringify({ content: [] }), { status: 200 }))
     await expect(client.complete({ key: 'x', model: 'm', system: '', user: 'u', maxTokens: 5 })).rejects.toMatchObject({ reason: 'server' })
+  })
+})
+
+describe('createGeminiClient', () => {
+  it('sends a bearer key to the Gemini chat completions endpoint and reads the reply', async () => {
+    let seen: { url: string; init: RequestInit } | undefined
+    const client = createGeminiClient(
+      async (url, init) => (
+        (seen = { url: String(url), init: init as RequestInit }),
+        new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }], usage: { prompt_tokens: 5, completion_tokens: 1 } }), { status: 200 })
+      ),
+    )
+    const reply = await client.complete({ key: 'g-key', model: 'gemini-3.5-flash-lite', system: 's', user: 'u', maxTokens: 10 })
+    expect(reply).toEqual({ text: 'ok', usage: { inputTokens: 5, outputTokens: 1 } })
+    expect(seen?.url).toBe('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions')
+    expect((seen?.init.headers as Record<string, string>).authorization).toBe('Bearer g-key')
+    expect(seen?.init.credentials).toBe('omit')
+    expect(JSON.parse(String(seen?.init.body))).toEqual({
+      model: 'gemini-3.5-flash-lite',
+      max_tokens: 10,
+      messages: [{ role: 'system', content: 's' }, { role: 'user', content: 'u' }],
+    })
+  })
+
+  it('maps a refused key and a rate limit', async () => {
+    const ask = (status: number) => createGeminiClient(async () => new Response('{}', { status })).complete({ key: 'x', model: 'm', system: '', user: 'u', maxTokens: 5 })
+    await expect(ask(401)).rejects.toMatchObject({ reason: 'invalid-key' })
+    await expect(ask(429)).rejects.toMatchObject({ reason: 'quota' })
   })
 })
 
