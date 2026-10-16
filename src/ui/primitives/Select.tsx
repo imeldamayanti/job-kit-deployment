@@ -1,13 +1,13 @@
 import { ChevronDown } from 'lucide-react'
 import { useId, type SelectHTMLAttributes } from 'react'
 
-type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'id'> & { label: string }
+type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'id'> & { label: string; hideLabel?: boolean }
 
-export function Select({ label, className = '', children, ...props }: SelectProps) {
+export function Select({ label, hideLabel = false, className = '', children, ...props }: SelectProps) {
   const id = useId()
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <label htmlFor={id} className="text-[12px] font-semibold text-text-secondary">
+      <label htmlFor={id} className={hideLabel ? 'sr-only' : 'text-[12px] font-semibold text-text-secondary'}>
         {label}
       </label>
       <div className="relative">

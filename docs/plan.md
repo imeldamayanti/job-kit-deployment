@@ -392,8 +392,8 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 
 **Done when:** PDF CV uji mengisi profil di Chrome sungguhan, field yang berisi tidak tertimpa, dan PDF scan ditolak dengan pesan jelas.
 
-### T21 · Lowongan tercatat otomatis setelah Fill · 2h · feature · Medium · **ditunda**
-- [ ] **T21 selesai** (belum dijadwalkan; menunggu keputusan PIC setelah T20)
+### T21 · Lowongan tercatat otomatis setelah Fill · 2h · feature · Medium · **dibatalkan**
+- [ ] **T21 selesai** (dibatalkan 2026-10-16 atas keputusan PIC; digantikan T38 dan T41 sampai T44: Fill di tab dari feed membuat atau memajukan lamaran, halaman Lamaran memegang status, riwayat, dan catatan, dan Tambah lamaran menutup lamaran yang tidak berasal dari feed)
 
 **Context:** menyambungkan Captured Jobs ke data nyata (FR-24).
 **Acceptance criteria (rancangan)**
@@ -557,18 +557,20 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** pipeline murni `runFeed` (sumber paralel → saringan aturan → merge/prune → skor; sumber yang gagal tiga kali dilewati) dan jadwal murni (`isRunDue`, `nextRunTime`, `canStartRun`, `countNew`) di `src/core/feed/`, 23 tes. Di platform: `executeRun` menjaga satu run sekaligus dan menulis `feedState` supaya halaman terbuka bisa mengikuti tahapnya; background memakai alarm `feed-tick` tiap 15 menit (1 menit di build dev) yang hanya membandingkan tanggal, dengan batas satu run otomatis per hari dari `isRunDue`, dan mengejar run yang terlewat saat Chrome dibuka; pesan `feed:refresh` untuk Segarkan. Badge jumlah baru di sidebar (sementara di item Captured Jobs), hilang saat halaman dibuka. Tombol Segarkan dan status run terakhir sementara ada di halaman Atur Lowongan (pindah ke header Lowongan di T37). Risiko: service worker MV3 bisa dimatikan Chrome di tengah run yang panjang. Belum diverifikasi di Chrome: alarm uji dan run penuh tanpa halaman options terbuka.
 
 ### T37 · Halaman Lowongan · 2h · feature · High
-- [ ] **T37 selesai**
+- [x] **T37 selesai**
 
 **Acceptance criteria**
 - [x] Sidebar dan tab sesuai T28; tab Disimpan memakai ulang komponen Captured Jobs dari T20 (FR-30)
 - [x] Kartu, filter tipe kerja, urutan, pencarian, dan ubah status. Filter, urut, dan cari adalah fungsi murni di `core/` dengan tes (FR-30)
 - [x] Panel alasan skor per kartu; "Skor kasar" ditandai (FR-29)
 - [x] Semua state dari T28 terlihat lewat `#jobs?state=...` di build dev
-- [ ] Token, ikon lucide-react, tanpa kontrol bawaan peramban; rapi di ≤420 px (token dan ikon sudah; urutan masih `<select>` bawaan dan ≤420 px belum dilihat)
+- [x] Token, ikon lucide-react, tanpa kontrol bawaan peramban; rapi di ≤420 px (urutan memakai `Select` bertoken dengan `hideLabel`; dilihat di 375 px, tanpa overflow horizontal)
 
 **Done when:** feed nyata dari T36 tampil dan semua state terlihat di Chrome sungguhan.
 
 **Hasil:** sidebar tiga tujuan (Profile, Lowongan dengan badge, Data); bagian profil jadi tab (tautan lama seperti `#contact` tetap membuka tab itu); halaman Lowongan dengan tab Rekomendasi dan Disimpan, kartu (skor tiga tingkat, panel alasan, chip bertanda AI, meta yang menyembunyikan item kosong, menu Tandai dilamar dan Sembunyikan), filter tipe kerja, urutan, pencarian, header dengan Segarkan dan Atur, dan Atur Lowongan sebagai sub-halaman dengan tombol kembali. Filter, urut, cari, tingkat skor, meta, ringkasan header, dan penentu state adalah fungsi murni di `core/feed/view.ts` (24 tes). Semua state T28 terlihat lewat `#jobs?state=list|saved|off|noprefs|fetching|empty|nomatch|onefail|paused|rough|allfail` di build dev, dan 11 tes render memastikannya. Penyimpangan dari mockup: tab Profile berdiri di atas kartu bagian, belum menyatu dengan lembar; di Disimpan, klik baris membuka lowongan, belum ada slide-over detail. Kode Captured Jobs lama (`src/core/jobs/`, `JobDetail.tsx`, `StatusBadge.tsx`) sudah tidak dipakai tetapi belum dihapus karena hook menolak `git rm`; perlu dihapus manual (sudah dihapus di T41). Belum diverifikasi: tampilan di Chrome dan ≤420 px, feed nyata dari T36.
+
+**Hasil lanjutan (2026-10-16):** dropdown urutan memakai primitif `Select` (prop baru `hideLabel`, label tetap ada untuk pembaca layar) menggantikan `<select>` bawaan. Diperiksa di build dev dengan data contoh pada 375 px: tidak ada overflow horizontal dan tidak ada `<select>` bawaan di halaman. Belum diverifikasi: feed nyata dari T36 di Chrome (menunggu kunci API dan run pertama).
 
 ### T38 · Buka & isi · 1.5h · feature · Medium
 - [x] **T38 selesai**
@@ -883,7 +885,7 @@ Belum diverifikasi: alasan nilai Jujur 4 di kartu 4; perbandingan Zen gratis vs 
 
 **Acceptance criteria**
 - [ ] 5 lamaran nyata PIC: dicatat waktu per lamaran, biaya AI, jumlah suntingan, dan klaim yang bukan milik PIC (PRD §10)
-- [ ] README: fitur Lamaran, data yang dikirim untuk CV dan surat, privasi; baris "Tidak membuat cover letter" dan "AI hanya untuk menormalkan dan menilai" ditulis ulang
+- [x] README: fitur Lamaran, data yang dikirim untuk CV dan surat, privasi; baris "Tidak membuat cover letter" dan "AI hanya untuk menormalkan dan menilai" ditulis ulang (surat, unduh PDF, dan isi ke form sudah ditulis sejak T50 sampai T52; diperiksa 2026-10-16, tidak ada lagi baris "belum ada di versi ini")
 - [ ] `docs/03-rfc.md` §3.3c sesuai hasil akhir; PRD berstatus APPROVED bila PIC setuju
 
 **Done when:** metrik Application Kit di PRD §10 tercatat di tiket ini.

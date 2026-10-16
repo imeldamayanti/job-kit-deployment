@@ -26,6 +26,7 @@ import { requestRefresh } from '../../platform/feed-control'
 import { openJob } from '../../platform/open-job'
 import { Button } from '../../ui/primitives/Button'
 import { FilterChip } from '../../ui/primitives/FilterChip'
+import { Select } from '../../ui/primitives/Select'
 import { TextField } from '../../ui/primitives/TextField'
 import { Empty } from './EmptyState'
 import { ActionMenu, JobCard } from './JobCard'
@@ -245,15 +246,16 @@ export function JobsPage({
               </div>
             )}
             {onRecommended && (
-              <select
-                aria-label="Urutkan"
+              <Select
+                label="Urutkan"
+                hideLabel
                 value={order}
                 onChange={(event) => setOrder(event.target.value as FeedOrder)}
-                className="h-10 rounded-lg border border-border-strong bg-surface px-2.5 text-[13px] font-semibold text-text-primary focus-visible:outline-2 focus-visible:outline-focus-ring"
+                className="h-10 rounded-lg bg-surface text-[13px] font-semibold"
               >
                 <option value="score">Urut: Skor</option>
                 <option value="newest">Urut: Terbaru</option>
-              </select>
+              </Select>
             )}
             <div className="min-w-[200px] flex-1">
               <TextField label="Cari lowongan" hideLabel className="h-10" placeholder="Cari judul atau perusahaan" value={filter.query} onChange={(event) => set({ query: event.target.value })} />
