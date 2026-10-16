@@ -1,0 +1,111 @@
+{
+ "at": "2026-10-15T08:21:32.545Z",
+ "models": [
+  "gemini-3.6-flash"
+ ],
+ "modes": [
+  "two"
+ ],
+ "jobs": [
+  {
+   "id": "J1",
+   "title": "Android Engineer - Experience",
+   "company": "Spotify (lever)",
+   "textLength": 1737
+  },
+  {
+   "id": "J2",
+   "title": "Software Engineer / AI Code Trainer (Python, Web, Full Stack)",
+   "company": "CodeForAI (remotive)",
+   "textLength": 558
+  },
+  {
+   "id": "J3",
+   "title": "Tier III Service Desk Engineer",
+   "company": "Unio Digital (remotive)",
+   "textLength": 607
+  }
+ ],
+ "results": [
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "B",
+   "job": "J2",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 95508,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "B",
+   "job": "J3",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92482,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "C",
+   "job": "J1",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92609,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "C",
+   "job": "J2",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92313,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "C",
+   "job": "J3",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92516,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  }
+ ]
+}

@@ -1,0 +1,962 @@
+{
+ "at": "2026-10-15T08:12:37.688Z",
+ "models": [
+  "gemini-3.6-flash"
+ ],
+ "modes": [
+  "one",
+  "two"
+ ],
+ "jobs": [
+  {
+   "id": "J1",
+   "title": "Android Engineer - Experience",
+   "company": "Spotify (lever)",
+   "textLength": 1737
+  },
+  {
+   "id": "J2",
+   "title": "Software Engineer / AI Code Trainer (Python, Web, Full Stack)",
+   "company": "CodeForAI (remotive)",
+   "textLength": 558
+  },
+  {
+   "id": "J3",
+   "title": "Tier III Service Desk Engineer",
+   "company": "Unio Digital (remotive)",
+   "textLength": 607
+  }
+ ],
+ "results": [
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "A",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Android and iOS application development using Kotlin, Swift, or Objective-C",
+     "Develop and maintain mobile client components",
+     "Build high-quality, well-tested, and well-documented code",
+     "Build maintainable, scalable, and well-tested software systems"
+    ],
+    "skills": [
+     "Jest",
+     "Git",
+     "REST API",
+     "TypeScript",
+     "React",
+     "Node.js",
+     "PostgreSQL"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%.",
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript.",
+       "Menulis REST API dengan Node.js dan PostgreSQL serta mengikuti code review dua kali seminggu."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Memperbaiki bug tampilan di situs perusahaan.",
+       "Membantu memindahkan halaman statis ke React."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Build high-quality, well-tested, and well-documented code",
+      "Build maintainable, scalable, and well-tested software systems"
+     ],
+     "missing": [
+      "Android and iOS application development using Kotlin, Swift, or Objective-C",
+      "Develop and maintain mobile client components"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 947,
+   "outTokens": 379,
+   "ms": 12331,
+   "calls": 1,
+   "estCostUsd": 0.0021315,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "A",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Full-Stack & Web Development experience",
+     "Proficiency in modern frameworks (TypeScript, React, Node.js)",
+     "Backend & Database development (Node.js, PostgreSQL, REST API)",
+     "Experience with algorithms, data structures, or system design",
+     "Experience with Python or other systems languages (C++, Java, Go, Rust)",
+     "DevOps engineering experience"
+    ],
+    "skills": [
+     "TypeScript",
+     "React",
+     "Node.js",
+     "REST API",
+     "PostgreSQL",
+     "Jest",
+     "Git"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript",
+       "Menulis REST API dengan Node.js dan PostgreSQL",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70% dan berpartisipasi dalam code review dua kali seminggu"
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Membantu memindahkan halaman statis ke React",
+       "Memperbaiki bug tampilan di situs perusahaan"
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Full-Stack & Web Development experience",
+      "Proficiency in modern frameworks (TypeScript, React, Node.js)",
+      "Backend & Database development (Node.js, PostgreSQL, REST API)"
+     ],
+     "missing": [
+      "Experience with algorithms, data structures, or system design",
+      "Experience with Python or other systems languages (C++, Java, Go, Rust)",
+      "DevOps engineering experience"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 720,
+   "outTokens": 431,
+   "ms": 12005,
+   "calls": 1,
+   "estCostUsd": 0.00215625,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "A",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Experience as a Tier 3 Service Desk Technician and escalation point",
+     "Exceptional problem-solving skills for complex technical issues",
+     "Leading client onboarding",
+     "Leading project initiatives",
+     "Direct end-user support",
+     "Experience in Managed IT Services (MSP)"
+    ],
+    "skills": [
+     "Git",
+     "REST API",
+     "Node.js",
+     "TypeScript",
+     "React",
+     "PostgreSQL",
+     "Jest"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Memperbaiki bug tampilan di situs perusahaan",
+       "Membantu memindahkan halaman statis ke React"
+      ]
+     },
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript",
+       "Menulis REST API dengan Node.js dan PostgreSQL",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70% dan mengikuti code review dua kali seminggu"
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Exceptional problem-solving skills for complex technical issues"
+     ],
+     "missing": [
+      "Experience as a Tier 3 Service Desk Technician and escalation point",
+      "Leading client onboarding",
+      "Leading project initiatives",
+      "Direct end-user support",
+      "Experience in Managed IT Services (MSP)"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 707,
+   "outTokens": 383,
+   "ms": 35603,
+   "calls": 1,
+   "estCostUsd": 0.0019665,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "B",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Experience developing Android and iOS applications using Kotlin, Swift, or Objective-C",
+     "Develop and maintain mobile client components",
+     "Build high-quality, well-tested, and well-documented Kotlin code",
+     "Solid experience as an Engineer",
+     "Build maintainable, scalable, and well-tested software systems"
+    ],
+    "skills": [
+     "English",
+     "Python",
+     "SQL",
+     "pandas",
+     "Statistics",
+     "Tableau",
+     "Excel"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Built weekly sales dashboards in Tableau for the regional team.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to store managers."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Experience developing Android and iOS applications using Kotlin, Swift, or Objective-C",
+      "Develop and maintain mobile client components",
+      "Build high-quality, well-tested, and well-documented Kotlin code",
+      "Solid experience as an Engineer",
+      "Build maintainable, scalable, and well-tested software systems"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 928,
+   "outTokens": 380,
+   "ms": 11262,
+   "calls": 1,
+   "estCostUsd": 0.002121,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "B",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Python programming background",
+     "Database Engineering and SQL experience",
+     "Full-Stack & Web frameworks (JavaScript, React, Node.js, etc.)",
+     "Algorithms, data structures, or system design",
+     "DevOps engineering"
+    ],
+    "skills": [
+     "Python",
+     "SQL",
+     "pandas",
+     "Statistics",
+     "English",
+     "Excel",
+     "Tableau"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export.",
+       "Built weekly sales dashboards in Tableau for the regional team."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel and presented findings to the store managers of Contoh Retail Group."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [
+      "Python programming background",
+      "Database Engineering and SQL experience"
+     ],
+     "missing": [
+      "Full-Stack & Web frameworks (JavaScript, React, Node.js, etc.)",
+      "Algorithms, data structures, or system design",
+      "DevOps engineering"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 701,
+   "outTokens": 352,
+   "ms": 9489,
+   "calls": 1,
+   "estCostUsd": 0.00184575,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "B",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Tier 3 Service Desk Technician / Escalation point",
+     "Exceptional problem-solving skills",
+     "Resolving complex technical IT issues",
+     "Leading client onboarding and project initiatives",
+     "Direct end-user support"
+    ],
+    "skills": [
+     "English",
+     "Excel",
+     "Python",
+     "SQL",
+     "pandas",
+     "Tableau",
+     "Statistics"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export.",
+       "Built weekly sales dashboards in Tableau for the regional team."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to the store managers of Contoh Retail Group."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Tier 3 Service Desk Technician / Escalation point",
+      "Exceptional problem-solving skills",
+      "Resolving complex technical IT issues",
+      "Leading client onboarding and project initiatives",
+      "Direct end-user support"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 688,
+   "outTokens": 346,
+   "ms": 9422,
+   "calls": 1,
+   "estCostUsd": 0.0018135,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "C",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Android and iOS application development experience",
+     "Proficiency in Kotlin",
+     "Knowledge of Swift or Objective-C",
+     "Experience as an Engineer",
+     "Building maintainable, scalable, and well-tested software systems",
+     "Developing and maintaining mobile client components"
+    ],
+    "skills": [
+     "Komunikasi",
+     "Bahasa Inggris",
+     "Jaringan dasar",
+     "Windows",
+     "Microsoft 365",
+     "Ticketing"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani rata-rata 15 tiket keluhan pengguna per hari melalui sistem ticketing.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Android and iOS application development experience",
+      "Proficiency in Kotlin",
+      "Knowledge of Swift or Objective-C",
+      "Experience as an Engineer",
+      "Building maintainable, scalable, and well-tested software systems",
+      "Developing and maintaining mobile client components"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 880,
+   "outTokens": 320,
+   "ms": 25754,
+   "calls": 1,
+   "estCostUsd": 0.00186,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "C",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Python, Web, or Full Stack development skills",
+     "Writing clean code and understanding software design",
+     "Algorithms, data structures, or system design knowledge",
+     "Experience with modern front-end or back-end frameworks",
+     "Backend & Systems development experience",
+     "DevOps & Database engineering experience"
+    ],
+    "skills": [
+     "Jaringan dasar",
+     "Komunikasi",
+     "Bahasa Inggris",
+     "Windows",
+     "Microsoft 365",
+     "Ticketing"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah.",
+       "Menangani tiket keluhan pengguna lewat sistem ticketing, rata-rata 15 tiket per hari.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Python, Web, or Full Stack development skills",
+      "Writing clean code and understanding software design",
+      "Algorithms, data structures, or system design knowledge",
+      "Experience with modern front-end or back-end frameworks",
+      "Backend & Systems development experience",
+      "DevOps & Database engineering experience"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 653,
+   "outTokens": 338,
+   "ms": 24004,
+   "calls": 1,
+   "estCostUsd": 0.00175725,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "one",
+   "profile": "C",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Tier 3 Service Desk Technician / Escalation point",
+     "Exceptional problem-solving skills",
+     "Resolving complex technical issues",
+     "Leading client onboarding",
+     "Project initiatives",
+     "Direct end-user support"
+    ],
+    "skills": [
+     "Ticketing",
+     "Windows",
+     "Microsoft 365",
+     "Jaringan dasar",
+     "Komunikasi",
+     "Bahasa Inggris"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani tiket keluhan pengguna lewat sistem ticketing, rata-rata 15 tiket per hari.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [
+      "Direct end-user support",
+      "Exceptional problem-solving skills"
+     ],
+     "missing": [
+      "Tier 3 Service Desk Technician / Escalation point",
+      "Resolving complex technical issues",
+      "Leading client onboarding",
+      "Project initiatives"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 640,
+   "outTokens": 309,
+   "ms": 7880,
+   "calls": 1,
+   "estCostUsd": 0.00163875,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "A",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Pengalaman mengembangkan aplikasi Android dan iOS",
+     "Keahlian dalam bahasa pemrograman Kotlin",
+     "Pengalaman menggunakan Swift atau Objective-C",
+     "Pengalaman kerja sebagai Engineer",
+     "Kemampuan membangun sistem perangkat lunak yang scalable, maintainable, dan teruji",
+     "Pengalaman mengembangkan dan memelihara komponen mobile client",
+     "Kemampuan menulis kode berkualitas tinggi dan terdokumentasi dengan baik"
+    ],
+    "skills": [
+     "Git",
+     "REST API",
+     "Jest",
+     "TypeScript",
+     "React",
+     "Node.js",
+     "PostgreSQL"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%",
+       "Membangun fitur dashboard pelanggan menggunakan React dan TypeScript",
+       "Menulis REST API dengan Node.js dan PostgreSQL serta mengikuti code review dua kali seminggu"
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Memperbaiki bug tampilan di situs perusahaan",
+       "Membantu memindahkan halaman statis ke React"
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Pengalaman kerja sebagai Engineer"
+     ],
+     "missing": [
+      "Pengalaman mengembangkan aplikasi Android dan iOS",
+      "Keahlian dalam bahasa pemrograman Kotlin",
+      "Pengalaman menggunakan Swift atau Objective-C",
+      "Kemampuan membangun sistem perangkat lunak yang scalable, maintainable, dan teruji",
+      "Pengalaman mengembangkan dan memelihara komponen mobile client",
+      "Kemampuan menulis kode berkualitas tinggi dan terdokumentasi dengan baik"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1040,
+   "outTokens": 445,
+   "ms": 14571,
+   "calls": 2,
+   "estCostUsd": 0.00244875,
+   "finish": [
+    "stop",
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "A",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Ability to write clean code and understand software design",
+     "Proficiency in algorithms and data structures",
+     "Experience in system design",
+     "Full-stack and web development skills (JavaScript, TypeScript, React, Node.js, Python, PHP, Ruby)",
+     "Backend and systems development experience (C++, Java, Go, Rust, Python)",
+     "Knowledge in DevOps and Database engineering"
+    ],
+    "skills": [
+     "TypeScript",
+     "React",
+     "Node.js",
+     "REST API",
+     "PostgreSQL",
+     "Jest",
+     "Git"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript.",
+       "Menulis REST API dengan Node.js dan PostgreSQL.",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70% serta mengikuti code review dua kali seminggu."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Membantu memindahkan halaman statis ke React.",
+       "Memperbaiki bug tampilan di situs perusahaan."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Ability to write clean code and understand software design (melalui pengujian unit dengan Jest dan code review)",
+      "Full-stack and web development skills (TypeScript, React, Node.js)",
+      "Database engineering (PostgreSQL)"
+     ],
+     "missing": [
+      "Proficiency in algorithms and data structures",
+      "Experience in system design",
+      "Pengalaman pengembangan backend dan sistem dengan C++, Java, Go, Rust, atau Python",
+      "Pengetahuan DevOps"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 820,
+   "outTokens": 450,
+   "ms": 15515,
+   "calls": 2,
+   "estCostUsd": 0.0023025,
+   "finish": [
+    "stop",
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "A",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Pengalaman sebagai Tier 3 Service Desk Technician",
+     "Kemampuan memecahkan masalah yang luar biasa (exceptional problem-solving)",
+     "Kemampuan menangani eskalasi dan menyelesaikan masalah teknis yang kompleks",
+     "Pengalaman memimpin proses onboarding klien",
+     "Pengalaman memimpin inisiatif proyek IT",
+     "Kemampuan memberikan dukungan langsung kepada pengguna akhir (end-user support)"
+    ],
+    "skills": [
+     "Git",
+     "REST API",
+     "TypeScript",
+     "React",
+     "Node.js",
+     "PostgreSQL",
+     "Jest"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Memperbaiki bug tampilan di situs perusahaan",
+       "Membantu memindahkan halaman statis ke React"
+      ]
+     },
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript",
+       "Menulis REST API dengan Node.js dan PostgreSQL",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%"
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Pengalaman sebagai Tier 3 Service Desk Technician",
+      "Kemampuan memecahkan masalah yang luar biasa (exceptional problem-solving)",
+      "Kemampuan menangani eskalasi dan menyelesaikan masalah teknis yang kompleks",
+      "Pengalaman memimpin proses onboarding klien",
+      "Pengalaman memimpin inisiatif proyek IT",
+      "Kemampuan memberikan dukungan langsung kepada pengguna akhir (end-user support)"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 801,
+   "outTokens": 430,
+   "ms": 34994,
+   "calls": 2,
+   "estCostUsd": 0.00221325,
+   "finish": [
+    "stop",
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "B",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Pengalaman mengembangkan aplikasi Android menggunakan Kotlin",
+     "Pengalaman mengembangkan aplikasi iOS menggunakan Swift atau Objective-C",
+     "Memiliki pengalaman kerja sebagai Engineer/Software Engineer",
+     "Kemampuan membangun sistem perangkat lunak yang maintainable, scalable, dan well-tested",
+     "Pengalaman dalam mengembangkan dan memelihara komponen mobile client",
+     "Kemampuan menulis kode berkualitas tinggi, teruji, dan terdokumentasi dengan baik"
+    ],
+    "skills": [
+     "Python",
+     "SQL",
+     "pandas",
+     "Statistics",
+     "English",
+     "Excel",
+     "Tableau"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Built weekly sales dashboards in Tableau for the regional team.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to the store managers of Contoh Retail Group."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Pengalaman mengembangkan aplikasi Android menggunakan Kotlin",
+      "Pengalaman mengembangkan aplikasi iOS menggunakan Swift atau Objective-C",
+      "Memiliki pengalaman kerja sebagai Engineer/Software Engineer",
+      "Kemampuan membangun sistem perangkat lunak yang maintainable, scalable, dan well-tested",
+      "Pengalaman dalam mengembangkan dan memelihara komponen mobile client",
+      "Kemampuan menulis kode berkualitas tinggi, teruji, dan terdokumentasi dengan baik"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1025,
+   "outTokens": 440,
+   "ms": 13539,
+   "calls": 2,
+   "estCostUsd": 0.00241875,
+   "finish": [
+    "stop",
+    "stop"
+   ]
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "B",
+   "job": "J2",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92603,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "B",
+   "job": "J3",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92922,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "C",
+   "job": "J1",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92338,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "C",
+   "job": "J2",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92345,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  },
+  {
+   "model": "gemini-3.6-flash",
+   "mode": "two",
+   "profile": "C",
+   "job": "J3",
+   "error": "HTTP 429 rate limited after retries",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 0,
+   "outTokens": 0,
+   "ms": 92956,
+   "calls": 1,
+   "estCostUsd": 0,
+   "finish": []
+  }
+ ]
+}
