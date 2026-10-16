@@ -388,7 +388,7 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 - [x] Diuji di Chrome sungguhan dengan minimal tiga PDF CV: satu bersih (`clean-id.pdf`), satu dua kolom (`two-column-en.pdf`), satu hasil scan (`scan-id.pdf`, ditolak) (FR-25). Ketiganya sintetis, dibuat dari HTML lewat Chrome print-to-PDF.
 - [x] Penyimpanan penuh saat konfirmasi memakai notice yang sudah ada dan tidak menghilangkan data lama (PRD §8). Terbukti di Chrome sungguhan dengan menyisakan 150 byte kuota: notice tampil, layar tetap di pratinjau, profil tersimpan tidak berubah.
 - [x] README diperbarui: fitur Import CV, batasannya (tanpa OCR, akurasi tergantung layout), dan bahwa PDF tidak meninggalkan peramban
-- [ ] Uji dengan 2–3 PDF CV asli dari PIC dan catat akurasinya per field (menunggu berkas; PDF asli tidak boleh masuk repo)
+- [ ] Uji dengan 2–3 PDF CV asli dari PIC dan catat akurasinya per field (**pending**, ditunda PIC 2026-10-16; PDF asli tidak boleh masuk repo)
 
 **Done when:** PDF CV uji mengisi profil di Chrome sungguhan, field yang berisi tidak tertimpa, dan PDF scan ditolak dengan pesan jelas.
 
@@ -618,7 +618,7 @@ Gerbang: bila T45 menunjukkan model sering mengarang atau biayanya terlalu tingg
 **Done when:** pada 5 lamaran nyata, CV dan surat siap diunduh dalam ≤3 menit, nol fakta karangan, dan status lamaran terlacak sampai hasil akhir (PRD §10).
 
 ### T40 · Mockup Application Kit di design system · 1.5h · design · Highest
-- [ ] **T40 selesai**
+- [x] **T40 selesai** (mockup disetujui PIC 2026-10-16)
 
 **Context:** sama seperti T28: mockup dulu di `docs/design-system.html`, tanpa menyentuh produk. Referensi: diagram alur dari PIC (C. Automatic CV by Company Requirement, Cover Letter, Job Tracker).
 
@@ -630,7 +630,7 @@ Gerbang: bila T45 menunjukkan model sering mengarang atau biayanya terlalu tingg
 - [x] Tambahan S1 Panel: baris Cover letter, field unggah dilewati, lencana konteks, pesan setelah Fill (FR-44, FR-36)
 - [x] Hanya token dan komponen yang ada ditambah delapan komponen baru yang didaftar di `design-system.md` §4.4; tanpa overflow horizontal di 420 px
 
-**Hasil:** mockup di `docs/design-system.html` §9 (kartu Lowongan, S7 Papan, S7 Visualisasi, S7 empat state, S8 Ringkasan, S8 CV hasil + delapan state, S8 Surat, S8 Catatan & riwayat, dua frame panel, lebar ≤420 px). Dicek di browser: papan lima kolom (166 px per kolom) dan diff terbaca; tidak ada overflow horizontal di bagian ini pada viewport 424 px. Menunggu persetujuan PIC.
+**Hasil:** mockup di `docs/design-system.html` §9 (kartu Lowongan, S7 Papan, S7 Visualisasi, S7 empat state, S8 Ringkasan, S8 CV hasil + delapan state, S8 Surat, S8 Catatan & riwayat, dua frame panel, lebar ≤420 px). Dicek di browser: papan lima kolom (166 px per kolom) dan diff terbaca; tidak ada overflow horizontal di bagian ini pada viewport 424 px. Disetujui PIC 2026-10-16.
 
 **Done when:** PIC menyetujui mockup.
 
