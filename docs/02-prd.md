@@ -7,7 +7,7 @@
 **Author (PIC):** imelda
 **Builder:** imelda
 **Date:** 2026-10-09
-**Status:** APPROVED · **Revisi 2026-10-09 (DRAFT):** Lowongan harian (FR-26 sampai FR-33). Prinsip tanpa jaringan dan tanpa AI dicabut untuk fitur ini (keputusan PIC, §4.1).
+**Status:** APPROVED · **Penambahan 2026-10-09:** FR-20 (field wajib yang belum terisi ditandai di halaman; keputusan PIC 2026-10-09, T16). · **Revisi 2026-10-09 (DRAFT):** Lowongan harian (FR-26 sampai FR-33). Prinsip tanpa jaringan dan tanpa AI dicabut untuk fitur ini (keputusan PIC, §4.1). · **Revisi 2026-10-15 (DRAFT):** Application Kit: tracker lamaran, CV yang disesuaikan dengan requirement lowongan, dan surat lamaran (FR-34 sampai FR-48; §4.2, §6.8). Menunggu persetujuan PIC.
 **Research input:** `docs/01-research.md` (verdict BUILD)
 **Launch date:** Day 10 — fixed
 
@@ -18,6 +18,8 @@
 job-kit membuat pelamar kerja mengisi form lamaran dengan satu klik dari profil yang ia ketik sekali, dan bisa membatalkannya.
 
 **Revisi 2026-10-09:** job-kit juga mencarikan lowongan yang cocok setiap hari, memberi skor beserta alasannya, dan mengantar pengguna ke form lamarannya.
+
+**Revisi 2026-10-15:** dari lowongan yang cocok, job-kit menyiapkan CV yang disesuaikan dengan requirement perusahaan itu (hanya dari isi profil, tanpa mengarang), draf surat lamaran, dan melacak statusnya sampai hasil akhir.
 
 ## 2. Problem & context
 
@@ -41,7 +43,7 @@ UNKNOWN — no real research yet.
 | Goals | Non-goals |
 |---|---|
 | Satu klik mengisi form lamaran dari profil. | Tidak ada akun, login, atau sinkron antar perangkat. |
-| Pengguna melihat apa yang akan diisi sebelum menekan Fill. | Tidak ada cover letter atau latihan interview. AI hanya dipakai untuk menormalkan dan menilai lowongan (FR-28, FR-29; keputusan PIC 2026-10-09). |
+| Pengguna melihat apa yang akan diisi sebelum menekan Fill. | Tidak ada latihan interview. ~~Tidak ada cover letter; AI hanya menormalkan dan menilai lowongan (keputusan PIC 2026-10-09).~~ Dicabut 2026-10-15: AI juga menyusun draf CV dan surat lamaran, sebagai draf yang diperiksa dan diedit pengguna (FR-39, FR-43). |
 | Pengguna bisa membatalkan pengisian. | Captured Jobs di v1 hanya UI; lowongan belum tercatat otomatis (keputusan PIC 2026-10-09). |
 | Profil diketik sekali di satu tempat. | Import dan Hapus semua berfungsi (FR-22); sebelumnya hanya UI (keputusan PIC 2026-10-09, direvisi 2026-10-10). |
 | Profil bisa diisi dari CV PDF tanpa mengetik ulang (FR-25; keputusan PIC 2026-10-10). | Tidak ada tombol submit otomatis; pengguna yang mengirim form. |
@@ -55,6 +57,10 @@ UNKNOWN — no real research yet.
 | Tiap lowongan punya skor kecocokan dan alasannya (FR-29). | Tidak men-scrape halaman yang butuh login. Scraping hanya halaman publik, tanpa cookie pengguna. |
 | Lowongan bisa dipisah Remote, Hybrid, dan On-site (FR-28). | Kirim ke CV Maker belum di fase ini (FR-33, ditunda). |
 | Dari kartu lowongan, pengguna langsung sampai ke form dan panel Autofill (FR-31). | |
+| Satu tempat untuk semua lamaran: draf, CV, surat, dan status sampai Offer atau Ditolak, lengkap dengan papan dan visualisasi alur (FR-34 sampai FR-38, FR-48; revisi 2026-10-15). | Tidak ada sinkron lintas perangkat, akun, atau berbagi lamaran. Tracker tetap lokal. |
+| CV disesuaikan dengan requirement tiap lowongan, hanya dari isi Profile (FR-39, FR-40, FR-41). | Tidak ada fakta karangan: jabatan, perusahaan, institusi, tanggal, skill, dan angka harus ada di Profile (FR-40). Requirement yang tidak terpenuhi dilaporkan, tidak ditambal. |
+| CV bisa diunduh sebagai PDF dari browser (FR-42). Surat lamaran ditulis dalam bahasa lowongan dan bisa diedit (FR-43). | Tidak ada unggah CV otomatis ke form lamaran; pengguna memilih berkasnya sendiri. Tidak ada banyak template CV, tidak ada editor teks kaya. |
+| Surat lamaran mengisi field cover letter di form lamaran lewat Buka & isi (FR-44). | Tidak ada pengisian essay atau pertanyaan bebas lain; hanya field yang berlabel cover letter atau surat lamaran. |
 
 ### 4.1 Revisi prinsip privasi (keputusan PIC 2026-10-09)
 
@@ -67,6 +73,19 @@ Sampai T26, job-kit tidak melakukan request jaringan dan tidak memakai AI. Lowon
 - **Yang lama tetap lokal.** Autofill, profil, dan Import CV tidak berubah perilakunya.
 - README dan bagian Privasi ditulis ulang saat fitur dirilis (T39). Sebelum itu, klaim "tidak melakukan permintaan jaringan" di README masih benar untuk build yang ada.
 
+### 4.2 Privasi untuk CV dan surat (usulan 2026-10-15; PIC memutuskan sebelum T47)
+
+Penilaian lowongan (§4.1) hanya mengirim ringkasan tanpa identitas. CV dan surat butuh lebih banyak, yaitu butir pengalaman. Usulan batasnya:
+
+- **Dikirim ke penyedia AI:** skill, butir deskripsi tiap pengalaman, judul jabatan, jenjang dan jurusan, serta teks dan judul lowongan (data publik).
+- **Tidak dikirim:** nama, email, telepon, alamat, tanggal lahir, tautan LinkedIn dan website, IPK.
+- **Nama perusahaan tempat kerja dan nama kampus diganti kode** (`{C1}`, `{S1}`) sebelum dikirim, lalu dipulihkan di browser ini. Alasannya: butir pengalaman sering memuat nama klien atau perusahaan, dan kode tidak mengurangi mutu hasil.
+- **AI tidak pernah menulis fakta terstruktur.** Jabatan, perusahaan, institusi, dan tanggal di CV diambil dari Profile oleh job-kit, bukan dari jawaban AI (FR-40).
+- **Model gratis yang memakai data untuk melatih** (peringatan OpenCode Zen) ditandai. Sebelum CV atau surat pertama per lamaran, pengguna melihat peringatan dan boleh lanjut atau ganti model. Penilaian lowongan tidak terpengaruh.
+- **Batas harian** panggilan AI untuk CV dan surat, bawaan 20, terpisah dari batas 50 untuk penilaian lowongan (FR-46).
+- **Penyimpanan:** CV, surat, dan lamaran di `storage.local`, ikut Export dan Hapus semua. Kunci API tetap tidak ikut Export.
+- README dan bagian Privasi ditulis ulang saat Application Kit dirilis (T55).
+
 ## 5. User stories
 
 - **A** — Sebagai pelamar, saya mengisi profil sekali (data diri, kontak & alamat, pendidikan, pengalaman kerja, skill, field kustom) supaya tidak mengetik ulang.
@@ -78,6 +97,11 @@ Sampai T26, job-kit tidak melakukan request jaringan dan tidak memakai AI. Lowon
 - **G** — Sebagai pelamar, saya melihat skor kecocokan dan alasannya, supaya tahu mana yang layak dilamar dulu.
 - **H** — Sebagai pelamar, saya memisahkan lowongan Remote, Hybrid, dan On-site, supaya sesuai cara kerja yang saya mau.
 - **I** — Sebagai pelamar, saya membuka lowongan dan langsung mengisi formnya dengan job-kit, supaya dari menemukan sampai melamar tidak terputus.
+- **J** — Sebagai pelamar, saya menekan **Siapkan lamaran** pada lowongan yang saya minati, dan CV, surat, serta statusnya terkumpul di satu tempat. *(revisi 2026-10-15)*
+- **K** — Sebagai pelamar, saya mendapat CV yang disesuaikan dengan requirement perusahaan itu, disusun hanya dari profil saya, supaya peluang lolos seleksi naik tanpa saya menulis ulang tiap kali.
+- **L** — Sebagai pelamar, saya melihat apa saja yang diubah dibanding CV asli, dan requirement mana yang belum terpenuhi, supaya saya bisa memeriksa dan tidak mengirim klaim yang bukan milik saya.
+- **M** — Sebagai pelamar, saya mendapat draf surat lamaran dalam bahasa lowongan yang bisa saya edit, dan surat itu terisi di form lamaran.
+- **N** — Sebagai pelamar, saya melihat semua lamaran dengan statusnya (draf sampai offer atau ditolak) dan mana yang perlu ditindaklanjuti, serta gambaran alurnya (berapa yang sampai Interview dan Offer, berapa yang tanpa kabar atau ditolak), supaya tidak ada yang terlupa dan saya tahu pencarian kerja saya bergerak ke mana.
 
 **Core flow:**
 1. Pengguna membuka halaman Edit Profile dan mengisi profil.
@@ -94,6 +118,13 @@ Sampai T26, job-kit tidak melakukan request jaringan dan tidak memakai AI. Lowon
 3. Lowongan dinormalkan, digolongkan Remote / Hybrid / On-site, disaring aturan, lalu dinilai AI.
 4. Pengguna membuka halaman Lowongan, menyaring dan mengurutkan, lalu membaca alasan skor.
 5. Pengguna menekan **Buka & isi**. Tab lowongan terbuka, lalu core flow berlanjut dari langkah 4.
+
+**Flow Application Kit (revisi 2026-10-15):**
+1. Dari kartu lowongan, pengguna menekan **Siapkan lamaran**. Lamaran berstatus Draft dibuat dan halaman Detail Lamaran terbuka.
+2. **Buat CV:** job-kit membaca requirement lowongan, menyusun CV dari Profile, memeriksa bahwa semua fakta ada di Profile, lalu menampilkan CV berdampingan dengan versi asli beserta requirement yang belum terpenuhi. Pengguna mengedit seperlunya dan mengunduh PDF.
+3. **Buat surat:** draf dalam bahasa lowongan; pengguna mengedit.
+4. **Buka & isi:** form lamaran terisi dari Profile, dan surat ikut mengisi field cover letter bila ada. Pengguna memilih berkas CV sendiri di field unggah, lalu mengirim form.
+5. Fill berhasil: lamaran berstatus Dilamar. Pengguna memperbarui status (Direview, Interview, Offer, Ditolak) dan catatan di Lamaran.
 
 ## 6. Flow & screens
 
@@ -155,10 +186,10 @@ flowchart LR
 - Site header: domain dan judul halaman (FR-05).
 - Summary bar: `"9 dari 12 field cocok"` (FR-07).
 - Daftar "Akan diisi": per baris checkbox, label field, nilai. Aksi `"Matikan yang tidak perlu"` (FR-08). Field yang sudah berisi ditandai `"Sudah berisi"` dengan pilihan timpa / lewati.
-- Daftar "Dilewati": field tak terpetakan, tanpa tombol petakan.
+- Daftar "Dilewati": field tak terpetakan, tanpa tombol petakan. Field wajib bertanda `"Wajib"` dan di halaman diberi outline amber setelah Fill (FR-20).
 - Daftar "Profil belum punya": baris `"Email"` + `"Isi →"` ke S3.
 - State sedang mengisi: `"Mengisi field ke-6 dari 12…"`.
-- Ringkasan hasil: `"9 field terisi · 1 dilewati"` + `"Cek sekali lagi sebelum submit, ya."` (FR-19).
+- Ringkasan hasil: `"9 field terisi · 1 dilewati"` + `"Cek sekali lagi sebelum submit, ya."` (FR-19). Bila ada field wajib yang masih kosong, satu baris amber: `"2 field wajib belum terisi, sudah ditandai kuning di halaman."` (FR-20, penambahan 2026-10-09).
 - Footer tetap: **"Fill"**; setelah Fill ganti jadi **"Undo"**. Disabled `"Fill"` bilang sebabnya: `"Profil masih kosong — isi dulu"`.
 - Decorative: maskot state netral di "Tidak ada form"; maskot error di "Tidak bisa dibaca"; maskot berhasil di ringkasan hasil.
 
@@ -178,7 +209,7 @@ flowchart LR
 - Indikator `"Tersimpan"` (FR-03).
 - Decorative: maskot netral di empty state Education / Work Experience / Skill.
 
-**Coverage FR:** FR-01..04 → S3 · FR-05..08, 09..14 → S1 · FR-15 → S3 · FR-16 → S3 · FR-17 → S2 · FR-18 → S1 · FR-19 → S1. Daftar FR yang tidak muncul di layar manapun: kosong.
+**Coverage FR:** FR-01..04 → S3 · FR-05..08, 09..14 → S1 · FR-15 → S3 · FR-16 → S3 · FR-17 → S2 · FR-18 → S1 · FR-19 → S1 · FR-20 → S1. Daftar FR yang tidak muncul di layar manapun: kosong.
 
 ### 6.3 Referensi
 
@@ -268,6 +299,67 @@ flowchart LR
 
 **Coverage FR:** FR-26 → S5 · FR-27, FR-32 → S6, S4 (header) · FR-28..31 → S4 · FR-33 → tidak ada (ditunda).
 
+### 6.8 Application Kit (revisi 2026-10-15)
+
+Mockup: `docs/design-system.html` §9 (T40). Komponen baru didaftar di `docs/design-system.md` §4.4.
+
+```mermaid
+flowchart LR
+    S4["Options · Lowongan<br/>kartu"] -->|"Siapkan lamaran"| S8
+    S7["Options · Lamaran<br/>Papan / Visualisasi"] -->|"buka kartu"| S8["Options · Detail Lamaran<br/>Ringkasan · CV · Surat · Riwayat"]
+    S8 -->|"Buat CV"| cv{"AI + pemeriksa fakta"}
+    cv -->|lolos| cvok["Pratinjau + diff + edit"]
+    cv -->|"ditolak / AI gagal"| cverr["Pesan sebab, coba lagi"]
+    cvok -->|"Unduh PDF"| pdf(["CV.pdf di komputer"])
+    S8 -->|"Buat surat"| let{"AI + pemeriksa fakta"}
+    let -->|lolos| letok["Editor surat"]
+    let -->|"ditolak / AI gagal"| leterr["Pesan sebab, coba lagi"]
+    S8 -->|"Buka & isi"| tab(["Tab lowongan + Panel · Autofill (S1)<br/>surat ikut sebagai field"])
+    tab -->|"Fill berhasil"| applied(["Lamaran: Dilamar"])
+    applied --> S7
+    S7 -->|"ubah status"| result(["Direview → Interview → Offer / Ditolak"])
+
+    classDef screen fill:#E9F2FF,stroke:#0055CC,stroke-width:2px,color:#172B4D
+    classDef gate   fill:#FFF0B3,stroke:#974F0C,stroke-width:2px,color:#172B4D
+    classDef bad    fill:#FFECEB,stroke:#AE2E24,stroke-width:2px,color:#172B4D
+    classDef done   fill:#E3FCEF,stroke:#216E4E,stroke-width:2px,color:#172B4D
+    class pdf,tab,applied,result done
+    class cv,let gate
+    class S4,S7,S8,cvok,letok screen
+    class cverr,leterr bad
+```
+
+| Screen | Story | Purpose | Primary action | Empty state | Error state |
+|---|---|---|---|---|---|
+| **S7 Options · Lamaran** | J, N | Memantau semua lamaran per status | Buka kartu lamaran | `"Belum ada lamaran"` / `"Pilih lowongan di Lowongan, lalu tekan Siapkan lamaran. Lamaran yang kamu isi lewat Buka & isi juga muncul di sini."` + **"Ke Lowongan"**. Filter tanpa hasil: `"Tidak ada yang cocok"` | Penyimpanan penuh: sama dengan S3 |
+| **S8 Options · Detail Lamaran** | J, K, L, M | Menyiapkan CV dan surat satu lowongan, lalu melacaknya | **"Buat CV"**, **"Buat surat"**, **"Buka & isi"**, **"Unduh PDF"** | CV: `"CV untuk lowongan ini belum dibuat"`. Surat: `"Surat untuk lowongan ini belum dibuat"` | `"CV tidak ditampilkan. Hasil AI memuat hal yang tidak ada di Profile: …"`; `"Kunci API belum diisi"`; `"Batas 20 panggilan AI hari ini tercapai"`; `"Profilmu berubah sejak CV ini dibuat"` |
+| **S1 Panel · Autofill** (tambahan) | M | Surat lamaran ikut diisi dari lamaran yang tertaut dengan tab | **"Isi N field"** | — | Field unggah file dilewati dengan `"Unggah manual"` |
+
+**S7 Options · Lamaran**
+- Navigasi: tujuan sidebar keempat, **Lamaran**, antara Lowongan dan Data. Badge amber menghitung lamaran yang perlu tindak lanjut hari ini (FR-47), bukan jumlah lamaran.
+- Satu penukar tampilan segmented di kanan atas header: **Papan** (bawaan) dan **Visualisasi**. Tidak ada tampilan Daftar (keputusan PIC 2026-10-15).
+- **Tampilan Visualisasi (FR-48):** diagram Sankey berjudul `"Pencarian kerjamu"` dengan jumlah lamaran terkirim. Pita mengalir dari **Dilamar** ke **Direview**, **Interview**, **Offer**, dengan cabang akhir **Tanpa kabar**, **Ditolak**, dan **Masih berjalan**; lebar pita sebanding jumlah lamaran. Warna mengikuti peta badge status. Hanya lamaran yang pernah berstatus Dilamar dihitung (Draft dan Dibatalkan tidak). Di lebar ≤600 px diganti daftar batang dengan angka yang sama.
+- Di atas isi (kedua tampilan): peringatan amber bila ada lamaran yang tindak lanjutnya jatuh tempo (FR-47). Tampilan Papan: kotak cari di atas papan.
+- **Papan:** lima kolom, **Draft, Dilamar, Direview, Interview, Offer**. **Ditolak** dan **Dibatalkan** dilipat di bawah papan (`"Ditutup: Ditolak 3 · Dibatalkan 1"`). Kartu papan: judul (maks 2 baris), perusahaan, penanda dokumen (CV, Surat), tanggal atau badge. Kartu yang perlu perhatian berborder amber. Status diubah dengan menyeret kartu ke kolom lain (keputusan PIC 2026-10-15; sebelumnya tanpa seret-lepas), atau lewat pilihan Status di Detail. Selagi menyeret muncul target Ditolak dan Dibatalkan; baris di lipatan Ditutup bisa diseret kembali ke papan. Kartu tetap bisa dibuka dengan klik, dan Detail menjadi jalur lewat keyboard dan layar sentuh.
+- Peta badge status (dipakai di Detail Lamaran dan kartu Lowongan): Draft netral, Dilamar hijau, Direview violet, Interview amber, Offer hijau, Ditolak merah, Dibatalkan netral.
+- Lebar ≤420 px: papan menjadi satu kolom per status dan kolom kosong disembunyikan.
+- State kosong: tanpa lamaran sama sekali, `"Belum ada lamaran"` + **"Ke Lowongan"**; belum ada yang berstatus Dilamar, visualisasi menampilkan `"Belum ada lamaran yang dikirim"`.
+- Decorative: maskot netral di state kosong.
+
+**S8 Options · Detail Lamaran** (sub-halaman dengan tombol kembali, seperti Atur Lowongan; bukan tujuan sidebar)
+- Header: judul lowongan, perusahaan, sumber, tanggal disiapkan; pilihan status; **Buka lowongan**.
+- Empat tab: **Ringkasan**, **CV**, **Surat**, **Catatan & riwayat**.
+- **Ringkasan:** daftar langkah "Siap melamar" (CV disesuaikan, Surat lamaran, Buka & isi) dengan penanda selesai; ringkasan lowongan; tanggal tindak lanjut.
+- **CV:** ringkasan cakupan requirement (`"Cakupan requirement: 6 dari 8"`) dengan daftar tertutup dan belum tertutup; dua panel sejajar **Asli (Profile)** dan **Disesuaikan untuk lowongan ini** dengan penanda **Tervalidasi**; **Unduh PDF**, **Edit**, **Buat ulang**, **Kembalikan ke versi AI**. State: belum dibuat, sedang membuat, ditolak pemeriksa fakta, profil berubah, AI tidak tersedia, batas harian, model gratis, profil belum punya pengalaman.
+- **Surat:** pilihan bahasa dan nada, editor teks, jumlah kata, **Salin**, **Buat ulang**, **Kembalikan ke versi AI**. State sama dengan CV.
+- **Catatan & riwayat:** catatan bebas, tanggal tindak lanjut, riwayat otomatis (status, CV dan surat dibuat, CV diunduh).
+
+**Tambahan S1 Panel · Autofill.** Bila tab berasal dari Buka & isi dan lowongannya punya lamaran: lencana `"Dari Lowongan · skor 86"` disertai penanda CV dan surat siap; baris **Cover letter** terisi dari surat lamaran dan bisa dimatikan seperti field lain; field unggah file tidak diisi dan dijelaskan (`"CV-PT-Contoh-Karya.pdf sudah diunduh — pilih sendiri"`). Setelah Fill: `"Lamaran ke PT Contoh Karya ditandai Dilamar."` dengan tautan **Lihat lamaran**.
+
+**Kartu Lowongan (S4)** mendapat tombol sekunder **Siapkan lamaran**; **Simpan** menjadi tombol ikon. Bila lowongan sudah punya lamaran: **Buka lamaran**, badge status lamaran, dan penanda dokumen.
+
+**Coverage FR:** FR-34 → S4, S8 · FR-35, FR-47, FR-48 → S7 · FR-36 → S7, S8, S1 · FR-37 → S8 (Catatan & riwayat) · FR-38 → Data · FR-39..42 → S8 (CV) · FR-43 → S8 (Surat) · FR-44 → S1 · FR-45, FR-46 → S8 (state).
+
 ## 7. Functional requirements
 
 | ID | Requirement | How we verify | Priority |
@@ -291,6 +383,7 @@ flowchart LR
 | FR-17 | Side panel punya dua tab, Autofill dan Profile; tab Profile menampilkan nama, email, jumlah entri per bagian, dan satu tombol Edit Profile yang membuka halaman edit profil lebar penuh, yang ada di dalam extension (bukan situs web), di tab baru. | Klik Edit Profile; halaman edit terbuka di tab baru tanpa memuat situs eksternal. | Must |
 | FR-18 | Bila job-kit belum boleh membaca halaman aktif, panel menyatakan itu dan menawarkan satu tombol untuk memberi izin pada situs itu. | Buka situs baru tanpa izin; panel menampilkan tombol izin dan tidak menampilkan "Tidak ada form". | Must |
 | FR-19 | Setelah Fill, panel menampilkan jumlah field terisi dan jumlah field dilewati. | Fill form dengan 9 cocok dan 1 dilewati; panel menampilkan "9 field terisi · 1 dilewati". | Must |
+| FR-20 | Setelah Fill, setiap field **wajib** yang masih kosong dan terlihat di halaman diberi outline amber, supaya pengguna langsung tahu mana yang harus diisi sendiri. Wajib berarti atribut `required`, `aria-required="true"`, atau label bertanda `*`, `✱`, "Required", atau "Wajib". Field opsional yang kosong tidak diberi outline tetapi tetap ada di daftar "Dilewati", dan field wajib di daftar itu bertanda "Wajib". Outline hilang dari satu field begitu pengguna mengisinya, dari semua field saat Undo, dan saat halaman dimuat ulang; outline yang dipasang situs sendiri pada field itu dikembalikan. Tidak ada elemen baru di halaman. *(Penambahan 2026-10-09.)* | Fill form uji dengan 3 field wajib kosong dan 2 opsional kosong; hanya 3 yang beroutline sebelum diisi pengguna dan sebelum Fill tidak ada yang beroutline; isi satu, outline-nya hilang; Undo; semua hilang dan jumlah elemen halaman tidak berubah. | Should |
 | FR-21 | Halaman Data (grup DATA di navigasi options) menampilkan kartu Export, Import, Hapus semua, pemakaian storage nyata, dan kalimat jujur soal enkripsi. Export berfungsi; Import dan Hapus semua tampil nonaktif dengan alasan "Belum tersedia di versi ini". | Buka Data; angka storage sesuai `getBytesInUse`; Export mengunduh satu berkas JSON berversi; Import dan Hapus semua nonaktif. | Should |
 | FR-22 | Import (berkas JSON hasil Export) dan Hapus semua berfungsi: berkas rusak atau versi tak dikenal ditolak dengan sebab spesifik, pratinjau menunjukkan apa yang berubah, Gabung hanya mengisi yang kosong, Ganti menggantikan seluruh profil, Hapus semua meminta mengetik ulang kata `HAPUS`. Dijadwalkan di T18 (keputusan PIC 2026-10-10). | Export, ubah profil, Import (Ganti); profil kembali seperti berkas. Ketik `HAPUS`; profil kosong. | Should |
 | FR-23 | Halaman Captured Jobs (grup DATA di navigasi options) menampilkan daftar lowongan dengan pencarian dan filter status, state kosong, state filter tanpa hasil, dan slide-over detail (status, snapshot field, catatan). Tanpa data tersimpan, halaman menampilkan state kosong yang menyatakan bahwa pencatatan belum tersedia. | Buka Captured Jobs di build produksi; state kosong tampil, tidak ada kontrol palsu. Di build dev, `#jobs?state=list` menampilkan daftar contoh. | Could |
@@ -304,6 +397,21 @@ flowchart LR
 | FR-31 | **Buka & isi** membuka URL lowongan di tab baru dan membuka side panel job-kit di tab itu. Setelah Fill berhasil di tab itu, lowongan ditandai Dilamar. | Klik Buka & isi pada lowongan Greenhouse; panel Autofill tampil; Fill; status jadi Dilamar. | Should |
 | FR-32 | Halaman Atur Lowongan (S6): nyala/mati per sumber, daftar perusahaan untuk sumber ATS, jam ambil harian, penyedia AI, model, kunci API, dan Tes koneksi. Izin host diminta saat sumber atau AI dinyalakan, bukan saat instal. Kunci API tidak ikut Export. | Nyalakan LinkedIn; Chrome meminta izin domain itu. Export; berkas tidak memuat kunci. | Must |
 | FR-33 | Kirim lowongan (URL dan teks deskripsi) ke CV Maker untuk dibuatkan CV. **Ditunda**; CV Maker project terpisah dan antarmukanya belum ditentukan. Data lowongan sudah menyimpan teks deskripsi supaya handoff nanti tidak perlu mengambil ulang. | — | Could |
+| FR-34 | Dari kartu lowongan, **Siapkan lamaran** membuat satu Lamaran berstatus Draft untuk lowongan itu (satu lamaran per lowongan) dan membuka Detail Lamaran. Lamaran menyimpan salinan lowongan (judul, perusahaan, URL, sumber, teks deskripsi) supaya tetap utuh setelah lowongan dipangkas dari feed. Lowongan yang sudah punya lamaran menampilkan **Buka lamaran**. Menyiapkan lamaran menyimpan lowongan itu. (revisi 2026-10-15) | Klik Siapkan lamaran pada satu kartu; lamaran muncul di Lamaran. Pangkas feed; lamaran dan salinan lowongannya tetap ada. Klik lagi; membuka lamaran yang sama, tidak membuat yang kedua. | Must |
+| FR-35 | Halaman Lamaran (S7) menampilkan semua lamaran sebagai papan (Draft, Dilamar, Direview, Interview, Offer; Ditolak dan Dibatalkan dilipat) dengan pencarian dan perubahan status dari Detail Lamaran. Halaman punya satu penukar Papan / Visualisasi (FR-48); tidak ada tampilan Daftar. | Ubah status satu lamaran ke Interview; kartunya pindah kolom setelah muat ulang. Cari nama perusahaan; hanya yang cocok tampil. | Must |
+| FR-36 | Status lamaran adalah sumber kebenaran; status lowongan di feed diturunkan darinya, tidak pernah berselisih. Draft dan Dibatalkan membuat lowongan berstatus Disimpan; Dilamar atau lebih membuatnya Dilamar. Fill berhasil di tab dari Buka & isi (FR-31) memindahkan lamaran dari Draft ke Dilamar (membuatnya bila belum ada). Status tidak mundur otomatis (Fill di lamaran yang sudah Interview tidak mengubahnya). Perubahan status tercatat di riwayat. | Fill di tab dari Buka & isi; lamaran Dilamar dan lowongan di tab Disimpan berstatus Dilamar. Ubah lamaran ke Dibatalkan; lowongan kembali Disimpan. | Must |
+| FR-37 | Detail Lamaran memuat catatan bebas, tanggal tindak lanjut opsional, dan riwayat otomatis yang tidak bisa diedit (status berubah, CV dan surat dibuat, CV diunduh). | Ubah status, buat CV, unduh PDF; tiga entri riwayat muncul urut waktu. Catatan bertahan setelah muat ulang. | Should |
+| FR-38 | Lamaran, CV, dan surat ikut Export, Import (Gabung hanya menambah lamaran yang belum ada; Ganti menggantikan), dan Hapus semua. Menghapus satu lamaran meminta konfirmasi yang menyebut bahwa CV dan suratnya ikut terhapus. | Export lalu Hapus semua lalu Import (Ganti); lamaran, CV, dan surat kembali. Hapus satu lamaran: konfirmasi tampil. | Must |
+| FR-39 | **CV disesuaikan.** Di Detail Lamaran, **Buat CV** meminta AI membaca teks lowongan untuk mengambil requirement-nya, lalu memilih dan mengurutkan skill, pengalaman, dan pendidikan dari Profile serta merapikan kalimat butir pengalaman agar selaras dengan requirement. Hasil menampilkan cakupan requirement (tertutup dan belum tertutup) dan disimpan per lamaran. Tanpa teks lowongan, pengguna bisa menempelkannya. | Profil uji + lowongan uji; CV memuat skill dan butir pengalaman yang relevan di urutan atas, dan requirement yang tidak ada di profil tercantum sebagai belum tertutup. | Must |
+| FR-40 | **Tanpa karangan.** Skill, perusahaan, institusi, jabatan, tanggal, dan angka di CV maupun surat harus bisa ditelusuri ke Profile. Jabatan, perusahaan, institusi, dan tanggal diambil job-kit dari Profile, bukan dari jawaban AI. Setiap angka dan istilah teknis di butir pengalaman harus ada di deskripsi pengalaman itu atau di daftar skill. Hasil yang melanggar ditolak seluruhnya dan tidak ditampilkan sebagai CV; pengguna melihat sebabnya. Requirement yang tidak ada di Profile tidak pernah ditambal. | Tes dengan jawaban AI palsu yang menambah "Kubernetes" dan "50%": hasil ditolak dengan dua alasan itu. Jawaban yang hanya menyusun ulang skill: lolos. | Must |
+| FR-41 | Pratinjau CV menampilkan versi asli dan hasil berdampingan dengan penanda perubahan, bisa diedit tangan, dan bisa dikembalikan ke versi AI. CV yang diedit ditandai. | Edit satu butir; muat ulang; suntingan tetap ada dan CV bertanda diedit. Kembalikan ke versi AI; butir kembali. | Must |
+| FR-42 | **Unduh PDF** menghasilkan berkas PDF di browser, tanpa server, dengan satu templat dan teks yang bisa dipilih dan dicari. Nama berkas memuat nama perusahaan. job-kit tidak mengunggah CV ke form lamaran (§4). | Klik Unduh PDF; berkas terunduh, teksnya bisa disalin, tidak ada request jaringan saat membuatnya. | Must |
+| FR-43 | **Surat lamaran.** **Buat surat** menulis draf dari Profile dan lowongan dalam bahasa lowongan (Indonesia atau Inggris, dideteksi dari teksnya; pengguna bisa mengganti) dengan nada formal atau santai. Nama pengguna di penutup diisi dari Profile secara lokal. Surat bisa diedit, disimpan otomatis per lamaran, dan disalin. Aturan FR-40 berlaku. | Lowongan berbahasa Inggris menghasilkan surat berbahasa Inggris. Jawaban AI dengan fakta tambahan ditolak. | Must |
+| FR-44 | Di tab dari Buka & isi, field berlabel cover letter atau surat lamaran (textarea) diisi dari surat lamaran yang tertaut, muncul sebagai satu baris di pratinjau panel dan bisa dimatikan. Field unggah file tidak diisi; panel menjelaskannya. Essay dan pertanyaan bebas lain tetap tidak diisi. | Form uji dengan textarea "Cover letter": baris tampil dan terisi. Form dengan input file: dilewati dengan "Unggah manual". | Should |
+| FR-45 | CV dan surat yang dibuat dari Profile versi lama ditandai "Profilmu berubah sejak CV ini dibuat" dan menawarkan Buat ulang. Tidak dibuat ulang otomatis; Buat ulang pada dokumen yang sudah diedit meminta konfirmasi. | Ubah satu skill di Profile; CV lama bertanda basi dan tetap bisa diunduh. | Should |
+| FR-46 | Yang dikirim ke penyedia AI untuk CV dan surat dibatasi sesuai §4.2 (tanpa identitas; nama perusahaan dan kampus diganti kode lalu dipulihkan lokal). Ada batas harian panggilan AI untuk CV dan surat (bawaan 20) yang bisa diubah di Atur Lowongan. Tanpa kunci AI, kunci ditolak, kuota habis, atau batas harian tercapai: tombol Buat tampil nonaktif dengan sebabnya, dan fitur Lamaran lainnya tetap berfungsi penuh. Model yang diketahui memakai data untuk melatih memunculkan peringatan sekali per lamaran. | Payload uji tidak memuat nama, email, telepon, alamat, nama perusahaan asli. Cabut kunci; Buat CV nonaktif dengan alasan, tracker tetap bisa dipakai. | Must |
+| FR-47 | Tanggal tindak lanjut opsional per lamaran. Saat jatuh tempo, kartu ditandai amber dan item Lamaran di sidebar menampilkan badge jumlahnya. Tanpa notifikasi sistem. | Atur tindak lanjut hari ini; badge sidebar menyala 1. | Could |
+| FR-48 | **Visualisasi alur lamaran** di tampilan Visualisasi pada halaman Lamaran (pilihan kedua setelah Papan di penukar kanan atas): diagram Sankey dari Dilamar ke Direview, Interview, Offer, dengan cabang Tanpa kabar, Ditolak, dan Masih berjalan. Dihitung dari riwayat status, bukan hanya status sekarang (lamaran yang pernah Direview lalu Ditolak tampil di jalur itu). **Tanpa kabar** = berstatus Dilamar tanpa perubahan 14 hari atau lebih (bawaan); selebihnya Masih berjalan. Draft dan Dibatalkan tidak dihitung. Tersedia sebagai daftar batang di lebar sempit dan sebagai teks untuk pembaca layar. | 12 lamaran Dilamar, 6 pernah Direview, 3 pernah Interview, 1 Offer, 4 Ditolak, 4 Tanpa kabar, 3 Masih berjalan: pita dan angka sesuai. Lamaran Dilamar 20 hari tanpa perubahan masuk Tanpa kabar; 5 hari, Masih berjalan. | Should |
 
 ## 8. Edge cases & error states
 
@@ -315,6 +423,7 @@ flowchart LR
 | Halaman tidak bisa diakses (halaman browser internal, PDF) | Panel menyebut sebabnya dan tidak menampilkan tombol Fill. |
 | Form ada di dalam frame yang terkunci | Panel menyebut bahwa form tidak bisa diisi dan tidak mencoba mengisinya. |
 | Pengguna menekan Undo setelah halaman dimuat ulang | Tombol Undo tidak tersedia; panel menyatakan bahwa nilai awal sudah tidak tersimpan. |
+| Field wajib masih kosong setelah Fill (tak terpetakan, profil tidak punya datanya, atau dimatikan pengguna) | Field itu diberi outline amber di halaman dan panel menyebut "N field wajib belum terisi, sudah ditandai kuning di halaman." Field opsional yang kosong tidak diberi outline. Field tersembunyi tidak ditandai. |
 | Pengguna menekan Fill dua kali | Pengisian kedua mengganti nilai yang sama; Undo tetap mengembalikan ke nilai sebelum pengisian pertama. |
 | Field sudah berisi teks dari pengguna | Panel menandainya dan menanyakan timpa atau lewati sebelum Fill; bawaan: lewati. |
 | Profil kosong total | Panel menampilkan ajakan mengisi profil, tombol Fill tidak aktif. |
@@ -332,6 +441,25 @@ flowchart LR
 | Lowongan: Preferensi kerja kosong | Lowongan tidak bisa dinyalakan; S4 mengajak mengisi S5. |
 | Lowongan: penyimpanan penuh oleh feed | Lowongan berstatus Baru dan Disembunyikan yang paling lama dibuang lebih dulu. Disimpan dan Dilamar tidak dibuang otomatis. |
 | Lowongan: tidak ada form yang bisa diisi (LinkedIn Easy Apply butuh login, lowongan sudah ditutup) | Buka & isi tetap membuka halamannya; panel menampilkan state yang sudah ada ("Tidak ada form", "Butuh izin"). |
+| Lamaran: Siapkan lamaran ditekan dua kali untuk lowongan yang sama | Membuka lamaran yang sudah ada; tidak membuat yang kedua. |
+| Lamaran: belum ada lamaran berstatus Dilamar | Visualisasi menampilkan state kosong, bukan diagram dengan angka nol. Papan tetap tampil. |
+| Lamaran: lowongan dipangkas atau hilang dari feed | Lamaran tetap berjalan dari salinan lowongannya; **Buka lowongan** memakai URL salinan. |
+| Lamaran: Fill berhasil di lamaran yang sudah Interview, Offer, atau Ditolak | Status tidak berubah (tidak mundur ke Dilamar). Fill hanya memajukan Draft. |
+| Lamaran: Fill berhasil di tab yang bukan dari Buka & isi | Tidak membuat lamaran (pencatatan manual tetap FR-24, ditunda ke T21). |
+| Lamaran: Undo ditekan setelah lamaran ditandai Dilamar | Field form kembali; status lamaran tetap Dilamar dan pengguna mengubahnya sendiri bila perlu. |
+| Lamaran: lowongan tanpa teks deskripsi (sumber tidak menyediakannya) | Detail menampilkan kotak untuk menempelkan teks lowongan; tanpa teks, Buat CV dan Buat surat nonaktif dengan sebabnya. |
+| CV: Profile belum punya pengalaman | Buat CV nonaktif dengan "Isi Work Experience dulu" dan tautan ke Profile. |
+| CV atau surat: hasil AI memuat fakta di luar Profile (skill, angka, perusahaan, institusi) | Hasil ditolak seluruhnya dan tidak ditampilkan; pesan menyebut hal yang tidak ada di Profile. CV atau surat sebelumnya, bila ada, tetap tampil. |
+| CV atau surat: hasil AI tidak bisa dibaca (format rusak) | Sama dengan baris di atas; tidak ada hasil setengah jadi. |
+| CV atau surat: kunci API kosong, ditolak, atau kuota habis | Tombol Buat nonaktif dengan sebabnya dan tautan ke Atur Lowongan; draf lama tetap bisa dibuka dan diunduh; Lamaran lainnya berfungsi. |
+| CV atau surat: batas harian panggilan AI tercapai | Tombol Buat nonaktif dengan "Batas N panggilan AI hari ini tercapai"; reset tengah malam waktu setempat. |
+| CV atau surat: model yang dipilih diketahui memakai data untuk melatih | Peringatan sekali per lamaran dengan pilihan Lanjut atau Atur Lowongan. |
+| CV atau surat: Profile berubah setelah dibuat | Ditandai "Profilmu berubah sejak CV ini dibuat"; tidak dibuat ulang otomatis; dokumen lama tetap bisa diunduh atau disalin. |
+| CV atau surat: Buat ulang pada dokumen yang sudah diedit | Meminta konfirmasi karena suntingan akan ditimpa. |
+| CV: pembuatan PDF gagal | Pesan sebab; isi CV tetap tampil dan bisa disalin. |
+| Surat: form tidak punya textarea cover letter | Surat tidak diisi; panel tidak menampilkan barisnya; pengguna memakai **Salin** di Detail Lamaran. |
+| Lamaran: penyimpanan penuh | Pengguna diberi tahu perubahan tidak tersimpan; lamaran, CV, dan surat yang sudah ada tidak dibuang otomatis. |
+| Lamaran: hapus satu lamaran | Konfirmasi menyebut bahwa CV dan suratnya ikut terhapus; lowongan di feed berstatus Disimpan (bukan Dilamar), supaya tidak hilang. |
 
 ## 9. Scope IN and OUT
 
@@ -346,6 +474,17 @@ flowchart LR
 2. FR-15 — petunjuk kelengkapan profil.
 3. FR-14 — pencocokan longgar dropdown dan radio.
 
+**IN (revisi 2026-10-15):** tracker Lamaran (Papan dan Visualisasi lewat satu penukar, Detail, riwayat), CV disesuaikan dengan pemeriksa fakta, pratinjau dan diff, unduh PDF dengan satu templat, surat lamaran dengan bahasa mengikuti lowongan, pengisian field cover letter, Lamaran ikut Export dan Hapus semua, batas harian panggilan AI.
+
+**OUT (revisi 2026-10-15):** unggah CV otomatis ke form (pengguna memilih berkas sendiri), melamar otomatis, banyak templat CV, editor CV WYSIWYG, skor ATS dari pihak ketiga, pengisian essay atau pertanyaan bebas, notifikasi sistem, sinkron lintas perangkat, impor lamaran dari email atau situs, tampilan Daftar (pilihan kedua di penukar adalah Visualisasi; keputusan PIC 2026-10-15), seret-lepas kartu di papan, pencatatan lamaran manual untuk halaman di luar feed (FR-24, T21 tetap ditunda), latihan interview.
+
+**Cut list Application Kit (urutan potong):**
+1. FR-47, tindak lanjut dan badge.
+2. FR-44, pengisian surat ke form (surat tetap bisa disalin).
+3. FR-45, penanda profil berubah.
+4. FR-37, riwayat dan catatan (status tetap tercatat).
+5. FR-48, visualisasi alur (dipotong terakhir: PIC meminta halaman Lamaran berisi papan dan visualisasi).
+
 **Cut list lowongan harian:**
 1. FR-31 bagian "tandai Dilamar otomatis" (Buka & isi tetap ada).
 2. Pencarian teks di S4.
@@ -358,6 +497,12 @@ flowchart LR
 Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lever · Workday · Ashby · Jobstreet · Glints · Kalibrr · LinkedIn Easy Apply · Google Forms (form buatan HR) · satu form kustom perusahaan (TBD sebelum Day 8). Workday sengaja dimasukkan meski diperkirakan paling sering gagal, supaya batas kemampuan terukur, bukan diasumsikan.
 
 **Lowongan harian (revisi 2026-10-09):** selama 5 hari berturut-turut, **≥6 dari 10 lowongan teratas per hari dinilai PIC layak dilamar**, dan run harian selesai (minimal satu sumber berhasil) di ≥4 dari 5 hari. Biaya AI per run dicatat.
+
+**Application Kit (revisi 2026-10-15):** diukur pada 5 lamaran nyata PIC.
+- **0 fakta karangan lolos ke CV atau surat.** Pemeriksa fakta (FR-40) menolak semuanya di tes; pada 5 lamaran nyata PIC tidak menemukan klaim yang bukan miliknya.
+- **≥4 dari 5 CV dinilai PIC layak dikirim dengan ≤2 suntingan.**
+- **Dari menekan Siapkan lamaran sampai CV dan surat siap diunduh: ≤3 menit** termasuk pemeriksaan PIC.
+- Biaya AI per lamaran dicatat (CV + surat).
 
 ## 11. Open questions
 
@@ -380,6 +525,11 @@ Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lev
 | Cakupan lowongan | Global, termasuk remote. Keputusan PIC 2026-10-09. |
 | CV Maker | Project terpisah milik PIC; integrasi ditunda (FR-33). |
 | Captured Jobs | Jadi tab Disimpan di halaman Lowongan (FR-30). |
+| Keluaran CV | Unduh PDF saja; tidak ada unggah otomatis ke form (§4). **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
+| Bahasa surat lamaran | Mengikuti bahasa teks lowongan, bisa diganti pengguna (FR-43). **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
+| Penyimpanan hasil CV dan surat | Disimpan permanen di `storage.local` per lamaran, sampai lamaran dihapus atau Hapus semua; ikut Export. Tidak ada kedaluwarsa otomatis. **Diputuskan PIC 2026-10-15.** |
+| Tempat data Lamaran | Lokal di `storage.local`; ikut Export. Tanpa Notion, CSV, atau sinkron. **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
+| Urutan pengerjaan Application Kit | Mockup, lalu tracker, lalu CV, lalu surat (plan.md T40 sampai T55). **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
 
 **Genuinely open** (tidak memblokir APPROVED)
 
@@ -392,3 +542,9 @@ Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lev
 | Daftar perusahaan awal untuk sumber ATS | imelda | sebelum T32 |
 | Import CV ikut memakai AI, sekarang setelah AI diperbolehkan? (parser aturan T23–T24 lemah di CV bebas format) | imelda | setelah lowongan harian |
 | Antarmuka CV Maker: menerima URL, teks deskripsi, atau API? | imelda | saat FR-33 dijadwalkan |
+| Batas privasi payload CV dan surat (§4.2): bullet pengalaman dikirim, nama perusahaan dan kampus diganti kode. Setuju? | imelda | sebelum T47 |
+| Model gratis OpenCode Zen (data bisa dipakai melatih): diblokir untuk CV dan surat, atau hanya diperingatkan? Usul: peringatan sekali per lamaran. | imelda | sebelum T47 |
+| Pembuat PDF: cetak lewat CSS (nol dependensi, pengguna menyimpan lewat dialog cetak) atau `pdf-lib` (satu klik, tambah ±300 KB)? Diputuskan setelah uji kecil di T50. | imelda | T50 |
+| Kualitas tailoring cukup untuk dilanjutkan? Spike T45 mengukur halusinasi, biaya, dan token pada 3 CV × 3 lowongan; hasil buruk berarti T46 sampai T52 dirancang ulang. | imelda | T45 |
+| Pencatatan lamaran manual (Fill di halaman yang bukan dari feed): dihidupkan lagi lewat T21 sekarang setelah Lamaran ada? | imelda | setelah T44 |
+| Tampilan Disimpan di Lowongan: tetap menampilkan Dilamar, atau Dilamar dipindah seluruhnya ke Lamaran? Usul: tetap, dengan tautan ke Lamaran. | imelda | T44 |

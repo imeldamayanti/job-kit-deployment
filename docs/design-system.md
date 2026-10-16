@@ -290,6 +290,25 @@ Tinggi baris 44px dengan value, 36px tanpa. Ini yang menentukan berapa field mua
 | Slide-over | Lebar 480px, `--shadow-lg`, hanya options page |
 | Confirm dialog | Destructive butuh input konfirmasi, bukan cuma OK (`screens.md` D4) |
 
+### 4.4 Komponen Lamaran (revisi 2026-10-15, T40)
+
+Preview: `design-system.html` §9. Delapan komponen baru di atas komponen §4.3 (tidak ada tampilan Daftar: keputusan PIC 2026-10-15; halaman Lamaran punya satu penukar tampilan, Papan / Visualisasi); sisanya (kartu, badge, chip, tombol, alert, tab folder, empty state, `.why`, `.summary`, `.jobrow`, `.fchip`, `.inp`) dipakai ulang tanpa perubahan.
+
+**Pengecualian terhadap `screens.md` §4.4:** daftar "yang tidak dibuat" menyebut **Kanban board**. Untuk Lamaran, papan dibuat (PRD §6.8), dibatasi lima kolom, dengan seret-lepas bawaan browser (diputuskan PIC 2026-10-15): kolom yang disorot memakai garis putus `--accent` dan `--accent-wash` (boleh biru karena bisa dilepasi), kartu yang diseret `opacity-50`, kolom kosong tetap tampil selagi menyeret, dan Ditolak serta Dibatalkan muncul sebagai dua target selagi menyeret. Yang tetap tidak dibuat: avatar group, grafik, bell notifikasi, command palette, modal bertumpuk, carousel, editor teks kaya, date range picker, pagination.
+
+| Komponen | Catatan penting |
+|---|---|
+| Kolom dan kartu papan (`.board`, `.kcol`, `.kcard`) | Lima kolom sama lebar; kolom berlatar `--surface-subtle`, kartu putih berborder, radius 10px, tanpa bayangan. Judul maks 2 baris (D3), perusahaan 1 baris ellipsis. Kartu yang butuh perhatian: border `--status-warning-fg` dan badge amber, bukan biru. Ditolak dan Dibatalkan dilipat di bawah papan. ≤420 px: satu kolom per status, kolom kosong disembunyikan |
+| Visualisasi alur (`.sankey-svg`, `.flist`) | Diagram Sankey SVG di dalam kartu "Pencarian kerjamu": simpul batang 12px, pita kurva Bézier berlebar sebanding jumlah, `fill-opacity` .22. Warna pita mengikuti simpul tujuannya lewat token status: Direview/Masih berjalan `--status-progress-fg`, Interview `--status-warning-fg`, Offer `--status-success-fg`, Ditolak `--status-danger-fg`, Tanpa kabar `--text-secondary`. Label 12px tebal; angka `--text-secondary`. Di ≤600 px (atau `.opt.narrow`) diganti `.flist`: satu baris per simpul (label, batang 8px, angka), karena teks Sankey tidak terbaca di bawah ±600 px. Setiap pita punya `<title>`; diagram punya `role="img"` dengan `aria-label` ringkas |
+| Penukar tampilan (`.vtoggle`) | Dua tombol segmented di kanan atas header Lamaran (Papan, Visualisasi), ikon + teks; yang aktif `--accent-wash` dengan teks `--accent` (bisa diklik, jadi biru sah, D2). Hanya untuk berganti cara melihat data yang sama; bukan navigasi antar halaman (itu tab folder §4.1). ≤420 px pindah ke bawah judul |
+| Penanda dokumen (`.dchip`) | Ikon berkas 12px + "CV" atau "Surat". `ok` hijau bila dokumen ada, netral bila belum. Bukan tombol |
+| Baris langkah (`.tick` di `.srow`) | Lingkaran 24px: hijau dengan centang = selesai, garis `--accent` = langkah berikutnya, kosong = belum. Dipakai di Ringkasan "Siap melamar" |
+| Panel diff (`.diff`, `.dpane`, `.dsec`) | Dua panel sejajar (Asli, Disesuaikan), satu kolom di ≤900 px. Tambahan `ins.add` hijau (`--status-success-*`); bagian yang diganti `del.rm` dicoret `--text-secondary`. **Merah tidak dipakai**: rose berarti gagal atau ditolak. Penanda Tervalidasi (`.badge.ok` + ikon perisai) di judul panel Disesuaikan |
+| Editor surat (`.inp.area`) | `.inp` biasa dengan `min-height` 300px, `line-height` 1.65. Tanpa toolbar format. Di bawahnya baris meta (jumlah kata, Salin, Buat ulang, Kembalikan) |
+| Riwayat (`.tl`) | Daftar vertikal titik 20px dengan garis penghubung 2px. Titik hijau untuk hasil berhasil, violet untuk Direview, abu untuk lainnya. Tanggal rata kanan, `font-variant-numeric: tabular-nums` |
+
+Peta badge status lamaran (tetap): Draft `dim` · Dilamar `ok` · Direview `prog` · Interview `warn` · Offer `ok` · Ditolak `bad` · Dibatalkan `dim`. Dilamar dan Offer sama-sama hijau; teks badge dan kolomnya yang membedakan, bukan warna (D2: warna tidak membawa arti sendirian).
+
 ---
 
 ## 5. Aturan yang tidak boleh dilanggar
@@ -299,7 +318,10 @@ Tinggi baris 44px dengan value, 36px tanpa. Ini yang menentukan berapa field mua
 3. **`--text-tertiary` tidak pernah membawa arti.** Gagal 4.5:1 (§3.2).
 4. **Panel tidak pernah scroll horizontal.** Semua teks panjang tunduk ke aturan D3.
 5. **Bayangan tidak dipakai di panel.** Kartu dibedakan oleh border.
-6. **Komponen di luar `screens.md` §4 tidak dibuat**, walau ada di referensi.
+6. **Komponen di luar `screens.md` §4 tidak dibuat**, walau ada di referensi. Pengecualian terdaftar: delapan komponen Lamaran di §4.4 (T40).
+7. **Diff tidak pernah merah.** Tambahan hijau, bagian yang diganti dicoret abu. Merah hanya untuk gagal atau ditolak.
+8. **Hasil AI selalu bertanda.** CV dan surat tampil dengan penanda Tervalidasi, atau tidak tampil dan menyebut sebabnya.
+9. **Tombol nonaktif menyebut alasannya** di atas tombol itu (kunci kosong, batas harian, profil kosong).
 
 ---
 

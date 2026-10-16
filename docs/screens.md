@@ -177,7 +177,9 @@ Diturunkan dari §2 dan §3. **Ini batas atasnya.** Komponen di luar daftar ini 
 
 Ditulis eksplisit supaya tidak menyelinap masuk dari referensi:
 
-Kanban board · avatar group · chart/grafik · notifikasi bell · command palette · modal bertumpuk · carousel · rich text editor · date range picker · pagination (daftar cukup pakai scroll sampai volumenya terbukti besar).
+**Revisi 2026-10-15:** Kanban board **dibuat** untuk halaman Lamaran (PRD §6.8, `design-system.md` §4.4), lima kolom dengan seret-lepas untuk mengubah status (keputusan PIC 2026-10-15). Daftar di bawah tetap berlaku untuk sisanya.
+
+Kanban board (dicabut, lihat di atas) · avatar group · chart/grafik · notifikasi bell · command palette · modal bertumpuk · carousel · rich text editor · date range picker · pagination (daftar cukup pakai scroll sampai volumenya terbukti besar).
 
 ---
 

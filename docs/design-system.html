@@ -441,6 +441,99 @@ select.inp.fit{width:auto;height:40px;padding:0 10px;font-size:13px;font-weight:
   .jbar .search{flex:1 1 100%}
 }
 
+/* ---------- LAMARAN / APPLICATION KIT (T40) — hanya token. Memakai ulang: .jcard, .badge, .btn, .alert, .why,
+   .summary+.bar, .srow, .opt-tabs, .opt-sheet, .jobrow, .fchip, .inp, .empty, .card. Yang baru di bawah ini. ---------- */
+.vtoggle{display:inline-flex;border:1px solid var(--border-strong);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface)}
+.vtoggle button{height:38px;padding:0 12px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;
+  color:var(--text-secondary);display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.vtoggle button+button{border-left:1px solid var(--border-strong)}
+.vtoggle button[aria-pressed=true]{background:var(--accent-wash);color:var(--accent)}
+.vtoggle button:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-2px}
+
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:start}
+.kcol{background:var(--surface-subtle);border-radius:var(--radius-xl);padding:8px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.kcol h4{margin:0;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;font-size:12px;
+  font-weight:650;letter-spacing:.03em;text-transform:uppercase;color:var(--text-secondary)}
+.kcol h4 .n{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.kcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px;
+  display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;cursor:pointer;min-width:0;width:100%;color:inherit}
+.kcard:hover{border-color:var(--border-strong)}
+.kcard:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+.kcard .kt{font-size:13px;font-weight:650;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
+.kcard .kc{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kcard .kf{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.kcard .kd{font-size:12px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.kcard.due{border-color:var(--status-warning-fg)}
+.kempty{font-size:12px;color:var(--text-secondary);padding:14px 6px;text-align:center;line-height:1.5}
+.kclosed{margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--text-secondary)}
+
+.dchip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:650;padding:2px 7px;
+  border-radius:var(--radius-sm);background:var(--status-neutral-bg);color:var(--status-neutral-fg);white-space:nowrap}
+.dchip .i{width:12px;height:12px;flex-basis:12px}
+.dchip.ok{background:var(--status-success-bg);color:var(--status-success-fg)}
+.dchip.warn{background:var(--status-warning-bg);color:var(--status-warning-fg)}
+
+.tick{flex:0 0 24px;width:24px;height:24px;border-radius:var(--radius-full);border:1.5px solid var(--border-strong);
+  display:grid;place-items:center;color:transparent;background:var(--surface-input)}
+.tick .i{width:13px;height:13px;flex-basis:13px}
+.tick.done{background:var(--status-success-bg);border-color:var(--status-success-fg);color:var(--status-success-fg)}
+.tick.cur{border-color:var(--accent);color:var(--accent)}
+
+.diff{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dpane{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);overflow:hidden;min-width:0}
+.dpane>h5{margin:0;padding:8px 12px;background:var(--surface-sunken);border-bottom:1px solid var(--border);font-size:12px;
+  font-weight:650;letter-spacing:.03em;text-transform:uppercase;color:var(--text-secondary);display:flex;
+  justify-content:space-between;align-items:center;gap:8px}
+.dsec{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;line-height:1.55}
+.dsec:last-child{border-bottom:0}
+.dsec .dh{font-weight:650}
+.dsec .dm{font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.dsec ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.dsec .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.dsec .tags span{font-size:12px;padding:2px 8px;border-radius:var(--radius-sm);background:var(--surface-subtle)}
+.dsec .tags span.add{background:var(--status-success-bg);color:var(--status-success-fg);font-weight:600}
+.dsec .tags span.miss{background:var(--surface);border:1px dashed var(--border-strong);color:var(--text-secondary)}
+ins.add{text-decoration:none;background:var(--status-success-bg);color:var(--status-success-fg);border-radius:3px;padding:0 2px}
+del.rm{color:var(--text-secondary);text-decoration:line-through}
+.dpane.edit .dsec li{outline:1px dashed var(--border-strong);outline-offset:3px;border-radius:2px}
+
+.inp.area{min-height:300px;line-height:1.65;resize:vertical;font-size:14px;display:block}
+.lmeta{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;
+  font-size:12px;color:var(--text-secondary)}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
+
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:0 10px;padding:0 0 14px;position:relative;font-size:13px}
+.tl li::before{content:"";position:absolute;left:9px;top:20px;bottom:0;width:2px;background:var(--border)}
+.tl li:last-child{padding-bottom:0}
+.tl li:last-child::before{display:none}
+.tl .dot{width:20px;height:20px;border-radius:var(--radius-full);background:var(--surface-subtle);display:grid;
+  place-items:center;color:var(--text-secondary)}
+.tl .dot .i{width:12px;height:12px;flex-basis:12px}
+.tl .dot.ok{background:var(--status-success-bg);color:var(--status-success-fg)}
+.tl .dot.prog{background:var(--status-progress-bg);color:var(--status-progress-fg)}
+.tl .when{font-size:12px;color:var(--text-secondary);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+.sankey-svg{display:block;width:100%;height:auto;max-height:300px}
+.sk-l{font-size:12px;fill:var(--text-primary);font-weight:600;font-family:var(--font)}
+.sk-n{fill:var(--text-secondary);font-weight:700;font-variant-numeric:tabular-nums}
+.flist{list-style:none;margin:0;padding:0;display:none;flex-direction:column;gap:8px}
+.flist li{display:grid;grid-template-columns:104px minmax(0,1fr) 26px;gap:8px;align-items:center;font-size:13px}
+.flist .fb{height:8px;background:var(--surface-subtle);border-radius:var(--radius-full);overflow:hidden}
+.flist .fb i{display:block;height:100%;background:var(--c);border-radius:inherit}
+.flist b{text-align:right;font-variant-numeric:tabular-nums}
+.opt.narrow .sankey-svg{display:none}
+.opt.narrow .flist{display:flex}
+
+.stale{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+
+.opt.narrow .board{grid-template-columns:1fr}
+.opt.narrow .diff,.opt.narrow .two-col{grid-template-columns:1fr}
+@media(max-width:900px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}}
+@media(max-width:520px){.board,.diff{grid-template-columns:1fr}}
+@media(max-width:600px){.sankey-svg{display:none}.flist{display:flex}}
+
 .type-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}
 .type-row:last-child{border-bottom:0}
 .type-row .tag{flex:0 0 160px;font-size:11px;color:var(--text-tertiary);
@@ -460,6 +553,21 @@ select.inp.fit{width:auto;height:40px;padding:0 10px;font-size:13px;font-weight:
   <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
   <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
   <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="m2 2 20 20"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8M16 13H8M16 17H8"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5Z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5a2 2 0 0 0 1.44 1.44l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0Z"/></symbol>
+  <symbol id="i-columns" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 6h.01M3 12h.01M3 18h.01M8 6h13M8 12h13M8 18h13"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.54 21.69a.5.5 0 0 0 .94-.03l6.5-19a.5.5 0 0 0-.64-.64l-19 6.5a.5.5 0 0 0-.02.94l7.93 3.18a2 2 0 0 1 1.11 1.11Z"/><path d="m21.85 2.15-10.94 10.94"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 21v-6M12 21V3M19 21V9"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
 </defs></svg>
 <div class="wrap">
 
@@ -1575,8 +1683,838 @@ Pesan Tes koneksi memakai teks PRD &sect;6.7 (&ldquo;Kunci ditolak penyedia&rdqu
 </div>
 <p class="frame-note" style="max-width:none">Di lebar sempit badge skor hanya menampilkan angka (tingkatnya tetap ada di <code>aria-label</code>); chip dan meta membungkus ke baris berikutnya.</p>
 
-<!-- 9. ATURAN -->
-<h2>9. Aturan yang tidak boleh dilanggar</h2>
+<!-- 9. LAMARAN -->
+<h2>9. Options page — Lamaran (Application Kit)</h2>
+<p class="note">Mockup T40 untuk fitur Lamaran (PRD &sect;6.8, FR-34 sampai FR-48): tracker lamaran, CV yang disesuaikan
+dengan requirement lowongan, dan surat lamaran. Sidebar bertambah satu tujuan, <b>Lamaran</b>. Semua dibuat dari token dan
+komponen yang sudah ada (kartu, badge, chip, tombol, alert, tab folder, empty state, <code>.why</code>, <code>.summary</code>);
+komponen yang benar-benar baru ada delapan dan didaftar di <code>design-system.md</code> &sect;4.4: kartu/kolom papan, penukar tampilan,
+visualisasi alur (Sankey), penanda dokumen, panel diff, baris centang langkah, editor surat, dan riwayat. Semua nama, perusahaan, dan angka adalah contoh.</p>
+
+<!-- 9.1 Kartu Lowongan -->
+<p class="frame-cap">S4 &mdash; Kartu Lowongan setelah ada aksi <b>Siapkan lamaran</b> (potongan; header dan filter tidak berubah)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="jlist">
+      <!-- A: belum ada lamaran -->
+      <article class="jcard">
+        <span class="logo" aria-hidden="true">CK</span>
+        <div>
+          <h4 class="jt">Frontend Engineer (React)</h4>
+          <div class="jco"><span class="nm">PT Contoh Karya &middot; Greenhouse</span><span class="badge warn">Baru</span></div>
+          <div class="jchips">
+            <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Jakarta</span>
+            <span class="jchip">Remote</span><span class="jchip">Full-time</span>
+          </div>
+          <div class="jacts">
+            <button class="btn pri sm">Buka &amp; isi</button>
+            <button class="btn sec sm"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran</button>
+            <button class="icn" aria-label="Simpan lowongan"><svg class="i"><use href="#i-bookmark"/></svg></button>
+            <button class="icn" aria-label="Menu lainnya"><svg class="i"><use href="#i-more"/></svg></button>
+          </div>
+        </div>
+        <button class="score hi" aria-expanded="false" aria-label="Skor 86, Cocok. Tampilkan alasan"><b>86</b>Cocok<svg class="i"><use href="#i-chev"/></svg></button>
+      </article>
+
+      <!-- B: sudah ada lamaran -->
+      <article class="jcard">
+        <span class="logo" aria-hidden="true">SC</span>
+        <div>
+          <h4 class="jt">Web Developer &mdash; Platform Pembayaran</h4>
+          <div class="jco"><span class="nm">Studio Contoh &middot; Lever</span></div>
+          <div class="jchips">
+            <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Bandung</span>
+            <span class="jchip">Hybrid</span><span class="jchip">Kontrak</span>
+          </div>
+          <div class="jmeta" style="align-items:center">
+            <span class="badge dim">Lamaran: Draft</span>
+            <span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>CV siap</span>
+            <span class="dchip"><svg class="i"><use href="#i-file"/></svg>Surat belum</span>
+          </div>
+          <div class="jacts">
+            <button class="btn pri sm">Buka &amp; isi</button>
+            <button class="btn sec sm"><svg class="i"><use href="#i-file"/></svg>Buka lamaran</button>
+            <button class="icn" aria-label="Menu lainnya"><svg class="i"><use href="#i-more"/></svg></button>
+          </div>
+        </div>
+        <button class="score mid" aria-expanded="false" aria-label="Skor 64, Lumayan. Tampilkan alasan"><b>64</b>Lumayan<svg class="i"><use href="#i-chev"/></svg></button>
+      </article>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">
+Kartu A: <b>Siapkan lamaran</b> jadi tombol sekunder di sebelah <b>Buka &amp; isi</b>; <b>Simpan</b> menyusut jadi tombol ikon supaya baris aksi tidak
+melewati satu baris di lebar 880&nbsp;px. Kartu B: satu lowongan hanya punya satu lamaran, jadi tombolnya berganti <b>Buka lamaran</b>, ditambah status
+lamaran dan penanda dokumen (CV siap, surat belum). Menyiapkan lamaran otomatis menyimpan lowongan (status feed <b>Disimpan</b>, PRD FR-36).
+Badge di sidebar (amber) menghitung lamaran yang perlu tindak lanjut hari ini, bukan jumlah lamaran.</p>
+
+<!-- 9.2 S7 Papan -->
+<p class="frame-cap" style="margin-top:28px">S7 &mdash; Lamaran &middot; Papan (bawaan)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lamaran</h1><p>Semua lowongan yang kamu lamar, dari draf sampai hasil akhir.</p></div>
+      <div class="acts">
+        <div class="vtoggle" role="group" aria-label="Tampilan">
+          <button aria-pressed="true"><svg class="i"><use href="#i-columns"/></svg>Papan</button>
+          <button aria-pressed="false"><svg class="i"><use href="#i-chart"/></svg>Visualisasi</button>
+        </div>
+      </div>
+    </div>
+    <div class="alert warn" style="margin-bottom:16px"><span>&#9888;</span><span><b>2 lamaran perlu tindak lanjut hari ini.</b> Studio Contoh dan Aksara Pagi.</span></div>
+    <div class="jbar">
+      <span class="search"><span>&#128269;</span><input class="inp" placeholder="Cari judul atau perusahaan" aria-label="Cari lamaran"></span>
+    </div>
+
+    <div class="board">
+      <section class="kcol" aria-label="Draft">
+        <h4>Draft<span class="n">2</span></h4>
+        <button class="kcard">
+          <span class="kt">Frontend Engineer (React)</span><span class="kc">PT Contoh Karya</span>
+          <span class="kf"><span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>CV</span><span class="dchip"><svg class="i"><use href="#i-file"/></svg>Surat</span></span>
+        </button>
+        <button class="kcard">
+          <span class="kt">UI Engineer</span><span class="kc">Contoh Digital Nusantara</span>
+          <span class="kf"><span class="dchip"><svg class="i"><use href="#i-file"/></svg>CV</span><span class="dchip"><svg class="i"><use href="#i-file"/></svg>Surat</span></span>
+        </button>
+      </section>
+      <section class="kcol" aria-label="Dilamar">
+        <h4>Dilamar<span class="n">3</span></h4>
+        <button class="kcard due">
+          <span class="kt">Web Developer &mdash; Platform Pembayaran dan Integrasi Mitra Bisnis</span><span class="kc">Studio Contoh</span>
+          <span class="kf"><span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>CV</span><span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>Surat</span></span>
+          <span class="kf"><span class="badge warn">Tindak lanjut hari ini</span></span>
+        </button>
+        <button class="kcard">
+          <span class="kt">Senior Frontend Developer</span><span class="kc">Contoh Remote Co</span>
+          <span class="kf"><span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>CV</span><span class="kd">Dilamar 9 Okt</span></span>
+        </button>
+        <button class="kcard">
+          <span class="kt">React Developer</span><span class="kc">Bumi Mandiri</span>
+          <span class="kf"><span class="kd">Dilamar 7 Okt</span></span>
+        </button>
+      </section>
+      <section class="kcol" aria-label="Direview">
+        <h4>Direview<span class="n">1</span></h4>
+        <button class="kcard">
+          <span class="kt">Fullstack Engineer</span><span class="kc">Sinar Data</span>
+          <span class="kf"><span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>CV</span><span class="kd">Dilamar 2 Okt</span></span>
+        </button>
+      </section>
+      <section class="kcol" aria-label="Interview">
+        <h4>Interview<span class="n">1</span></h4>
+        <button class="kcard due">
+          <span class="kt">Frontend Developer</span><span class="kc">Aksara Pagi</span>
+          <span class="kf"><span class="badge warn">Interview 18 Okt</span></span>
+        </button>
+      </section>
+      <section class="kcol" aria-label="Offer">
+        <h4>Offer<span class="n">0</span></h4>
+        <p class="kempty">Belum ada. Offer yang masuk muncul di sini.</p>
+      </section>
+    </div>
+<div class="kclosed">
+      <span>Ditutup: <b style="color:var(--text-primary)">Ditolak 3</b> &middot; <b style="color:var(--text-primary)">Dibatalkan 1</b></span>
+      <button class="btn ghost sm">Tampilkan<svg class="i"><use href="#i-chev"/></svg></button>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">
+Pojok kanan atas ada penukar <b>Papan / Visualisasi</b> (segmented, komponen <code>.vtoggle</code>); tidak ada tampilan Daftar. Papan lima kolom:
+<b>Draft, Dilamar, Direview, Interview, Offer</b>; <b>Ditolak</b> dan <b>Dibatalkan</b> dilipat di bawah supaya papan tetap muat di lebar options. Kartu papan memakai komponen baru
+<code>.kcard</code> (bukan <code>.jcard</code>): lebih padat, tanpa logo dan tombol. Kartu yang perlu perhatian (tindak lanjut jatuh tempo, interview mendekat) diberi border amber dan badge amber, bukan biru.
+Status berpindah dengan menyeret kartu ke kolom lain (keputusan PIC 2026-10-15; selagi menyeret muncul target Ditolak dan Dibatalkan, kolom kosong ikut tampil), atau lewat Detail Lamaran. Mockup ini statis dan tidak menggambar keadaan menyeret. Peringatan tindak lanjut berada di atas isi supaya terlihat di kedua tampilan.</p>
+
+<!-- 9.2b S7 Visualisasi -->
+<p class="frame-cap" style="margin-top:28px">S7 &mdash; Lamaran &middot; Visualisasi</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lamaran</h1><p>Semua lowongan yang kamu lamar, dari draf sampai hasil akhir.</p></div>
+      <div class="acts">
+        <div class="vtoggle" role="group" aria-label="Tampilan">
+          <button aria-pressed="false"><svg class="i"><use href="#i-columns"/></svg>Papan</button>
+          <button aria-pressed="true"><svg class="i"><use href="#i-chart"/></svg>Visualisasi</button>
+        </div>
+      </div>
+    </div>
+    <div class="alert warn" style="margin-bottom:16px"><span>&#9888;</span><span><b>2 lamaran perlu tindak lanjut hari ini.</b> Studio Contoh dan Aksara Pagi.</span></div>
+    <div class="card sankey">
+      <div class="sec" style="padding-top:0"><h3>Pencarian kerjamu</h3><span class="cnt">12 lamaran dikirim</span></div>
+      <svg class="sankey-svg" viewBox="0 0 860 300" role="img" aria-label="Alur 12 lamaran: 6 sampai Direview, 3 sampai Interview, 1 Offer; 4 tanpa kabar, 4 ditolak, 3 masih berjalan" xmlns="http://www.w3.org/2000/svg">
+<path d="M162,34 C426,34 426,28 690,28 L690,88 C426,88 426,94 162,94 Z" style="fill:var(--text-secondary)" fill-opacity=".22"><title>Dilamar → Tanpa kabar: 4</title></path>
+<path d="M162,94 C426,94 426,104 690,104 L690,134 C426,134 426,124 162,124 Z" style="fill:var(--status-danger-fg)" fill-opacity=".22"><title>Dilamar → Ditolak: 2</title></path>
+<path d="M162,124 C261,124 261,120 360,120 L360,210 C261,210 261,214 162,214 Z" style="fill:var(--status-progress-fg)" fill-opacity=".22"><title>Dilamar → Direview: 6</title></path>
+<path d="M372,120 C531,120 531,134 690,134 L690,149 C531,149 531,135 372,135 Z" style="fill:var(--status-danger-fg)" fill-opacity=".22"><title>Direview → Ditolak: 1</title></path>
+<path d="M372,180 C531,180 531,180 690,180 L690,210 C531,210 531,210 372,210 Z" style="fill:var(--status-progress-fg)" fill-opacity=".22"><title>Direview → Masih berjalan: 2</title></path>
+<path d="M372,135 C456,135 456,150 540,150 L540,195 C456,195 456,180 372,180 Z" style="fill:var(--status-warning-fg)" fill-opacity=".22"><title>Direview → Interview: 3</title></path>
+<path d="M552,165 C621,165 621,210 690,210 L690,225 C621,225 621,180 552,180 Z" style="fill:var(--status-progress-fg)" fill-opacity=".22"><title>Interview → Masih berjalan: 1</title></path>
+<path d="M552,150 C621,150 621,149 690,149 L690,164 C621,164 621,165 552,165 Z" style="fill:var(--status-danger-fg)" fill-opacity=".22"><title>Interview → Ditolak: 1</title></path>
+<path d="M552,180 C621,180 621,241 690,241 L690,256 C621,256 621,195 552,195 Z" style="fill:var(--status-success-fg)" fill-opacity=".22"><title>Interview → Offer: 1</title></path>
+<rect x="150" y="34" width="12" height="180" rx="3" style="fill:var(--status-success-fg)"/>
+<rect x="360" y="120" width="12" height="90" rx="3" style="fill:var(--status-progress-fg)"/>
+<rect x="540" y="150" width="12" height="45" rx="3" style="fill:var(--status-warning-fg)"/>
+<rect x="690" y="28" width="12" height="60" rx="3" style="fill:var(--text-secondary)"/>
+<rect x="690" y="104" width="12" height="60" rx="3" style="fill:var(--status-danger-fg)"/>
+<rect x="690" y="180" width="12" height="45" rx="3" style="fill:var(--status-progress-fg)"/>
+<rect x="690" y="241" width="12" height="15" rx="3" style="fill:var(--status-success-fg)"/>
+<text x="140" y="122" text-anchor="end" class="sk-l">Dilamar</text><text x="140" y="139" text-anchor="end" class="sk-n">12</text>
+<text x="366" y="112" text-anchor="middle" class="sk-l">Direview <tspan class="sk-n">6</tspan></text>
+<text x="546" y="142" text-anchor="middle" class="sk-l">Interview <tspan class="sk-n">3</tspan></text>
+<text x="712" y="62" class="sk-l">Tanpa kabar <tspan class="sk-n">4</tspan></text>
+<text x="712" y="138" class="sk-l">Ditolak <tspan class="sk-n">4</tspan></text>
+<text x="712" y="206.5" class="sk-l">Masih berjalan <tspan class="sk-n">3</tspan></text>
+<text x="712" y="252.5" class="sk-l">Offer <tspan class="sk-n">1</tspan></text>
+</svg>
+      <ul class="flist" aria-label="Alur lamaran">
+        <li><span>Dilamar</span><div class="fb"><i style="width:100%;--c:var(--status-success-fg)"></i></div><b>12</b></li>
+        <li><span>Direview</span><div class="fb"><i style="width:50%;--c:var(--status-progress-fg)"></i></div><b>6</b></li>
+        <li><span>Interview</span><div class="fb"><i style="width:25%;--c:var(--status-warning-fg)"></i></div><b>3</b></li>
+        <li><span>Offer</span><div class="fb"><i style="width:8%;--c:var(--status-success-fg)"></i></div><b>1</b></li>
+        <li><span>Tanpa kabar</span><div class="fb"><i style="width:33%;--c:var(--text-secondary)"></i></div><b>4</b></li>
+        <li><span>Masih berjalan</span><div class="fb"><i style="width:25%;--c:var(--status-progress-fg)"></i></div><b>3</b></li>
+        <li><span>Ditolak</span><div class="fb"><i style="width:33%;--c:var(--status-danger-fg)"></i></div><b>4</b></li>
+      </ul>
+      <div class="hint">Dihitung dari riwayat status. <b>Tanpa kabar</b> = Dilamar tanpa perubahan 14 hari atau lebih. Draft dan Dibatalkan tidak dihitung.</div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">
+Tampilan <b>Visualisasi</b> (FR-48) berisi satu diagram Sankey, <code>.sankey-svg</code>: pita sebanding jumlah lamaran, warna dari peta badge status
+(Direview violet, Interview amber, Offer hijau, Ditolak merah, Tanpa kabar abu). Di lebar sempit (&le;600&nbsp;px) diganti daftar batang <code>.flist</code> dengan angka yang sama,
+karena teks Sankey tidak terbaca di bawah itu.</p>
+
+<!-- 9.3 S7 state -->
+<p class="frame-cap" style="margin-top:28px">S7 &mdash; Lamaran &middot; state</p>
+<div class="grid cols-2" style="margin-bottom:12px">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Belum ada lamaran</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <img src="../src/ui/mascot/empty.svg" alt="" width="72" height="72" style="margin-bottom:10px">
+      <h4>Belum ada lamaran</h4>
+      <p>Pilih lowongan di Lowongan, lalu tekan Siapkan lamaran. Lamaran yang kamu isi lewat Buka &amp; isi juga muncul di sini.</p>
+      <div class="act"><button class="btn pri">Ke Lowongan</button></div>
+    </div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Filter tanpa hasil</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <div class="ico">&#128269;</div>
+      <h4>Tidak ada yang cocok</h4>
+      <p>Tidak ada lamaran berstatus Offer dengan kata kunci &ldquo;android&rdquo;.</p>
+      <div class="act"><button class="btn sec sm">Reset filter</button></div>
+    </div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Visualisasi kosong</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <div class="ico">&#128200;</div>
+      <h4>Belum ada lamaran yang dikirim</h4>
+      <p>Alur lamaranmu muncul di sini setelah lamaran pertama berstatus Dilamar.</p>
+    </div>
+  </div>
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Tindak lanjut jatuh tempo</h3></div>
+    <div style="margin-top:12px"><div class="alert warn"><span>&#9888;</span><span><b>2 lamaran perlu tindak lanjut hari ini.</b> Studio Contoh dan Aksara Pagi.</span></div></div>
+    <div class="hint">Muncul di atas kedua tampilan; kartu terkait berborder amber di papan. Tanpa notifikasi sistem (FR-47).</div>
+  </div>
+</div>
+<p class="frame-note" style="max-width:none"><b>Peta status ke badge</b> (tetap, dipakai di Detail Lamaran dan kartu Lowongan): Draft <code>dim</code> &middot; Dilamar <code>ok</code>
+(hijau, sama dengan <b>Dilamar</b> di tab Disimpan supaya satu kata tidak berwarna dua) &middot; Direview <code>prog</code> (violet) &middot; Interview <code>warn</code> (amber, perlu perhatian) &middot;
+Offer <code>ok</code> &middot; Ditolak <code>bad</code> &middot; Dibatalkan <code>dim</code>. Dilamar dan Offer sama-sama hijau; teks badge dan kolomnya yang membedakan, bukan warna.</p>
+
+<!-- 9.4 S8 Ringkasan -->
+<p class="frame-cap" style="margin-top:28px">S8 &mdash; Detail Lamaran &middot; tab Ringkasan (dibuka dari kartu, bukan tujuan sidebar)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <button class="btn ghost sm page-back"><svg class="i"><use href="#i-back"/></svg>Lamaran</button>
+    <div class="opt-head">
+      <div><h1>Frontend Engineer (React)</h1><p>PT Contoh Karya &middot; Greenhouse &middot; Disiapkan 14 Okt</p></div>
+      <div class="acts">
+        <span class="saved">&#10003; Tersimpan</span>
+        <select class="inp fit" aria-label="Status lamaran"><option>Draft</option><option>Dilamar</option><option>Direview</option><option>Interview</option><option>Offer</option><option>Ditolak</option><option>Dibatalkan</option></select>
+        <button class="btn sec sm"><svg class="i"><use href="#i-ext"/></svg>Buka lowongan</button>
+      </div>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="true"><span>Ringkasan</span></button>
+      <button role="tab" aria-selected="false"><span>CV</span></button>
+      <button role="tab" aria-selected="false"><span>Surat</span></button>
+      <button role="tab" aria-selected="false"><span>Catatan &amp; riwayat</span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="two-col">
+        <div class="stack">
+          <div class="card">
+            <div class="sec" style="padding-top:0"><h3>Siap melamar</h3></div>
+            <div style="margin-top:8px">
+              <div class="srow"><span class="tick done"><svg class="i"><use href="#i-check"/></svg></span>
+                <span class="tx"><b>CV disesuaikan</b><span>Cakupan 6 dari 8 requirement &middot; dibuat 14 Okt</span></span>
+                <button class="btn sec sm">Buka CV</button></div>
+              <div class="srow"><span class="tick cur"><svg class="i"><use href="#i-pencil"/></svg></span>
+                <span class="tx"><b>Surat lamaran</b><span>Belum dibuat</span></span>
+                <button class="btn sec sm"><svg class="i"><use href="#i-sparkles"/></svg>Buat surat</button></div>
+              <div class="srow"><span class="tick"><svg class="i"><use href="#i-send"/></svg></span>
+                <span class="tx"><b>Buka &amp; isi form</b><span>Form diisi dari profil; surat ikut bila field-nya ada.</span></span>
+                <button class="btn pri sm">Buka &amp; isi</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="sec" style="padding-top:0"><h3>Lowongan</h3></div>
+            <div class="jchips" style="margin-top:10px">
+              <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Jakarta</span>
+              <span class="jchip">Remote</span><span class="jchip">Full-time</span>
+              <span class="jchip ai">Mid Level</span>
+            </div>
+            <div class="jmeta"><span>Gaji: <b>Rp 20&ndash;30 jt</b></span><span>Pengalaman: <b>3+ tahun</b></span><span>Deadline: <b>12 Nov</b></span></div>
+            <div class="hint" style="margin-top:10px">Salinan teks lowongan disimpan di lamaran ini, jadi tetap ada walau lowongan hilang dari feed.</div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <div class="sec" style="padding-top:0"><h3>Status</h3></div>
+            <div style="margin:10px 0"><span class="badge dim">Draft</span></div>
+            <div class="f" style="margin:0"><label>Tindak lanjut <span style="font-weight:400;color:var(--text-secondary)">(opsional)</span></label>
+              <input class="inp" type="date" value="2026-10-21"></div>
+            <div class="hint">Badge di sidebar menyala saat tanggal ini tiba. Tanpa notifikasi sistem.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">
+Ringkasan = daftar langkah, bukan wizard: orang bisa melompat (melamar tanpa surat). Penanda bulat memakai <code>.tick</code>: hijau &#10003; selesai,
+garis biru = langkah berikutnya (bisa diklik), kosong = belum. Status diubah dari <code>select</code> di header; setiap perubahan masuk Riwayat (FR-36, FR-37).
+Mengubah status menjadi <b>Dilamar</b> dari sini sama dengan Fill yang berhasil: lowongan di feed ikut berstatus Dilamar.</p>
+
+<!-- 9.5 S8 CV hasil -->
+<p class="frame-cap" style="margin-top:28px">S8 &mdash; Detail Lamaran &middot; tab CV (hasil)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <button class="btn ghost sm page-back"><svg class="i"><use href="#i-back"/></svg>Lamaran</button>
+    <div class="opt-head">
+      <div><h1>Frontend Engineer (React)</h1><p>PT Contoh Karya &middot; Greenhouse &middot; Disiapkan 14 Okt</p></div>
+      <div class="acts">
+        <span class="saved">&#10003; Tersimpan</span>
+        <select class="inp fit" aria-label="Status lamaran"><option>Draft</option></select>
+      </div>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="false"><span>Ringkasan</span></button>
+      <button role="tab" aria-selected="true"><span>CV</span></button>
+      <button role="tab" aria-selected="false"><span>Surat</span></button>
+      <button role="tab" aria-selected="false"><span>Catatan &amp; riwayat</span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="stack">
+        <div class="summary">
+          <div class="row"><span>Cakupan requirement: 6 dari 8</span><em>CV disusun dari Profile, dibuat 14 Okt 10.42</em></div>
+          <div class="bar"><i style="width:75%"></i></div>
+        </div>
+        <div class="why" role="region" aria-label="Cakupan requirement" style="margin-top:0">
+          <div class="y"><h5>Tertutup</h5><ul>
+            <li><svg class="i"><use href="#i-check"/></svg>React dan TypeScript (skill dan pengalaman)</li>
+            <li><svg class="i"><use href="#i-check"/></svg>Membangun dashboard dan komponen UI</li>
+            <li><svg class="i"><use href="#i-check"/></svg>Bekerja dengan REST API</li></ul></div>
+          <div class="n"><h5>Belum tertutup</h5><ul>
+            <li><svg class="i"><use href="#i-minus"/></svg>GraphQL &mdash; tidak ada di Profile, tidak ditambahkan</li>
+            <li><svg class="i"><use href="#i-minus"/></svg>3+ tahun pengalaman &mdash; Profile mencatat sekitar 2 tahun</li></ul></div>
+          <p>Yang belum tertutup tidak pernah ditambal. Kalau kamu memang punya pengalamannya, tambahkan ke Profile dulu, lalu Buat ulang.</p>
+        </div>
+
+        <div class="diff">
+          <div class="dpane">
+            <h5>Asli (Profile)</h5>
+            <div class="dsec"><div class="dh">Skill</div>
+              <div class="tags"><span>HTML</span><span>CSS</span><span>Figma</span><span>Node.js</span><span>React</span><span>TypeScript</span></div></div>
+            <div class="dsec"><div class="dh">Frontend Developer</div>
+              <div class="dm">PT Contoh Teknologi &middot; Jan 2023 &ndash; sekarang</div>
+              <ul>
+                <li><del class="rm">Membuat halaman</del> dashboard internal <del class="rm">pakai</del> React dan TypeScript untuk tim operasional.</li>
+                <li>Mengurangi waktu muat <del class="rm">halaman</del> 40%.</li>
+                <li><del class="rm">Ikut rapat desain mingguan dengan tim produk.</del></li>
+              </ul></div>
+            <div class="dsec"><div class="dh">S1 Teknik Informatika</div><div class="dm">Universitas Contoh &middot; 2022</div></div>
+          </div>
+          <div class="dpane">
+            <h5><span>Disesuaikan untuk lowongan ini</span><span class="badge ok"><svg class="i" style="width:11px;height:11px;vertical-align:-1px"><use href="#i-shield"/></svg> Tervalidasi</span></h5>
+            <div class="dsec"><div class="dh">Skill</div>
+              <div class="tags"><span>React</span><span>TypeScript</span><span>HTML</span><span>CSS</span><span>Node.js</span><span>Figma</span></div>
+              <div class="dm" style="margin:6px 0 0">Urutan diubah; tidak ada skill ditambah atau dibuang.</div></div>
+            <div class="dsec"><div class="dh">Frontend Developer</div>
+              <div class="dm">PT Contoh Teknologi &middot; Jan 2023 &ndash; sekarang</div>
+              <ul>
+                <li><ins class="add">Membangun</ins> dashboard internal <ins class="add">dengan</ins> React dan TypeScript untuk tim operasional.</li>
+                <li>Mengurangi waktu muat 40%<ins class="add"> lewat perapian komponen</ins>.</li>
+              </ul>
+              <div class="dm" style="margin:6px 0 0">1 butir tidak relevan disembunyikan (masih ada di Profile).</div></div>
+            <div class="dsec"><div class="dh">S1 Teknik Informatika</div><div class="dm">Universitas Contoh &middot; 2022</div></div>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:0">Jabatan, perusahaan, institusi, dan tanggal selalu diambil dari Profile; AI hanya memilih, mengurutkan, dan merapikan kalimat butir pengalaman.
+          Tambahan ditandai hijau, bagian yang diganti dicoret abu. Merah tidak dipakai di diff: merah berarti gagal.</div>
+
+        <div class="mini" style="justify-content:space-between">
+          <span class="mini">
+            <button class="btn pri"><svg class="i"><use href="#i-download"/></svg>Unduh PDF</button>
+            <button class="btn sec"><svg class="i"><use href="#i-pencil"/></svg>Edit</button>
+            <button class="btn sec"><svg class="i"><use href="#i-refresh"/></svg>Buat ulang</button>
+            <button class="btn ghost"><svg class="i"><use href="#i-undo"/></svg>Kembalikan ke versi AI</button>
+          </span>
+          <span class="hint" style="margin:0">PDF dibuat di browser ini dan tidak diunggah ke mana pun.</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">
+Susunan: ringkasan cakupan di atas (komponen <code>.summary</code> dan <code>.why</code> yang sudah ada dari kartu Lowongan, dipakai ulang karena maknanya sama:
+cocok / kurang), lalu dua panel sejajar Asli dan Disesuaikan. Penanda <b>Tervalidasi</b> berarti lolos pemeriksaan fakta (FR-40); tanpa penanda ini CV tidak ditampilkan
+sama sekali (lihat state &ldquo;ditolak&rdquo; di bawah). <b>Unduh PDF</b> adalah satu-satunya tombol biru solid. Tidak ada tombol unggah ke form (PRD &sect;4).</p>
+
+<!-- 9.6 State CV -->
+<p class="frame-cap" style="margin-top:28px">S8 &mdash; tab CV &middot; state (PRD &sect;8)</p>
+<div class="grid cols-2" style="margin-bottom:12px">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>CV belum dibuat</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <img src="../src/ui/mascot/empty.svg" alt="" width="72" height="72" style="margin-bottom:10px">
+      <h4>CV untuk lowongan ini belum dibuat</h4>
+      <p>job-kit menyusun CV dari Profile dan requirement lowongan. Tidak ada yang dikarang.</p>
+      <div class="act"><button class="btn pri"><svg class="i"><use href="#i-sparkles"/></svg>Buat CV</button></div>
+    </div>
+    <div class="alert info" style="margin-top:12px"><svg class="i"><use href="#i-shield"/></svg><span><b>Yang dikirim ke penyedia AI:</b> skill, butir pengalaman, jenjang dan jurusan, serta teks lowongan.
+      Nama, email, telepon, alamat, tanggal lahir tidak dikirim; nama perusahaan dan kampusmu diganti kode lalu dikembalikan di komputer ini.</span></div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Sedang membuat</h3></div>
+    <div class="mini" style="justify-content:space-between;margin:12px 0">
+      <span class="sync" style="font-size:13px;color:var(--text-secondary)">Biasanya 10&ndash;20 detik</span>
+      <button class="btn sec sm" disabled><svg class="i"><use href="#i-sparkles"/></svg>Sedang membuat&hellip;</button>
+    </div>
+    <div class="summary"><div class="row"><span>Memeriksa fakta</span><em>langkah 3 dari 3</em></div><div class="bar"><i style="width:90%"></i></div></div>
+    <div class="hint">Membaca requirement lowongan &rarr; menyusun CV &rarr; memeriksa semua fakta terhadap Profile.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Ditolak pemeriksa fakta</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert bad"><span>&#9888;</span><span><b>CV tidak ditampilkan.</b> Hasil AI memuat hal yang tidak ada di Profile:
+        &ldquo;Kubernetes&rdquo;, &ldquo;50%&rdquo;. Tidak ada yang dikarang untukmu.</span></div>
+      <div class="mini"><button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Coba lagi</button></div>
+    </div>
+    <div class="hint">Pesan yang sama dipakai untuk output AI yang formatnya rusak (&ldquo;Hasil AI tidak bisa dibaca&rdquo;). CV lama, bila ada, tetap tampil di tab ini.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Profil berubah (basi)</h3></div>
+    <div style="margin-top:12px">
+      <div class="alert warn stale"><span><b>Profilmu berubah sejak CV ini dibuat.</b> CV lama tetap bisa diunduh.</span>
+        <button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Buat ulang</button></div>
+    </div>
+    <div class="hint">Tidak dibuat ulang otomatis. Bila CV sudah kamu edit, Buat ulang meminta konfirmasi karena suntinganmu akan ditimpa.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>AI tidak tersedia</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert info"><span>&#9432;</span><span><b>Kunci API belum diisi.</b> Tracker tetap bisa dipakai penuh.
+        <button class="btn ghost sm" style="padding:0 0 0 6px;color:var(--accent);text-decoration:underline">Buka Atur Lowongan</button></span></div>
+      <div class="mini"><button class="btn pri" disabled><svg class="i"><use href="#i-sparkles"/></svg>Buat CV</button></div>
+    </div>
+    <div class="hint">Sebab lain memakai pola yang sama: kunci ditolak, kuota habis, request gagal. Tombol nonaktif selalu menyebut alasannya di atasnya.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Batas harian</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><span>&#9888;</span><span><b>Batas 20 panggilan AI hari ini tercapai.</b> Lanjut besok, atau ubah batas di Atur Lowongan.</span></div>
+      <div class="mini"><button class="btn pri" disabled><svg class="i"><use href="#i-sparkles"/></svg>Buat CV</button></div>
+    </div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Model gratis (data bisa dipakai melatih)</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><span>&#9888;</span><span><b>Model gratis OpenCode Zen dapat memakai datamu untuk melatih model.</b>
+        CV dan surat berisi pengalaman kerjamu. Pilih model lain di Atur Lowongan, atau lanjut dengan sadar.</span></div>
+      <div class="mini"><button class="btn sec sm">Atur Lowongan</button><button class="btn pri sm">Lanjut buat CV</button></div>
+    </div>
+    <div class="hint">Muncul sekali per lamaran, hanya untuk penyedia dan model yang diberi tanda ini; bukan untuk penilaian lowongan (T35).</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Profil belum punya pengalaman</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <div class="ico"><svg class="i"><use href="#i-file"/></svg></div>
+      <h4>Isi Work Experience dulu</h4>
+      <p>CV disusun dari pengalaman di Profile. Belum ada yang bisa dipilih.</p>
+      <div class="act"><button class="btn sec">Buka Profile</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 9.7 S8 Surat -->
+<p class="frame-cap" style="margin-top:28px">S8 &mdash; Detail Lamaran &middot; tab Surat</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <button class="btn ghost sm page-back"><svg class="i"><use href="#i-back"/></svg>Lamaran</button>
+    <div class="opt-head">
+      <div><h1>Frontend Engineer (React)</h1><p>PT Contoh Karya &middot; Greenhouse &middot; Disiapkan 14 Okt</p></div>
+      <div class="acts"><span class="saved">&#10003; Tersimpan</span>
+        <select class="inp fit" aria-label="Status lamaran"><option>Draft</option></select></div>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="false"><span>Ringkasan</span></button>
+      <button role="tab" aria-selected="false"><span>CV</span></button>
+      <button role="tab" aria-selected="true"><span>Surat</span></button>
+      <button role="tab" aria-selected="false"><span>Catatan &amp; riwayat</span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="stack">
+        <div class="jbar" style="margin-bottom:0">
+          <div class="fgroup" role="group" aria-label="Bahasa">
+            <button class="fchip" aria-pressed="true">Indonesia</button>
+            <button class="fchip" aria-pressed="false">English</button>
+          </div>
+          <div class="fgroup" role="group" aria-label="Nada">
+            <button class="fchip" aria-pressed="true">Formal</button>
+            <button class="fchip" aria-pressed="false">Santai</button>
+          </div>
+          <span class="hint" style="margin:0">Bahasa dipilih dari teks lowongan.</span>
+          <span style="margin-left:auto" class="badge ok"><svg class="i" style="width:11px;height:11px;vertical-align:-1px"><use href="#i-shield"/></svg> Tervalidasi</span>
+        </div>
+        <textarea class="inp area" aria-label="Surat lamaran">Yth. Tim Rekrutmen PT Contoh Karya,
+
+Saya melamar posisi Frontend Engineer (React). Sejak Januari 2023 saya membangun dashboard internal dengan React dan TypeScript di PT Contoh Teknologi, dan waktu muat halaman turun 40% setelah komponennya saya rapikan. Stack itulah yang Anda cari.
+
+Saya belum memakai GraphQL di produksi, tetapi setiap hari saya bekerja dengan REST API dan terbiasa mempelajari alat baru dari dokumentasinya.
+
+Terima kasih atas waktu Anda. Saya senang bila bisa berdiskusi lebih lanjut.
+
+Hormat saya,
+Nama Contoh</textarea>
+        <div class="lmeta">
+          <span>148 kata &middot; Nama di penutup diisi dari Profile di komputer ini, tidak dikirim ke AI.</span>
+          <span class="mini">
+            <button class="btn sec sm"><svg class="i"><use href="#i-copy"/></svg>Salin</button>
+            <button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Buat ulang</button>
+            <button class="btn ghost sm"><svg class="i"><use href="#i-undo"/></svg>Kembalikan ke versi AI</button>
+          </span>
+        </div>
+        <div class="alert info"><span>&#9432;</span><span>Saat Buka &amp; isi, surat ini mengisi field <b>Cover letter</b> / <b>Surat lamaran</b> di form bila ada, dan muncul sebagai satu baris di panel
+          yang bisa dimatikan. Field unggah file tidak disentuh.</span></div>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">
+Editor memakai <code>.inp</code> ukuran besar (<code>.inp.area</code>); tidak ada editor teks kaya. Pilihan bahasa dan nada memakai <code>.fchip</code> (pilihan tunggal), sama dengan
+Level di Preferensi kerja. Isi surat tersimpan otomatis seperti bagian profil. State kosong, sedang membuat, ditolak, basi, AI tidak tersedia, dan batas harian
+memakai pola kartu yang sama dengan tab CV (&sect;9.6), dengan kata &ldquo;CV&rdquo; diganti &ldquo;surat&rdquo;.</p>
+
+<!-- 9.8 S8 Catatan & riwayat -->
+<p class="frame-cap" style="margin-top:28px">S8 &mdash; Detail Lamaran &middot; tab Catatan &amp; riwayat</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <p class="foot">Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.</p>
+  </aside>
+  <main class="opt-main">
+    <button class="btn ghost sm page-back"><svg class="i"><use href="#i-back"/></svg>Lamaran</button>
+    <div class="opt-head">
+      <div><h1>Web Developer &mdash; Platform Pembayaran</h1><p>Studio Contoh &middot; Lever &middot; Dilamar 12 Okt</p></div>
+      <div class="acts"><span class="saved">&#10003; Tersimpan</span>
+        <select class="inp fit" aria-label="Status lamaran"><option>Dilamar</option></select></div>
+    </div>
+    <div class="opt-tabs" role="tablist">
+      <button role="tab" aria-selected="false"><span>Ringkasan</span></button>
+      <button role="tab" aria-selected="false"><span>CV</span></button>
+      <button role="tab" aria-selected="false"><span>Surat</span></button>
+      <button role="tab" aria-selected="true"><span>Catatan &amp; riwayat</span></button>
+    </div>
+    <div class="opt-sheet" role="tabpanel">
+      <div class="two-col">
+        <div class="stack">
+          <div class="f" style="margin:0"><label>Catatan</label>
+            <textarea class="inp area" style="min-height:180px" aria-label="Catatan">HR: Rina (rina@contoh.test). Katanya kabar paling lambat 21 Okt.
+Tanya soal opsi kerja hybrid saat interview.</textarea></div>
+          <div class="f" style="margin:0;max-width:240px"><label>Tindak lanjut</label><input class="inp" type="date" value="2026-10-15"></div>
+        </div>
+        <div class="card">
+          <div class="sec" style="padding-top:0"><h3>Riwayat</h3></div>
+          <ol class="tl" style="margin-top:12px">
+            <li><span class="dot ok"><svg class="i"><use href="#i-send"/></svg></span><span>Status: Draft &rarr; <b>Dilamar</b> (Fill berhasil, 11 field)</span><span class="when">12 Okt</span></li>
+            <li><span class="dot"><svg class="i"><use href="#i-download"/></svg></span><span>CV diunduh sebagai PDF</span><span class="when">12 Okt</span></li>
+            <li><span class="dot"><svg class="i"><use href="#i-file"/></svg></span><span>Surat lamaran dibuat</span><span class="when">12 Okt</span></li>
+            <li><span class="dot"><svg class="i"><use href="#i-file"/></svg></span><span>CV disesuaikan dibuat</span><span class="when">11 Okt</span></li>
+            <li><span class="dot"><svg class="i"><use href="#i-plus"/></svg></span><span>Lamaran disiapkan dari Lowongan</span><span class="when">11 Okt</span></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none">Riwayat otomatis (tidak bisa diedit): perubahan status, CV dan surat dibuat, CV diunduh. Catatan bebas milik pengguna.
+Titik riwayat memakai <code>.tl</code>: hijau untuk hasil berhasil (melamar), abu untuk sisanya, violet disiapkan untuk status Direview.</p>
+
+<!-- 9.9 Panel -->
+<p class="frame-cap" style="margin-top:28px">S1 &mdash; Panel &middot; Autofill dari lowongan yang punya lamaran (surat ikut sebagai field)</p>
+<div class="frames">
+  <div>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JK</span><span class="brand-name">job-kit</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true"><span>Autofill</span></button>
+          <button role="tab" aria-selected="false"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body panel-scroll">
+        <div class="site">
+          <span class="favicon">G</span>
+          <span class="txt"><span class="dom">boards.greenhouse.io</span>
+            <div class="ttl">Frontend Engineer (React), PT Contoh Karya</div></span>
+        </div>
+        <div class="mini">
+          <span class="badge ok">Dari Lowongan &middot; skor 86</span>
+          <span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>CV siap</span>
+          <span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>Surat siap</span>
+        </div>
+        <div class="summary">
+          <div class="row"><span>10 dari 12 field cocok</span><em>1 unggah file, 1 tidak dikenali</em></div>
+          <div class="bar"><i style="width:83%"></i></div>
+        </div>
+        <div class="sec"><h3>Akan diisi</h3><span class="cnt">10</span></div>
+        <div class="fields">
+          <div class="field on"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Full name</span><div class="val">Nama Contoh</div></span></div>
+          <div class="field on"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Email address</span><div class="val">nama@example.test</div></span></div>
+          <div class="field on"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Cover letter</span>
+            <div class="val" title="Yth. Tim Rekrutmen PT Contoh Karya, Saya melamar posisi Frontend Engineer (React).">Yth. Tim Rekrutmen PT Contoh Karya, Saya melamar posisi Frontend Engineer (React).</div></span>
+            <span class="end"><span class="badge dim">Dari Lamaran</span></span></div>
+        </div>
+        <div class="sec"><h3>Dilewati</h3><span class="cnt">2</span></div>
+        <div class="fields">
+          <div class="field off"><span class="box"></span><span class="txt">
+            <span class="lbl">Resume / CV (unggah file)</span>
+            <div class="val">CV-PT-Contoh-Karya.pdf sudah diunduh &mdash; pilih sendiri</div></span>
+            <span class="end"><span class="badge dim">Unggah manual</span></span></div>
+        </div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full">Isi 10 field</button></div>
+    </div></div>
+    <p class="frame-note">Baris <b>Cover letter</b> bawaan aktif, bisa dimatikan seperti field lain (FR-44). Field unggah file tidak disentuh; panel menjelaskan sebabnya dan
+    menyebut berkas CV yang sudah diunduh dari Lamaran. Lencana konteks memakai badge yang sudah ada; penanda dokumen memakai <code>.dchip</code>.</p>
+  </div>
+
+  <div>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JK</span><span class="brand-name">job-kit</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true"><span>Autofill</span></button>
+          <button role="tab" aria-selected="false"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="alert ok"><span>&#10003;</span><span><b>10 field terisi.</b> Periksa sebelum submit &mdash; job-kit tidak menekan tombol kirim.</span></div>
+        <div class="alert info"><span>&#9432;</span><span><b>Lamaran ke PT Contoh Karya ditandai Dilamar.</b> Salah tandai? Ubah di Lamaran.
+          <button class="btn ghost sm" style="padding:0 0 0 6px;color:var(--accent);text-decoration:underline">Lihat lamaran</button></span></div>
+        <div class="fields">
+          <div class="field done"><span class="box">&#10003;</span><span class="txt">
+            <span class="lbl">Cover letter</span><div class="val">Yth. Tim Rekrutmen PT Contoh Karya, Saya melamar posisi&hellip;</div></span>
+            <span class="end"><span class="badge ok">Terisi</span></span></div>
+        </div>
+      </div>
+      <div class="panel-foot"><button class="btn sec full">Undo</button></div>
+    </div></div>
+    <p class="frame-note">Setelah Fill berhasil, lamaran pindah dari Draft ke Dilamar (FR-36) dan panel memberi tahu, dengan jalan ke Lamaran bila salah tandai. Undo hanya
+    mengembalikan field di form; status lamaran tidak otomatis kembali, karena Undo bukan tanda batal melamar.</p>
+  </div>
+</div>
+
+<!-- 9.10 Sempit -->
+<p class="frame-cap" style="margin-top:28px">Lebar &le;420&nbsp;px &mdash; S7 Lamaran, Papan (kiri) dan Visualisasi (kanan)</p>
+<div class="frames" style="margin-bottom:12px">
+  <div style="width:400px;max-width:100%">
+<div class="opt narrow">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lamaran</h1><p>Semua lowongan yang kamu lamar, dari draf sampai hasil akhir.</p></div>
+      <div class="acts">
+        <div class="vtoggle" role="group" aria-label="Tampilan">
+          <button aria-pressed="true"><svg class="i"><use href="#i-columns"/></svg>Papan</button>
+          <button aria-pressed="false"><svg class="i"><use href="#i-chart"/></svg>Visualisasi</button>
+        </div>
+      </div>
+    </div>
+    <div class="board">
+        <section class="kcol" aria-label="Dilamar">
+          <h4>Dilamar<span class="n">3</span></h4>
+          <button class="kcard due">
+            <span class="kt">Web Developer &mdash; Platform Pembayaran dan Integrasi Mitra Bisnis</span><span class="kc">Studio Contoh</span>
+            <span class="kf"><span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>CV</span><span class="dchip ok"><svg class="i"><use href="#i-file"/></svg>Surat</span></span>
+            <span class="kf"><span class="badge warn">Tindak lanjut hari ini</span></span>
+          </button>
+        </section>
+        <section class="kcol" aria-label="Interview">
+          <h4>Interview<span class="n">1</span></h4>
+          <button class="kcard due">
+            <span class="kt">Frontend Developer</span><span class="kc">Aksara Pagi</span>
+            <span class="kf"><span class="badge warn">Interview 18 Okt</span></span>
+          </button>
+        </section>
+      </div>
+  </main>
+</div>
+  </div>
+  <div style="width:400px;max-width:100%">
+<div class="opt narrow">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has" aria-current="page"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lamaran</h1><p>Semua lowongan yang kamu lamar, dari draf sampai hasil akhir.</p></div>
+      <div class="acts">
+        <div class="vtoggle" role="group" aria-label="Tampilan">
+          <button aria-pressed="false"><svg class="i"><use href="#i-columns"/></svg>Papan</button>
+          <button aria-pressed="true"><svg class="i"><use href="#i-chart"/></svg>Visualisasi</button>
+        </div>
+      </div>
+    </div>
+    <div class="card sankey">
+      <div class="sec" style="padding-top:0"><h3>Pencarian kerjamu</h3><span class="cnt">12 lamaran dikirim</span></div>
+      <svg class="sankey-svg" viewBox="0 0 860 300" role="img" aria-label="Alur 12 lamaran: 6 sampai Direview, 3 sampai Interview, 1 Offer; 4 tanpa kabar, 4 ditolak, 3 masih berjalan" xmlns="http://www.w3.org/2000/svg">
+<path d="M162,34 C426,34 426,28 690,28 L690,88 C426,88 426,94 162,94 Z" style="fill:var(--text-secondary)" fill-opacity=".22"><title>Dilamar → Tanpa kabar: 4</title></path>
+<path d="M162,94 C426,94 426,104 690,104 L690,134 C426,134 426,124 162,124 Z" style="fill:var(--status-danger-fg)" fill-opacity=".22"><title>Dilamar → Ditolak: 2</title></path>
+<path d="M162,124 C261,124 261,120 360,120 L360,210 C261,210 261,214 162,214 Z" style="fill:var(--status-progress-fg)" fill-opacity=".22"><title>Dilamar → Direview: 6</title></path>
+<path d="M372,120 C531,120 531,134 690,134 L690,149 C531,149 531,135 372,135 Z" style="fill:var(--status-danger-fg)" fill-opacity=".22"><title>Direview → Ditolak: 1</title></path>
+<path d="M372,180 C531,180 531,180 690,180 L690,210 C531,210 531,210 372,210 Z" style="fill:var(--status-progress-fg)" fill-opacity=".22"><title>Direview → Masih berjalan: 2</title></path>
+<path d="M372,135 C456,135 456,150 540,150 L540,195 C456,195 456,180 372,180 Z" style="fill:var(--status-warning-fg)" fill-opacity=".22"><title>Direview → Interview: 3</title></path>
+<path d="M552,165 C621,165 621,210 690,210 L690,225 C621,225 621,180 552,180 Z" style="fill:var(--status-progress-fg)" fill-opacity=".22"><title>Interview → Masih berjalan: 1</title></path>
+<path d="M552,150 C621,150 621,149 690,149 L690,164 C621,164 621,165 552,165 Z" style="fill:var(--status-danger-fg)" fill-opacity=".22"><title>Interview → Ditolak: 1</title></path>
+<path d="M552,180 C621,180 621,241 690,241 L690,256 C621,256 621,195 552,195 Z" style="fill:var(--status-success-fg)" fill-opacity=".22"><title>Interview → Offer: 1</title></path>
+<rect x="150" y="34" width="12" height="180" rx="3" style="fill:var(--status-success-fg)"/>
+<rect x="360" y="120" width="12" height="90" rx="3" style="fill:var(--status-progress-fg)"/>
+<rect x="540" y="150" width="12" height="45" rx="3" style="fill:var(--status-warning-fg)"/>
+<rect x="690" y="28" width="12" height="60" rx="3" style="fill:var(--text-secondary)"/>
+<rect x="690" y="104" width="12" height="60" rx="3" style="fill:var(--status-danger-fg)"/>
+<rect x="690" y="180" width="12" height="45" rx="3" style="fill:var(--status-progress-fg)"/>
+<rect x="690" y="241" width="12" height="15" rx="3" style="fill:var(--status-success-fg)"/>
+<text x="140" y="122" text-anchor="end" class="sk-l">Dilamar</text><text x="140" y="139" text-anchor="end" class="sk-n">12</text>
+<text x="366" y="112" text-anchor="middle" class="sk-l">Direview <tspan class="sk-n">6</tspan></text>
+<text x="546" y="142" text-anchor="middle" class="sk-l">Interview <tspan class="sk-n">3</tspan></text>
+<text x="712" y="62" class="sk-l">Tanpa kabar <tspan class="sk-n">4</tspan></text>
+<text x="712" y="138" class="sk-l">Ditolak <tspan class="sk-n">4</tspan></text>
+<text x="712" y="206.5" class="sk-l">Masih berjalan <tspan class="sk-n">3</tspan></text>
+<text x="712" y="252.5" class="sk-l">Offer <tspan class="sk-n">1</tspan></text>
+</svg>
+      <ul class="flist" aria-label="Alur lamaran">
+        <li><span>Dilamar</span><div class="fb"><i style="width:100%;--c:var(--status-success-fg)"></i></div><b>12</b></li>
+        <li><span>Direview</span><div class="fb"><i style="width:50%;--c:var(--status-progress-fg)"></i></div><b>6</b></li>
+        <li><span>Interview</span><div class="fb"><i style="width:25%;--c:var(--status-warning-fg)"></i></div><b>3</b></li>
+        <li><span>Offer</span><div class="fb"><i style="width:8%;--c:var(--status-success-fg)"></i></div><b>1</b></li>
+        <li><span>Tanpa kabar</span><div class="fb"><i style="width:33%;--c:var(--text-secondary)"></i></div><b>4</b></li>
+        <li><span>Masih berjalan</span><div class="fb"><i style="width:25%;--c:var(--status-progress-fg)"></i></div><b>3</b></li>
+        <li><span>Ditolak</span><div class="fb"><i style="width:33%;--c:var(--status-danger-fg)"></i></div><b>4</b></li>
+      </ul>
+      <div class="hint">Dihitung dari riwayat status. <b>Tanpa kabar</b> = Dilamar tanpa perubahan 14 hari atau lebih. Draft dan Dibatalkan tidak dihitung.</div>
+    </div>
+  </main>
+</div>
+  </div>
+</div>
+<p class="frame-note" style="max-width:none">Di lebar sempit penukar pindah ke bawah judul; papan menumpuk jadi satu kolom per status dan hanya kolom yang berisi yang digambar; Visualisasi menampilkan daftar batang dengan angka yang sama dengan diagram.</p>
+
+<!-- 10. ATURAN -->
+<h2>10. Aturan yang tidak boleh dilanggar</h2>
 <div class="card sh">
   <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.9;color:var(--text-secondary)">
     <li>Komponen tidak menyebut palet mentah — hanya token semantik.</li>
@@ -1584,7 +2522,10 @@ Pesan Tes koneksi memakai teks PRD &sect;6.7 (&ldquo;Kunci ditolak penyedia&rdqu
     <li><code>--text-tertiary</code> tidak pernah membawa arti (2.58:1).</li>
     <li>Panel tidak pernah scroll horizontal.</li>
     <li>Bayangan tidak dipakai di panel — kartu dibedakan oleh border.</li>
-    <li>Komponen di luar <code>screens.md</code> §4 tidak dibuat, walau ada di referensi.</li>
+    <li>Komponen di luar <code>screens.md</code> §4 tidak dibuat, walau ada di referensi. Pengecualian terdaftar: delapan komponen Lamaran di <code>design-system.md</code> §4.4 (T40).</li>
+    <li><b style="color:var(--text-primary)">Diff tidak pernah merah.</b> Tambahan hijau, bagian yang diganti dicoret abu. Merah hanya untuk gagal atau ditolak.</li>
+    <li><b style="color:var(--text-primary)">Hasil AI selalu bertanda.</b> CV dan surat tampil dengan penanda <i>Tervalidasi</i>, atau tidak tampil sama sekali dan menyebut sebabnya.</li>
+    <li><b style="color:var(--text-primary)">Tombol nonaktif menyebut alasannya</b> di atas tombol itu (kunci kosong, batas harian, profil kosong).</li>
   </ol>
 </div>
 

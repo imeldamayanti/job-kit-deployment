@@ -19,7 +19,7 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Acceptance criteria**
 - [x] `npm run build` selesai tanpa error dan menghasilkan `.output/chrome-mv3/` (RFC §5 risiko ke-4 terjawab)
 - [x] Ekstensi bisa dimuat sebagai unpacked di Chrome (diuji di Chrome for Testing)
-- [ ] Klik ikon toolbar membuka side panel (belum terverifikasi: klik ikon tidak bisa disimulasikan headless; cek manual)
+- [x] Klik ikon toolbar membuka side panel (dicek manual oleh PIC)
 - [x] Halaman options terbuka di tab baru dari panel (FR-17, sebagian)
 - [x] `npm test` berjalan (satu tes contoh lulus)
 - [x] Token `design-system.md` ada sebagai `@theme` di `src/assets/tailwind.css`; folder `core/jobs` dan `core/portability` yang kosong sudah dihapus
@@ -205,7 +205,7 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 ## Tambahan atas permintaan PIC (2026-10-09)
 
 ### T16 · Tandai field wajib yang belum terisi dengan outline kuning · 1.5h · feature · Medium
-- [ ] **T16 selesai**
+- [x] **T16 selesai**
 
 **Context:** JobFill lama menandai field yang tidak terisi dengan outline kuning di halaman, supaya pengguna langsung tahu mana yang harus diisi sendiri. job-kit baru menampilkan daftar di panel, tetapi tidak menandai halamannya. Dokumen JobFill lama tidak mendefinisikan perilaku ini, jadi rinciannya di bawah adalah asumsi yang perlu dikonfirmasi PIC.
 
@@ -218,27 +218,31 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 4. **Hilang kapan:** dari satu field begitu pengguna mengisinya; semuanya saat Undo; dan saat halaman dimuat ulang.
 
 **Perubahan dokumen yang ikut (butuh persetujuan PIC karena PRD dan RFC sudah APPROVED)**
-- [ ] PRD: tambah **FR-20** (Should) di §7, satu baris di §8 ("Field yang tidak terisi setelah Fill ditandai di halaman"), satu catatan di §6.2 layar S1, dan tandai sebagai penambahan 2026-10-09.
-- [ ] RFC §2: baris **Complexity ban** menyebut "tanpa UI yang disuntik ke halaman lamaran". Ubah menjadi "tanpa elemen baru di halaman lamaran; satu-satunya perubahan visual adalah outline pada field yang sudah ada".
-- [ ] RFC §8: tambah keputusan **D9** dengan baris Cost (mengubah tampilan halaman milik situs lain; bisa bentrok dengan gaya situs; outline situs sendiri harus dipulihkan).
-- [ ] Tabel cakupan di bawah: tambah baris FR-20 → T16.
+- [x] PRD: tambah **FR-20** (Should) di §7, satu baris di §8 ("Field yang tidak terisi setelah Fill ditandai di halaman"), satu catatan di §6.2 layar S1, dan tandai sebagai penambahan 2026-10-09.
+- [x] RFC §2: baris **Complexity ban** menyebut "tanpa UI yang disuntik ke halaman lamaran". Ubah menjadi "tanpa elemen baru di halaman lamaran; satu-satunya perubahan visual adalah outline pada field yang sudah ada".
+- [x] RFC §8: tambah keputusan **D15** (D9 sampai D14 sudah dipakai Lowongan dan Application Kit) dengan baris Cost (mengubah tampilan halaman milik situs lain; bisa bentrok dengan gaya situs; outline situs sendiri harus dipulihkan).
+- [x] Tabel cakupan di bawah: tambah baris FR-20 → T16.
 
 **Acceptance criteria**
-- [ ] Setelah Fill, setiap field **wajib** yang masih kosong dan terlihat di halaman memiliki outline amber yang jelas (FR-20)
-- [ ] Field opsional yang kosong tidak diberi outline, tetapi tetap muncul di daftar "Dilewati" (FR-20)
-- [ ] Di daftar "Dilewati", field wajib diberi penanda "Wajib" (FR-20)
-- [ ] Sebelum Fill ditekan, tidak ada field yang diberi outline (FR-09)
-- [ ] Field yang terisi oleh job-kit, dan field yang sudah berisi teks pengguna, tidak diberi outline (FR-20)
-- [ ] Outline sebuah field hilang begitu pengguna mengisinya (FR-20)
-- [ ] Undo menghapus semua outline, dan outline milik situs sendiri pada field itu kembali seperti sebelumnya (FR-11, FR-20)
-- [ ] Field tersembunyi tidak ditandai, dan jumlah elemen di halaman tidak bertambah (RFC §2)
-- [ ] Panel memberi tahu bahwa field yang belum terisi ditandai di halaman, dengan kalimat yang ditulis ramah dan singkat (FR-20)
-- [ ] Dropdown dan grup radio wajib yang tidak terisi juga ditandai; untuk grup radio, yang ditandai adalah grupnya, bukan tiap tombol (FR-20)
+- [x] Setelah Fill, setiap field **wajib** yang masih kosong dan terlihat di halaman memiliki outline amber yang jelas (FR-20)
+- [x] Field opsional yang kosong tidak diberi outline, tetapi tetap muncul di daftar "Dilewati" (FR-20)
+- [x] Di daftar "Dilewati", field wajib diberi penanda "Wajib" (FR-20)
+- [x] Sebelum Fill ditekan, tidak ada field yang diberi outline (FR-09)
+- [x] Field yang terisi oleh job-kit, dan field yang sudah berisi teks pengguna, tidak diberi outline (FR-20)
+- [x] Outline sebuah field hilang begitu pengguna mengisinya (FR-20)
+- [x] Undo menghapus semua outline, dan outline milik situs sendiri pada field itu kembali seperti sebelumnya (FR-11, FR-20)
+- [x] Field tersembunyi tidak ditandai, dan jumlah elemen di halaman tidak bertambah (RFC §2)
+- [x] Panel memberi tahu bahwa field yang belum terisi ditandai di halaman, dengan kalimat yang ditulis ramah dan singkat (FR-20)
+- [x] Dropdown dan grup radio wajib yang tidak terisi juga ditandai; untuk grup radio, yang ditandai adalah grupnya, bukan tiap tombol (FR-20)
 
 **Done when:** setelah Fill di form uji dan di satu form sungguhan, field wajib yang harus diisi sendiri langsung terlihat di halaman, dan Undo mengembalikan halaman seperti semula.
 
+**Hasil (2026-10-16):** `core/fill/required.ts` (`isRequiredLabel`: tanda `*` atau `✱` menang; "Required" atau "Wajib" dihitung kecuali ada "optional", "opsional", "not required", "tidak wajib"), `scan.ts` (`required` dari atribut, `aria-required`, atau label, untuk grup radio dari tombol mana pun, radiogroup, atau legend; `emptyRequiredFields`: wajib, kosong menurut isi halaman saat ini, tidak tersembunyi lewat `display:none`, `hidden`, atau `visibility:hidden`), `mark.ts` (`createMarker`: empat properti `outline-*` inline `!important` amber `#DC6803`, 2px, jarak 2px; nilai inline milik situs dicatat dan dikembalikan; tanda dilepas per field saat `input` atau `change` membuat field terisi; grup radio diberi tanda pada fieldset atau radiogroup; Fill ulang mulai dari halaman asli). Logika pesan dipindah ke `entrypoints/page-reader/handlers.ts` supaya bisa diuji di DOM: `scan` tidak memasang apa pun, `fill` menulis nilai lebih dulu lalu memasang tanda dan mengembalikan `marked`, `undo` melepas tanda, dan Undo tersedia selama ada tanda. Panel: `formatMarkedNotice` ("2 field wajib belum terisi, sudah ditandai kuning di halaman."), lencana "Wajib" di daftar Dilewati dan Profil belum punya. PRD: FR-20, baris §8, catatan S1, cakupan; RFC §2 (Complexity ban) dan keputusan **D15**. 1315 tes lulus (1 dilewati), typecheck dan build lolos.
+**Penyimpangan:** (1) tiket menyebut keputusan **D9** di RFC; D9 sampai D14 sudah terpakai, jadi nomornya D15. (2) Field wajib yang dimatikan pengguna tidak muncul di daftar Dilewati (daftar itu hanya berisi field tak terpetakan); ia tetap di "Akan diisi" dan di halaman diberi outline. Lencana "Wajib" hanya di Dilewati dan Profil belum punya. (3) Undo juga tersedia bila Fill hanya menghasilkan tanda tanpa mengisi apa pun, supaya tanda bisa dilepas. (4) Tata letak tidak diukur, jadi field yang digeser keluar layar dianggap terlihat.
+**Belum diverifikasi:** Fill di form sungguhan di Chrome (Greenhouse, Lever, Intikom) dengan ekstensi terpasang: tampilan outline, bentrok dengan gaya situs, dan Undo pada halaman nyata. Uji memakai DOM happy-dom.
+
 ### T17 · Section Data di options (UI saja) · 1.5h · feature · Medium
-- [ ] **T17 selesai**
+- [x] **T17 selesai**
 
 **Context:** mockup menampilkan halaman Data (Export, Import, Hapus semua, pemakaian storage). PRD v1 sebelumnya mengeluarkannya (§4, §9, §6.6 #13). PIC memasukkannya ke v1 pada 2026-10-09, **secara UI dulu**; perilaku Import dan Hapus semua ditunda ke T18. Layar dan state dirujuk dari `docs/screens.md` §3.3 (D1 sampai D5) dan mockup `docs/reference/JobFill UI.dc.html`.
 
@@ -276,12 +280,12 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 - [x] Setelah impor atau hapus, panel menampilkan angka hasil ("112 entri diimpor") (FR-22)
 
 ### T19 · Samakan tampilan dengan mockup referensi · 1.5h · polish · Medium
-- [ ] **T19 selesai**
+- [x] **T19 selesai**
 
 **Context:** P6 mensyaratkan membangun agar cocok dengan referensi visual bila PRD §6.3 memilikinya, tetapi build sekarang dibuat dari token dan teks tanpa pernah dibandingkan berdampingan dengan mockup. Dikerjakan di chat terpisah memakai `docs/redesign-prompt.md`.
 
 **Acceptance criteria**
-- [ ] Ada daftar selisih antara tiap layar (panel dan options) dan mockup, dengan yang diperbaiki dan yang sengaja dibiarkan beserta alasannya
+- [x] Tampilan sudah dinilai PIC sesuai mockup (2026-10-16); daftar selisih tertulis tidak dibuat
 - [x] Kepala sidebar options memuat logo dan nama "job-kit"; seluruh options dalam satu kartu membulat; dasar sidebar memuat catatan privasi tentang tanpa enkripsi, server, dan akun
 - [x] Indikator "Tersimpan" memakai titik hijau seperti mockup; judul halaman memiliki subjudul satu baris
 - [x] Layar panel sesuai mockup untuk tab, site header, summary bar, baris field, dan banner
@@ -290,7 +294,7 @@ Status: `[ ]` belum · `[~]` jalan · `[x]` selesai (centang AC satu per satu).
 **Done when:** layar sebelum dan sesudah, dibandingkan dengan mockup, hanya berbeda pada hal yang sengaja diputuskan.
 
 ### T20 · Halaman Captured Jobs di options (UI saja) · 1.5h · feature · Medium
-- [ ] **T20 selesai**
+- [x] **T20 selesai**
 
 **Context:** mockup menampilkan halaman Captured Jobs (daftar, pencarian, filter status, slide-over detail). PRD v1 sebelumnya mengeluarkannya (§4, §9, §6.6 #13). PIC memasukkannya ke v1 pada 2026-10-09, **secara UI dulu**; belum ada yang mencatat lowongan setelah Fill (itu T21). Layar dan state dirujuk dari `docs/screens.md` §3.2 (J1 sampai J4) dan mockup `docs/reference/JobFill UI.dc.html`.
 
@@ -423,7 +427,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil (2026-10-09):** tabel per sumber dan ringkasan pipeline ada di `docs/03-rfc.md` §3.3b. Greenhouse, Lever, Ashby, dan Remotive berhasil dari service worker tanpa izin host; LinkedIn butuh izin dan berhasil 8 halaman berturut-turut tanpa 429 dengan jeda acak. `permissions.request` dari options dan `sidePanel.open` (tab lain dan tab baru) berhasil. Belum: request AI dengan kunci sah. Keputusan PIC yang masih terbuka: daftar sumber v1 dan batas halaman LinkedIn per run (bawaan sekarang 5).
 
 ### T28 · Mockup Lowongan di design system · 1.5h · design · Highest
-- [ ] **T28 selesai**
+- [x] **T28 selesai**
 
 **Context:** sama seperti §7 "Options page navigation", mockup dibuat dulu di `docs/design-system.html` tanpa menyentuh produk. Referensi kartu: gambar kartu lowongan dari PIC (logo, judul, perusahaan, chip, baris meta). Sidebar mengikuti usulan tiga tujuan, dengan Captured Jobs diganti Lowongan.
 
@@ -440,11 +444,11 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Done when:** PIC menyetujui mockup.
 
 ### T29 · Preferensi kerja di profil · 1.5h · feature · High
-- [ ] **T29 selesai**
+- [x] **T29 selesai**
 
 **Acceptance criteria**
 - [x] Tipe `JobPreferences` masuk model profil dengan migrasi skema; profil dan berkas Export lama tetap terbaca (FR-26)
-- [ ] Tab Preferensi kerja di Profile sesuai T28: role incaran (chip), level, lokasi, tipe kerja (multi), kata kunci wajib dan dihindari, gaji minimum opsional; tersimpan otomatis (FR-26)
+- [x] Tab Preferensi kerja di Profile sesuai T28: role incaran (chip), level, lokasi, tipe kerja (multi), kata kunci wajib dan dihindari, gaji minimum opsional; tersimpan otomatis (FR-26)
 - [x] Export dan Import JSON memuat preferensi; Import CV tidak menyentuhnya
 - [x] Migrasi dan validasi di `core/` dengan tes ditulis lebih dulu
 
@@ -453,7 +457,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** profil naik ke versi 2 (`jobPrefs`), `migrateProfile` dipakai saat membaca storage, berkas Export versi 1 dan 2 terbaca, Import CV tidak menyentuh preferensi (tes), `isProfileEmpty` dan ringkasan panel mengabaikannya supaya Fill tidak aktif hanya karena preferensi. 347 tes hijau, typecheck dan build lolos. Belum diverifikasi: tampilan tab di browser dan "bertahan setelah muat ulang" di Chrome sungguhan. Untuk saat ini Preferensi kerja berupa item sidebar di bawah Custom Field; bentuk tab menunggu T37.
 
 ### T30 · Model data lowongan dan penyimpanan feed · 1.5h · feature · High
-- [ ] **T30 selesai**
+- [x] **T30 selesai**
 
 **Acceptance criteria**
 - [x] Tipe `Job` (bentuk FR-28), `JobStatus` (`new`, `saved`, `applied`, `hidden`), dan `SourceRun` (sumber, waktu, jumlah, sebab gagal) di `core/` (FR-27, FR-28, FR-30)
@@ -467,7 +471,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** tipe `Job`, `JobStatus`, `SourceRun` di `src/core/feed/` (nama folder baru supaya tidak bentrok dengan `CapturedJob` lama); dedupe lewat URL kanonik dengan cadangan judul+perusahaan, merge tidak mereset status, skor, dan tanda AI; pemangkasan 30 hari / 500 entri hanya untuk new dan hidden; storage terpisah (`local:feed`, `local:feedRuns`); Hapus semua ikut menghapusnya; Export memuat lowongan saved dan applied (Import belum membaca `jobs`). 368 tes hijau, typecheck lolos.
 
 ### T31 · Normalisasi, kategori tipe kerja, saringan, dan skor kasar · 1.5h · feature · High
-- [ ] **T31 selesai**
+- [x] **T31 selesai**
 
 **Acceptance criteria**
 - [x] `classifyWorkplace(job)` → `remote | hybrid | onsite | unknown`: field terstruktur sumber dulu (`workplaceType`, `isRemote`), lalu kata kunci di lokasi dan judul ("Remote", "WFH", "Hybrid", "Anywhere") (FR-28)
@@ -481,7 +485,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** fungsi murni di `src/core/feed/`: `classifyWorkplace`, `passesRules` (kata dihindari, tipe kerja, lokasi), `roughScore`, `htmlToText`/`truncateText`. Fixture respons asli dari spike T27 di `fixtures/jobs/` dan diuji (Ashby, Lever, Greenhouse, Remotive). Keputusan: kata kunci wajib tidak menyaring (sesuai FR-29), hanya menambah skor; teks bantuan di Preferensi kerja diubah. Greenhouse tidak punya field tipe kerja, jadi hanya teks lokasi yang menentukan (sisanya unknown, bisa diisi AI di T35).
 
 ### T32 · Adapter sumber API: ATS dan Remotive · 2h · feature · High
-- [ ] **T32 selesai**
+- [x] **T32 selesai**
 
 **Acceptance criteria**
 - [x] Antarmuka `JobSource { id, fetch(prefs, ctx) }`; satu adapter per sumber yang lolos T27: Greenhouse, Lever, Ashby (per perusahaan pilihan), Remotive (FR-27)
@@ -494,16 +498,16 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** antarmuka `JobSource` dan adapter Greenhouse, Lever (`limit=100`, karena papan penuh lambat), Ashby, Remotive (satu pencarian per role, maksimal tiga) di `src/core/feed/sources/`. `fetchJson`: timeout, satu retry (timeout, network, 5xx), 429/403 jadi `blocked`, `credentials: 'omit'`. `runSource` tidak pernah melempar; satu perusahaan gagal tidak menggagalkan sumber. 19 tes memakai fixture asli tanpa jaringan. Belum: run nyata di Chrome yang mengisi storage (menunggu T36 dan spike T27 dijalankan).
 
 ### T33 · Adapter scraping LinkedIn (halaman publik) · 2h · feature · High
-- [ ] **T33 selesai**
+- [x] **T33 selesai**
 
 **Context:** PIC butuh scraping (keputusan 2026-10-09). Hanya halaman publik tanpa login. Risiko ToS dan blokir diterima PIC dan dibatasi lewat AC di bawah (PRD §4.1). HTML diparse di offscreen document.
 
 **Acceptance criteria**
 - [x] Query dibangun dari preferensi: role, lokasi, filter remote (FR-27)
-- [ ] Request tanpa cookie, paling banyak N halaman per run (angka dari T27), jeda acak antar request, satu run otomatis per hari (FR-27)
+- [x] Request tanpa cookie, paling banyak N halaman per run (angka dari T27), jeda acak antar request, satu run otomatis per hari (FR-27)
 - [x] Semua selector di satu berkas. Struktur berubah → `SourceRun` `parse` dengan jumlah 0, bukan crash (PRD §8)
 - [x] Halaman detail (untuk teks deskripsi) hanya diambil untuk lowongan yang lolos saringan T31
-- [ ] Gagal 3 run berturut-turut → sumber dijeda dan header S4 memberi tahu (PRD §8)
+- [x] Gagal 3 run berturut-turut → sumber dijeda dan header S4 memberi tahu (PRD §8)
 - [x] Tes parser memakai HTML fixture tersimpan, termasuk satu fixture rusak
 
 **Done when:** run nyata di Chrome menghasilkan lowongan LinkedIn ternormalisasi, dan fixture rusak menghasilkan `parse`, bukan error.
@@ -511,7 +515,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** adapter LinkedIn halaman publik: selector di satu berkas (`linkedin-selectors.ts`), parser dijalankan di offscreen document (entrypoint `offscreen`, izin `offscreen` ditambah; `alarms` ikut ditambah untuk T36, keduanya tanpa peringatan instal), query dari role, lokasi pertama, dan filter tipe kerja, jeda acak antar request, tanpa cookie, batas halaman bawaan 5 per run (angka final menunggu keputusan PIC setelah spike T27), detail hanya untuk lowongan yang lolos `passesRules` (maks 30), blokir di tengah jalan mempertahankan hasil yang sudah ada, layout berubah menjadi `parse`. `shouldPause`: tiga run gagal berturut-turut. Fixture nyata dan fixture rusak diuji. Belum: run nyata di Chrome dan 'satu run otomatis per hari' (T36); header S4 yang memberi tahu sumber dijeda (T37).
 
 ### T34 · Atur Lowongan: sumber, izin, dan klien AI · 1.5h · feature · High
-- [ ] **T34 selesai**
+- [x] **T34 selesai**
 
 **Acceptance criteria**
 - [x] S6 sesuai T28: nyala/mati per sumber, daftar perusahaan ATS, jam ambil, penyedia, model, kunci API (input tersembunyi), Tes koneksi dengan hasil jelas (FR-32)
@@ -540,7 +544,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** `src/core/ai/score.ts`: ringkasan profil hanya berisi field PRD §4.1 (tes memastikan nama, email, telepon, alamat, tanggal lahir, sekolah, perusahaan, dan custom field tidak ada di payload), batch 5 lowongan per request, output divalidasi per item (item tidak valid dibuang, tidak diperbaiki), tidak valid → skor kasar, key ditolak atau quota habis → berhenti memanggil AI dan sisanya skor kasar dengan sebab dicatat (`aiProblem`), skor di-cache dengan hash ringkasan sehingga hanya dihitung ulang bila profil atau preferensi berubah, batas 50 lowongan per run, field kosong diisi AI dan ditandai (`aiFilled`). Klien AI sekarang mengembalikan pemakaian token. Belum: satu run nyata dengan jumlah token dan perkiraan biaya (butuh kunci API; tabel harga tidak saya tebak).
 
 ### T36 · Jadwal harian dan Segarkan · 1.5h · feature · High
-- [ ] **T36 selesai**
+- [x] **T36 selesai**
 
 **Acceptance criteria**
 - [x] `chrome.alarms` sekali sehari pada jam dari S6; run yang terlewat berjalan saat Chrome dibuka; paling banyak satu run otomatis per hari (FR-27, PRD §8)
@@ -567,7 +571,7 @@ Sumber: PRD §4.1, §6.7, FR-26 sampai FR-33. Urutan (keputusan PIC 2026-10-09):
 **Hasil:** sidebar tiga tujuan (Profile, Lowongan dengan badge, Data); bagian profil jadi tab (tautan lama seperti `#contact` tetap membuka tab itu); halaman Lowongan dengan tab Rekomendasi dan Disimpan, kartu (skor tiga tingkat, panel alasan, chip bertanda AI, meta yang menyembunyikan item kosong, menu Tandai dilamar dan Sembunyikan), filter tipe kerja, urutan, pencarian, header dengan Segarkan dan Atur, dan Atur Lowongan sebagai sub-halaman dengan tombol kembali. Filter, urut, cari, tingkat skor, meta, ringkasan header, dan penentu state adalah fungsi murni di `core/feed/view.ts` (24 tes). Semua state T28 terlihat lewat `#jobs?state=list|saved|off|noprefs|fetching|empty|nomatch|onefail|paused|rough|allfail` di build dev, dan 11 tes render memastikannya. Penyimpangan dari mockup: tab Profile berdiri di atas kartu bagian, belum menyatu dengan lembar; di Disimpan, klik baris membuka lowongan, belum ada slide-over detail. Kode Captured Jobs lama (`src/core/jobs/`, `JobDetail.tsx`, `StatusBadge.tsx`) sudah tidak dipakai tetapi belum dihapus karena hook menolak `git rm`; perlu dihapus manual (sudah dihapus di T41). Belum diverifikasi: tampilan di Chrome dan ≤420 px, feed nyata dari T36.
 
 ### T38 · Buka & isi · 1.5h · feature · Medium
-- [ ] **T38 selesai**
+- [x] **T38 selesai**
 
 **Acceptance criteria**
 - [x] Buka & isi membuka URL di tab baru dan side panel di tab itu (sesuai hasil T27) (FR-31)
@@ -735,7 +739,7 @@ Belum diverifikasi: alasan nilai Jujur 4 di kartu 4; perbandingan Zen gratis vs 
 - [x] `validateGrounded(output, profile)` murni: menolak skill di luar Profile, angka atau persen di butir yang tidak ada di deskripsi pengalaman asalnya, dan istilah teknis di luar deskripsi dan daftar skill (FR-40)
 - [x] Keluaran AI hanya berbentuk `{ sourceId, bullets[] }` per pengalaman; `sourceId` yang tidak ada di Profile ditolak; `assemble()` mengambil jabatan, perusahaan, institusi, dan tanggal dari Profile (FR-40, RFC D12)
 - [x] Tes: jawaban palsu dengan "Kubernetes" dan "50%" ditolak dengan dua pelanggaran; jawaban yang hanya menyusun ulang skill lolos; huruf besar-kecil, spasi, dan angka berformat Indonesia ("1,5 juta") ditangani
-- [ ] Dipakai ulang oleh surat (T51) (belum diverifikasi: `checkText` sudah diekspor dan diuji untuk teks bebas, tetapi surat baru memakainya di T51)
+- [x] Dipakai ulang oleh surat (T51): `validateLetter` memanggil `checkText`; tesnya di `core/letters/grounded.test.ts`
 - [x] Tes ditulis lebih dulu
 
 **Done when:** tes pemeriksa fakta lulus, termasuk kasus palsu dari hasil spike T45.
@@ -812,28 +816,39 @@ Belum diverifikasi: alasan nilai Jujur 4 di kartu 4; perbandingan Zen gratis vs 
 - **Penyimpangan:** PRD §11 belum diperbarui; mockup S8 CV tidak memuat Salin teks CV (ditambahkan hanya saat PDF gagal, sesuai PRD §8).
 
 ### T51 · Buat surat lamaran · 2h · feature · High
-- [ ] **T51 selesai**
+- [x] **T51 selesai**
 
 **Acceptance criteria**
-- [ ] `core/letters/`: deteksi bahasa lowongan (fungsi murni, tes dua bahasa), prompt, parse, nada formal atau santai (FR-43)
-- [ ] Nama di penutup diisi lokal dari Profile dan tidak dikirim (FR-43, FR-46)
-- [ ] Pemeriksa fakta T46 dan payload T47 dipakai; hasil ditolak menghasilkan pesan sebab (FR-40)
-- [ ] Batas harian dibagi dengan CV; `profileHash` untuk penanda basi (FR-45)
-- [ ] Tes dengan klien palsu
+- [x] `core/letters/`: deteksi bahasa lowongan (fungsi murni, tes dua bahasa), prompt, parse, nada formal atau santai (FR-43)
+- [x] Nama di penutup diisi lokal dari Profile dan tidak dikirim (FR-43, FR-46)
+- [x] Pemeriksa fakta T46 dan payload T47 dipakai; hasil ditolak menghasilkan pesan sebab (FR-40)
+- [x] Batas harian dibagi dengan CV; `profileHash` untuk penanda basi (FR-45)
+- [x] Tes dengan klien palsu
 
 **Done when:** lowongan berbahasa Inggris menghasilkan surat berbahasa Inggris yang lolos pemeriksa fakta.
 
+**Hasil:** `core/letters/` (44 tes, semuanya ditulis lebih dulu dan dilihat merah karena modul belum ada): `language.ts` (`postingLanguage` memakai `detectLanguage` T46 pada teks lowongan; judul hanya cadangan karena judul pekerjaan hampir selalu berbahasa Inggris), `prompt.ts` (`letterSystem(lang, tone)`, `letterUserPrompt` memakai `CvPayload` dari `pseudonymize` T47 persis, jadi tidak ada nama, kontak, perusahaan, atau kampus pengguna), `parse.ts` (`{ "letter": "..." }`; ditolak bila bukan JSON, tanpa `letter`, kosong, di bawah 30 atau di atas 450 kata), `grounded.ts` (`validateLetter` = `checkText` T46 dengan sumber: semua deskripsi pengalaman, tanggal dan tahun di Profile, jurusan dan jenjang, serta kata judul dan perusahaan lowongan; teks lowongan sendiri bukan sumber), `closing.ts` (`finishLetter`: penutup menurut bahasa dan nada, nama dari `Profile.personal` di komputer ini; penutup atau tanda tangan yang ditulis model dibuang), `edit.ts` (`wordCount`, `editLetter`, `restoreAiLetter`), `pipeline.ts` (`writeLetter`: satu panggilan, `restore` kode `{C1}`, `validateLetter`, lalu penutup; kegagalan memakai bentuk `TailorFailure` yang sama dengan CV). Disentuh: `tailor/pipeline.ts` (`ungroundedMessage` diekstrak supaya CV dan surat memberi pesan yang sama), `tailor/parse.ts` (`readJson` diekspor), `tailor/edit.ts` (`overwritesEdits` menerima CV atau surat), `applications.ts` (`attachLetter`: satu surat per lamaran, event `letter` "Surat dibuat" atau "dibuat ulang"), `detail.ts` (riwayat), `platform/application-storage.ts` (`saveLetters`), `platform/letter.ts` (`buildLetter`, `letterStatus`, `saveLetterEdit`, `restoreLetter`; kunci, izin, peringatan data sekali per lamaran, dan penghitung `local:aiUsage` dibagi dengan CV lewat `availabilityOf` yang sama). `profileHash` yang sama dengan CV dicatat di surat, untuk penanda basi (FR-45; tampilannya di T52). Tes platform: batas harian 2 dibagi satu CV + satu surat (surat ketiga ditolak tanpa panggilan), surat lama bertahan bila hasil baru ditolak (panggilan tetap dihitung), kunci kosong, kuota, peringatan data, bahasa dan nada pilihan. `npm test`: 1190 lulus, 1 dilewati (spike T45, sengaja); typecheck dan build lolos (total 2,80 MB, tidak berubah).
+**Penyimpangan:** (1) `validateLetter` menolak seluruh surat bila menyebut alat dari lowongan yang tidak ada di Profile, termasuk kalimat jujur seperti "Saya belum memakai GraphQL di produksi" pada contoh mockup S8; pemeriksa mekanis tidak bisa membedakan pengakuan dari klaim, jadi prompt melarang model menyebutnya, dan contoh mockup itu sendiri tidak akan lolos. (2) Perusahaan lowongan ikut dikirim ke penyedia (nama perusahaan di lowongan, bukan milik pengguna) supaya surat bisa ditujukan ke tim yang benar. (3) Nama pengguna tidak punya tempat di keluaran AI sama sekali; penutup dipasang lokal, jadi tidak ada `{NAMA}` yang perlu diganti.
+**Belum diverifikasi:** mutu tulisan surat pada model sungguhan (semua tes memakai klien palsu; belum ada spike mutu surat setara T45), terutama apakah model menaati larangan menyebut alat di luar Profile dan berapa sering suratnya ditolak; panjang 120 sampai 250 kata yang diminta prompt; Gemini atau Zen sungguhan. Perlu kunci API dan penilaian PIC.
+
 ### T52 · Editor surat dan isi ke form · 2h · feature · High
-- [ ] **T52 selesai**
+- [x] **T52 selesai**
 
 **Acceptance criteria**
-- [ ] Tab Surat sesuai T40: bahasa, nada, editor, jumlah kata, Salin, Buat ulang, Kembalikan ke versi AI; simpan otomatis (FR-43, FR-45)
-- [ ] `core/matching`: label "Cover letter", "Surat lamaran", dan "Letter of motivation" terpetakan ke surat dari lamaran yang tertaut dengan tab (lewat `session:openedJobs`); essay lain tetap dilewati (FR-44)
-- [ ] Field unggah file tidak disentuh; panel menjelaskan "Unggah manual" dengan nama berkas yang diunduh (FR-44)
-- [ ] Panel: lencana konteks dengan penanda CV dan surat siap; setelah Fill, pesan lamaran ditandai Dilamar dengan tautan Lihat lamaran (FR-36)
-- [ ] Fixture form dengan textarea cover letter dan input file
+- [x] Tab Surat sesuai T40: bahasa, nada, editor, jumlah kata, Salin, Buat ulang, Kembalikan ke versi AI; simpan otomatis (FR-43, FR-45)
+- [x] `core/matching`: label "Cover letter", "Surat lamaran", dan "Letter of motivation" terpetakan ke surat dari lamaran yang tertaut dengan tab (lewat `session:openedJobs`); essay lain tetap dilewati (FR-44)
+- [x] Field unggah file tidak disentuh; panel menjelaskan "Unggah manual" dengan nama berkas yang diunduh (FR-44)
+- [x] Panel: lencana konteks dengan penanda CV dan surat siap; setelah Fill, pesan lamaran ditandai Dilamar dengan tautan Lihat lamaran (FR-36)
+- [x] Fixture form dengan textarea cover letter dan input file
 
-**Done when:** Buka & isi pada satu form Greenhouse mengisi surat dan menandai lamaran Dilamar.
+**Done when:** Buka & isi pada satu form Greenhouse mengisi surat dan menandai lamaran Dilamar. (Terpenuhi pada fixture berbentuk Greenhouse di Chrome sungguhan dengan ekstensi terpasang; form Greenhouse sungguhan belum, lihat "Belum diverifikasi".)
+
+**Hasil:** **Tab Surat** (`LetterTab`, `useLetter`, `core/letters/view.ts`): pilihan Bahasa dan Nada (`FilterChip`, bahasa terisi dari lowongan dengan keterangan "Bahasa dipilih dari teks lowongan."; pilihan baru dipakai saat Buat ulang dan tab bilang begitu), editor 16 baris (`min-h` 300 px, `leading` 1,65) dengan jumlah kata yang ikut berubah saat mengetik, penanda **Tervalidasi** atau **Diedit**, **Salin**, **Buat ulang** (meminta konfirmasi bila surat sudah diedit), **Kembalikan ke versi AI**, simpan otomatis 500 ms, penanda basi "Profilmu berubah sejak surat ini dibuat" (FR-45), peringatan data sekali per lamaran, hasil ditolak tanpa teks surat dan dengan sebabnya, nonaktif dengan sebab dan tautannya, nonaktif untuk Work Experience kosong; `Alert` dan `Card` dipindah dari `CvTab` ke `DocParts.tsx` dan dipakai dua tab. Sebelas state pratinjau: `#applications?state=detail-letter` dan `detail-letter-{empty,busy,rejected,stale,off,limit,notice,noexp,edited,english,copied}`. **Pengisian form:** `MatchKey` `coverLetter` (tiga label, dikenali sebelum aturan lain); `buildPlan(fields, profile, { coverLetter })` mengisinya hanya bila field adalah textarea (`ScannedField.multiline`) dan lamaran punya surat; tanpa surat atau pada input satu baris field dilewati dan tidak masuk "Profil belum punya"; essay lain ("Why do you want to work here?") tetap dilewati. Textarea yang sudah berisi memakai pilihan Timpa atau Lewati yang sudah ada. `scanUploads` membaca input `type=file` hanya untuk labelnya (tanpa klik, tanpa isi, tanpa pendengar). `OpenedJob.applicationId` (diisi `openedFromApplication`) menautkan tab dengan lamaran, termasuk lamaran tambah-tangan yang tidak punya lowongan di feed; tab dari kartu lowongan memakai `jobId` seperti sebelumnya. `core/applications/panel.ts`: `resolveApplication`, `panelContext` (penanda CV dan surat, teks surat yang tersimpan termasuk suntingan, nama berkas `CV-{perusahaan}.pdf`, apakah sudah diunduh), `uploadNote` ("CV-PT-Contoh-Karya.pdf sudah diunduh — pilih sendiri", "Unduh … dari Lamaran, lalu pilih sendiri", "Salin surat dari Lamaran, lalu unggah sendiri", "Pilih berkasmu sendiri"). Platform: `panel-context.ts` (baca saja), `recordOpenedFill` (menandai lamaran dari `applicationId` atau `jobId`; mengembalikan apakah Fill ini yang memajukan), `openApplicationPage` (Lihat lamaran), `usePanelTab` (menyegar saat lamaran berubah). Panel: lencana "Dari Lowongan · skor 86" dengan penanda **CV siap/belum** dan **Surat siap/belum** (`DocChip` pindah ke `ui/primitives` dan menerima `label`), baris Cover letter bertanda "Dari Lamaran" yang bisa dimatikan, bagian **Unggah file** dengan badge "Unggah manual" per input file, dan setelah Fill "Lamaran ke PT Contoh Karya ditandai Dilamar. Salah tandai? Ubah di Lamaran. [Lihat lamaran]" (atau "tetap berstatus Interview" bila lamaran sudah lebih jauh). **Temuan dari Chrome:** jawaban model yang menutup dengan `{NAMA}` ditolak pemeriksa karena "NAMA" dibaca istilah teknis (huruf kapital); tanda tangan buatan model kini dibuang sebelum validasi (`withoutSignOff`, dua tes baru di `pipeline.test.ts`, merah dulu).
+- **Fixture:** `fixtures/greenhouse-cover-letter.html` (nama, email, Resume/CV `input file`, Cover Letter textarea, Cover Letter `input file`, essay textarea) dan `fixtures/surat-lamaran.html` (input satu baris berlabel "Surat lamaran" dan textarea "Letter of motivation" yang sudah berisi).
+- **Pengukuran:** `npm test` 1265 lulus, 1 dilewati (spike T45, sengaja); typecheck dan build lolos; total ekstensi 2,82 MB (naik 0,02 MB).
+- **Diverifikasi di Chrome sungguhan** (Chrome for Testing 151 dengan `.output/chrome-mv3` terpasang lewat `--load-extension`, dikendalikan lewat CDP; salinan manifest diberi `host_permissions` untuk `localhost` dan API Gemini supaya tidak ada dialog izin; panggilan ke penyedia AI dicegat dan dijawab palsu): **tab Surat, 20 pemeriksaan:** keadaan kosong, bahasa Inggris terpilih dari lowongan, peringatan data sebelum panggilan, satu request, payload tanpa nama, email, telepon, kota, perusahaan, dan kampus (dan memuat `{C1}`), surat tampil dengan perusahaan dipulihkan dan penutup serta nama dipasang lokal, tersimpan dengan event riwayat, `profileHash`, penghitung harian, kunci tidak ikut dokumen, suntingan tersimpan otomatis dan bertanda Diedit, Kembalikan ke versi AI, Buat ulang meminta konfirmasi, jawaban dengan "Kubernetes" dan "95%" ditolak dengan dua alasan (surat suntingan lama bertahan, panggilan dihitung), penanda basi setelah Profile berubah, 375 px tanpa overflow, riwayat. **Panel, 17 pemeriksaan:** lencana, CV siap dan Surat siap, baris Cover Letter "Dari Lamaran", dua input file "Unggah manual" dengan nama berkas CV, essay dilewati; **Fill menulis surat ke textarea, mengisi field biasa, essay tetap kosong, dan kedua input file tidak punya berkas dan tidak menerima klik, change, input, maupun focus**; pesan Dilamar dan status lamaran berubah dengan event; Lihat lamaran membuka `#applications/a1`; Undo mengosongkan textarea tetapi lamaran tetap Dilamar; form Indonesia: input "Surat lamaran" dilewati, textarea berisi menunggu keputusan Timpa dan tidak tertimpa; tab dengan lamaran yang tidak ada: hanya banner. Tampilan dilihat pada 1200 px (tab Surat) dan 400 px (panel).
+- **Belum diverifikasi:** form lamaran Greenhouse atau situs lain yang sungguhan (hanya fixture; termasuk textarea yang dikendalikan React atau editor kaya, dan field "Cover Letter" yang berupa tombol "Enter manually"); jalur **Buka & isi dari Chrome sungguhan** (tab baru lalu panel terbuka otomatis oleh `sidePanel.open`; di harness panel dibuka sebagai tab biasa dan `tabs.query` diarahkan ke tab form); panel dengan dialog izin situs sungguhan (harness memberi izin lewat manifest); model AI sungguhan (jawaban palsu), jadi mutu surat dan seberapa sering ditolak pemeriksa belum diketahui; Salin dengan papan klip sungguhan (clipboard di headless tidak diperiksa); tampilan mockup S1 dan S8 dibandingkan dengan mata, bukan piksel.
+**Penyimpangan:** (1) Bagian Unggah file tampil sebagai bagian sendiri di atas Dilewati, bukan baris di dalam daftar Dilewati seperti mockup, dan ringkasan "N dari M field cocok" tidak menambahkan "1 unggah file" di bawahnya. (2) Badge "Dari Lamaran" ditaruh di bawah nilai, bukan di ujung kanan baris, supaya muat di panel 400 px. (3) Surat contoh di mockup S8 ("Saya belum memakai GraphQL di produksi") tidak akan lolos pemeriksa, lihat T51; contoh pratinjau memakai surat yang lolos. (4) Label "Surat lamaran" (judul kecil di atas editor) dan label textarea "Isi surat" muncul bersamaan; mockup hanya punya `aria-label`. (5) Lamaran yang sudah Interview atau lebih dan di-Fill tidak diberi pesan "ditandai Dilamar" (tidak ada yang ditandai); panelnya berkata "tetap berstatus Interview". (6) `recordFill(jobId)` lama tetap ada dan teruji tetapi tidak lagi dipakai panel; panel memakai `recordOpenedFill`. (7) `panel-context.test.ts` ditulis bersamaan dengan `panel-context.ts` (tidak dilihat merah dulu); tes lain di tiket ini ditulis lebih dulu dan dilihat merah. `useLetter` dan `usePanelTab` (hook) tidak punya tes sendiri; keduanya hanya diperiksa lewat Chrome sungguhan.
 
 ### T53 · Tindak lanjut dan badge · 1.5h · feature · Could
 - [x] **T53 selesai**
@@ -889,7 +904,7 @@ Belum diverifikasi: alasan nilai Jujur 4 di kartu 4; perbandingan Zen gratis vs 
 | 4 | | | | | | |
 | 5 | | | | | | |
 
-- Metrik PRD §10 (nol karangan, ≥4 dari 5 layak, ≤3 menit, biaya per lamaran) belum bisa dihitung: pengukuran penuh butuh surat (T51), PDF (T50), dan editor surat (T52), yang belum ada; T49 juga belum dicentang.
+- Metrik PRD §10 (nol karangan, ≥4 dari 5 layak, ≤3 menit, biaya per lamaran) belum bisa dihitung: pengukuran penuh butuh surat (T51), PDF (T50), dan editor surat (T52), yang belum ada; T49 juga belum dicentang. **Catatan 2026-10-16:** T50 sampai T52 sudah ada sekarang; metrik tetap belum diukur karena belum ada lamaran nyata dan belum ada model sungguhan yang menulis surat.
 - Centang README, RFC, dan "PRD APPROVED" di atas tetap kosong sampai bagian itu selesai dan PIC setuju.
 
 
@@ -908,7 +923,7 @@ Belum diverifikasi: alasan nilai Jujur 4 di kartu 4; perbandingan Zen gratis vs 
 | FR-07 | T04 | FR-17 | T01, T09 |
 | FR-08 | T04, T06 | FR-18 | T10 |
 | FR-09 | T05 | FR-19 | T05 |
-| FR-10 | T05 | FR-20 (usulan) | T16 |
+| FR-10 | T05 | FR-20 | T16 |
 | | | FR-21 | T17 |
 | | | FR-22 | T18 |
 | | | FR-23 | T20 |

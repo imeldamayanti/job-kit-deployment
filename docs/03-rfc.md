@@ -23,7 +23,7 @@ job-kit adalah ekstensi Chrome (Manifest V3) tanpa backend. Profil pelamar disim
 | **People** | 1 orang (imelda: PIC dan Builder). |
 | **Privacy** | Data profil hanya di `storage.local`. Nol request jaringan, nol telemetri (PRD §4). |
 | **Device** | Chromium desktop, MV3. Tanpa Safari dan Firefox (PRD §4). |
-| **Complexity ban** | Tanpa library state global; tanpa router; tanpa backend; tanpa panggilan LLM; tanpa pemetaan manual per situs; tanpa UI yang disuntik ke halaman lamaran (semua UI di side panel dan options). |
+| **Complexity ban** | Tanpa library state global; tanpa router; tanpa backend; tanpa panggilan LLM; tanpa pemetaan manual per situs; tanpa elemen baru di halaman lamaran; satu-satunya perubahan visual adalah outline pada field yang sudah ada (D15). Semua UI di side panel dan options. |
 
 ## 3. Proposed design
 
@@ -80,7 +80,7 @@ type FillResult = { filled: number; skipped: number }
 1. **Options page** (React) menulis `Profile` ke `storage.local` lewat `platform/storage`; simpan otomatis dengan debounce dan indikator "Tersimpan".
 2. **Content script** disuntik sesuai kebutuhan lewat `scripting.executeScript` setelah izin situs ada (tanpa `matches` statis); ia membaca field form dan memegang scan serta nilai awal.
 3. **Side panel** (React) bertanya ke content script lewat pesan bertipe di `platform/messaging`, menampilkan pratinjau, dan mengirim item yang aktif saat Fill.
-4. **Fill** menulis nilai lewat native value setter lalu men-dispatch `input` dan `change`; Undo menulis balik nilai awal dari memori.
+4. **Fill** menulis nilai lewat native value setter lalu men-dispatch `input` dan `change`; Undo menulis balik nilai awal dari memori. Setelah Fill, field wajib yang masih kosong diberi outline (D15); Undo melepasnya.
 5. **Background** hanya tiga hal: membuka halaman options di tab baru, meneruskan `tabs.onActivated`/`onUpdated` ke panel (FR-06), dan membuka panel dari ikon.
 
 ### 3.3b Lowongan harian (revisi PRD 2026-10-09)
@@ -331,6 +331,11 @@ Tidak ada yang memblokir approval.
 **D14 — CV hanya diunduh; tidak ada unggah otomatis ke form (usulan 2026-10-15).**
 *Why:* mengisi `input type=file` dari ekstensi memerlukan perilaku yang rapuh dan melanggar janji README "tidak mengunggah CV ke form lamaran"; pengguna tetap memilih berkas yang jelas ia periksa.
 *Cost:* satu langkah manual per lamaran; panel harus menjelaskan sebabnya.
+*Verdict:* ya.
+
+**D15 — Field wajib yang belum terisi diberi outline di halaman (keputusan PIC 2026-10-09, PRD FR-20).**
+*Why:* JobFill lama menandai field yang harus diisi sendiri; daftar di panel saja memaksa pengguna mencocokkan nama field dengan form. Outline dipasang hanya setelah Fill (FR-09), pada field wajib yang kosong dan terlihat; wajib dikenali dari atribut `required`, `aria-required`, atau tanda di label karena Greenhouse, Lever, dan Intikom hanya menandainya di label. `core/fill/mark.ts` memasang empat properti `outline-*` inline dengan `!important` (amber-600 `#DC6803`, 2px, jarak 2px), mencatat nilai inline milik situs, dan mengembalikannya saat satu field dijawab pengguna (listener `input` dan `change`), saat Undo, dan saat Fill diulang. Grup radio diberi outline pada fieldset atau radiogroup-nya, bukan tiap tombol. Tidak ada elemen yang ditambahkan.
+*Cost:* mengubah tampilan halaman milik situs lain; `!important` inline mengalahkan outline dari stylesheet situs, dan outline inline milik situs pada field itu ditimpa lalu dikembalikan saat tanda dilepas (outline dari stylesheet kembali sendiri begitu properti inline dihapus); field yang disembunyikan lewat posisi di luar layar dianggap terlihat karena tata letak tidak diukur; selama tanda ada, listener `input` dan `change` terpasang pada field situs itu.
 *Verdict:* ya.
 
 ## 9. Stack conventions
