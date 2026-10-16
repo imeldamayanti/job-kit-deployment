@@ -706,7 +706,7 @@ Gerbang: bila T45 menunjukkan model sering mengarang atau biayanya terlalu tingg
 
 **Done when:** PIC memutuskan lanjut ke T46 atau merancang ulang, dan satu atau dua panggilan dipilih.
 
-**Hasil (2026-10-15, menunggu penilaian PIC):** skrip di `spikes/t45/` (`profiles.mjs`, `jobs.mjs`, `check.mjs` dengan 6 tes, `lib.mjs`, `run.mjs`, `report.mjs`); hasil mentah dan ringkasan di `spikes/t45/results/` (`combined.json`, `combined-summary.md`, `combined-ratings.md`). Tidak menyentuh `src/`. Kunci hanya dibaca dari `.env.local`. Bahan: 3 profil sintetis × 3 lowongan nyata dari `fixtures/` (teks fixtures terpotong 600 sampai 1.700 karakter, jadi token lowongan asli lebih besar). Payload dipseudonimkan (D13) dan runner berhenti bila nama asli bocor; tidak ada yang bocor.
+**Hasil (2026-10-15, menunggu penilaian PIC):** skrip di `spikes/t45/` (`profiles.mjs`, `jobs.mjs`, `check.mjs` dengan 6 tes di `check.selftest.mjs`, `lib.mjs`, `run.mjs`, `report.mjs`); hasil mentah dan ringkasan di `spikes/t45/results/` (`combined.json`, `combined-summary.md`, `combined-ratings.md`). Tidak menyentuh `src/`. Kunci hanya dibaca dari `.env.local`. Bahan: 3 profil sintetis × 3 lowongan nyata dari `fixtures/` (teks fixtures terpotong 600 sampai 1.700 karakter, jadi token lowongan asli lebih besar). Payload dipseudonimkan (D13) dan runner berhenti bila nama asli bocor; tidak ada yang bocor.
 - **Jalur AI:** Zen tidak bisa diukur dari terminal. Semua model gratis ditolak HTTP 403 `FreeTierError` ("hanya dari dalam OpenCode"); semua model berbayar ditolak HTTP 402 `Insufficient account funds`. Spike dipindah ke Gemini (pilihan PIC) lewat endpoint yang sama dengan ekstensi.
 - **Angka** (biaya = token × tarif berbayar; tier gratis sebenarnya $0):
 
