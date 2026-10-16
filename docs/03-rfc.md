@@ -119,6 +119,105 @@ Belum terbukti: request AI dengan kunci sah (uji tanpa kunci mencapai server dan
 
 **Risiko yang diketahui.** Service worker MV3 bisa dimatikan Chrome di tengah run panjang (state `running` dianggap macet setelah 10 menit); scraping LinkedIn bisa berhenti kapan saja; Lever penuh terlalu besar tanpa `limit`.
 
+### 3.3c Application Kit (revisi PRD 2026-10-15)
+
+**Status: usulan, menunggu persetujuan PIC. Disamakan dengan kode sampai T54 (2026-10-15); bagian surat dan PDF (T50 sampai T52) belum dibangun, jadi tetap rancangan.** Memperluas §3.3b: lowongan yang dipilih pengguna menjadi `Application` yang membawa CV, surat, dan status.
+
+**Model.** Tiga key `storage.local` terpisah supaya daftar Lamaran tidak memuat badan dokumen:
+
+```ts
+// local:applications
+type AppStatus = 'draft' | 'applied' | 'in-review' | 'interview' | 'offer' | 'rejected' | 'withdrawn'
+type Application = {
+  id: string                       // crypto.randomUUID()
+  jobId: string | null             // Job.id di feed; null untuk lamaran yang ditambah tangan ("Tambah lamaran")
+  job: { title: string; company: string; url: string; source: JobSourceId | 'manual'; description: string; capturedAt: string }  // salinan; feed di-prune
+  status: AppStatus
+  cvId: string | null
+  letterId: string | null
+  followUpAt: string | null        // hari kalender YYYY-MM-DD (nilai input date), bukan ISO penuh
+  notes: string
+  aiNoticeAck?: string             // "penyedia:model" yang sudah diperingatkan (FR-46: sekali per lamaran)
+  events: AppEvent[]               // append-only
+  createdAt: string
+  updatedAt: string
+}
+type AppEvent = { at: string; type: 'created' | 'status' | 'cv' | 'letter' | 'download' | 'fill'; from?: AppStatus; to?: AppStatus; text?: string }
+
+// local:tailoredCvs
+type TailoredCv = {
+  id: string; applicationId: string; createdAt: string
+  profileHash: string                                  // beda dengan hash sekarang = basi (FR-45)
+  skills: string[]                                     // urutan prioritas; semuanya ada di Profile.skills
+  experience: { sourceId: string; bullets: string[] }[]  // sourceId = Experience.id; jabatan, perusahaan, tanggal diambil dari Profile
+  education: string[]                                  // Education.id
+  coverage: { required: string[]; covered: string[]; missing: string[] }
+  edited: boolean
+  aiVersion: { skills: string[]; experience: { sourceId: string; bullets: string[] }[]; education: string[] }  // untuk Kembalikan ke versi AI
+}
+
+// local:coverLetters
+type CoverLetter = { id: string; applicationId: string; createdAt: string; profileHash: string
+  lang: 'id' | 'en'; tone: 'formal' | 'casual'; body: string; aiBody: string; edited: boolean }
+
+// local:aiUsage  — batas harian CV dan surat (FR-46); penghitung, jadi tidak ikut Export
+type AiUsage = { date: string; documents: number }
+// FeedSettings.documentLimit — batas itu sendiri (bawaan 20), diubah di Atur Lowongan
+```
+
+Export naik ke versi 3 dan memuat `jobs`, `applications`, `cvs`, `letters`; berkas versi 1 dan 2 tetap terbaca. `local:aiKey` dan `local:aiUsage` tidak ikut Export.
+
+**Status.** `Application` adalah sumber kebenaran (D11). `deriveJobStatus` murni: `draft` dan `withdrawn` menghasilkan `Job.status = 'saved'`; `applied`, `in-review`, `interview`, `offer`, `rejected` menghasilkan `'applied'`. `shouldMarkApplied` (T38) memanggil `advanceOnFill`: membuat lamaran bila belum ada dan memajukan hanya dari `draft`; status lain tidak berubah.
+
+**Visualisasi alur (FR-48, T54).** Halaman Lamaran punya satu penukar tampilan, Papan / Visualisasi (diagram Sankey); tanpa tampilan Daftar (keputusan PIC 2026-10-15). Dua fungsi murni di `core/applications/`: `funnelStats(apps, now)` dan `layoutSankey(funnel, size)`.
+
+- **Sumber hitungan** adalah `events[]`, bukan hanya `status`, supaya lamaran yang pernah Direview lalu Ditolak tetap tampil di jalur Direview. Tahap terjauh yang pernah dicapai: `applied` → `in-review` → `interview` (Offer adalah simpul akhir, bukan tahap); lamaran yang melompat (Dilamar langsung Interview) dihitung melewati Direview. `rejected` dihitung dari tahap terakhir sebelum penolakan; lamaran yang pernah Offer lalu Ditolak dihitung lewat Interview, karena Offer tidak punya aliran keluar. Lamaran yang dibuat langsung berstatus Dilamar (tanpa event status) dianggap Dilamar sejak `createdAt`.
+- **Simpul akhir:** `Tanpa kabar` (status `applied` dan status terakhir berubah ≥14 hari lalu, `STALE_DAYS`; catatan atau dokumen tidak mengulang hitungan), `Masih berjalan` (status aktif lain, atau `applied` <14 hari), `Ditolak`, `Offer`. `draft` dan `withdrawn` dikeluarkan, juga bila `withdrawn` pernah Dilamar. Invarian yang diuji: jumlah simpul akhir sama dengan jumlah lamaran terkirim.
+- **Tata letak** (`sankey.ts`, fungsi murni): kanvas 860 × 300, batang 12 px lebar, kolom x 150/360/540/690 (Dilamar, Direview, Interview, simpul akhir), 15 px per lamaran (mengecil bila lamaran terlalu banyak untuk kanvas). Simpul akhir ditumpuk tetap: Tanpa kabar, Ditolak, Masih berjalan, Offer, berjarak 16 px mulai y=28; simpul tanpa lamaran tidak digambar. Tiap batang tahap (dari kanan) ditaruh di y tempat aliran keluarnya paling lurus ke tujuan (rata-rata berbobot jumlah). Pita masuk ke satu batang disusun menurut kolom asalnya, pita keluar menurut posisi vertikal tujuannya. Pita berupa kubik Bézier dengan titik kontrol di tengah antar kolom. Hasilnya data (`{nodes, ribbons}`) yang digambar komponen SVG kecil; tanpa pustaka bagan, supaya warna dan kontras tetap token. **Mockup di `design-system.html` §9 menaruh tiga batang tahap secara manual (y=34/120/150) dan tidak dibangkitkan dari aturan ini; fungsinya menghasilkan y=45/147/185 untuk 12 lamaran contoh yang sama.** Angka, kolom, tinggi batang, tumpukan simpul akhir, label, dan bentuk pita sama.
+- **Lebar sempit dan aksesibilitas:** di bawah 600 px (container query pada kartu) diganti daftar batang dengan angka yang sama; tiap pita punya `<title>`, diagram `role="img"` dengan ringkasan (`describeFunnel`).
+
+**Tindak lanjut (FR-47, T53).** `followUpAt` adalah hari kalender. `isDue(app, today)` benar bila tanggalnya hari ini atau sebelumnya dan status bukan Ditolak atau Dibatalkan; `dueCount`, `dueApplications`, dan `dueSummary` murni (`core/applications/followup.ts`). Badge sidebar dan peringatan dihitung di halaman options dari lamaran tersimpan dan tanggal hari ini, jadi tidak ada penyimpanan atau alarm tambahan; `useToday` menggeser tanggal pada tengah malam dan saat tab dibangunkan. Tidak ada notifikasi sistem dan tidak ada badge di ikon ekstensi.
+
+**Pipeline CV** (`core/tailor/`, murni; I/O disuntikkan seperti `core/feed/pipeline.ts`):
+
+```
+Buat CV → cap harian (aiUsage) → pseudonymize(Profile)            [core, T47]
+  → AI: requirements[] + covered[] + draf { skills[], experience[{sourceId, bullets[]}], education[] }   [satu panggilan, keputusan spike T45]
+  → parseOutput (bentuk) → restore(kode → nama asli)
+  → validateGrounded(output, Profile)                              [core, T46]
+       ditolak → tidak ada CV, pesan sebab, CV lama tetap (panggilan tetap dihitung ke batas harian: biayanya sudah terjadi)
+  → coverage(requirements, hasil, covered) → assemble(Profile, hasil)   [jabatan, perusahaan, tanggal dari Profile; pengalaman kosong dari AI jatuh ke isi Profile]
+  → simpan TailoredCv + event 'cv'
+```
+
+`covered` adalah klaim model tentang requirement yang tertutup; `coverage` tidak memercayainya begitu saja: requirement yang berisi istilah teknis hanya tertutup bila CV memuat semua istilahnya (klaim tidak bisa menutupnya), dan hanya requirement tanpa istilah teknis (bahasa Inggris vs Indonesia tidak berbagi kata) yang bisa ditutup oleh klaim.
+
+**Pemeriksa fakta (D12).** Bentuk keluaran AI sengaja sempit: tidak ada tempat untuk jabatan, perusahaan, institusi, atau tanggal, sehingga fakta terstruktur tidak bisa dikarang menurut struktur datanya. Yang tersisa adalah teks butir. `validateGrounded` memeriksa: (1) tiap `skills[]` ada di `Profile.skills` (huruf besar-kecil tak dipedulikan); (2) tiap `sourceId` ada di Profile dan tidak ganda; (3) tiap angka, persen, dan bilangan berformat Indonesia di butir ada di deskripsi pengalaman asalnya; (4) tiap istilah teknis di butir (dibandingkan dengan daftar skill Profile dan token berhuruf kapital atau berbentuk `nama.js`) ada di deskripsi asal atau daftar skill. Batasnya jujur: klaim semantik ("memimpin tim") tidak bisa dideteksi mesin; itu ditangani diff berdampingan (FR-41) dan penanda `edited`. Pelanggaran menolak seluruh hasil, bukan memperbaikinya diam-diam.
+
+**Payload privasi (D13).** `pseudonymize` mengganti nama perusahaan dan kampus (dan variannya di dalam butir pengalaman) dengan `{C1}`, `{S1}` dan menyimpan peta di memori; `restore` mengembalikannya sebelum validasi. Tes memastikan nilai identitas tidak ada di payload (pola `score.test.ts`). Yang dikirim: PRD §4.2.
+
+**Surat** (`core/letters/`): deteksi bahasa dari teks lowongan dengan rasio kata fungsi Indonesia dan Inggris (fungsi murni, tes dua bahasa); satu panggilan AI; `validateGrounded` dan payload yang sama; nama di penutup disisipkan lokal dari `Profile.personal`. Pengisian ke form: `core/matching` mendapat satu kunci virtual `coverLetter` yang dijawab dari surat lamaran yang tertaut dengan tab lewat `session:openedJobs` (T38); label yang dikenali: "Cover letter", "Surat lamaran", "Letter of motivation". Essay dan pertanyaan bebas tetap dilewati (README "Batas yang sudah diketahui"). Input `type=file` tidak disentuh.
+
+**PDF (T50).** Dua kandidat, dipilih setelah uji kecil: (a) cetak lewat CSS dari halaman options (nol dependensi, teks asli bisa dipilih, tetapi lewat dialog cetak); (b) `pdf-lib` dengan satu templat font standar (satu klik, ±300 KB). Kriteria: teks bisa dipilih dan dicari (ATS), satu klik, rapi untuk Indonesia dan Inggris di A4, ukuran bundle. Tidak ada request jaringan pada keduanya.
+
+**Keputusan PDF (2026-10-16, dipilih PIC setelah uji kecil `spikes/t50/run.mjs`): `pdf-lib` 1.17.1.** Dua CV yang sama (Indonesia dan Inggris, A4) dibuat dengan keduanya dan dibaca ulang dengan pdf.js:
+
+| | Cetak lewat CSS (Chrome) | `pdf-lib` |
+|---|---|---|
+| Teks bisa dipilih dan dicari | ya (semua frasa uji ditemukan) | ya (semua frasa uji ditemukan) |
+| Ukuran berkas | ±102 KB (font di-embed) | ±2 KB (font standar) |
+| Bundle ekstensi | +0 | +505 KB minify (185 KB gzip) untuk pemakaian terkecil; di build akhir 430 KB, satu chunk yang dimuat malas saat Unduh |
+| Klik | dialog cetak, lalu pilih "Simpan sebagai PDF", lalu dialog simpan | satu klik |
+| Nama berkas | usulan dari judul halaman | `CV-{perusahaan}.pdf` persis |
+| Aksara | semua | hanya WinAnsi (Latin-1 dan tanda baca Windows-1252) |
+| Uji otomatis | tidak (hanya dilihat) | ya (tata letak murni) |
+
+Alasan: kriteria tiket (satu klik, nama berkas, FR-42) dan tata letak yang bisa diuji unit. Harga: satu dependensi runtime baru yang terakhir dirilis 2021, dan huruf di luar WinAnsi ("李", "Иван", bahkan "Nguyễn") tidak bisa ditulis font standar. Mitigasi: `toWinAnsi` mengganti huruf beraksen dengan huruf polosnya dan huruf aksara lain dengan "?", dan setelah unduh pengguna diberi tahu huruf mana yang diganti; PDF dengan font tersemat (butuh berkas font dan `fontkit`) ditunda sampai ada kebutuhan nyata. Tata letak ada di `core/tailor/pdf-layout.ts` (murni: `layoutCv` menghasilkan operasi gambar per halaman A4), penggambarnya di `platform/cv-pdf.ts`. Satu templat. Tidak ada request jaringan: font standar tidak diunduh, `pdf-lib` dimuat dari paket ekstensi.
+
+**Hasil spike T45 (2026-10-15; dinilai dan diputuskan PIC 2026-10-16: lanjut T46, satu panggilan, model setara `3.6-flash`; nilai PIC satu panggilan jujur 5,0 dan selaras 4,8).** Detail dan angka di `docs/plan.md` T45. Diukur di Gemini (Zen tidak bisa dipanggil dari terminal: model gratis 403, berbayar 402). Dari 31 hasil, pemeriksa mekanis tidak menemukan skill, angka, atau istilah karangan; peregangan semantik ("clean code" dianggap tertutup oleh code review) hanya terlihat manusia, sesuai batas D12. Model kecil (`3.5-flash-lite`) sering mengembalikan CV tanpa butir (4 sampai 5 dari 9), jadi `assemble()` perlu jatuh ke isi Profile bila AI mengembalikan pengalaman kosong. Usulan: **satu panggilan** (mutu tidak lebih baik dengan dua, separuh request), model bawaan setara `3.6-flash` (± $0,002 per CV), pemeriksa mekanis cukup sehingga T46 sampai T52 tidak didesain ulang. Tier gratis Gemini dibatasi 20 request per hari per model dan kontennya dipakai Google untuk memperbaiki produk; batas harian FR-46 dan peringatan data perlu mengenal itu. Diputuskan PIC.
+
+**Risiko yang diketahui.** Halusinasi semantik yang lolos pemeriksa mekanis (mitigasi: diff dan edit manual, metrik PRD §10 menghitung klaim palsu); model gratis yang memakai data untuk melatih (mitigasi: peringatan dan batas payload §4.2); biaya per lamaran belum diukur (spike T45 dan T48); `storage.local` penuh oleh dokumen (CV dan surat berukuran KB, kecil dibanding feed; pemangkasan feed tidak menyentuh lamaran); Fill di halaman di luar feed tidak membuat lamaran (T21 tetap ditunda).
+
 ### 3.4 Yang biasanya makan lebih dari 2 jam di stack ini
 
 1. **Mengisi form React/Vue (FR-10).** Menyetel `.value` saja tidak cukup; state framework tidak berubah. Perlu native setter dan event.
@@ -212,6 +311,26 @@ Tidak ada yang memblokir approval.
 **D10 — Folder `core/feed/` baru, bukan memperluas `core/jobs/`.**
 *Why:* `CapturedJob` (T20) dan `Job` (feed) punya bentuk dan status berbeda; menggabungkannya memaksa satu tipe melayani dua arti.
 *Cost:* kode Captured Jobs lama menunggu dihapus (belum dihapus: hook menolak `git rm`).
+*Verdict:* ya.
+
+**D11 — `Application` adalah sumber kebenaran status; `Job.status` diturunkan (usulan 2026-10-15).**
+*Why:* dua status yang bisa diubah dari dua tempat (kartu feed dan tracker) akan berselisih. Satu arah penurunan menghilangkan kelas bug itu.
+*Cost:* mengubah status dari menu kartu ("Tandai dilamar") harus lewat lamaran; migrasi kecil pada `shouldMarkApplied` (T38).
+*Verdict:* ya.
+
+**D12 — AI tidak pernah menulis fakta terstruktur; pemeriksa fakta menolak, tidak memperbaiki (usulan 2026-10-15).**
+*Why:* keluaran AI hanya `{ sourceId, bullets[] }`; jabatan, perusahaan, institusi, dan tanggal diambil dari Profile. Hasil yang memuat skill, angka, atau istilah di luar Profile ditolak seluruhnya, sehingga tidak ada CV yang tampak benar tetapi mengandung klaim palsu tanpa tanda.
+*Cost:* klaim semantik yang halus lolos mesin; keluaran yang kadang ditolak membuat pengguna menekan Buat ulang; butir hasil tidak bisa menambahkan konteks yang tidak ada di deskripsi.
+*Verdict:* ya. Mutunya diukur di spike T45.
+
+**D13 — Nama perusahaan dan kampus dipseudonimkan di payload CV dan surat, dipulihkan lokal (usulan 2026-10-15).**
+*Why:* butir pengalaman perlu dikirim agar bisa disesuaikan, tetapi sering memuat nama klien atau perusahaan; kode `{C1}` tidak mengurangi mutu dan menjaga data tidak keluar.
+*Cost:* pencocokan varian nama di dalam teks bebas tidak sempurna; satu langkah proses tambahan di kedua arah.
+*Verdict:* ya, menunggu keputusan PIC di PRD §11.
+
+**D14 — CV hanya diunduh; tidak ada unggah otomatis ke form (usulan 2026-10-15).**
+*Why:* mengisi `input type=file` dari ekstensi memerlukan perilaku yang rapuh dan melanggar janji README "tidak mengunggah CV ke form lamaran"; pengguna tetap memilih berkas yang jelas ia periksa.
+*Cost:* satu langkah manual per lamaran; panel harus menjelaskan sebabnya.
 *Verdict:* ya.
 
 ## 9. Stack conventions
