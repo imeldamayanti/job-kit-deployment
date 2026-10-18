@@ -21,6 +21,7 @@ import { ExperienceSection } from './ExperienceSection'
 import { JobSettingsPage } from './JobSettingsPage'
 import { JobsPage } from './JobsPage'
 import { applicationRoute, applicationsRoute, dataRoute, jobsRoute, profileRoute, routeFromHash, routeSubtitle, routeTitle, type PageId, type Route } from './pages'
+import { ProjectsSection } from './ProjectsSection'
 import { PersonalSection } from './PersonalSection'
 import { PreferencesSection } from './PreferencesSection'
 import { ProfileTabs } from './ProfileTabs'
@@ -36,7 +37,7 @@ import { letterViewFor } from '../../core/letters/view'
 
 // The CV tab in a dev preview shows a fixed state; its buttons do nothing.
 const NO_LETTER_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onCopy: () => {}, onLang: () => {}, onTone: () => {} }
-const NO_CV_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onDownload: () => {}, onCopyText: () => {} }
+const NO_CV_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onDownload: () => {}, onDownloadWord: () => {}, onCopyText: () => {} }
 
 export function App() {
   const { profile, update, commit, saveState } = useProfile()
@@ -103,6 +104,7 @@ export function App() {
                 {profile && section('experience') && <ExperienceSection profile={profile} update={update} />}
                 {profile && section('custom') && <CustomSection profile={profile} update={update} />}
                 {profile && section('preferences') && <PreferencesSection profile={profile} update={update} />}
+                {profile && section('projects') && <ProjectsSection profile={profile} update={update} />}
               </>
             )}
             {route.page === 'jobs' && !route.settings && (

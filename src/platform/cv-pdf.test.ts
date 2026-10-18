@@ -43,7 +43,7 @@ describe('renderCvPdf (FR-42)', () => {
     expect(height).toBeCloseTo(841.89, 1)
     expect(pdf.getTitle()).toBe('CV-PT-Contoh-Karya')
     const text = await textOf(result.bytes)
-    for (const phrase of ['Sari Contohwati', 'TypeScript', 'Agu 2023 – sekarang', 'cakupan tes naik dari 40% ke 70%', 'Universitas Contoh Nusantara', 'PENGALAMAN']) {
+    for (const phrase of ['SARI CONTOHWATI', 'TypeScript', 'Agu 2023 – sekarang', 'cakupan tes naik dari 40% ke 70%', 'Universitas Contoh Nusantara', 'Pengalaman']) {
       expect(text, phrase).toContain(phrase)
     }
     expect(result.replaced).toEqual([])
@@ -53,7 +53,7 @@ describe('renderCvPdf (FR-42)', () => {
     const doc = assemble(SAMPLE_DATA_ANALYST, empty)
     doc.experience[1]!.bullets = ['Presented résumé of findings in a café to the store managers.']
     const text = await textOf((await renderCvPdf(doc, 'en', 'CV')).bytes)
-    for (const phrase of ['EXPERIENCE', 'EDUCATION', 'Mar 2021 – present', 'from 6 hours to 2 hours', 'résumé of findings', 'café']) expect(text, phrase).toContain(phrase)
+    for (const phrase of ['Experience', 'Education', 'Mar 2021 – present', 'from 6 hours to 2 hours', 'résumé of findings', 'café']) expect(text, phrase).toContain(phrase)
   })
 
   it('goes on to more pages when the CV is long, each of them A4', async () => {
@@ -69,7 +69,7 @@ describe('renderCvPdf (FR-42)', () => {
     doc.header.name = 'Nguyễn Contoh 李'
     const result = await renderCvPdf(doc, 'id', 'CV')
     expect(result.replaced).toEqual(['ễ', '李'])
-    expect(await textOf(result.bytes)).toContain('Nguyen Contoh ?')
+    expect(await textOf(result.bytes)).toContain('NGUYEN CONTOH ?')
   })
 
   it('makes no network request (FR-42)', async () => {
@@ -108,6 +108,22 @@ describe('downloadCv', () => {
     expect(await textOf(delivered[0]!.bytes)).toContain('Membangun dashboard pelanggan dengan React dan TypeScript.')
     const app = (await loadApplicationData()).applications[0]!
     expect(app.events.at(-1)).toEqual({ at: AT, type: 'download' })
+  })
+
+  it('hands over the same CV as a Word file when asked, and notes the download', async () => {
+    await seed()
+    const delivered: { name: string; bytes: Uint8Array }[] = []
+    const result = await downloadCv('app-1', { now: NOW, format: 'docx', deliver: (name, bytes) => void delivered.push({ name, bytes }) })
+    expect(result).toEqual({ ok: true, fileName: 'CV-PT-Contoh-Karya.docx', replaced: [] })
+    // A .docx is a zip: it starts with "PK" and holds word/document.xml, which carries the CV text.
+    const bytes = delivered[0]!.bytes
+    expect([bytes[0], bytes[1]]).toEqual([0x50, 0x4b])
+    const { default: JSZip } = await import('jszip')
+    const xml = await (await JSZip.loadAsync(bytes)).file('word/document.xml')!.async('string')
+    expect(xml).toContain('Membangun dashboard pelanggan dengan React dan TypeScript.')
+    // The dates are flush right through a real tab element; a tab character inside the text would not be.
+    expect(xml).toContain('<w:tab/>')
+    expect((await loadApplicationData()).applications[0]!.events.at(-1)).toEqual({ at: AT, type: 'download' })
   })
 
   it('draws the stored CV, so a hand edit is what is downloaded', async () => {

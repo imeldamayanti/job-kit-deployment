@@ -61,6 +61,7 @@ describe('summarizeProfile', () => {
       { id: 'contact', text: 'Contact & Address · 1' },
       { id: 'education', text: 'Education · belum diisi' },
       { id: 'experience', text: 'Work Experience · 3' },
+      { id: 'projects', text: 'Projects · belum diisi' },
       { id: 'custom', text: 'Custom Field · belum diisi' },
     ])
   })

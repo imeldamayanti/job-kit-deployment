@@ -99,14 +99,14 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
     await refresh()
   }, [cvId, editor, refresh])
 
-  // Unduh PDF (T50): the PDF is made here, in this browser. When it cannot be, the reason is shown and the text can be copied.
-  const download = useCallback(async () => {
+  // Unduh PDF or Word (T50): the file is made here, in this browser. When it cannot be, the reason is shown and the text can be copied.
+  const download = useCallback(async (format: 'pdf' | 'docx' = 'pdf') => {
     if (!id) return
     setDownloading(true)
     setDownloadError(null)
     setDownloadNote(null)
     try {
-      const result = await downloadCv(id)
+      const result = await downloadCv(id, { format })
       if (result.ok) setDownloadNote(describeReplaced(result.replaced))
       else setDownloadError(result.message)
     } finally {
@@ -130,6 +130,7 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
     onEdit: (parts) => editor?.schedule(parts),
     onRestore: () => void restore(),
     onDownload: () => void download(),
+    onDownloadWord: () => void download('docx'),
     onCopyText: () => void copyCv(),
   }
 }

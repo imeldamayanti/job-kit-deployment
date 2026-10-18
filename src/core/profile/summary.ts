@@ -13,6 +13,7 @@ function counts(profile: Profile): Record<FillSectionId, number> {
     contact: countFilled(profile.contact),
     education: profile.education.filter((e) => [e.institution, e.level, e.major, e.gpa, e.year].some(filled)).length,
     experience: profile.experience.filter((x) => [x.company, x.title, x.start, x.end, x.description].some(filled)).length,
+    projects: (profile.projects ?? []).filter((p) => [p.name, p.role, p.date, p.description].some(filled)).length,
     custom: profile.custom.filter((pair) => filled(pair.key) || filled(pair.value)).length,
   }
 }

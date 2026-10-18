@@ -33,7 +33,7 @@ describe('detectLanguage', () => {
 
 describe('CV_LABELS', () => {
   it('has the section names in both languages', () => {
-    expect(CV_LABELS.id).toEqual({ skills: 'Skill', experience: 'Pengalaman', education: 'Pendidikan', now: 'sekarang' })
-    expect(CV_LABELS.en).toEqual({ skills: 'Skills', experience: 'Experience', education: 'Education', now: 'present' })
+    expect(CV_LABELS.id).toMatchObject({ skills: 'Skill', experience: 'Pengalaman', education: 'Pendidikan', projects: 'Proyek', now: 'sekarang' })
+    expect(CV_LABELS.en).toMatchObject({ skills: 'Skills', experience: 'Experience', education: 'Education', projects: 'Projects', now: 'present' })
   })
 })

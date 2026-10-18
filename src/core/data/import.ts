@@ -12,6 +12,7 @@ import {
   PERSONAL_KEYS,
   type Education,
   type Experience,
+  type Project,
   type Profile,
 } from '../profile/types'
 import type { DataEvent, ImportChange, ImportErrorReason, ImportMode } from './state'
@@ -35,6 +36,11 @@ function records(value: unknown): Loose[] {
   return Array.isArray(value) ? value.filter(isRecord) : []
 }
 
+// An optional text field is kept only when it has something, so a profile without it stays as it was.
+function optionalText<K extends string>(keys: readonly K[], raw: Loose): Partial<Record<K, string>> {
+  return Object.fromEntries(keys.map((key) => [key, text(raw[key])]).filter(([, value]) => value !== '')) as Partial<Record<K, string>>
+}
+
 function pick<K extends string>(keys: readonly K[], raw: unknown): Record<K, string> {
   const source = isRecord(raw) ? raw : {}
   return Object.fromEntries(keys.map((key) => [key, text(source[key])])) as Record<K, string>
@@ -55,6 +61,7 @@ function normalizeProfile(raw: Loose): Profile {
       major: text(item.major),
       gpa: text(item.gpa),
       year: text(item.year),
+      ...optionalText(['location', 'publication', 'achievements'], item),
     })),
     experience: records(raw.experience).map((item, index) => ({
       id: text(item.id) || `import-exp-${index + 1}`,
@@ -64,6 +71,7 @@ function normalizeProfile(raw: Loose): Profile {
       end: text(item.end),
       current: item.current === true,
       description: text(item.description),
+      ...optionalText(['location'], item),
     })),
     skills: records(raw.skills).map((item) => ({
       group: SKILL_GROUPS.find((group) => group === item.group) ?? 'lainnya',
@@ -75,6 +83,18 @@ function normalizeProfile(raw: Loose): Profile {
       value: text(item.value),
     })),
     jobPrefs: normalizeJobPreferences(raw.jobPrefs),
+    ...optionalText(['summary'], raw),
+    ...(records(raw.projects).length > 0
+      ? {
+          projects: records(raw.projects).map((item, index) => ({
+            id: text(item.id) || `import-proj-${index + 1}`,
+            name: text(item.name),
+            role: text(item.role),
+            date: text(item.date),
+            description: text(item.description),
+          })),
+        }
+      : {}),
   }
 }
 
@@ -101,6 +121,7 @@ export function parseImport(source: string): ParsedImport {
 const norm = (value: string) => value.trim().toLowerCase()
 const educationKey = (e: Education) => [e.institution, e.level, e.major, e.year].map(norm).join('|')
 const experienceKey = (e: Experience) => [e.company, e.title, e.start, e.end].map(norm).join('|')
+const projectKey = (p: Project) => [p.name, p.role, p.date].map(norm).join('|')
 const skillKey = (s: Profile['skills'][number]) => `${s.group}|${norm(s.name)}`
 const customKey = (c: Profile['custom'][number]) => norm(c.key)
 
@@ -168,6 +189,10 @@ export function mergeProfile(current: Profile, incoming: Profile): Profile {
     skills: appendNew(current.skills, incoming.skills, skillKey),
     custom: appendNewWithId(current.custom, incoming.custom, customKey),
     jobPrefs: mergeJobPreferences(current.jobPrefs, incoming.jobPrefs),
+    ...((current.summary ?? '').trim() !== '' ? { summary: current.summary } : (incoming.summary ?? '').trim() !== '' ? { summary: incoming.summary } : {}),
+    ...((current.projects ?? []).length + (incoming.projects ?? []).length > 0
+      ? { projects: appendNewWithId(current.projects ?? [], incoming.projects ?? [], projectKey) }
+      : {}),
   }
 }
 
@@ -191,6 +216,7 @@ export function diffImport(current: Profile, incoming: Profile, mode: ImportMode
   add('Contact & Address', !same(current.contact, next.contact), `${filledCount(current.contact)} field`, `${filledCount(next.contact)} field`)
   add('Education', withoutId(current.education) !== withoutId(next.education), `${current.education.length} entri`, `${next.education.length} entri`)
   add('Work Experience', withoutId(current.experience) !== withoutId(next.experience), `${current.experience.length} entri`, `${next.experience.length} entri`)
+  add('Projects', withoutId(current.projects ?? []) !== withoutId(next.projects ?? []), `${(current.projects ?? []).length} entri`, `${(next.projects ?? []).length} entri`)
   add('Skill', withoutId(current.skills) !== withoutId(next.skills), `${current.skills.length} skill`, `${next.skills.length} skill`)
   add('Custom Field', withoutId(current.custom) !== withoutId(next.custom), `${current.custom.length} field`, `${next.custom.length} field`)
   add(

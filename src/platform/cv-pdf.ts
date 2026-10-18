@@ -5,6 +5,7 @@ import { detectLanguage, type Lang } from '../core/tailor/language'
 import { A4, cvFileName, layoutCv, winAnsiDocument } from '../core/tailor/pdf-layout'
 import type { CvDocument } from '../core/tailor/types'
 import { loadApplicationData, saveApplications } from './application-storage'
+import { renderCvDocx } from './cv-docx'
 import { downloadBytes } from './download'
 import { loadProfile } from './storage'
 
@@ -22,15 +23,16 @@ export async function renderCvPdf(doc: CvDocument, lang: Lang, title: string): P
   pdf.setProducer('job-kit')
   const regular = await pdf.embedFont(StandardFonts.Helvetica)
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold)
+  const italic = await pdf.embedFont(StandardFonts.HelveticaOblique)
 
   const pages = layoutCv(clean, lang, (text, isBold, size) => (isBold ? bold : regular).widthOfTextAtSize(text, size))
   for (const ops of pages) {
     const page = pdf.addPage([A4.width, A4.height])
     for (const op of ops) {
       if (op.kind === 'rule') {
-        page.drawLine({ start: { x: op.x1, y: op.y }, end: { x: op.x2, y: op.y }, thickness: 0.6, color: rgb(0.6, 0.6, 0.6) })
+        page.drawLine({ start: { x: op.x1, y: op.y }, end: { x: op.x2, y: op.y }, thickness: 1, color: rgb(0.07, 0.07, 0.07) })
       } else {
-        page.drawText(op.text, { x: op.x, y: op.y, size: op.size, font: op.bold ? bold : regular, color: rgb(op.gray, op.gray, op.gray) })
+        page.drawText(op.text, { x: op.x, y: op.y, size: op.size, font: op.bold ? bold : op.italic ? italic : regular, color: rgb(op.gray, op.gray, op.gray) })
       }
     }
   }
@@ -44,6 +46,8 @@ type Options = {
   // Hands the file to the browser. Replaced in tests.
   deliver?: (fileName: string, bytes: Uint8Array) => void
   render?: typeof renderCvPdf
+  // "pdf" by default; "docx" hands over the same CV as a Word file.
+  format?: 'pdf' | 'docx'
 }
 
 const describe = (error: unknown) => (error instanceof Error && error.message !== '' ? error.message : 'sebab tidak diketahui')
@@ -51,7 +55,10 @@ const describe = (error: unknown) => (error instanceof Error && error.message !=
 // "Unduh PDF" (FR-42): draws the stored CV, so a hand edit is what is downloaded, hands it to the browser as
 // CV-{perusahaan}.pdf and notes the download in the history. When anything fails, nothing is noted and the person is
 // told why; the CV stays on the page to be copied (PRD §8).
-export async function downloadCv(applicationId: string, { now = new Date(), deliver = (name, bytes) => downloadBytes(name, bytes, 'application/pdf'), render = renderCvPdf }: Options = {}): Promise<DownloadCvResult> {
+const DOCX_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+const renderCvWord: typeof renderCvPdf = async (doc, lang, title) => ({ bytes: await renderCvDocx(doc, lang, title), replaced: [] })
+
+export async function downloadCv(applicationId: string, { now = new Date(), format = 'pdf', deliver = (name, bytes) => downloadBytes(name, bytes, format === 'docx' ? DOCX_TYPE : 'application/pdf'), render = format === 'docx' ? renderCvWord : renderCvPdf }: Options = {}): Promise<DownloadCvResult> {
   const [data, profile] = await Promise.all([loadApplicationData(), loadProfile()])
   const app = data.applications.find((item) => item.id === applicationId)
   const cv = app ? data.cvs.find((item) => item.id === app.cvId) : undefined
@@ -59,18 +66,18 @@ export async function downloadCv(applicationId: string, { now = new Date(), deli
 
   const doc = assemble(profile, cvParts(cv))
   const lang = detectLanguage(doc.experience.flatMap((job) => [job.title, ...job.bullets]).join(' '))
-  const fileName = cvFileName(app.job.company)
+  const fileName = cvFileName(app.job.company).replace(/\.pdf$/, `.${format}`)
 
   let rendered: RenderedPdf
   try {
-    rendered = await render(doc, lang, fileName.replace(/\.pdf$/, ''))
+    rendered = await render(doc, lang, fileName.replace(/\.(pdf|docx)$/, ''))
   } catch (error) {
-    return { ok: false, message: `PDF gagal dibuat: ${describe(error)}. Isi CV tetap ada di halaman ini dan bisa disalin.` }
+    return { ok: false, message: `${format === 'docx' ? 'Word' : 'PDF'} gagal dibuat: ${describe(error)}. Isi CV tetap ada di halaman ini dan bisa disalin.` }
   }
   try {
     deliver(fileName, rendered.bytes)
   } catch (error) {
-    return { ok: false, message: `PDF gagal diunduh: ${describe(error)}. Isi CV tetap ada di halaman ini dan bisa disalin.` }
+    return { ok: false, message: `${format === 'docx' ? 'Word' : 'PDF'} gagal diunduh: ${describe(error)}. Isi CV tetap ada di halaman ini dan bisa disalin.` }
   }
   await saveApplications(data.applications.map((item) => (item.id === app.id ? noteDownload(item, now) : item)))
   return { ok: true, fileName, replaced: rendered.replaced }

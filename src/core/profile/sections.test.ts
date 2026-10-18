@@ -40,6 +40,7 @@ describe('PROFILE_SECTIONS', () => {
       'Contact & Address',
       'Education',
       'Work Experience',
+      'Projects',
       'Custom Field',
       'Preferensi kerja',
     ])

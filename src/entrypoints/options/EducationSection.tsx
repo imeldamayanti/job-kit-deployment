@@ -2,17 +2,19 @@ import { addEntry, createEducation, moveEntry, removeEntry, updateEntry } from '
 import type { Education, Profile } from '../../core/profile/types'
 import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
+import { TextArea } from '../../ui/primitives/TextArea'
 import { TextField } from '../../ui/primitives/TextField'
 import { EntryCard } from './EntryCard'
 import { SectionCard } from './SectionCard'
 import { useExpanded } from './useExpanded'
 
-const FIELDS: { key: keyof Omit<Education, 'id'>; label: string; placeholder: string }[] = [
+const FIELDS: { key: keyof Omit<Education, 'id' | 'publication' | 'achievements'>; label: string; placeholder: string }[] = [
   { key: 'institution', label: 'Institusi', placeholder: 'Universitas Padjadjaran' },
   { key: 'level', label: 'Jenjang', placeholder: 'S1' },
   { key: 'major', label: 'Jurusan', placeholder: 'Sastra Inggris' },
   { key: 'gpa', label: 'IPK', placeholder: '3,65' },
-  { key: 'year', label: 'Tahun', placeholder: '2024' },
+  { key: 'year', label: 'Tahun atau periode', placeholder: 'Sep 2022 – Mar 2026' },
+  { key: 'location', label: 'Lokasi', placeholder: 'Bandung' },
 ]
 
 export function EducationSection({ profile, update }: { profile: Profile; update: (next: Profile) => void }) {
@@ -62,10 +64,16 @@ export function EducationSection({ profile, update }: { profile: Profile; update
                     key={key}
                     label={label}
                     placeholder={placeholder}
-                    value={entry[key]}
+                    value={entry[key] ?? ''}
                     onChange={(event) => set(updateEntry(list, entry.id, { [key]: event.target.value }))}
                   />
                 ))}
+                <div className="sm:col-span-2">
+                  <TextField label="Publikasi" placeholder="Judul makalah, IEEE (2025)" value={entry.publication ?? ''} onChange={(event) => set(updateEntry(list, entry.id, { publication: event.target.value }))} />
+                </div>
+                <div className="sm:col-span-2">
+                  <TextArea label="Prestasi (satu per baris)" placeholder="Juara 1 Lomba Festival Informatika (2024)" value={entry.achievements ?? ''} onChange={(event) => set(updateEntry(list, entry.id, { achievements: event.target.value }))} />
+                </div>
               </div>
             </EntryCard>
           ))}

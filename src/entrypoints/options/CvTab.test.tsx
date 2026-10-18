@@ -8,7 +8,7 @@ import { CvTab, type CvTabState } from './CvTab'
 
 let container: HTMLElement | null = null
 
-const handlers = () => ({ onCreate: vi.fn(), onContinue: vi.fn(), onDismissNotice: vi.fn(), onLink: vi.fn(), onEdit: vi.fn(), onRestore: vi.fn(), onDownload: vi.fn(), onCopyText: vi.fn() })
+const handlers = () => ({ onCreate: vi.fn(), onContinue: vi.fn(), onDismissNotice: vi.fn(), onLink: vi.fn(), onEdit: vi.fn(), onRestore: vi.fn(), onDownload: vi.fn(), onDownloadWord: vi.fn(), onCopyText: vi.fn() })
 const state = (name: CvViewName, change: Partial<CvTabState> = {}): CvTabState => ({ ...cvViewFor(name), ...handlers(), ...change })
 
 async function render(tab: CvTabState): Promise<string> {
@@ -273,7 +273,7 @@ describe('CvTab: Unduh PDF (FR-42)', () => {
 
   it('shows that the PDF is being made, and cannot be pressed twice', async () => {
     await render(state('result', { downloading: true }))
-    expect(button('Membuat PDF…')?.hasAttribute('disabled')).toBe(true)
+    expect(button('Membuat file…')?.hasAttribute('disabled')).toBe(true)
   })
 
   it('stays available when the Profile changed, an edited CV, or when Buat CV is off: the CV is already there', async () => {

@@ -10,7 +10,7 @@ describe('cvToText (the CV as plain text, for Salin when the PDF fails, PRD §8)
     const text = cvToText(assemble(SAMPLE_WEB_DEV, empty), 'id')
     expect(text.split('\n')).toEqual([
       'Sari Contohwati',
-      'sari@example.test · 081200000000 · Denpasar',
+      '081200000000 · sari@example.test · Denpasar',
       '',
       'SKILL',
       'TypeScript, React, Node.js, PostgreSQL, Git, REST API, Jest',
@@ -31,6 +31,7 @@ describe('cvToText (the CV as plain text, for Salin when the PDF fails, PRD §8)
       'PENDIDIKAN',
       'S1 Teknik Informatika',
       'Universitas Contoh Nusantara · 2022',
+      'IPK: 3.5',
     ])
   })
 

@@ -25,6 +25,7 @@ export type CvTabState = CvView & {
   onRestore: () => void
   // Unduh PDF (T50), and Salin teks CV for when the PDF could not be made.
   onDownload: () => void
+  onDownloadWord: () => void
   onCopyText: () => void
 }
 
@@ -109,7 +110,7 @@ function Editor({ draft, profile, onChange }: { draft: CvParts; profile: Profile
 
 export function CvTab({
   cv, availability, busy, message, rejected, notice, stale, profile, downloading, downloadError, downloadNote,
-  onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onDownload, onCopyText,
+  onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onDownload, onDownloadWord, onCopyText,
 }: CvTabState) {
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
@@ -314,7 +315,11 @@ export function CvTab({
         <div className="flex flex-wrap items-center gap-2">
           <Button onClick={onDownload} disabled={downloading}>
             <Download size={15} strokeWidth={2} aria-hidden="true" />
-            {downloading ? 'Membuat PDF…' : 'Unduh PDF'}
+            {downloading ? 'Membuat file…' : 'Unduh PDF'}
+          </Button>
+          <Button variant="secondary" onClick={onDownloadWord} disabled={downloading}>
+            <Download size={15} strokeWidth={2} aria-hidden="true" />
+            Unduh Word
           </Button>
           <Button variant="secondary" onClick={() => setEditing((on) => !on)}>
             <Pencil size={15} strokeWidth={2} aria-hidden="true" />

@@ -11,6 +11,7 @@ export default defineConfig({
     description: 'Ketik sekali, lamar di mana saja.',
     permissions: ['storage', 'sidePanel', 'scripting', 'tabs', 'offscreen', 'alarms'],
     optional_host_permissions: ['*://*/*'],
-    action: { default_title: 'job-kit' },
+    icons: { 16: 'icon/16.png', 32: 'icon/32.png', 48: 'icon/48.png', 128: 'icon/128.png' },
+    action: { default_title: 'job-kit', default_icon: { 16: 'icon/16.png', 32: 'icon/32.png', 48: 'icon/48.png', 128: 'icon/128.png' } },
   },
 })

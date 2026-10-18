@@ -270,7 +270,7 @@ describe('ApplicationDetailPage · lamaran manual', () => {
 
 describe('CV tab wiring (T48)', () => {
   const tab = (change: Partial<CvTabState> = {}): CvTabState => ({
-    ...cvViewFor('empty'), onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onDownload: () => {}, onCopyText: () => {}, ...change,
+    ...cvViewFor('empty'), onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onDownload: () => {}, onDownloadWord: () => {}, onCopyText: () => {}, ...change,
   })
 
   it('shows the working tab instead of the shell when the page gives it', async () => {

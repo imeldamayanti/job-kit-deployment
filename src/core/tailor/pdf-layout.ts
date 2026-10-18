@@ -7,7 +7,7 @@ import type { CvDocument } from './types'
 export const A4 = { width: 595.28, height: 841.89, margin: 51 } as const
 
 export type PdfOp =
-  | { kind: 'text'; text: string; x: number; y: number; size: number; bold: boolean; gray: number }
+  | { kind: 'text'; text: string; x: number; y: number; size: number; bold: boolean; gray: number; italic?: boolean }
   | { kind: 'rule'; x1: number; x2: number; y: number }
 
 // Width of a text in points. The real one comes from the font; tests pass a simple one.
@@ -16,6 +16,7 @@ export type Measure = (text: string, bold: boolean, size: number) => number
 const LINE = 1.4
 const INK = 0.07
 const QUIET = 0.27
+const PLACE = 0.5
 const INDENT = 14
 
 // A line is cut at spaces; a word wider than the line is cut inside the word, so nothing runs past the margin.
@@ -62,13 +63,22 @@ export function layoutCv(doc: CvDocument, lang: Lang, measure: Measure): PdfOp[]
     }
   }
   const lineHeight = (size: number) => size * LINE
-  const draw = (text: string, bold: boolean, size: number, x: number, gray = INK) => {
+  const draw = (text: string, bold: boolean, size: number, x: number, gray = INK, italic = false) => {
     keep(lineHeight(size))
     y -= lineHeight(size)
-    pages.at(-1)!.push({ kind: 'text', text, x, y, size, bold, gray })
+    pages.at(-1)!.push({ kind: 'text', text, x, y, size, bold, gray, ...(italic ? { italic } : {}) })
   }
-  const paragraph = (text: string, { bold = false, size = 10, x = A4.margin, gray = INK } = {}) => {
-    for (const line of wrap(text, bold, size, A4.width - A4.margin - x, measure)) draw(line, bold, size, x, gray)
+  const paragraph = (text: string, { bold = false, size = 10, x = A4.margin, gray = INK, italic = false, center = false } = {}) => {
+    for (const line of wrap(text, bold, size, A4.width - A4.margin - x, measure))
+      draw(line, bold, size, center ? (A4.width - measure(line, bold, size)) / 2 : x, gray, italic)
+  }
+  // A line with the name of the place on the left (and where it is, in grey) and the dates flush right, as on the person's own CV.
+  const split = (left: string, right: string, location = '', { size = 10.5 } = {}) => {
+    keep(lineHeight(size))
+    draw(left, true, size, A4.margin)
+    const ops = pages.at(-1)!
+    if (location !== '') ops.push({ kind: 'text', text: `- ${location}`, x: A4.margin + measure(`${left} `, true, size) + 2, y, size, bold: true, gray: PLACE })
+    if (right !== '') ops.push({ kind: 'text', text: right, x: A4.width - A4.margin - measure(right, false, size), y, size, bold: false, gray: INK })
   }
   const rule = () => {
     y -= 3
@@ -77,49 +87,78 @@ export function layoutCv(doc: CvDocument, lang: Lang, measure: Measure): PdfOp[]
   }
   // The title of a section stays with the first thing under it.
   const section = (title: string, firstBlock: number) => {
-    keep(6 + lineHeight(11) + 7 + firstBlock)
+    keep(6 + lineHeight(12) + 7 + firstBlock)
     y -= 6
-    draw(title.toUpperCase(), true, 11, A4.margin)
+    draw(title, true, 12, A4.margin)
     rule()
   }
 
-  paragraph(doc.header.name, { bold: true, size: 20 })
-  if (doc.header.contacts.length > 0) paragraph(doc.header.contacts.join(' · '), { size: 9.5, gray: QUIET })
-  y -= 6
-
-  if (doc.skills.length > 0) {
-    section(labels.skills, lineHeight(10))
-    paragraph(doc.skills.join(', '))
+  // A bullet, optionally led by a bold label ("GPA: 3.87"): the label and the first words share the first line.
+  const bullet = (text: string, label = '', x = A4.margin + INDENT, mark = '•') => {
+    const lead = label !== '' ? `${label}: ` : ''
+    const lines = wrap(`${lead}${text}`, false, 10, A4.width - A4.margin - x, measure)
+    keep(lineHeight(10) * Math.min(lines.length, 2))
+    lines.forEach((line, index) => {
+      const head = lead.trimEnd()
+      if (index === 0 && head !== '' && line.startsWith(head)) {
+        draw(head, true, 10, x)
+        const rest = line.slice(head.length).trimStart()
+        if (rest !== '') pages.at(-1)!.push({ kind: 'text', text: rest, x: x + measure(lead, true, 10) + 2, y, size: 10, bold: false, gray: INK })
+      } else draw(line, false, 10, x)
+      if (index === 0) pages.at(-1)!.push({ kind: 'text', text: mark, x: x - (mark === '•' ? INDENT - 3 : INDENT - 4), y, size: 10, bold: false, gray: INK })
+    })
   }
 
-  if (doc.experience.length > 0) {
-    section(labels.experience, lineHeight(10.5) + lineHeight(9) + lineHeight(10))
-    for (const job of doc.experience) {
-      keep(lineHeight(10.5) + lineHeight(9) + lineHeight(10))
-      paragraph(job.title, { bold: true, size: 10.5 })
-      const meta = [job.company, formatPeriod(job.start, job.end, job.current, lang)].filter((part) => part !== '').join(' · ')
-      if (meta !== '') paragraph(meta, { size: 9, gray: QUIET })
-      for (const bullet of job.bullets) {
-        const lines = wrap(bullet, false, 10, full - INDENT, measure)
-        keep(lineHeight(10) * Math.min(lines.length, 2))
-        lines.forEach((line, index) => {
-          draw(line, false, 10, A4.margin + INDENT)
-          if (index === 0) pages.at(-1)!.push({ kind: 'text', text: '•', x: A4.margin + 3, y, size: 10, bold: false, gray: INK })
-        })
+  paragraph(doc.header.name.toUpperCase(), { bold: true, size: 20, center: true })
+  if (doc.header.contacts.length > 0) paragraph(doc.header.contacts.join(' | '), { size: 9.5, gray: QUIET, center: true })
+  if (doc.summary !== '') {
+    y -= 4
+    paragraph(doc.summary, { size: 10, center: true })
+  }
+  y -= 6
+
+  if (doc.education.length > 0) {
+    section(labels.education, lineHeight(10.5) + lineHeight(9))
+    for (const school of doc.education) {
+      keep(lineHeight(10.5) + lineHeight(10) * 2)
+      if (school.institution !== '') split(school.institution, school.year, school.location)
+      const title = [school.level, school.major].filter((part) => part !== '').join(' ')
+      if (title !== '') paragraph(title, { size: 10, italic: true })
+      if (school.gpa !== '') bullet(school.gpa, labels.gpa)
+      if (school.publication !== '') bullet(school.publication, labels.publication)
+      if (school.achievements.length > 0) {
+        bullet('', labels.achievements)
+        for (const text of school.achievements) bullet(text, '', A4.margin + 2 * INDENT, '-')
       }
       y -= 4
     }
   }
 
-  if (doc.education.length > 0) {
-    section(labels.education, lineHeight(10.5) + lineHeight(9))
-    for (const school of doc.education) {
-      keep(lineHeight(10.5) + lineHeight(9))
-      const title = [school.level, school.major].filter((part) => part !== '').join(' ')
-      if (title !== '') paragraph(title, { bold: true, size: 10.5 })
-      const meta = [school.institution, school.year].filter((part) => part !== '').join(' · ')
-      if (meta !== '') paragraph(meta, { size: 9, gray: QUIET })
+  if (doc.experience.length > 0) {
+    section(labels.experience, lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+    for (const job of doc.experience) {
+      keep(lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+      split(job.company !== '' ? job.company : job.title, formatPeriod(job.start, job.end, job.current, lang), job.company !== '' ? job.location : '')
+      if (job.company !== '' && job.title !== '') paragraph(job.title, { size: 10, italic: true })
+      for (const text of job.bullets) bullet(text)
+      y -= 4
     }
+  }
+
+  if (doc.projects.length > 0) {
+    section(labels.projects, lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+    for (const project of doc.projects) {
+      keep(lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+      split(project.name, project.date)
+      if (project.role !== '') paragraph(project.role, { size: 10, italic: true })
+      for (const text of project.bullets) bullet(text)
+      y -= 4
+    }
+  }
+
+  if (doc.skills.length > 0) {
+    section(labels.skills, lineHeight(10))
+    paragraph(doc.skills.join(', '))
   }
   return pages
 }
@@ -166,11 +205,16 @@ export function winAnsiDocument(doc: CvDocument): { doc: CvDocument; replaced: s
   }
   const next: CvDocument = {
     header: { name: clean(doc.header.name), contacts: doc.header.contacts.map(clean) },
+    summary: clean(doc.summary),
     skills: doc.skills.map(clean),
     experience: doc.experience.map((e) => ({
-      sourceId: e.sourceId, title: clean(e.title), company: clean(e.company), start: clean(e.start), end: clean(e.end), current: e.current, bullets: e.bullets.map(clean),
+      sourceId: e.sourceId, title: clean(e.title), company: clean(e.company), location: clean(e.location), start: clean(e.start), end: clean(e.end), current: e.current, bullets: e.bullets.map(clean),
     })),
-    education: doc.education.map((e) => ({ id: e.id, institution: clean(e.institution), level: clean(e.level), major: clean(e.major), gpa: clean(e.gpa), year: clean(e.year) })),
+    education: doc.education.map((e) => ({
+      id: e.id, institution: clean(e.institution), location: clean(e.location), level: clean(e.level), major: clean(e.major), gpa: clean(e.gpa), year: clean(e.year),
+      publication: clean(e.publication), achievements: e.achievements.map(clean),
+    })),
+    projects: doc.projects.map((p) => ({ id: p.id, name: clean(p.name), role: clean(p.role), date: clean(p.date), bullets: p.bullets.map(clean) })),
   }
   return { doc: next, replaced }
 }

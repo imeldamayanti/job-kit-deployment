@@ -22,7 +22,7 @@ export function detectLanguage(text: string): Lang {
 }
 
 // The section names of a CV in the language of its text.
-export const CV_LABELS: Record<Lang, { skills: string; experience: string; education: string; now: string }> = {
-  id: { skills: 'Skill', experience: 'Pengalaman', education: 'Pendidikan', now: 'sekarang' },
-  en: { skills: 'Skills', experience: 'Experience', education: 'Education', now: 'present' },
+export const CV_LABELS: Record<Lang, { skills: string; experience: string; education: string; projects: string; gpa: string; publication: string; achievements: string; now: string }> = {
+  id: { skills: 'Skill', experience: 'Pengalaman', education: 'Pendidikan', projects: 'Proyek', gpa: 'IPK', publication: 'Publikasi', achievements: 'Prestasi', now: 'sekarang' },
+  en: { skills: 'Skills', experience: 'Experience', education: 'Education', projects: 'Projects', gpa: 'GPA', publication: 'Publication', achievements: 'Achievements', now: 'present' },
 }

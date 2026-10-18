@@ -13,34 +13,43 @@ const texts = (page: PdfOp[]) => page.flatMap((op) => (op.kind === 'text' ? [op]
 const all = (pages: PdfOp[][]) => pages.flatMap(texts)
 
 describe('layoutCv', () => {
-  it('starts with the name, large and bold at the left margin, and the contacts under it', () => {
+  it('starts with the name in capitals, large, bold and centred, and the contacts centred under it', () => {
     const [first] = layoutCv(web(), 'id', measure)
     const [name, contacts] = texts(first!)
-    expect(name).toMatchObject({ text: 'Sari Contohwati', x: A4.margin, size: 20, bold: true })
+    expect(name).toMatchObject({ text: 'SARI CONTOHWATI', size: 20, bold: true })
+    expect(name!.x).toBeCloseTo((A4.width - measure(name!.text, true, 20)) / 2)
     expect(name!.y).toBeLessThan(A4.height - A4.margin)
-    expect(contacts?.text).toBe('sari@example.test · 081200000000 · Denpasar')
+    expect(contacts?.text).toBe('081200000000 | sari@example.test | Denpasar')
+    expect(contacts!.x).toBeCloseTo((A4.width - measure(contacts!.text, false, 9.5)) / 2)
     expect(contacts!.y).toBeLessThan(name!.y)
   })
 
-  it('names the sections in the language of the CV and in capitals', () => {
-    const sections = (lang: 'id' | 'en') => all(layoutCv(web(), lang, measure)).filter((op) => op.size === 11 && op.bold).map((op) => op.text)
-    expect(sections('id')).toEqual(['SKILL', 'PENGALAMAN', 'PENDIDIKAN'])
-    expect(sections('en')).toEqual(['SKILLS', 'EXPERIENCE', 'EDUCATION'])
+  it('names the sections in the language of the CV, education first', () => {
+    const sections = (lang: 'id' | 'en') => all(layoutCv(web(), lang, measure)).filter((op) => op.size === 12 && op.bold).map((op) => op.text)
+    expect(sections('id')).toEqual(['Pendidikan', 'Pengalaman', 'Skill'])
+    expect(sections('en')).toEqual(['Education', 'Experience', 'Skills'])
   })
 
-  it('writes each job with its title, then company and dates from the Profile', () => {
-    const lines = all(layoutCv(web(), 'id', measure)).map((op) => op.text)
-    expect(lines).toContain('Software Engineer')
-    expect(lines).toContain('PT Contoh Teknologi · Agu 2023 – sekarang')
-    expect(lines).toContain('CV Contoh Digital · Jan 2022 – Jun 2022')
+  it('writes each job with the company bold on the left, the dates flush right, and the title in italics under it', () => {
+    const ops = all(layoutCv(web(), 'id', measure))
+    const company = ops.find((op) => op.text === 'PT Contoh Teknologi')!
+    const dates = ops.find((op) => op.text === 'Agu 2023 – sekarang')!
+    expect(company).toMatchObject({ x: A4.margin, bold: true })
+    expect(dates.y).toBe(company.y)
+    expect(dates.x + measure(dates.text, false, dates.size)).toBeCloseTo(A4.width - A4.margin)
+    const title = ops.find((op) => op.text === 'Software Engineer')!
+    expect(title).toMatchObject({ italic: true, bold: false })
+    expect(title.y).toBeLessThan(company.y)
+    expect(ops.map((op) => op.text)).toContain('Jan 2022 – Jun 2022')
     const english = all(layoutCv(assemble(SAMPLE_DATA_ANALYST, empty), 'en', measure)).map((op) => op.text)
-    expect(english).toContain('Sample Analytics Ltd · Mar 2021 – present')
+    expect(english).toContain('Mar 2021 – present')
   })
 
   it('puts a bullet mark before each bullet and indents the text', () => {
     const ops = all(layoutCv(web(), 'id', measure))
     const marks = ops.filter((op) => op.text === '•')
-    expect(marks).toHaveLength(web().experience.reduce((n, e) => n + e.bullets.length, 0))
+    const gpas = web().education.filter((school) => school.gpa !== '').length
+    expect(marks).toHaveLength(web().experience.reduce((n, e) => n + e.bullets.length, 0) + gpas)
     expect(ops.some((op) => op.text.startsWith('Membangun fitur dashboard') && op.x === A4.margin + 14)).toBe(true)
   })
 
@@ -74,7 +83,7 @@ describe('layoutCv', () => {
     expect(pages.length).toBeGreaterThan(1)
     for (const page of pages.slice(0, -1)) {
       const last = texts(page).at(-1)!
-      expect(last.bold && (last.size === 11 || last.size === 10.5), `last line of a page: ${last.text}`).toBe(false)
+      expect(last.bold && (last.size === 12 || last.size === 10.5), `last line of a page: ${last.text}`).toBe(false)
     }
     for (const page of pages) expect(texts(page).length).toBeGreaterThan(0)
   })
@@ -89,14 +98,16 @@ describe('layoutCv', () => {
     const doc = web()
     doc.education = []
     doc.skills = []
-    const sections = all(layoutCv(doc, 'id', measure)).filter((op) => op.size === 11 && op.bold).map((op) => op.text)
-    expect(sections).toEqual(['PENGALAMAN'])
+    const sections = all(layoutCv(doc, 'id', measure)).filter((op) => op.size === 12 && op.bold).map((op) => op.text)
+    expect(sections).toEqual(['Pengalaman'])
   })
 
-  it('writes a school as level and major, then institution and year', () => {
-    const lines = all(layoutCv(web(), 'id', measure)).map((op) => op.text)
-    expect(lines).toContain('S1 Teknik Informatika')
-    expect(lines).toContain('Universitas Contoh Nusantara · 2022')
+  it('writes a school as institution and year on one line, then level and major in italics', () => {
+    const ops = all(layoutCv(web(), 'id', measure))
+    const school = ops.find((op) => op.text === 'Universitas Contoh Nusantara')!
+    expect(school.bold).toBe(true)
+    expect(ops.find((op) => op.text === '2022')!.y).toBe(school.y)
+    expect(ops.find((op) => op.text === 'S1 Teknik Informatika')).toMatchObject({ italic: true })
   })
 
   it('makes the same pages for the same CV', () => {

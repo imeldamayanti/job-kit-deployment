@@ -130,6 +130,8 @@ export function bulletsFromDescription(description: string): string[] {
     .filter((part) => part !== '')
 }
 
+const lines = (text: string | undefined) => (text ?? '').split('\n').map((line) => line.trim()).filter((line) => line !== '')
+
 // Joins the AI's wording with the Profile's facts. Job title, employer, school and dates come from the Profile only (D12).
 // What the AI left empty falls back to the Profile as written, so a weak answer never yields an empty CV.
 export function assemble(profile: Profile, output: TailorOutput): CvDocument {
@@ -147,7 +149,7 @@ export function assemble(profile: Profile, output: TailorOutput): CvDocument {
     seen.add(item.sourceId)
     const bullets = item.bullets.map((b) => b.trim()).filter((b) => b !== '')
     experience.push({
-      sourceId: source.id, title: source.title, company: source.company, start: source.start, end: source.end, current: source.current,
+      sourceId: source.id, title: source.title, company: source.company, location: (source.location ?? '').trim(), start: source.start, end: source.end, current: source.current,
       bullets: bullets.length > 0 ? bullets : bulletsFromDescription(source.description),
     })
   }
@@ -155,17 +157,22 @@ export function assemble(profile: Profile, output: TailorOutput): CvDocument {
   const educationById = new Map(profile.education.map((e) => [e.id, e]))
   const pickedEducation = [...new Set(output.education)].map((id) => educationById.get(id)).filter((e) => e !== undefined)
   const education = (pickedEducation.length > 0 ? pickedEducation : profile.education).map((e) => ({
-    id: e.id, institution: e.institution, level: e.level, major: e.major, gpa: e.gpa, year: e.year,
+    id: e.id, institution: e.institution, location: (e.location ?? '').trim(), level: e.level, major: e.major, gpa: e.gpa, year: e.year,
+    publication: (e.publication ?? '').trim(), achievements: lines(e.achievements),
   }))
 
   const { personal, contact } = profile
   return {
     header: {
       name: [personal.firstName, personal.middleName, personal.lastName].map((p) => p.trim()).filter((p) => p !== '').join(' '),
-      contacts: [contact.email, contact.phone, contact.city, contact.linkedin, contact.website].map((c) => c.trim()).filter((c) => c !== ''),
+      contacts: [contact.phone, contact.email, contact.linkedin, contact.website, contact.city].map((c) => c.trim()).filter((c) => c !== ''),
     },
+    summary: (profile.summary ?? '').trim(),
     skills: chosenSkills.length > 0 ? chosenSkills : profile.skills.map((s) => s.name),
     experience,
     education,
+    projects: (profile.projects ?? [])
+      .filter((p) => p.name.trim() !== '')
+      .map((p) => ({ id: p.id, name: p.name.trim(), role: p.role.trim(), date: p.date.trim(), bullets: lines(p.description) })),
   }
 }

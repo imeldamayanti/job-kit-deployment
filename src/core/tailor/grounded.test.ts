@@ -138,7 +138,7 @@ describe('assemble', () => {
   })
 
   it('writes the header from the Profile on this computer', () => {
-    expect(assemble(A, good()).header).toEqual({ name: 'Sari Contohwati', contacts: ['sari@example.test', '081200000000', 'Denpasar'] })
+    expect(assemble(A, good()).header).toEqual({ name: 'Sari Contohwati', contacts: ['081200000000', 'sari@example.test', 'Denpasar'] })
   })
 
   it('keeps the AI order of experience and drops entries the AI left out', () => {

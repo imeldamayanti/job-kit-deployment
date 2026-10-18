@@ -54,6 +54,9 @@ export function ExperienceSection({ profile, update }: { profile: Profile; updat
               <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
                 <TextField label="Perusahaan" placeholder="PT Maju Jaya" value={entry.company} onChange={(e) => change(entry.id, { company: e.target.value })} />
                 <TextField label="Jabatan" placeholder="Staf Administrasi" value={entry.title} onChange={(e) => change(entry.id, { title: e.target.value })} />
+                <div className="sm:col-span-2">
+                  <TextField label="Lokasi" placeholder="Jakarta" value={entry.location ?? ''} onChange={(e) => change(entry.id, { location: e.target.value })} />
+                </div>
                 <TextField label="Mulai" placeholder="Januari 2022" value={entry.start} onChange={(e) => change(entry.id, { start: e.target.value })} />
                 <TextField label="Selesai" placeholder="Desember 2024" disabled={entry.current} value={entry.end} onChange={(e) => change(entry.id, { end: e.target.value })} />
                 <div className="sm:col-span-2">

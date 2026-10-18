@@ -1,4 +1,4 @@
-import type { Education, Experience } from './types'
+import type { Education, Experience, Project } from './types'
 
 export function addEntry<T extends { id: string }>(list: T[], entry: T): T[] {
   return [...list, entry]
@@ -30,6 +30,10 @@ export function createExperience(id: string): Experience {
   return { id, company: '', title: '', start: '', end: '', current: false, description: '' }
 }
 
+export function createProject(id: string): Project {
+  return { id, name: '', role: '', date: '', description: '' }
+}
+
 function joinParts(parts: string[]): string {
   return parts.filter((part) => part.trim() !== '').join(' · ')
 }
@@ -42,4 +46,8 @@ export function summarizeExperience(entry: Experience): string {
   const end = entry.current ? 'sekarang' : entry.end
   const period = [entry.start, end].filter((part) => part.trim() !== '').join(' - ')
   return joinParts([entry.title, entry.company, period]) || 'Belum diisi'
+}
+
+export function summarizeProject(entry: Project): string {
+  return joinParts([entry.name, entry.role, entry.date]) || 'Belum diisi'
 }

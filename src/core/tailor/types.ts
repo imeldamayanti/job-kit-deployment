@@ -12,6 +12,10 @@ export type Grounding = { ok: boolean; violations: Violation[] }
 export type CvDocument = {
   header: { name: string; contacts: string[] }
   skills: string[]
-  experience: { sourceId: string; title: string; company: string; start: string; end: string; current: boolean; bullets: string[] }[]
-  education: { id: string; institution: string; level: string; major: string; gpa: string; year: string }[]
+  // A short paragraph under the contacts, written by the person in the Profile; empty when there is none.
+  summary: string
+  experience: { sourceId: string; title: string; company: string; location: string; start: string; end: string; current: boolean; bullets: string[] }[]
+  education: { id: string; institution: string; location: string; level: string; major: string; gpa: string; year: string; publication: string; achievements: string[] }[]
+  // Taken from the Profile as written: the AI neither sees nor rewrites projects.
+  projects: { id: string; name: string; role: string; date: string; bullets: string[] }[]
 }

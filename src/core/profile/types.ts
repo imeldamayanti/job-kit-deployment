@@ -30,6 +30,10 @@ export type Education = {
   major: string
   gpa: string
   year: string
+  // Optional, left out of a stored profile while empty. `achievements` is one per line.
+  location?: string
+  publication?: string
+  achievements?: string
 }
 
 export type Experience = {
@@ -39,6 +43,16 @@ export type Experience = {
   start: string
   end: string
   current: boolean
+  description: string
+  location?: string
+}
+
+// A project for the CV. `description` is one bullet per line.
+export type Project = {
+  id: string
+  name: string
+  role: string
+  date: string
   description: string
 }
 
@@ -51,4 +65,7 @@ export type Profile = {
   skills: { group: 'teknis' | 'bahasa' | 'lainnya'; name: string }[]
   custom: { id: string; key: string; value: string }[]
   jobPrefs: JobPreferences
+  // A short profile paragraph under the name on the CV, and the projects section. Both optional.
+  summary?: string
+  projects?: Project[]
 }
