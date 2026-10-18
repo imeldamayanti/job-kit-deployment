@@ -1,6 +1,7 @@
 import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { aiErrorMessage, AiError, type AiFailure } from '../../core/ai/errors'
+import { AI_ENABLED } from '../../core/build'
 import {
   aiOrigins,
   AI_PROVIDERS,
@@ -219,88 +220,95 @@ export function JobSettingsPage({
         </div>
       </SectionCard>
 
-      <SectionCard>
-        <h2 className="mb-3 text-[12px] font-bold uppercase tracking-[0.06em] text-text-secondary">Penilaian AI</h2>
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Select
-              label="Penyedia"
-              value={settings.ai.provider}
-              onChange={(event) => {
-                // A key belongs to one provider; keeping it would send it to the other one.
-                update(setAiProvider(settings, event.target.value as AiProvider))
-                changeKey('')
-                setTest(null)
-              }}
-            >
-              {AI_PROVIDERS.map((id) => (
-                <option key={id} value={id}>
-                  {PROVIDER_TEXT[id].name}
-                </option>
-              ))}
-            </Select>
-            <TextField label="Model penilaian lowongan" value={settings.ai.model} onChange={(event) => update({ ...settings, ai: { ...settings.ai, model: event.target.value } })} />
-            <TextField
-              label="Model CV dan surat"
-              placeholder={settings.ai.model}
-              value={settings.ai.documentModel ?? ''}
-              onChange={(event) => update({ ...settings, ai: { ...settings.ai, documentModel: event.target.value } })}
-            />
+      {AI_ENABLED ? (
+        <SectionCard>
+          <h2 className="mb-3 text-[12px] font-bold uppercase tracking-[0.06em] text-text-secondary">Penilaian AI</h2>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Select
+                label="Penyedia"
+                value={settings.ai.provider}
+                onChange={(event) => {
+                  // A key belongs to one provider; keeping it would send it to the other one.
+                  update(setAiProvider(settings, event.target.value as AiProvider))
+                  changeKey('')
+                  setTest(null)
+                }}
+              >
+                {AI_PROVIDERS.map((id) => (
+                  <option key={id} value={id}>
+                    {PROVIDER_TEXT[id].name}
+                  </option>
+                ))}
+              </Select>
+              <TextField label="Model penilaian lowongan" value={settings.ai.model} onChange={(event) => update({ ...settings, ai: { ...settings.ai, model: event.target.value } })} />
+              <TextField
+                label="Model CV dan surat"
+                placeholder={settings.ai.model}
+                value={settings.ai.documentModel ?? ''}
+                onChange={(event) => update({ ...settings, ai: { ...settings.ai, documentModel: event.target.value } })}
+              />
+            </div>
+            <div className="max-w-[260px]">
+              <DocumentLimitField value={settings.documentLimit} onChange={(documentLimit) => update({ ...settings, documentLimit })} />
+            </div>
+            <div>
+              <TextField
+                label="Kunci API"
+                type="password"
+                autoComplete="off"
+                placeholder={PROVIDER_TEXT[settings.ai.provider].keyHint}
+                value={aiKey}
+                onChange={(event) => {
+                  changeKey(event.target.value)
+                  setTest(null)
+                }}
+              />
+              <p className="mt-1.5 text-[12px] text-text-secondary">Disimpan di perangkat ini. Tidak ikut Export; terhapus oleh Hapus semua.</p>
+            </div>
+            <div>
+              <Button variant="secondary" disabled={aiKey.trim() === '' || test === 'running'} onClick={runTest}>
+                {test === 'running' ? 'Menguji…' : 'Tes koneksi'}
+              </Button>
+            </div>
+            {test && test !== 'running' && <Alert notice={test} />}
+            {settings.ai.provider === 'gemini' && (
+              <Alert notice={{ kind: 'warn', text: 'Di paket gratis, Google boleh memakai isi permintaan untuk memperbaiki produknya. Yang dikirim hanya data tanpa identitas, seperti dijelaskan di bawah.' }} />
+            )}
+            {settings.ai.provider === 'claude-code' && (
+              <Alert
+                notice={{
+                  kind: 'warn',
+                  text: 'Jalankan "node scripts/bridge.mjs" di terminal proyek ini dan biarkan terbuka, lalu tempel token yang tercetak ke Kunci API. Model: haiku, sonnet, atau opus. Hanya untuk dipakai sendiri di komputer ini.',
+                }}
+              />
+            )}
+            {settings.ai.provider === 'opencode-zen' && zenMayTrainOn(settings.ai.model) && (
+              <Alert
+                notice={{
+                  kind: 'warn',
+                  text: 'Model ini boleh dipakai OpenCode Zen untuk melatih model selama masa gratis. Untuk data pribadi, pilih space-bunny-free, longcat-2.5-preview-free, atau step-5-preview-free.',
+                }}
+              />
+            )}
+            <div role="note" className="rounded-lg bg-accent-wash px-3 py-2.5 text-[13px] text-text-primary">
+              <p>
+                <b>Yang dikirim ke penyedia AI:</b> role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe
+                kerja. Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim.
+              </p>
+              <p className="mt-1.5">
+                <b>Untuk CV:</b> skill, butir deskripsi tiap pengalaman, judul jabatan, jenjang dan jurusan, serta teks lowongan. Nama perusahaan dan kampus
+                diganti kode lalu dipulihkan di browser ini; nama, kontak, tautan, dan IPK tidak dikirim.
+              </p>
+            </div>
           </div>
-          <div className="max-w-[260px]">
-            <DocumentLimitField value={settings.documentLimit} onChange={(documentLimit) => update({ ...settings, documentLimit })} />
-          </div>
-          <div>
-            <TextField
-              label="Kunci API"
-              type="password"
-              autoComplete="off"
-              placeholder={PROVIDER_TEXT[settings.ai.provider].keyHint}
-              value={aiKey}
-              onChange={(event) => {
-                changeKey(event.target.value)
-                setTest(null)
-              }}
-            />
-            <p className="mt-1.5 text-[12px] text-text-secondary">Disimpan di perangkat ini. Tidak ikut Export; terhapus oleh Hapus semua.</p>
-          </div>
-          <div>
-            <Button variant="secondary" disabled={aiKey.trim() === '' || test === 'running'} onClick={runTest}>
-              {test === 'running' ? 'Menguji…' : 'Tes koneksi'}
-            </Button>
-          </div>
-          {test && test !== 'running' && <Alert notice={test} />}
-          {settings.ai.provider === 'gemini' && (
-            <Alert notice={{ kind: 'warn', text: 'Di paket gratis, Google boleh memakai isi permintaan untuk memperbaiki produknya. Yang dikirim hanya data tanpa identitas, seperti dijelaskan di bawah.' }} />
-          )}
-          {settings.ai.provider === 'claude-code' && (
-            <Alert
-              notice={{
-                kind: 'warn',
-                text: 'Jalankan "node scripts/bridge.mjs" di terminal proyek ini dan biarkan terbuka, lalu tempel token yang tercetak ke Kunci API. Model: haiku, sonnet, atau opus. Hanya untuk dipakai sendiri di komputer ini.',
-              }}
-            />
-          )}
-          {settings.ai.provider === 'opencode-zen' && zenMayTrainOn(settings.ai.model) && (
-            <Alert
-              notice={{
-                kind: 'warn',
-                text: 'Model ini boleh dipakai OpenCode Zen untuk melatih model selama masa gratis. Untuk data pribadi, pilih space-bunny-free, longcat-2.5-preview-free, atau step-5-preview-free.',
-              }}
-            />
-          )}
-          <div role="note" className="rounded-lg bg-accent-wash px-3 py-2.5 text-[13px] text-text-primary">
-            <p>
-              <b>Yang dikirim ke penyedia AI:</b> role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe
-              kerja. Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim.
-            </p>
-            <p className="mt-1.5">
-              <b>Untuk CV:</b> skill, butir deskripsi tiap pengalaman, judul jabatan, jenjang dan jurusan, serta teks lowongan. Nama perusahaan dan kampus
-              diganti kode lalu dipulihkan di browser ini; nama, kontak, tautan, dan IPK tidak dikirim.
-            </p>
-          </div>
-        </div>
-      </SectionCard>
+        </SectionCard>
+      ) : (
+        <SectionCard>
+          <h2 className="mb-3 text-[12px] font-bold uppercase tracking-[0.06em] text-text-secondary">Penilaian AI</h2>
+          <p className="text-[13px] text-text-secondary">Belum tersedia di versi ini. Lowongan dinilai dengan aturan (skor kasar), dan CV serta surat lamaran belum bisa dibuat.</p>
+        </SectionCard>
+      )}
     </div>
   )
 }

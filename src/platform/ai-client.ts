@@ -128,7 +128,7 @@ export const createAiClient = (provider: AiProvider): AiClient =>
     ? createZenClient()
     : provider === 'gemini'
       ? createGeminiClient()
-      : provider === 'claude-code'
+      : provider === 'claude-code' && import.meta.env.WXT_SHARE_BUILD !== 'true' // the shared build carries no local bridge
         ? createBridgeClient()
         : createAnthropicClient()
 

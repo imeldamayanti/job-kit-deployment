@@ -6,6 +6,7 @@ import { leverSource } from '../core/feed/sources/lever'
 import { createLinkedInSource } from '../core/feed/sources/linkedin'
 import { remotiveSource } from '../core/feed/sources/remotive'
 import { loadFeed, loadAiKey, loadRuns, loadSettings, loadState, saveFeed, saveRuns, saveState } from './feed-storage'
+import { AI_ENABLED } from '../core/build'
 import { clientWithPermission } from './ai-client'
 import { offscreenParsers } from './linkedin-parser'
 import { loadProfile } from './storage'
@@ -19,7 +20,7 @@ export type RunHandle = { status: RunStart; finished: Promise<void> }
 export async function executeRun({ auto }: { auto: boolean }): Promise<RunHandle> {
   const now = new Date()
   const [profile, settings, key, feed, runs, state] = await Promise.all([
-    loadProfile(), loadSettings(), loadAiKey(), loadFeed(), loadRuns(), loadState(),
+    loadProfile(), loadSettings(), AI_ENABLED ? loadAiKey() : Promise.resolve(''), loadFeed(), loadRuns(), loadState(),
   ])
   const none = { finished: Promise.resolve() }
   if (profile.jobPrefs.roles.length === 0) return { status: 'no-prefs', ...none }
@@ -43,7 +44,7 @@ export async function executeRun({ auto }: { auto: boolean }): Promise<RunHandle
         ...(await loadState()),
         running: false, stage: 'idle', lastRunAt: done,
         lastAutoRunAt: auto ? done : state.lastAutoRunAt,
-        aiProblem: result.aiProblem, paused: result.paused, newJobs: result.newJobs, usage: result.usage,
+        aiProblem: AI_ENABLED ? result.aiProblem : null, paused: result.paused, newJobs: result.newJobs, usage: result.usage,
       })
     } catch (error) {
       await saveState({ ...(await loadState()), running: false, stage: 'idle' })

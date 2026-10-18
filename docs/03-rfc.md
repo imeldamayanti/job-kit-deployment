@@ -388,7 +388,7 @@ Ditest: semua di `core/` (matching, rencana isi, normalisasi profil), `platform/
 
 ### Env vars
 
-Tidak ada. Tidak ada backend, kunci, atau rahasia.
+Tidak ada rahasia. Satu bendera build, `WXT_SHARE_BUILD=true`, dipakai oleh `npm run build:share` dan `npm run zip:share` (D16).
 
 ### Deploy
 

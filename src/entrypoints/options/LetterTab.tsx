@@ -26,7 +26,7 @@ export type LetterTabState = LetterView & {
   onTone: (tone: Tone) => void
 }
 
-const LINK_LABEL: Record<CvLink, string> = { settings: 'Buka Atur Lowongan', profile: 'Ke Profile', description: 'Tempel teks lowongan' }
+const LINK_LABEL: Record<CvLink, string> = { settings: 'Buka Atur Lowongan', profile: 'Ke Profile', description: 'Tempel teks lowongan', none: '' }
 const LANGS: Lang[] = ['id', 'en']
 
 function Choices({ state, hint }: { state: Pick<LetterTabState, 'lang' | 'tone' | 'langAuto' | 'onLang' | 'onTone'>; hint: string | null }) {
@@ -106,7 +106,7 @@ export function LetterTab(tab: LetterTabState) {
       {busy ? (letter ? 'Membuat…' : 'Sedang membuat…') : label}
     </Button>
   )
-  const linkButton = blocked && <Button variant="secondary" onClick={() => onLink(blocked.link)}>{LINK_LABEL[blocked.link]}</Button>
+  const linkButton = blocked && blocked.link !== 'none' && <Button variant="secondary" onClick={() => onLink(blocked.link)}>{LINK_LABEL[blocked.link]}</Button>
   const pending = letter !== null && (lang !== letter.lang || tone !== letter.tone)
   const hint = pending ? 'Dipakai saat Buat ulang.' : letter === null && langAuto ? 'Bahasa dipilih dari teks lowongan.' : null
 

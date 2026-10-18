@@ -8,6 +8,8 @@
     "dev": "wxt",
     "build": "wxt build",
     "zip": "wxt zip",
+    "build:share": "WXT_SHARE_BUILD=true wxt build",
+    "zip:share": "WXT_SHARE_BUILD=true wxt zip",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "postinstall": "wxt prepare"

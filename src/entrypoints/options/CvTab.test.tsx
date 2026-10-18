@@ -64,6 +64,15 @@ describe('CvTab: before there is a CV', () => {
     expect(tab.onLink).toHaveBeenCalledWith('settings')
   })
 
+  it('says AI is not in this version and offers no settings button (shared build)', async () => {
+    const tab = state('off', { availability: { ok: false, reason: 'ai-unavailable', message: 'Fitur AI belum tersedia di versi ini.', link: 'none' } })
+    const text = await render(tab)
+    expect(text).toContain('Fitur AI belum tersedia di versi ini.')
+    expect(text).toContain('Tracker tetap bisa dipakai penuh')
+    expect(button('Buat CV')?.hasAttribute('disabled')).toBe(true)
+    expect(button('Buka Atur Lowongan')).toBeUndefined()
+  })
+
   it('says the daily limit is reached', async () => {
     const text = await render(state('limit'))
     expect(text).toContain('Batas 20 panggilan AI hari ini tercapai.')

@@ -19,7 +19,7 @@ const newId = () => crypto.randomUUID()
 export type BuildLetterResult =
   | { ok: true; letter: CoverLetter; usage: AiUsage }
   | { ok: false; reason: 'missing' | 'storage-full'; message: string }
-  | { ok: false; reason: 'blocked'; block: CvBlockReason; message: string; link: 'profile' | 'description' | 'settings' }
+  | { ok: false; reason: 'blocked'; block: CvBlockReason; message: string; link: 'profile' | 'description' | 'settings' | 'none' }
   | { ok: false; reason: 'notice'; message: string }
   | LetterFailure
 

@@ -8,6 +8,7 @@ import type { TailoredCv } from '../core/applications/types'
 import { acknowledgeNotice, needsNotice, trainingNotice } from '../core/tailor/privacy'
 import { countDocument, cvAvailability, type CvAvailability, type CvBlockReason } from '../core/tailor/limits'
 import { tailorCv, type TailorFailure } from '../core/tailor/pipeline'
+import { AI_ENABLED } from '../core/build'
 import { documentModel } from '../core/feed/settings'
 import { clientWithPermission } from './ai-client'
 import { loadApplicationData, loadDocumentUsage, saveApplicationData, saveApplications, saveCvs, saveDocumentUsage } from './application-storage'
@@ -22,7 +23,7 @@ export const LASTING: AiFailure[] = ['invalid-key', 'quota', 'no-permission']
 export type BuildCvResult =
   | { ok: true; cv: TailoredCv; fallback: boolean; usage: AiUsage }
   | { ok: false; reason: 'missing' | 'storage-full'; message: string }
-  | { ok: false; reason: 'blocked'; block: CvBlockReason; message: string; link: 'profile' | 'description' | 'settings' }
+  | { ok: false; reason: 'blocked'; block: CvBlockReason; message: string; link: 'profile' | 'description' | 'settings' | 'none' }
   | { ok: false; reason: 'notice'; message: string }
   | TailorFailure
 
@@ -32,7 +33,7 @@ export async function availabilityOf(applicationId: string, now: Date): Promise<
   ])
   const app = data.applications.find((item) => item.id === applicationId)
   if (!app) return { ok: true }
-  return cvAvailability({ key, aiProblem: state.aiProblem, usage, now, limit: settings.documentLimit, jobText: app.job.description, profile })
+  return cvAvailability({ key, aiProblem: state.aiProblem, usage, now, limit: settings.documentLimit, jobText: app.job.description, profile, aiEnabled: AI_ENABLED })
 }
 
 // Whether "Buat CV" is on for this application, and if not why (FR-46). The screen calls this to draw the button.

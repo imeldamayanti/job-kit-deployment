@@ -34,6 +34,18 @@ describe('daily usage (FR-46)', () => {
 })
 
 describe('cvAvailability (FR-46, PRD §8)', () => {
+  it('is off with its own reason when the build has no AI (shared build)', () => {
+    expect(cvAvailability({ ...base(), aiEnabled: false })).toEqual({ ok: false, reason: 'ai-unavailable', message: 'Fitur AI belum tersedia di versi ini.', link: 'none' })
+  })
+
+  it('stays off in a build without AI even with a key and nothing else wrong', () => {
+    expect(cvAvailability({ ...base(), key: 'k-ok', aiEnabled: false }).ok).toBe(false)
+  })
+
+  it('is on by default when aiEnabled is not given', () => {
+    expect(cvAvailability(base())).toEqual({ ok: true })
+  })
+
   it('is available with a key, text, experience and room left', () => {
     expect(cvAvailability(base())).toEqual({ ok: true })
   })

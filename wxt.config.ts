@@ -3,6 +3,8 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   srcDir: 'src',
+  // The shared build (no AI) goes to its own folder so it never overwrites the local one.
+  outDir: process.env.WXT_SHARE_BUILD === 'true' ? '.output-share' : '.output',
   imports: false,
   modules: ['@wxt-dev/module-react'],
   vite: () => ({ plugins: [tailwindcss()] }),

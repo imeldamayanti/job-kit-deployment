@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kirim masukan untuk job-kit</title>
+<meta name="description" content="Laporkan masalah atau beri saran untuk job-kit.">
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><img src="/assets/icon-128.png" alt="" width="32" height="32">job-kit</a>
+<nav aria-label="Utama">
+<a href="/pasang">Cara pasang</a>
+<a href="/privasi">Privasi</a>
+<a href="/masukan" aria-current="page">Masukan</a>
+</nav></div></header>
+<main class="wrap">
+<h1>Kirim masukan</h1>
+<p class="lead">Laporkan masalah, form yang tidak terisi, atau saran. Sebutkan situs lamarannya bila ada.</p>
+<form id="fb" novalidate>
+<label for="kind">Jenis</label>
+<select id="kind" name="kind"><option>Masalah</option><option>Saran</option><option>Lainnya</option></select>
+<label for="msg">Pesan</label>
+<textarea id="msg" name="message" rows="6" required maxlength="2000"></textarea>
+<label for="email">Email (opsional, bila mau dibalas)</label>
+<input id="email" name="email" type="email" autocomplete="email">
+<input class="honeypot" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<p class="small">Jangan menempelkan isi CV atau data pribadi lain. Lihat <a href="/privasi">kebijakan privasi</a>.</p>
+<button class="btn" type="submit">Kirim</button>
+<p id="status" role="status" aria-live="polite"></p>
+</form>
+<script type="module" src="/feedback.js"></script>
+</main>
+<footer><div class="wrap">job-kit &middot; ekstensi Chrome untuk mengisi form lamaran kerja. <a href="/privasi">Kebijakan privasi</a> &middot; <a href="/masukan">Kirim masukan</a></div></footer>
+</body>
+</html>

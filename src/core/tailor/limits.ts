@@ -15,8 +15,8 @@ export const documentsToday = (usage: DocumentUsage, now: Date): number => (usag
 export const countDocument = (usage: DocumentUsage, now: Date): DocumentUsage => ({ date: localDay(now), documents: documentsToday(usage, now) + 1 })
 
 // Why Buat CV is off, and where the person can fix it (FR-46, PRD §8). Everything else in Lamaran keeps working.
-export type CvBlockReason = 'no-experience' | 'no-text' | 'no-key' | 'invalid-key' | 'quota' | 'no-permission' | 'daily-limit'
-export type CvAvailability = { ok: true } | { ok: false; reason: CvBlockReason; message: string; link: 'profile' | 'description' | 'settings' }
+export type CvBlockReason = 'no-experience' | 'no-text' | 'no-key' | 'invalid-key' | 'quota' | 'no-permission' | 'daily-limit' | 'ai-unavailable'
+export type CvAvailability = { ok: true } | { ok: false; reason: CvBlockReason; message: string; link: 'profile' | 'description' | 'settings' | 'none' }
 
 export type CvAvailabilityInput = {
   key: string
@@ -27,11 +27,14 @@ export type CvAvailabilityInput = {
   limit: number
   jobText: string
   profile: Profile
+  // False in the shared build, which has no AI at all. Missing means on.
+  aiEnabled?: boolean
 }
 
-const off = (reason: CvBlockReason, message: string, link: 'profile' | 'description' | 'settings'): CvAvailability => ({ ok: false, reason, message, link })
+const off = (reason: CvBlockReason, message: string, link: 'profile' | 'description' | 'settings' | 'none'): CvAvailability => ({ ok: false, reason, message, link })
 
-export function cvAvailability({ key, aiProblem, usage, now, limit, jobText, profile }: CvAvailabilityInput): CvAvailability {
+export function cvAvailability({ key, aiProblem, usage, now, limit, jobText, profile, aiEnabled = true }: CvAvailabilityInput): CvAvailability {
+  if (!aiEnabled) return off('ai-unavailable', 'Fitur AI belum tersedia di versi ini.', 'none')
   if (profile.experience.length === 0) return off('no-experience', 'Isi Work Experience dulu.', 'profile')
   if (jobText.trim() === '') return off('no-text', 'Tempel teks lowongan dulu.', 'description')
   if (key.trim() === '') return off('no-key', 'Kunci API belum diisi. Isi di Atur Lowongan.', 'settings')

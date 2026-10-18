@@ -54,6 +54,15 @@ npm run zip
 
 Hasilnya `.output/job-kit-0.1.0-chrome.zip`.
 
+### Build untuk dibagikan (tanpa AI)
+
+```bash
+npm run build:share   # .output-share/chrome-mv3/
+npm run zip:share     # .output-share/job-kit-0.1.0-chrome.zip
+```
+
+Build ini tidak memuat fitur AI: skor lowongan memakai aturan (skor kasar), dan Buat CV serta Buat surat menampilkan "belum tersedia di versi ini". Penyedia Claude Code dan `scripts/bridge.mjs` tidak ikut. Website statis ada di [site/](site/README.md); panduan distribusi di [docs/06-distribution.md](docs/06-distribution.md).
+
 ## Cara pakai
 
 1. **Isi profil.** Klik ikon job-kit untuk membuka side panel, buka tab **Profile**, lalu **Edit Profile**. Perubahan tersimpan otomatis.
@@ -69,7 +78,7 @@ Hasilnya `.output/job-kit-0.1.0-chrome.zip`.
 - **Mati secara bawaan, izin per sumber.** Izin host untuk Greenhouse, Lever, Ashby, Remotive, LinkedIn, dan penyedia AI diminta saat kamu menyalakannya, bukan saat instal.
 - **Yang dikirim ke penyedia AI** hanya ringkasan untuk pencocokan: role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe kerja, ditambah teks lowongan. Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim.
 - **Yang dikirim untuk CV dan surat yang disesuaikan** lebih sempit dari itu: skill, jabatan dan lamanya, butir deskripsi pengalaman, jenjang pendidikan, ditambah teks lowongan (untuk surat juga nama perusahaan di lowongan itu). Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim, dan nama perusahaan serta kampusmu diganti kode (`{C1}`, `{S1}`) sebelum dikirim lalu dipulihkan di browser ini. Ada batas harian panggilan AI untuk dokumen (bawaan 20, bisa diubah di Atur Lowongan). Bila model yang kamu pilih diketahui memakai data untuk melatih (misalnya tier gratis), job-kit memberi peringatan sekali per lamaran sebelum mengirim. Tanpa kunci AI, Lamaran tetap berfungsi penuh kecuali tombol Buat CV dan Buat surat. CV dan surat berbagi batas harian yang sama.
-- **Kunci API milikmu.** Tidak ada server job-kit. Kunci disimpan di `storage.local` browser ini, tidak ikut Export, dan terhapus oleh Hapus semua. Request AI langsung dari browsermu ke penyedia.
+- **Kunci API milikmu.** Tidak ada server job-kit. Kunci disimpan di `storage.local` browser ini, tidak ikut Export, dan terhapus oleh Hapus semua. Request AI langsung dari browsermu ke penyedia. (Build yang dibagikan tidak memuat fitur AI.)
 - **Risiko scraping.** LinkedIn dibaca dari halaman pencarian publik tanpa login dan tanpa cookie-mu, dengan jumlah halaman dibatasi dan jeda acak. Tetap ada risiko: syarat layanan situs, blokir IP sementara, atau struktur halaman berubah. Sumber yang gagal tiga kali berturut-turut dijeda otomatis.
 - **Sumber:** Greenhouse, Lever, dan Ashby (untuk perusahaan yang kamu pilih), Remotive, dan halaman pencarian publik LinkedIn.
 

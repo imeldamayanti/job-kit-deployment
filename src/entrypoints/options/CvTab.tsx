@@ -11,7 +11,7 @@ import { CvDiff } from './CvDiff'
 import { Alert, Card } from './DocParts'
 import { Empty } from './EmptyState'
 
-export type CvLink = 'profile' | 'description' | 'settings'
+export type CvLink = 'profile' | 'description' | 'settings' | 'none'
 
 // What the tab needs from the page: what to show (CvView) and what the buttons do.
 export type CvTabState = CvView & {
@@ -29,7 +29,7 @@ export type CvTabState = CvView & {
   onCopyText: () => void
 }
 
-const LINK_LABEL: Record<CvLink, string> = { settings: 'Buka Atur Lowongan', profile: 'Ke Profile', description: 'Tempel teks lowongan' }
+const LINK_LABEL: Record<CvLink, string> = { settings: 'Buka Atur Lowongan', profile: 'Ke Profile', description: 'Tempel teks lowongan', none: '' }
 
 function Requirements({ title, items, tone }: { title: string; items: string[]; tone: 'ok' | 'gap' }) {
   if (items.length === 0) return null
@@ -125,7 +125,7 @@ export function CvTab({
       {busy ? (cv ? 'Membuat…' : 'Sedang membuat…') : label}
     </Button>
   )
-  const linkButton = blocked && <Button variant="secondary" onClick={() => onLink(blocked.link)}>{LINK_LABEL[blocked.link]}</Button>
+  const linkButton = blocked && blocked.link !== 'none' && <Button variant="secondary" onClick={() => onLink(blocked.link)}>{LINK_LABEL[blocked.link]}</Button>
 
   const notices = (
     <>
