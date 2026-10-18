@@ -104,9 +104,9 @@ export function App() {
                 {profile && section('contact') && <ContactSection profile={profile} update={update} />}
                 {profile && section('education') && <EducationSection profile={profile} update={update} />}
                 {profile && section('experience') && <ExperienceSection profile={profile} update={update} />}
+                {profile && section('projects') && <ProjectsSection profile={profile} update={update} />}
                 {profile && section('custom') && <CustomSection profile={profile} update={update} />}
                 {profile && section('preferences') && <PreferencesSection profile={profile} update={update} />}
-                {profile && section('projects') && <ProjectsSection profile={profile} update={update} />}
               </>
             )}
             {route.page === 'jobs' && !route.settings && (
