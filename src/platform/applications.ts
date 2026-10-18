@@ -1,3 +1,4 @@
+import { noteEvent } from './telemetry'
 import {
   advanceApplication,
   advanceOnFill,
@@ -47,6 +48,7 @@ export async function prepareApplication(job: Job, now = new Date()): Promise<Pr
     if (!saved.ok) return saved
   }
   await followWithFeed(made.app)
+  if (made.created) await noteEvent('application_added')
   return { ok: true, app: made.app, created: made.created }
 }
 
@@ -56,6 +58,7 @@ export async function addManualApplication(input: ManualInput, now = new Date())
   if (made.created) {
     const saved = await saveApplications(made.apps)
     if (!saved.ok) return saved
+    await noteEvent('application_added')
   }
   return { ok: true, app: made.app, created: made.created }
 }

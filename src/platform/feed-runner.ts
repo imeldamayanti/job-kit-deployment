@@ -10,6 +10,7 @@ import { AI_ENABLED } from '../core/build'
 import { clientWithPermission } from './ai-client'
 import { offscreenParsers } from './linkedin-parser'
 import { loadProfile } from './storage'
+import { noteEvent } from './telemetry'
 
 export type RunStart = 'started' | 'busy' | 'no-prefs'
 
@@ -33,13 +34,14 @@ export async function executeRun({ auto }: { auto: boolean }): Promise<RunHandle
       const result = await runFeed({
         profile, settings, key, feed, runs, now,
         ctx: { fetch: (url, init) => fetch(url, init), now, companies: settings.companies },
-        client: await clientWithPermission(key, settings.ai.provider),
+        client: await clientWithPermission(key, settings.ai.provider), // no key (shared build): the pipeline scores by rules and never calls the client
         sources: [greenhouseSource, leverSource, ashbySource, remotiveSource, createLinkedInSource(offscreenParsers)],
         onStage: stage,
       })
       await saveFeed(result.feed)
       await saveRuns(result.runs)
       const done = new Date().toISOString()
+      await noteEvent('feed_run')
       await saveState({
         ...(await loadState()),
         running: false, stage: 'idle', lastRunAt: done,
@@ -47,6 +49,7 @@ export async function executeRun({ auto }: { auto: boolean }): Promise<RunHandle
         aiProblem: AI_ENABLED ? result.aiProblem : null, paused: result.paused, newJobs: result.newJobs, usage: result.usage,
       })
     } catch (error) {
+      await noteEvent('error')
       await saveState({ ...(await loadState()), running: false, stage: 'idle' })
       throw error
     }

@@ -12,6 +12,7 @@ import { clientWithPermission } from './ai-client'
 import { loadApplicationData, loadDocumentUsage, saveApplicationData, saveApplications, saveDocumentUsage, saveLetters } from './application-storage'
 import { loadAiKey, loadSettings, loadState, saveState } from './feed-storage'
 import { loadProfile } from './storage'
+import { noteEvent } from './telemetry'
 import { availabilityOf, LASTING } from './tailor'
 
 const newId = () => crypto.randomUUID()
@@ -59,6 +60,7 @@ export async function buildLetter(applicationId: string, { client, now = new Dat
   const saved = await saveApplicationData(attachLetter(await loadApplicationData(), result.letter, now))
   if (!saved.ok) return { ok: false, reason: 'storage-full', message: 'Penyimpanan penuh. Surat belum tersimpan; hapus data lama atau ekspor dulu.' }
   if (state.aiProblem !== null) await saveState({ ...state, aiProblem: null })
+  await noteEvent('letter_built')
   return result
 }
 

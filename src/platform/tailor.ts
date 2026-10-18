@@ -14,6 +14,7 @@ import { clientWithPermission } from './ai-client'
 import { loadApplicationData, loadDocumentUsage, saveApplicationData, saveApplications, saveCvs, saveDocumentUsage } from './application-storage'
 import { loadAiKey, loadSettings, loadState, saveState } from './feed-storage'
 import { loadProfile } from './storage'
+import { noteEvent } from './telemetry'
 
 const newId = () => crypto.randomUUID()
 
@@ -72,6 +73,7 @@ export async function buildCv(applicationId: string, { client, now = new Date(),
   const saved = await saveApplicationData(attachCv(await loadApplicationData(), result.cv, now))
   if (!saved.ok) return { ok: false, reason: 'storage-full', message: 'Penyimpanan penuh. CV belum tersimpan; hapus data lama atau ekspor dulu.' }
   if (state.aiProblem !== null) await saveState({ ...state, aiProblem: null })
+  await noteEvent('cv_built')
   return result
 }
 

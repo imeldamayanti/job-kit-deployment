@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react'
 import type { PlanItem } from '../../core/matching/plan'
 import { requestFill, requestUndo } from '../../platform/messaging'
 import { shouldMarkApplied } from '../../core/feed/opened'
+import { noteEvent } from '../../platform/telemetry'
 import { recordOpenedFill, type FillRecord } from '../../platform/applications'
 import { loadOpened } from '../../platform/opened-jobs'
 import type { ActiveTab } from '../../platform/tabs'
@@ -25,6 +26,7 @@ export function useFill({ tab, canUndo, items, total, rescan }: Args) {
   const fill = useCallback(async () => {
     if (!tab) return
     const outcome = await requestFill(tab, items.map(({ fieldId, value, choice }) => ({ fieldId, value, choice })))
+    if (outcome.filled > 0) void noteEvent('fill')
     // A tab that came from the Lowongan page counts as applied once Fill worked (FR-31): its application
     // moves from Draft to Dilamar, and is made first when the job has none (FR-36). The panel says which one it was.
     const opened = await loadOpened(tab.id)

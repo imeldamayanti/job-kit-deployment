@@ -17,10 +17,10 @@ async function render(props: Partial<Parameters<typeof Sidebar>[0]> = {}) {
 afterEach(() => container?.remove())
 
 describe('Sidebar', () => {
-  it('has four places, with Lamaran between Lowongan and Data', async () => {
+  it('has five places: Lamaran between Lowongan and Data, Akun last', async () => {
     const nav = await render()
 
-    expect([...nav.querySelectorAll('nav button')].map((b) => b.textContent)).toEqual(['Profile', 'Lowongan', 'Lamaran', 'Data'])
+    expect([...nav.querySelectorAll('nav button')].map((b) => b.textContent)).toEqual(['Profile', 'Lowongan', 'Lamaran', 'Data', 'Akun'])
   })
 
   it('marks the current place and reports a press', async () => {

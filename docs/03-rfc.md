@@ -10,7 +10,7 @@
 
 ## 1. Summary
 
-job-kit adalah ekstensi Chrome (Manifest V3) tanpa backend. Profil pelamar disimpan di `storage.local` lewat halaman Options. Saat pengguna membuka side panel di halaman lamaran, content script membaca field form, `core/matching` memetakan label (Indonesia dan Inggris) ke data profil, dan panel menampilkan pratinjau. Fill menulis nilai ke halaman sambil menyimpan nilai awal di memori untuk Undo. Tidak ada jaringan, akun, atau telemetri.
+job-kit adalah ekstensi Chrome (Manifest V3) tanpa backend. Profil pelamar disimpan di `storage.local` lewat halaman Options. Saat pengguna membuka side panel di halaman lamaran, content script membaca field form, `core/matching` memetakan label (Indonesia dan Inggris) ke data profil, dan panel menampilkan pratinjau. Fill menulis nilai ke halaman sambil menyimpan nilai awal di memori untuk Undo. Tidak ada telemetri kecuali yang dinyalakan pengguna (D18). Jaringan dan akun hanya bila pengguna menyalakan Lowongan atau sinkron (D17).
 
 **Data flow:** Options → `storage.local` (profil) → panel minta scan → content script baca field → `core/matching` → rencana isi (pratinjau, toggle) → Fill → content script tulis nilai + simpan nilai awal → Undo
 
@@ -21,7 +21,7 @@ job-kit adalah ekstensi Chrome (Manifest V3) tanpa backend. Profil pelamar disim
 | **Time** | 20 jam build, Day 10 tetap, walking skeleton Day 5. Portfolio solo: panduan, bukan batas keras (PRD §11). |
 | **Cost** | Rp0. Tanpa server, tanpa hosting, tanpa API berbayar. |
 | **People** | 1 orang (imelda: PIC dan Builder). |
-| **Privacy** | Data profil hanya di `storage.local`. Nol request jaringan, nol telemetri (PRD §4). |
+| **Privacy** | Data profil hanya di `storage.local`. Nol request jaringan; telemetri hanya opt-in anonim (PRD §4.4, D18). |
 | **Device** | Chromium desktop, MV3. Tanpa Safari dan Firefox (PRD §4). |
 | **Complexity ban** | Tanpa library state global; tanpa router; tanpa backend; tanpa panggilan LLM; tanpa pemetaan manual per situs; tanpa elemen baru di halaman lamaran; satu-satunya perubahan visual adalah outline pada field yang sudah ada (D15). Semua UI di side panel dan options. |
 
@@ -336,6 +336,26 @@ Tidak ada yang memblokir approval.
 **D15 — Field wajib yang belum terisi diberi outline di halaman (keputusan PIC 2026-10-09, PRD FR-20).**
 *Why:* JobFill lama menandai field yang harus diisi sendiri; daftar di panel saja memaksa pengguna mencocokkan nama field dengan form. Outline dipasang hanya setelah Fill (FR-09), pada field wajib yang kosong dan terlihat; wajib dikenali dari atribut `required`, `aria-required`, atau tanda di label karena Greenhouse, Lever, dan Intikom hanya menandainya di label. `core/fill/mark.ts` memasang empat properti `outline-*` inline dengan `!important` (amber-600 `#DC6803`, 2px, jarak 2px), mencatat nilai inline milik situs, dan mengembalikannya saat satu field dijawab pengguna (listener `input` dan `change`), saat Undo, dan saat Fill diulang. Grup radio diberi outline pada fieldset atau radiogroup-nya, bukan tiap tombol. Tidak ada elemen yang ditambahkan.
 *Cost:* mengubah tampilan halaman milik situs lain; `!important` inline mengalahkan outline dari stylesheet situs, dan outline inline milik situs pada field itu ditimpa lalu dikembalikan saat tanda dilepas (outline dari stylesheet kembali sendiri begitu properti inline dihapus); field yang disembunyikan lewat posisi di luar layar dianggap terlihat karena tata letak tidak diukur; selama tanda ada, listener `input` dan `change` terpasang pada field situs itu.
+*Verdict:* ya.
+
+**D16 — Build dibagikan tanpa AI, lewat satu bendera build (keputusan PIC 2026-10-18).**
+*Why:* AI dijadwalkan sebagai API publik berbayar di fase terakhir (`docs/05-cloud-plan.md`), jadi teman yang memakai build dibagikan tidak boleh memakai AI, termasuk dengan kunci sendiri. `WXT_SHARE_BUILD=true` (`npm run build:share`, keluaran `.output-share/`) membaca `core/build.ts`: `cvAvailability` memberi alasan `ai-unavailable` (tanpa tombol ke Atur Lowongan), `feed-runner` tidak membaca kunci sehingga skor memakai aturan dan `aiProblem` tidak diisi, Atur Lowongan menyembunyikan bagian AI, dan klien jembatan lokal tidak masuk bundel (dicek: `127.0.0.1:8787` tidak ada di `background.js`).
+*Cost:* dua keluaran build harus diuji; kode penyedia AI lain tetap ada di bundel (hanya tidak terjangkau dari UI); data lama dengan `provider: claude-code` tetap dibaca tanpa efek. Tampilan visual tiap layar AI di Chrome sungguhan belum dicek, hanya lewat tes unit.
+*Verdict:* ya. Janji produk di PRD §4 tidak berubah di Fase 1; website memakai analitik kunjungan sendiri dan itu tidak menyentuh ekstensi.
+
+**D17 — Akun dan sinkron terenkripsi di sisi klien lewat Supabase (keputusan PIC 2026-10-18; PRD §4.3).**
+*Why:* teman ingin datanya tersimpan dan tersinkron. Ekstensi bicara langsung ke Supabase (Auth lewat kode sekali pakai email, tabel `user_data` dengan RLS), tanpa API sendiri. Enkripsi AES-256-GCM dengan kunci dari kata sandi sinkron (PBKDF2-SHA256, 600.000 iterasi, salt acak per akun disimpan bersama ciphertext), sehingga server hanya memegang ciphertext. `core/sync/crypto.ts` (WebCrypto), `core/sync/merge.ts` (murni: `updated_at` terbaru menang per jenis data), `platform/sync.ts` (fetch ke Supabase), SQL di `supabase/` (RLS, `delete_account()`).
+*Cost:* lupa kata sandi sinkron berarti data online hilang (diterima PIC); Supabase gratis dijeda setelah 1 minggu tanpa aktivitas; token sesi disimpan di `storage.local` (dapat dibaca kode lain di profil browser yang sama; kata sandi sinkron TIDAK disimpan, jadi sinkron otomatis meminta kata sandi sekali per sesi browser); login Google tidak ada (butuh `chrome.identity` dan klien OAuth, ditunda); tanggal sistem yang salah bisa memenangkan `updated_at` yang keliru; satu baris per jenis data, bukan per entri, jadi dua perangkat yang mengedit bersamaan kehilangan salah satunya.
+*Verdict:* ya, dengan kode dan SQL siap tetapi **proyek Supabase belum dibuat** dan belum diuji ke server sungguhan.
+
+**D18 — Telemetri opt-in anonim, hanya hitungan kejadian (keputusan PIC 2026-10-18; PRD §4.4).**
+*Why:* PIC perlu tahu fitur mana yang dipakai. `core/telemetry/events.ts` (murni): daftar nama tetap, hitungan per hari per nama di `local:telemetry`, `buildBatch` menyusun baris `{name, day, version, count}` tanpa pengenal. `platform/telemetry.ts` mencatat kejadian hanya bila opt-in menyala, dan mengirim sebatch sehari sekali ke tabel `event_counts` (Supabase, hanya insert untuk `anon`, RLS). Izin host Supabase diminta saat pengguna menyalakannya. Halaman Akun menampilkan antrean persis seperti yang akan dikirim.
+*Cost:* tanpa ID tidak ada pengguna aktif atau retensi dari telemetri; hitungan bisa dipalsukan siapa pun yang punya kunci publik (tabel insert-only terbuka, dibatasi panjang dan daftar nama saja); IP terlihat oleh infrastruktur; hitungan yang belum terkirim hilang bila pengguna mematikannya.
+*Verdict:* ya. **Belum diuji ke server sungguhan.**
+
+**D19 — Halaman admin pribadi memakai fungsi SQL yang membatasi pemanggil (Fase 3).**
+*Why:* PIC melihat jumlah akun, akun baru per hari, akun yang menulis dalam 7 hari, dan hitungan kejadian per versi dari satu halaman (`site/admin.html`). Data dibaca lewat fungsi `admin_stats()` (security definer) yang hanya menjawab bila email pemanggil ada di tabel `admin_users`; fungsi itu tidak pernah menyentuh kolom `ciphertext`. Login admin memakai kode email yang sama dengan aplikasi.
+*Cost:* email admin diisi lewat SQL oleh PIC (tidak ada di repo); halaman admin ikut terdeploy ke website publik (tetapi tanpa login tidak menampilkan angka, dan diberi `noindex`); proyek Supabase gratis yang dijeda membuat halaman ini kosong.
 *Verdict:* ya.
 
 ## 9. Stack conventions

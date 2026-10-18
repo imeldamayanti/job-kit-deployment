@@ -276,6 +276,15 @@ describe('CvTab: Unduh PDF (FR-42)', () => {
     expect(tab.onDownload).toHaveBeenCalledTimes(1)
   })
 
+  it('offers Unduh Word next to it, and asks for the Word download when clicked', async () => {
+    const tab = state('result')
+    await render(tab)
+    expect(button('Unduh Word')?.hasAttribute('disabled')).toBe(false)
+    await click(button('Unduh Word'))
+    expect(tab.onDownloadWord).toHaveBeenCalledTimes(1)
+    expect(tab.onDownload).not.toHaveBeenCalled()
+  })
+
   it('says the PDF is made in this browser and goes nowhere', async () => {
     expect(await render(state('result'))).toContain('PDF dibuat di browser ini dan tidak diunggah ke mana pun')
   })

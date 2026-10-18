@@ -4,7 +4,7 @@
 
 job-kit adalah ekstensi Chrome yang mengisi form lamaran kerja dari profil yang kamu ketik sekali. Kamu melihat apa yang akan diisi sebelum menekan Fill, dan bisa membatalkannya dengan Undo.
 
-Tanpa akun, tanpa server, tanpa telemetri. Datamu ada di browser. Autofill, profil, dan Import CV tidak melakukan permintaan jaringan; fitur **Lowongan** dan **Lamaran** (opsional, mati secara bawaan) memakai jaringan dan AI, lihat [Privasi](#privasi).
+Telemetri hanya bila kamu menyalakannya (opt-in, anonim, hanya hitungan kejadian). Datamu ada di browser. **Akun dan sinkron antar perangkat bersifat opsional dan mati secara bawaan**: tanpa akun, tidak ada server yang terlibat. Autofill, profil, dan Import CV tidak melakukan permintaan jaringan; fitur **Lowongan** dan **Lamaran** (opsional, mati secara bawaan) memakai jaringan dan AI, lihat [Privasi](#privasi).
 
 ## Yang bisa dilakukan
 
@@ -29,7 +29,7 @@ Tanpa akun, tanpa server, tanpa telemetri. Datamu ada di browser. Autofill, prof
 - Tidak melamar otomatis, dan tidak membuat latihan interview. AI dipakai untuk menormalkan dan menilai lowongan, untuk menyusun ulang CV dari isi profilmu, dan untuk menulis draf surat lamaran; AI tidak menulis fakta baru tentang dirimu.
 - Tidak mengisi essay atau pertanyaan bebas lain di form lamaran. Hanya textarea yang berlabel **Cover letter**, **Surat lamaran**, atau **Letter of motivation** yang diisi dari surat lamaranmu; yang lain dilewati.
 - Tidak membaca halaman yang butuh login. LinkedIn hanya halaman pencarian publik, tanpa cookie-mu.
-- Tidak ada banyak profil atau sinkron antar perangkat.
+- Tidak ada banyak profil. Sinkron antar perangkat hanya lewat akun opsional (lihat [Privasi](#privasi)).
 - Hanya browser Chromium, dan baru diuji di Chrome. Tidak ada Safari atau Firefox.
 
 ## Pasang
@@ -71,7 +71,11 @@ Build ini tidak memuat fitur AI: skor lowongan memakai aturan (skor kasar), dan 
 
 ## Privasi
 
-**Yang tetap lokal.** Profil, Autofill, dan Import CV bekerja di browser ini tanpa permintaan jaringan. Profil disimpan di `storage.local`. job-kit hanya membaca halaman yang kamu izinkan, dan hanya saat kamu membuka panelnya. Tidak ada analytics.
+**Yang tetap lokal.** Profil, Autofill, dan Import CV bekerja di browser ini tanpa permintaan jaringan. Profil disimpan di `storage.local`. job-kit hanya membaca halaman yang kamu izinkan, dan hanya saat kamu membuka panelnya. Telemetri mati secara bawaan (lihat di bawah).
+
+**Akun dan sinkron (opsional, mati secara bawaan).** Bila kamu menyalakannya, profil, lamaran, CV, dan surat dienkripsi di browser ini dengan **kata sandi sinkron** milikmu, lalu disimpan di Supabase sebagai ciphertext. Server tidak bisa membaca isinya; ia hanya tahu emailmu, kapan dan seberapa besar data ditulis. **Lupa kata sandi sinkron berarti data online tidak bisa dipulihkan**; data di browser tetap ada. Kunci API, daftar lowongan, dan pemakaian AI tidak disinkronkan. Dari halaman Akun kamu bisa Export, mematikan sinkron, dan menghapus akun beserta semua datanya di server. Izin host Supabase diminta saat kamu menyalakannya.
+
+**Telemetri (opsional, mati secara bawaan).** Bila kamu menyalakannya di halaman Akun, job-kit mengirim hitungan kejadian anonim: nama kejadian dari daftar tetap (Fill dipakai, lamaran ditambah, CV dibuat, surat dibuat, lowongan diambil, sinkron jalan, ada error), tanggal, versi ekstensi, dan jumlahnya. Tidak ada isi profil, CV, lowongan, URL, email, atau pesan error, dan tidak ada ID pengguna atau perangkat. Halaman Akun menampilkan persis apa yang akan dikirim. Mematikannya menghapus hitungan yang belum terkirim.
 
 **Fitur Lowongan** mengubah itu, hanya bila kamu menyalakannya:
 

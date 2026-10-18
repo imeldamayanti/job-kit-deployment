@@ -15,12 +15,14 @@ import { CustomSection } from './CustomSection'
 import { ApplicationDetailPage } from './ApplicationDetailPage'
 import { ApplicationsPage } from './ApplicationsPage'
 import { Empty } from './EmptyState'
+import { AccountPage } from './AccountPage'
+import { accountApi } from '../../platform/sync-api'
 import { DataPage } from './DataPage'
 import { EducationSection } from './EducationSection'
 import { ExperienceSection } from './ExperienceSection'
 import { JobSettingsPage } from './JobSettingsPage'
 import { JobsPage } from './JobsPage'
-import { applicationRoute, applicationsRoute, dataRoute, jobsRoute, profileRoute, routeFromHash, routeSubtitle, routeTitle, type PageId, type Route } from './pages'
+import { accountRoute, applicationRoute, applicationsRoute, dataRoute, jobsRoute, profileRoute, routeFromHash, routeSubtitle, routeTitle, type PageId, type Route } from './pages'
 import { ProjectsSection } from './ProjectsSection'
 import { PersonalSection } from './PersonalSection'
 import { PreferencesSection } from './PreferencesSection'
@@ -55,7 +57,7 @@ export function App() {
     if (next.page === 'jobs' && !next.settings) live.markSeen()
   }
   const choose = (id: PageId) =>
-    go(id === 'profile' ? profileRoute(route.section) : id === 'jobs' ? jobsRoute() : id === 'applications' ? applicationsRoute() : dataRoute)
+    go(id === 'profile' ? profileRoute(route.section) : id === 'jobs' ? jobsRoute() : id === 'applications' ? applicationsRoute() : id === 'account' ? accountRoute : dataRoute)
   const section = (id: SectionId) => route.section === id
   const preview = import.meta.env.DEV ? previewApplicationsFromHash(location.hash) : undefined
   const today = preview?.now ? todayKey(new Date(preview.now)) : liveToday
@@ -169,6 +171,7 @@ export function App() {
               />
             )}
             {route.page === 'data' && <DataPage profile={profile} commit={commit} />}
+            {route.page === 'account' && <AccountPage api={accountApi} onExport={() => go(dataRoute)} />}
           </div>
         </main>
       </div>

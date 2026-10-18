@@ -50,7 +50,7 @@ export function Sidebar({
         ))}
       </nav>
       <p className="mt-6 hidden rounded-lg bg-surface-sunken p-3 text-[12px] text-text-secondary md:mt-auto md:block">
-        Data disimpan tanpa enkripsi di storage browser ini. Tidak ada server, tidak ada akun.
+        Data disimpan tanpa enkripsi di storage browser ini. Tanpa akun, tidak ada server yang terlibat; sinkron opsional ada di Akun.
       </p>
     </aside>
   )

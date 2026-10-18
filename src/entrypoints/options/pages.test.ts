@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applicationRoute, applicationsRoute, dataRoute, jobsRoute, NAV_ITEMS, profileRoute, routeFromHash, routeSubtitle, routeTitle } from './pages'
+import { accountRoute, applicationRoute, applicationsRoute, dataRoute, jobsRoute, NAV_ITEMS, profileRoute, routeFromHash, routeSubtitle, routeTitle } from './pages'
 
 describe('routeFromHash', () => {
   it('opens Profile on the tab an old link names', () => {
@@ -22,8 +22,8 @@ describe('routeFromHash', () => {
 })
 
 describe('Lamaran routes', () => {
-  it('sits between Lowongan and Data in the sidebar', () => {
-    expect(NAV_ITEMS.map((item) => item.title)).toEqual(['Profile', 'Lowongan', 'Lamaran', 'Data'])
+  it('sits between Lowongan and Data in the sidebar, with Akun last', () => {
+    expect(NAV_ITEMS.map((item) => item.title)).toEqual(['Profile', 'Lowongan', 'Lamaran', 'Data', 'Akun'])
   })
 
   it('opens the board, with or without a preview query', () => {
@@ -53,5 +53,12 @@ describe('titles', () => {
 
   it('says Preferensi kerja is not used by Fill', () => {
     expect(routeSubtitle(profileRoute('preferences'))).toContain('Tidak dipakai saat mengisi form')
+  })
+})
+
+describe('Akun route', () => {
+  it('opens from #account', () => {
+    expect(routeFromHash('#account')).toEqual(accountRoute)
+    expect(routeTitle(accountRoute)).toBe('Akun')
   })
 })

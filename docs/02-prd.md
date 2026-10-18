@@ -42,7 +42,7 @@ UNKNOWN — no real research yet.
 
 | Goals | Non-goals |
 |---|---|
-| Satu klik mengisi form lamaran dari profil. | Tidak ada akun, login, atau sinkron antar perangkat. |
+| Satu klik mengisi form lamaran dari profil. | ~~Tidak ada akun, login, atau sinkron antar perangkat.~~ Diubah 2026-10-18 (§4.3): akun dan sinkron ada, **opsional dan mati secara bawaan**. Tanpa akun, job-kit tetap bekerja penuh dan lokal. |
 | Pengguna melihat apa yang akan diisi sebelum menekan Fill. | Tidak ada latihan interview. ~~Tidak ada cover letter; AI hanya menormalkan dan menilai lowongan (keputusan PIC 2026-10-09).~~ Dicabut 2026-10-15: AI juga menyusun draf CV dan surat lamaran, sebagai draf yang diperiksa dan diedit pengguna (FR-39, FR-43). |
 | Pengguna bisa membatalkan pengisian. | Captured Jobs di v1 hanya UI; lowongan belum tercatat otomatis (keputusan PIC 2026-10-09). |
 | Profil diketik sekali di satu tempat. | Import dan Hapus semua berfungsi (FR-22); sebelumnya hanya UI (keputusan PIC 2026-10-09, direvisi 2026-10-10). |
@@ -52,12 +52,12 @@ UNKNOWN — no real research yet.
 | | Tidak ada banyak profil per pengguna. |
 | | Tidak ada pemetaan manual per situs. |
 | | Tidak ada Safari atau Firefox; hanya browser Chromium. |
-| | Tidak ada telemetri atau analytics. |
+| | ~~Tidak ada telemetri atau analytics.~~ Diubah 2026-10-18 (§4.4): telemetri **opt-in, mati secara bawaan, anonim, hanya hitungan kejadian**. Tanpa persetujuan pengguna tidak ada yang dikirim. |
 | Pengguna mendapat daftar lowongan yang relevan setiap hari tanpa mencari sendiri di banyak situs (FR-27; keputusan PIC 2026-10-09). | Tidak melamar otomatis. Fill tetap ditekan pengguna dan form tetap dikirim pengguna. |
 | Tiap lowongan punya skor kecocokan dan alasannya (FR-29). | Tidak men-scrape halaman yang butuh login. Scraping hanya halaman publik, tanpa cookie pengguna. |
 | Lowongan bisa dipisah Remote, Hybrid, dan On-site (FR-28). | Kirim ke CV Maker belum di fase ini (FR-33, ditunda). |
 | Dari kartu lowongan, pengguna langsung sampai ke form dan panel Autofill (FR-31). | |
-| Satu tempat untuk semua lamaran: draf, CV, surat, dan status sampai Offer atau Ditolak, lengkap dengan papan dan visualisasi alur (FR-34 sampai FR-38, FR-48; revisi 2026-10-15). | Tidak ada sinkron lintas perangkat, akun, atau berbagi lamaran. Tracker tetap lokal. |
+| Satu tempat untuk semua lamaran: draf, CV, surat, dan status sampai Offer atau Ditolak, lengkap dengan papan dan visualisasi alur (FR-34 sampai FR-38, FR-48; revisi 2026-10-15). | Tidak ada berbagi lamaran dengan orang lain. Sinkron antar perangkat milik sendiri bersifat opsional (§4.3); tanpa itu tracker tetap lokal. |
 | CV disesuaikan dengan requirement tiap lowongan, hanya dari isi Profile (FR-39, FR-40, FR-41). | Tidak ada fakta karangan: jabatan, perusahaan, institusi, tanggal, skill, dan angka harus ada di Profile (FR-40). Requirement yang tidak terpenuhi dilaporkan, tidak ditambal. |
 | CV bisa diunduh sebagai PDF dari browser (FR-42). Surat lamaran ditulis dalam bahasa lowongan dan bisa diedit (FR-43). | Tidak ada unggah CV otomatis ke form lamaran; pengguna memilih berkasnya sendiri. Tidak ada banyak template CV, tidak ada editor teks kaya. |
 | Surat lamaran mengisi field cover letter di form lamaran lewat Buka & isi (FR-44). | Tidak ada pengisian essay atau pertanyaan bebas lain; hanya field yang berlabel cover letter atau surat lamaran. |
@@ -72,6 +72,29 @@ Sampai T26, job-kit tidak melakukan request jaringan dan tidak memakai AI. Lowon
 - **Scraping tanpa akun.** Request scraping memakai `credentials: 'omit'`, sehingga tidak membawa sesi login pengguna dan akun pengguna tidak terkait dengan request itu. Risiko yang tersisa (ToS situs, blokir IP sementara, struktur halaman berubah) diterima PIC dan dibatasi di FR-27 dan §8.
 - **Yang lama tetap lokal.** Autofill, profil, dan Import CV tidak berubah perilakunya.
 - README dan bagian Privasi ditulis ulang saat fitur dirilis (T39). Sebelum itu, klaim "tidak melakukan permintaan jaringan" di README masih benar untuk build yang ada.
+
+### 4.3 Akun dan sinkron terenkripsi (keputusan PIC 2026-10-18; Fase 2 di `docs/05-cloud-plan.md`)
+
+Janji lama "tanpa akun, tanpa server" berubah menjadi: **tanpa akun dan tanpa server kecuali kamu menyalakan sinkron.** Aturan yang dijaga:
+
+- **Opsional dan mati secara bawaan.** Pemasangan, Autofill, profil, Import CV, dan Lamaran bekerja persis seperti sebelumnya tanpa akun. Izin host Supabase diminta saat pengguna menyalakan sinkron (`optional_host_permissions`), bukan saat instal.
+- **Enkripsi di sisi klien.** Profil, lamaran, CV, dan surat dienkripsi di browser dengan **kata sandi sinkron** yang dipilih pengguna sebelum dikirim. Server hanya menyimpan ciphertext dan tidak bisa membaca isinya. **Lupa kata sandi sinkron berarti data online tidak bisa dipulihkan** (keputusan PIC: dapat diterima); data lokal di browser tetap ada dan bisa dienkripsi ulang dengan kata sandi baru.
+- **Yang tidak disinkronkan:** kunci API, daftar lowongan hasil ambil, pemakaian AI harian, dan kata sandi sinkron itu sendiri.
+- **Yang diketahui server:** alamat email akun, waktu dan ukuran tiap penulisan, dan jenis data (`profile`, `applications`, `cvs`, `letters`). Isi tidak.
+- **Hak pengguna dari dalam aplikasi:** Export, matikan sinkron, dan **hapus akun beserta semua datanya** di server.
+- **Konflik:** `updated_at` terbaru menang, per jenis data. Sebelum menimpa data lokal yang lebih lama, pengguna diberi tahu.
+- **Sinkron bukan telemetri.** Sinkron tidak mengirim hitungan pemakaian. Telemetri ada terpisah, opt-in, dan diatur di §4.4.
+- Kebijakan privasi di website diperbarui sebelum sinkron dirilis; syarat layanan ditambah. **Bahasa hukum belum ditinjau.**
+
+### 4.4 Telemetri opt-in (keputusan PIC 2026-10-18; Fase 3 di `docs/05-cloud-plan.md`)
+
+Tujuan: PIC tahu fitur mana yang dipakai, tanpa mengenali siapa pun. Aturan:
+
+- **Mati secara bawaan dan perlu persetujuan.** Pengguna menyalakannya sendiri di halaman Akun; tidak ada yang dikirim sebelum itu. Mematikannya menghapus hitungan yang belum terkirim.
+- **Hanya hitungan kejadian.** Yang dikirim: nama kejadian dari daftar tetap (`fill`, `application_added`, `cv_built`, `letter_built`, `feed_run`, `sync_run`, `error`), tanggal (hari), versi ekstensi, dan jumlahnya. **Tidak pernah** isi profil, CV, surat, lowongan, URL, nama perusahaan, email, pesan error, atau identitas apa pun.
+- **Tanpa pengenal.** Tidak ada ID pengguna, ID perangkat, atau ID sesi, sehingga hitungan tidak bisa dikaitkan ke orang atau akun, dan "pengguna aktif" tidak bisa dihitung dari sini (angka itu datang dari dashboard Chrome Web Store dan, untuk akun sinkron, dari waktu tulis terakhir). Server menerima alamat IP seperti permintaan web mana pun; job-kit tidak menyimpannya di tabelnya, tetapi log infrastruktur Supabase mungkin mencatatnya.
+- **Terlihat.** Halaman Akun menampilkan persis apa yang akan dikirim berikutnya.
+- Kebijakan privasi di website, README, dan formulir pengungkapan Chrome Web Store ditulis sesuai ini. **Bahasa hukum belum ditinjau.**
 
 ### 4.2 Privasi untuk CV dan surat (usulan 2026-10-15; PIC memutuskan sebelum T47)
 
