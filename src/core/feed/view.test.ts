@@ -37,8 +37,8 @@ describe('scoreTier', () => {
 
 describe('filterFeed', () => {
   const feed = [
-    job('a', { workplace: 'remote', title: 'Frontend Engineer' }),
-    job('b', { workplace: 'hybrid', company: 'Studio Contoh' }),
+    job('a', { workplace: 'remote', title: 'Frontend Engineer', score: score(80) }),
+    job('b', { workplace: 'hybrid', company: 'Studio Contoh', score: score(50) }),
     job('c', { status: 'saved' }),
     job('d', { status: 'applied' }),
     job('e', { status: 'hidden' }),
@@ -47,6 +47,11 @@ describe('filterFeed', () => {
 
   it('Rekomendasi shows only new jobs', () => {
     expect(ids(filterFeed(feed, { tab: 'recommended', workplace: 'all', query: '', status: 'all' }))).toEqual(['a', 'b'])
+  })
+
+  it('Rekomendasi hides jobs scored below 50 and jobs not scored yet', () => {
+    const mixed = [job('lo', { score: score(49) }), job('none'), job('ok', { score: score(50) })]
+    expect(ids(filterFeed(mixed, { tab: 'recommended', workplace: 'all', query: '', status: 'all' }))).toEqual(['ok'])
   })
 
   it('Rekomendasi filters by work type', () => {

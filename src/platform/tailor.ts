@@ -8,6 +8,7 @@ import type { TailoredCv } from '../core/applications/types'
 import { acknowledgeNotice, needsNotice, trainingNotice } from '../core/tailor/privacy'
 import { countDocument, cvAvailability, type CvAvailability, type CvBlockReason } from '../core/tailor/limits'
 import { tailorCv, type TailorFailure } from '../core/tailor/pipeline'
+import { documentModel } from '../core/feed/settings'
 import { clientWithPermission } from './ai-client'
 import { loadApplicationData, loadDocumentUsage, saveApplicationData, saveApplications, saveCvs, saveDocumentUsage } from './application-storage'
 import { loadAiKey, loadSettings, loadState, saveState } from './feed-storage'
@@ -49,14 +50,15 @@ export async function buildCv(applicationId: string, { client, now = new Date(),
   const status = await availabilityOf(applicationId, now)
   if (!status.ok) return { ok: false, reason: 'blocked', block: status.reason, message: status.message, link: status.link }
 
-  if (needsNotice(app, settings.ai)) {
-    if (!acknowledged) return { ok: false, reason: 'notice', message: trainingNotice(settings.ai)?.message ?? '' }
-    const saved = await saveApplications(data.applications.map((item) => (item.id === app.id ? acknowledgeNotice(item, settings.ai) : item)))
+  const docChoice = { provider: settings.ai.provider, model: documentModel(settings) }
+  if (needsNotice(app, docChoice)) {
+    if (!acknowledged) return { ok: false, reason: 'notice', message: trainingNotice(docChoice)?.message ?? '' }
+    const saved = await saveApplications(data.applications.map((item) => (item.id === app.id ? acknowledgeNotice(item, docChoice) : item)))
     if (!saved.ok) return { ok: false, reason: 'storage-full', message: 'Penyimpanan penuh. Hapus data lama atau ekspor dulu.' }
   }
 
   const result = await tailorCv({
-    profile, application: app, client: client ?? (await clientWithPermission(key, settings.ai.provider)), key, model: settings.ai.model, now, newId,
+    profile, application: app, client: client ?? (await clientWithPermission(key, settings.ai.provider)), key, model: documentModel(settings), now, newId,
   })
 
   if (result.ok || result.reason === 'ungrounded' || result.reason === 'unreadable') await saveDocumentUsage(countDocument(usage, now))

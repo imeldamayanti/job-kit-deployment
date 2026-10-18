@@ -1,5 +1,5 @@
 import { AiError, mapAiFailure } from '../core/ai/errors'
-import { aiOrigins, type AiProvider } from '../core/feed/settings'
+import { aiOrigins, BRIDGE_URL, type AiProvider } from '../core/feed/settings'
 import { hasOrigins } from './permissions'
 
 export type AiRequest = { key: string; model: string; system: string; user: string; maxTokens: number }
@@ -111,8 +111,26 @@ export function createGeminiClient(fetchImpl: FetchLike = (url, init) => fetch(u
   }
 }
 
+// Claude Code on this machine, through scripts/bridge.mjs. The "key" is the bridge's own token, and `claude -p` reports no
+// token counts, so usage stays 0. It is slower than an API call, hence the long timeout.
+export function createBridgeClient(fetchImpl: FetchLike = (url, init) => fetch(url, init), timeoutMs = 120000): AiClient {
+  return {
+    async complete({ key, model, system, user }) {
+      const body = (await post(fetchImpl, timeoutMs, BRIDGE_URL, { authorization: `Bearer ${key}` }, { model, system, user })) as { text?: unknown } | null
+      if (typeof body?.text !== 'string') throw new AiError('server')
+      return { text: body.text, usage: { inputTokens: 0, outputTokens: 0 } }
+    },
+  }
+}
+
 export const createAiClient = (provider: AiProvider): AiClient =>
-  provider === 'opencode-zen' ? createZenClient() : provider === 'gemini' ? createGeminiClient() : createAnthropicClient()
+  provider === 'opencode-zen'
+    ? createZenClient()
+    : provider === 'gemini'
+      ? createGeminiClient()
+      : provider === 'claude-code'
+        ? createBridgeClient()
+        : createAnthropicClient()
 
 // The client for a run, or one that fails with 'no-permission' when the person has not yet allowed the provider.
 export async function clientWithPermission(key: string, provider: AiProvider): Promise<AiClient> {

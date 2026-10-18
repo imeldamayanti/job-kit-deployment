@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AiError } from '../core/ai/errors'
-import { createAnthropicClient, createGeminiClient, createZenClient, zenUsesResponses } from './ai-client'
+import { createAnthropicClient, createBridgeClient, createGeminiClient, createZenClient, zenUsesResponses } from './ai-client'
 
 const ok = (text: string) => new Response(JSON.stringify({ content: [{ type: 'text', text }], usage: { input_tokens: 12, output_tokens: 3 } }), { status: 200 })
 
@@ -123,5 +123,24 @@ describe('createZenClient', () => {
   it('treats a reply without text as a server problem', async () => {
     const client = createZenClient(async () => new Response(JSON.stringify({ choices: [] }), { status: 200 }))
     await expect(client.complete({ key: 'x', model: 'exo-free', system: '', user: 'u', maxTokens: 5 })).rejects.toMatchObject({ reason: 'server' })
+  })
+})
+
+describe('createBridgeClient', () => {
+  it('sends the bridge token and the prompt, and returns the text with no token counts', async () => {
+    let seen: { url: string; init: RequestInit } | undefined
+    const client = createBridgeClient(async (url, init) => ((seen = { url: String(url), init: init as RequestInit }), new Response(JSON.stringify({ text: 'ok' }), { status: 200 })))
+    const reply = await client.complete({ key: 'tok', model: 'haiku', system: 's', user: 'u', maxTokens: 10 })
+    expect(reply).toEqual({ text: 'ok', usage: { inputTokens: 0, outputTokens: 0 } })
+    expect(seen?.url).toBe('http://127.0.0.1:8787/complete')
+    expect((seen?.init.headers as Record<string, string>).authorization).toBe('Bearer tok')
+    expect(JSON.parse(String(seen?.init.body))).toEqual({ model: 'haiku', system: 's', user: 'u' })
+  })
+
+  it('treats a wrong token as an invalid key and a missing bridge as a network error', async () => {
+    const refused = createBridgeClient(async () => new Response('{}', { status: 401 }))
+    await expect(refused.complete({ key: 'x', model: 'haiku', system: '', user: 'u', maxTokens: 5 })).rejects.toMatchObject({ reason: 'invalid-key' })
+    const down = createBridgeClient(async () => { throw new TypeError('Failed to fetch') })
+    await expect(down.complete({ key: 'x', model: 'haiku', system: '', user: 'u', maxTokens: 5 })).rejects.toMatchObject({ reason: 'network' })
   })
 })

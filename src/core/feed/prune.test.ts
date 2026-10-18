@@ -18,6 +18,17 @@ describe('pruneFeed', () => {
     expect(pruneFeed(feed, NOW).map((j) => j.id)).toEqual(['c'])
   })
 
+  it('drops new and hidden jobs posted more than 21 days ago, keeps unknown dates and saved', () => {
+    const seen = '2026-10-30T00:00:00.000Z'
+    const feed = [
+      { ...job('old', 'new', seen), postedAt: '2026-10-05' },
+      { ...job('fresh', 'new', seen), postedAt: '2026-10-15' },
+      { ...job('nodate', 'new', seen), postedAt: '' },
+      { ...job('kept', 'saved', seen), postedAt: '2026-08-01' },
+    ]
+    expect(pruneFeed(feed, NOW).map((j) => j.id)).toEqual(['fresh', 'nodate', 'kept'])
+  })
+
   it('never drops saved or applied jobs automatically', () => {
     const feed = [job('a', 'saved', '2026-01-01T00:00:00.000Z'), job('b', 'applied', '2026-01-01T00:00:00.000Z')]
     expect(pruneFeed(feed, NOW)).toHaveLength(2)

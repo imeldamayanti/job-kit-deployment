@@ -46,6 +46,7 @@ const PROVIDER_TEXT: Record<AiProvider, { name: string; keyHint: string }> = {
   anthropic: { name: 'Anthropic', keyHint: 'sk-ant-…' },
   gemini: { name: 'Google Gemini', keyHint: 'Kunci dari aistudio.google.com' },
   'opencode-zen': { name: 'OpenCode Zen', keyHint: 'Kunci dari opencode.ai/zen' },
+  'claude-code': { name: 'Claude Code (lokal)', keyHint: 'Token yang dicetak node scripts/bridge.mjs' },
 }
 
 function Alert({ notice }: { notice: Notice }) {
@@ -238,7 +239,13 @@ export function JobSettingsPage({
                 </option>
               ))}
             </Select>
-            <TextField label="Model" value={settings.ai.model} onChange={(event) => update({ ...settings, ai: { ...settings.ai, model: event.target.value } })} />
+            <TextField label="Model penilaian lowongan" value={settings.ai.model} onChange={(event) => update({ ...settings, ai: { ...settings.ai, model: event.target.value } })} />
+            <TextField
+              label="Model CV dan surat"
+              placeholder={settings.ai.model}
+              value={settings.ai.documentModel ?? ''}
+              onChange={(event) => update({ ...settings, ai: { ...settings.ai, documentModel: event.target.value } })}
+            />
           </div>
           <div className="max-w-[260px]">
             <DocumentLimitField value={settings.documentLimit} onChange={(documentLimit) => update({ ...settings, documentLimit })} />
@@ -265,6 +272,14 @@ export function JobSettingsPage({
           {test && test !== 'running' && <Alert notice={test} />}
           {settings.ai.provider === 'gemini' && (
             <Alert notice={{ kind: 'warn', text: 'Di paket gratis, Google boleh memakai isi permintaan untuk memperbaiki produknya. Yang dikirim hanya data tanpa identitas, seperti dijelaskan di bawah.' }} />
+          )}
+          {settings.ai.provider === 'claude-code' && (
+            <Alert
+              notice={{
+                kind: 'warn',
+                text: 'Jalankan "node scripts/bridge.mjs" di terminal proyek ini dan biarkan terbuka, lalu tempel token yang tercetak ke Kunci API. Model: haiku, sonnet, atau opus. Hanya untuk dipakai sendiri di komputer ini.',
+              }}
+            />
           )}
           {settings.ai.provider === 'opencode-zen' && zenMayTrainOn(settings.ai.model) && (
             <Alert

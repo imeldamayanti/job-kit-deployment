@@ -7,6 +7,7 @@ import { writeLetter, type LetterFailure } from '../core/letters/pipeline'
 import type { SaveOutcome } from '../core/profile/autosave'
 import { acknowledgeNotice, needsNotice, trainingNotice } from '../core/tailor/privacy'
 import { countDocument, type CvAvailability, type CvBlockReason } from '../core/tailor/limits'
+import { documentModel } from '../core/feed/settings'
 import { clientWithPermission } from './ai-client'
 import { loadApplicationData, loadDocumentUsage, saveApplicationData, saveApplications, saveDocumentUsage, saveLetters } from './application-storage'
 import { loadAiKey, loadSettings, loadState, saveState } from './feed-storage'
@@ -37,14 +38,15 @@ export async function buildLetter(applicationId: string, { client, now = new Dat
   const status = await availabilityOf(applicationId, now)
   if (!status.ok) return { ok: false, reason: 'blocked', block: status.reason, message: status.message, link: status.link }
 
-  if (needsNotice(app, settings.ai)) {
-    if (!acknowledged) return { ok: false, reason: 'notice', message: trainingNotice(settings.ai)?.message ?? '' }
-    const saved = await saveApplications(data.applications.map((item) => (item.id === app.id ? acknowledgeNotice(item, settings.ai) : item)))
+  const docChoice = { provider: settings.ai.provider, model: documentModel(settings) }
+  if (needsNotice(app, docChoice)) {
+    if (!acknowledged) return { ok: false, reason: 'notice', message: trainingNotice(docChoice)?.message ?? '' }
+    const saved = await saveApplications(data.applications.map((item) => (item.id === app.id ? acknowledgeNotice(item, docChoice) : item)))
     if (!saved.ok) return { ok: false, reason: 'storage-full', message: 'Penyimpanan penuh. Hapus data lama atau ekspor dulu.' }
   }
 
   const result = await writeLetter({
-    profile, application: app, lang, tone, client: client ?? (await clientWithPermission(key, settings.ai.provider)), key, model: settings.ai.model, now, newId,
+    profile, application: app, lang, tone, client: client ?? (await clientWithPermission(key, settings.ai.provider)), key, model: documentModel(settings), now, newId,
   })
 
   if (result.ok || result.reason === 'ungrounded' || result.reason === 'unreadable') await saveDocumentUsage(countDocument(usage, now))

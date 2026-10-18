@@ -4,14 +4,17 @@ import { JOB_SOURCE_IDS, type JobSourceId } from './types'
 export const ATS_SOURCES = ['greenhouse', 'lever', 'ashby'] as const
 export type AtsSource = (typeof ATS_SOURCES)[number]
 
-export const AI_PROVIDERS = ['anthropic', 'gemini', 'opencode-zen'] as const
+export const AI_PROVIDERS = ['anthropic', 'gemini', 'opencode-zen', 'claude-code'] as const
 export type AiProvider = (typeof AI_PROVIDERS)[number]
 
 export const DEFAULT_MODELS: Record<AiProvider, string> = {
   anthropic: 'claude-haiku-5-5',
   gemini: 'gemini-3.5-flash-lite',
   'opencode-zen': 'space-bunny-free',
+  // An alias `claude -p --model` understands; the local bridge (scripts/bridge.mjs) passes it through.
+  'claude-code': 'haiku',
 }
+export const BRIDGE_URL = 'http://127.0.0.1:8787/complete'
 export const DEFAULT_TIME = '08:00'
 // Calls a day for CVs and letters (FR-46), apart from the 50 for scoring jobs.
 export const DEFAULT_DOCUMENT_LIMIT = 20
@@ -26,7 +29,8 @@ export type FeedSettings = {
   companies: Record<AtsSource, string[]>
   // Local time of the daily run, HH:MM.
   fetchTime: string
-  ai: { provider: AiProvider; model: string }
+  // `model` scores jobs; `documentModel` writes CVs and letters. Empty or missing means the same model as scoring.
+  ai: { provider: AiProvider; model: string; documentModel?: string }
   // Most CVs and letters the AI may write in one day.
   documentLimit: number
 }
@@ -43,6 +47,7 @@ const AI_ORIGINS: Record<AiProvider, string[]> = {
   anthropic: ['https://api.anthropic.com/*'],
   gemini: ['https://generativelanguage.googleapis.com/*'],
   'opencode-zen': ['https://opencode.ai/*'],
+  'claude-code': ['http://127.0.0.1/*'],
 }
 
 export const aiOrigins = (provider: AiProvider): string[] => AI_ORIGINS[provider]
@@ -62,7 +67,12 @@ export function createDefaultSettings(): FeedSettings {
 
 // A different provider needs a different model name, so the model goes back to that provider's default.
 export const setAiProvider = (settings: FeedSettings, provider: AiProvider): FeedSettings =>
-  provider === settings.ai.provider ? settings : { ...settings, ai: { provider, model: DEFAULT_MODELS[provider] } }
+  provider === settings.ai.provider ? settings : { ...settings, ai: { provider, model: DEFAULT_MODELS[provider], ...defaultDocumentModel(provider) } }
+
+// Claude Code is a flat-rate subscription, so the stronger model is the default for documents while scoring stays on the small one.
+const defaultDocumentModel = (provider: AiProvider): { documentModel?: string } => (provider === 'claude-code' ? { documentModel: 'sonnet' } : {})
+
+export const documentModel = (settings: FeedSettings): string => settings.ai.documentModel?.trim() || settings.ai.model
 
 export const isValidTime = (value: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(value)
 
@@ -95,7 +105,11 @@ export function normalizeSettings(raw: unknown): FeedSettings {
       ATS_SOURCES.map((id) => [id, (Array.isArray(companies[id]) ? (companies[id] as unknown[]) : []).filter((n): n is string => typeof n === 'string').reduce(addListItem, [] as string[])]),
     ) as FeedSettings['companies'],
     fetchTime: typeof source.fetchTime === 'string' && isValidTime(source.fetchTime) ? source.fetchTime : DEFAULT_TIME,
-    ai: { provider, model: typeof ai.model === 'string' && ai.model.trim() !== '' ? ai.model.trim() : DEFAULT_MODELS[provider] },
+    ai: {
+      provider,
+      model: typeof ai.model === 'string' && ai.model.trim() !== '' ? ai.model.trim() : DEFAULT_MODELS[provider],
+      ...(typeof ai.documentModel === 'string' ? (ai.documentModel.trim() !== '' ? { documentModel: ai.documentModel.trim() } : {}) : defaultDocumentModel(provider)),
+    },
     documentLimit: normalizeDocumentLimit(source.documentLimit),
   }
 }

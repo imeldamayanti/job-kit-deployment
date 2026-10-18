@@ -13,6 +13,9 @@ export function scoreTier(value: number): ScoreTier {
   return { tier: 'lo', label: 'Kurang' }
 }
 
+// Rekomendasi only shows jobs scored at least this much; unscored jobs wait until they are scored.
+export const MIN_RECOMMENDED_SCORE = 50
+
 export type FeedTab = 'recommended' | 'saved'
 export type WorkplaceFilter = 'all' | 'remote' | 'hybrid' | 'onsite'
 export type SavedStatusFilter = 'all' | 'saved' | 'applied' | 'hidden'
@@ -22,6 +25,7 @@ export function filterFeed(feed: readonly Job[], { tab, workplace, query, status
   const needle = query.trim().toLowerCase()
   return feed.filter((job) => {
     if (tab === 'recommended' ? job.status !== 'new' : status === 'all' ? job.status !== 'saved' && job.status !== 'applied' : job.status !== status) return false
+    if (tab === 'recommended' && (job.score?.value ?? -1) < MIN_RECOMMENDED_SCORE) return false
     if (tab === 'recommended' && workplace !== 'all' && job.workplace !== workplace) return false
     if (needle === '') return true
     return [job.title, job.company, job.location, job.source].some((text) => text.toLowerCase().includes(needle))

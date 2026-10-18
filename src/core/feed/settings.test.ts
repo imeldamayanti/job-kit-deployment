@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyJobPreferences } from '../profile/job-preferences'
 import {
+  documentModel,
   canEnableFeed,
   createDefaultSettings,
   isValidTime,
@@ -137,5 +138,22 @@ describe('canEnableFeed', () => {
 
   it('is not satisfied by other parts alone', () => {
     expect(canEnableFeed({ ...createEmptyJobPreferences(), level: 'Mid', locations: ['Jakarta'] })).toBe(false)
+  })
+})
+
+describe('documentModel', () => {
+  it('follows the scoring model unless a document model is set', () => {
+    const base = createDefaultSettings()
+    expect(documentModel(base)).toBe(base.ai.model)
+    expect(documentModel({ ...base, ai: { ...base.ai, documentModel: '  ' } })).toBe(base.ai.model)
+    expect(documentModel({ ...base, ai: { ...base.ai, documentModel: 'x' } })).toBe('x')
+  })
+
+  it('makes Claude Code score with haiku and write documents with sonnet', () => {
+    const next = setAiProvider(createDefaultSettings(), 'claude-code')
+    expect(next.ai).toEqual({ provider: 'claude-code', model: 'haiku', documentModel: 'sonnet' })
+    expect(normalizeSettings({ ai: { provider: 'claude-code', model: 'haiku' } }).ai.documentModel).toBe('sonnet')
+    expect(normalizeSettings({ ai: { provider: 'claude-code', model: 'haiku', documentModel: '' } }).ai.documentModel).toBeUndefined()
+    expect(setAiProvider(next, 'gemini').ai).toEqual({ provider: 'gemini', model: 'gemini-3.5-flash-lite' })
   })
 })
