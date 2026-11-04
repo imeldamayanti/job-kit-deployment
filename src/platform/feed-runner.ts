@@ -5,8 +5,10 @@ import { greenhouseSource } from '../core/feed/sources/greenhouse'
 import { leverSource } from '../core/feed/sources/lever'
 import { createLinkedInSource } from '../core/feed/sources/linkedin'
 import { remotiveSource } from '../core/feed/sources/remotive'
+import { createThreadSource } from '../core/feed/sources/thread'
+import { openThreadSession } from './thread-collector'
 import { loadFeed, loadAiKey, loadRuns, loadSettings, loadState, saveFeed, saveRuns, saveState } from './feed-storage'
-import { AI_ENABLED } from '../core/build'
+import { AI_ENABLED, THREAD_ENABLED } from '../core/build'
 import { clientWithPermission } from './ai-client'
 import { offscreenParsers } from './linkedin-parser'
 import { loadProfile } from './storage'
@@ -35,7 +37,10 @@ export async function executeRun({ auto }: { auto: boolean }): Promise<RunHandle
         profile, settings, key, feed, runs, now,
         ctx: { fetch: (url, init) => fetch(url, init), now, companies: settings.companies },
         client: await clientWithPermission(key, settings.ai.provider), // no key (shared build): the pipeline scores by rules and never calls the client
-        sources: [greenhouseSource, leverSource, ashbySource, remotiveSource, createLinkedInSource(offscreenParsers)],
+        sources: [
+          greenhouseSource, leverSource, ashbySource, remotiveSource, createLinkedInSource(offscreenParsers),
+          ...(THREAD_ENABLED ? [createThreadSource({ open: openThreadSession })] : []),
+        ],
         onStage: stage,
       })
       await saveFeed(result.feed)

@@ -1,7 +1,7 @@
 import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { aiErrorMessage, AiError, type AiFailure } from '../../core/ai/errors'
-import { AI_ENABLED } from '../../core/build'
+import { AI_ENABLED, THREAD_ENABLED } from '../../core/build'
 import {
   aiOrigins,
   AI_PROVIDERS,
@@ -39,6 +39,9 @@ const SOURCES: { id: JobSourceId; name: string; about: string }[] = [
   { id: 'ashby', name: 'Ashby', about: 'Papan lowongan perusahaan pilihanmu' },
   { id: 'remotive', name: 'Remotive', about: 'Papan lowongan remote' },
   { id: 'linkedin', name: 'LinkedIn', about: 'Halaman pencarian publik, tanpa login' },
+  ...(THREAD_ENABLED
+    ? [{ id: 'thread' as const, name: 'Threads', about: 'Beranda "For you" dari akun cadangan yang sudah login di browser ini. Melanggar aturan Meta: jangan pakai akun utama' }]
+    : []),
 ]
 
 type Notice = { kind: 'warn' | 'ok' | 'bad'; text: string }
