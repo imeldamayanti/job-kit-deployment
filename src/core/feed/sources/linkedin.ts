@@ -22,9 +22,21 @@ export type LinkedInDeps = {
   pause?: (ctx: FetchContext) => Promise<void>
 }
 
-export function buildSearchUrl(prefs: JobPreferences, role: string, start: number): string {
-  const params = new URLSearchParams({ keywords: role, location: prefs.locations[0] ?? 'Worldwide', start: String(start) })
-  if (prefs.workModes.length > 0 && prefs.workModes.length < 3) {
+export type SearchPlace = { location: string; remote?: boolean }
+
+// One search per wanted location, so a second city is not lost, plus one for remote jobs anywhere when remote is wanted:
+// a remote job is listed under its company's country, so a city search never finds it.
+export function searchPlaces(prefs: JobPreferences): SearchPlace[] {
+  if (prefs.locations.length === 0) return [{ location: 'Worldwide' }]
+  const wantsRemote = prefs.workModes.length === 0 || prefs.workModes.includes('Remote')
+  return [...prefs.locations.map((location) => ({ location })), ...(wantsRemote ? [{ location: 'Worldwide', remote: true }] : [])]
+}
+
+export function buildSearchUrl(prefs: JobPreferences, role: string, start: number, place?: SearchPlace): string {
+  const params = new URLSearchParams({ keywords: role, location: place?.location ?? prefs.locations[0] ?? 'Worldwide', start: String(start) })
+  if (place?.remote) {
+    params.set('f_WT', String(WORK_TYPE_CODE.Remote))
+  } else if (prefs.workModes.length > 0 && prefs.workModes.length < 3) {
     params.set('f_WT', prefs.workModes.map((mode) => WORK_TYPE_CODE[mode]).sort().join(','))
   }
   return `${SEARCH}?${params}`
@@ -42,32 +54,42 @@ export function createLinkedInSource(deps: LinkedInDeps): JobSource {
     async fetch(prefs, ctx) {
       const roles = prefs.roles.slice(0, 2)
       if (roles.length === 0) return []
-      const pagesPerRole = Math.max(1, Math.floor(maxPages / roles.length))
+      const places = searchPlaces(prefs)
+      const pagesPerQuery = Math.max(1, Math.floor(maxPages / (roles.length * places.length)))
       const found: RawJob[] = []
+      const seen = new Set<string>()
       let requests = 0
 
       search: for (const role of roles) {
-        for (let page = 0; page < pagesPerRole; page += 1) {
-          if (requests > 0) await pause(ctx)
-          requests += 1
-          let html: string
-          try {
-            html = await fetchText(ctx, buildSearchUrl(prefs, role, page * PAGE_SIZE))
-          } catch (error) {
-            // Blocked halfway: keep what was already read instead of losing the whole run.
-            if (error instanceof SourceError && found.length > 0) break search
-            throw error
+        for (const place of places) {
+          for (let page = 0; page < pagesPerQuery; page += 1) {
+            if (requests > 0) await pause(ctx)
+            requests += 1
+            let html: string
+            try {
+              html = await fetchText(ctx, buildSearchUrl(prefs, role, page * PAGE_SIZE, place))
+            } catch (error) {
+              // Blocked halfway: keep what was already read instead of losing the whole run.
+              if (error instanceof SourceError && found.length > 0) break search
+              throw error
+            }
+            if (isLoginWall(html)) {
+              if (found.length > 0) break search
+              throw new SourceError('blocked')
+            }
+            const cards = await deps.parseSearch(html)
+            if (cards.length === 0) {
+              if (page === 0 && found.length === 0 && requests === 1 && html.trim().length > 200 && !looksLikeResults(html)) throw new SourceError('parse')
+              break
+            }
+            // The same job turns up under a city and under remote; read it once.
+            for (const card of cards) {
+              const url = canonicalUrl(card.url) || card.url
+              if (seen.has(url)) continue
+              seen.add(url)
+              found.push({ ...card, url })
+            }
           }
-          if (isLoginWall(html)) {
-            if (found.length > 0) break search
-            throw new SourceError('blocked')
-          }
-          const cards = await deps.parseSearch(html)
-          if (cards.length === 0) {
-            if (page === 0 && found.length === 0 && requests === 1 && html.trim().length > 200 && !looksLikeResults(html)) throw new SourceError('parse')
-            break
-          }
-          found.push(...cards.map((job) => ({ ...job, url: canonicalUrl(job.url) || job.url })))
         }
       }
 

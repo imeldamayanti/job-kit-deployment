@@ -51,6 +51,7 @@ export function hashSummary(summary: ProfileSummary): string {
 
 const SYSTEM = `You rate how well job postings fit one candidate. Reply with ONLY a JSON array, one object per posting:
 {"id": string, "score": integer 0-100, "matches": string[] (max 4, what fits), "gaps": string[] (max 4, what is missing or off), "summary": string (one sentence), "fill": object (optional)}.
+If a posting limits who may apply to a country or region that leaves out the candidate's locations (for example "US only", "must be authorized to work in the EU"), score it under 30 and say so in gaps.
 Write matches, gaps and summary in Indonesian, short and concrete, based only on the text given. Do not invent facts.
 "fill" may hold only fields the posting clearly states in its text and that are empty in the input: "workplace" ("remote"|"hybrid"|"onsite"), "level", "experience", "salary", "contract". Omit anything not clear.`
 

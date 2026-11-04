@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyJobPreferences, type JobPreferences } from '../../profile/job-preferences'
 import { shouldPause } from './health'
-import { buildSearchUrl, createLinkedInSource } from './linkedin'
+import { buildSearchUrl, createLinkedInSource, searchPlaces } from './linkedin'
 import { isLoginWall, looksLikeResults, parseDetailPage, parseSearchPage } from './linkedin-parse'
 import { runSource } from './run'
 import type { FetchContext, FetchLike } from './types'
@@ -78,6 +78,29 @@ describe('buildSearchUrl', () => {
   it('falls back to Worldwide without a location', () => {
     expect(buildSearchUrl(prefs(), 'x', 0)).toContain('location=Worldwide')
   })
+
+  it('searches the given place, and only remote jobs for a remote place', () => {
+    const url = new URL(buildSearchUrl(prefs({ locations: ['Jakarta'] }), 'x', 0, { location: 'Bali' }))
+    expect(url.searchParams.get('location')).toBe('Bali')
+    const remote = new URL(buildSearchUrl(prefs({ locations: ['Jakarta'] }), 'x', 0, { location: 'Worldwide', remote: true }))
+    expect(remote.searchParams.get('location')).toBe('Worldwide')
+    expect(remote.searchParams.get('f_WT')).toBe('2')
+  })
+})
+
+describe('searchPlaces', () => {
+  it('searches every wanted location, then remote jobs worldwide when remote is wanted', () => {
+    expect(searchPlaces(prefs({ locations: ['Jakarta', 'Bali'], workModes: ['Remote', 'Hybrid'] }))).toEqual([
+      { location: 'Jakarta' }, { location: 'Bali' }, { location: 'Worldwide', remote: true },
+    ])
+    expect(searchPlaces(prefs({ locations: ['Jakarta'] }))).toEqual([{ location: 'Jakarta' }, { location: 'Worldwide', remote: true }])
+  })
+
+  it('adds no remote search when remote is not wanted, and one search without a location', () => {
+    expect(searchPlaces(prefs({ locations: ['Jakarta'], workModes: ['Hybrid'] }))).toEqual([{ location: 'Jakarta' }])
+    expect(searchPlaces(prefs())).toEqual([{ location: 'Worldwide' }])
+    expect(searchPlaces(prefs({ workModes: ['Remote'] }))).toEqual([{ location: 'Worldwide' }])
+  })
 })
 
 describe('LinkedIn source', () => {
@@ -88,7 +111,16 @@ describe('LinkedIn source', () => {
     expect(t.urls.map((u) => new URL(u).searchParams.get('start'))).toEqual(['0', '10', '20'])
     expect(t.pauses()).toBe(2)
     expect(t.inits.every((init) => init?.credentials === 'omit')).toBe(true)
-    expect(jobs).toHaveLength(9)
+    // The same saved page comes back each time, and a job seen twice is kept once.
+    expect(jobs).toHaveLength(3)
+  })
+
+  it('searches each wanted location and remote jobs, one page each when the budget is thin', async () => {
+    const t = setup(() => html(SEARCH), { maxPages: 3, maxDetails: 0 })
+    await t.source.fetch(prefs({ locations: ['Jakarta', 'Bali'], workModes: ['Remote', 'Hybrid'] }), t.ctx)
+    const queries = t.urls.map((u) => new URL(u).searchParams)
+    expect(queries.map((q) => q.get('location'))).toEqual(['Jakarta', 'Bali', 'Worldwide'])
+    expect(queries.map((q) => q.get('f_WT'))).toEqual(['2,3', '2,3', '2'])
   })
 
   it('stops when a page has no more results', async () => {

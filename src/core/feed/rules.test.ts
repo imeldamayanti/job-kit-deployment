@@ -45,8 +45,49 @@ describe('passesRules', () => {
     expect(passesRules(job({ workplace: 'remote', location: 'Worldwide' }), prefs({ locations: ['Jakarta'], workModes: ['Remote'] }))).toBe(true)
   })
 
+  describe('remote jobs open to a candidate in Indonesia', () => {
+    const remote = (location: string) => job({ workplace: 'remote', location })
+    const mine = prefs({ locations: ['Jakarta', 'Bali'], workModes: ['Remote'] })
+
+    it('keeps a remote job that names no region, or an open one', () => {
+      for (const location of ['', 'Remote', 'Fully remote', 'Worldwide', 'Remote - Anywhere', 'Global', 'APAC', 'Asia Pacific', 'Southeast Asia', 'Remote (SEA)']) {
+        expect(passesRules(remote(location), mine), location).toBe(true)
+      }
+    })
+
+    it('keeps a remote job that names Indonesia or a wanted city, even beside other places', () => {
+      for (const location of ['Indonesia', 'Remote - Indonesia', 'Jakarta, Indonesia', 'Bali', 'USA, Canada, Indonesia']) {
+        expect(passesRules(remote(location), mine), location).toBe(true)
+      }
+    })
+
+    it('drops a remote job limited to a region without Indonesia', () => {
+      for (const location of ['USA Only', 'Remote (US)', 'United States', 'Europe', 'EMEA', 'Remote - Germany', 'Americas', 'Singapore', 'UK Only']) {
+        expect(passesRules(remote(location), mine), location).toBe(false)
+      }
+    })
+
+    it('asks nothing of the region when no wanted location is set', () => {
+      expect(passesRules(remote('USA Only'), prefs({ workModes: ['Remote'] }))).toBe(true)
+    })
+
+    it('does not touch a job of unknown work type', () => {
+      expect(passesRules(job({ workplace: 'unknown', location: 'United States' }), mine)).toBe(true)
+    })
+  })
+
   it('does not rescue a remote job when remote is not wanted', () => {
     expect(passesRules(job({ workplace: 'remote' }), prefs({ workModes: ['On-site'] }))).toBe(false)
+  })
+
+  it('leaves a job of unknown work type to the score, whatever its location says', () => {
+    // "Indonesia", "APAC" or "Singapore" on a remote role is common and says nothing about where the work is done.
+    expect(passesRules(job({ workplace: 'unknown', location: 'Indonesia' }), prefs({ locations: ['Jakarta', 'Bali'] }))).toBe(true)
+    expect(passesRules(job({ workplace: 'unknown', location: 'APAC' }), prefs({ locations: ['Jakarta', 'Bali'], workModes: ['Remote'] }))).toBe(true)
+  })
+
+  it('still drops a hybrid job outside the wanted locations', () => {
+    expect(passesRules(job({ workplace: 'hybrid', location: 'Surabaya' }), prefs({ locations: ['Jakarta', 'Bali'] }))).toBe(false)
   })
 
   it('keeps a job with no location', () => {
