@@ -41,6 +41,7 @@ const ORIGINS: Record<JobSourceId, string[]> = {
   ashby: ['https://api.ashbyhq.com/*'],
   remotive: ['https://remotive.com/*'],
   linkedin: ['https://www.linkedin.com/*'],
+  thread: ['https://www.threads.com/*'],
 }
 
 const AI_ORIGINS: Record<AiProvider, string[]> = {

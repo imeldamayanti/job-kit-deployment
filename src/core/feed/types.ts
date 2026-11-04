@@ -1,4 +1,4 @@
-export const JOB_SOURCE_IDS = ['greenhouse', 'lever', 'ashby', 'remotive', 'linkedin'] as const
+export const JOB_SOURCE_IDS = ['greenhouse', 'lever', 'ashby', 'remotive', 'linkedin', 'thread'] as const
 export type JobSourceId = (typeof JOB_SOURCE_IDS)[number]
 
 export type Workplace = 'remote' | 'hybrid' | 'onsite' | 'unknown'

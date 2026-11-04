@@ -2,7 +2,7 @@ import type { FeedState } from './schedule'
 import type { Job, JobSourceId, JobStatus, SourceRun } from './types'
 
 export const SOURCE_NAMES: Record<JobSourceId, string> = {
-  greenhouse: 'Greenhouse', lever: 'Lever', ashby: 'Ashby', remotive: 'Remotive', linkedin: 'LinkedIn',
+  greenhouse: 'Greenhouse', lever: 'Lever', ashby: 'Ashby', remotive: 'Remotive', linkedin: 'LinkedIn', thread: 'Threads',
 }
 
 export type ScoreTier = { tier: 'hi' | 'mid' | 'lo'; label: 'Cocok' | 'Lumayan' | 'Kurang' }
