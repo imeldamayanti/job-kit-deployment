@@ -1,7 +1,7 @@
 import { noteDownload } from '../core/applications/applications'
 import { cvParts } from '../core/tailor/edit'
 import { assemble } from '../core/tailor/grounded'
-import { detectLanguage, type Lang } from '../core/tailor/language'
+import { CV_LANG, type Lang } from '../core/tailor/language'
 import { A4, cvFileName, layoutCv, winAnsiDocument } from '../core/tailor/pdf-layout'
 import type { CvDocument } from '../core/tailor/types'
 import { loadApplicationData, saveApplications } from './application-storage'
@@ -67,7 +67,7 @@ export async function downloadCv(applicationId: string, { now = new Date(), form
   if (!app || !cv) return { ok: false, message: 'Belum ada CV untuk diunduh.' }
 
   const doc = assemble(profile, cvParts(cv), cv.order)
-  const lang = detectLanguage(doc.experience.flatMap((job) => [job.title, ...job.bullets]).join(' '))
+  const lang = CV_LANG
   const person = [profile.personal.firstName, profile.personal.lastName].join(' ')
   const fileName = cvFileName(app.job.company, person).replace(/\.pdf$/, `.${format}`)
 

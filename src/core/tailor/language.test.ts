@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CV_LABELS, detectLanguage } from './language'
+import { CV_LABELS, CV_LANG, detectLanguage } from './language'
 
 describe('detectLanguage', () => {
   it('reads Indonesian', () => {
@@ -28,6 +28,12 @@ describe('detectLanguage', () => {
 
   it('ignores case and punctuation', () => {
     expect(detectLanguage('THE TEAM, AND THE PRODUCT!')).toBe('en')
+  })
+})
+
+describe('CV_LANG', () => {
+  it('is English: the CV is always written in English, whatever language the posting or the Profile is in', () => {
+    expect(CV_LANG).toBe('en')
   })
 })
 

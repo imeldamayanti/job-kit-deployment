@@ -98,6 +98,17 @@ describe('downloadCv', () => {
     await saveApplicationData({ applications: [app], cvs: cv ? [doc] : [], letters: [] })
   }
 
+  it('writes the CV in English, headings and dates included, even when its bullets are in Indonesian', async () => {
+    await seed()
+    const delivered: Uint8Array[] = []
+    await downloadCv('app-1', { now: NOW, deliver: (_name, bytes) => void delivered.push(bytes) })
+    const text = await textOf(delivered[0]!)
+    expect(text).toContain('Work Experience')
+    expect(text).toContain('Aug 2023 – present')
+    expect(text).not.toContain('Pengalaman Kerja')
+    expect(text).not.toContain('sekarang')
+  })
+
   it('hands over a PDF named for the company and notes the download in the history', async () => {
     await seed()
     const delivered: { name: string; bytes: Uint8Array }[] = []

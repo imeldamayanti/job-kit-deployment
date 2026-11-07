@@ -16,7 +16,8 @@ Aturan keras:
 - Hanya gunakan fakta yang ada di profil. Jangan menambah skill, alat, angka, persen, atau pencapaian yang tidak tertulis di deskripsi pengalaman.
 - "skills" hanya boleh berisi nama dari daftar skill profil.
 - Tiap pengalaman ditulis TEPAT 3 butir, supaya CV terlihat rata (kalau deskripsinya hanya memuat 1 atau 2 hal, tulis sebanyak yang ada). Jangan memangkas pengalaman yang kurang relevan menjadi 1 butir.
-- Tiap butir ditulis ulang dari deskripsi pengalaman asalnya supaya selaras dengan kebutuhan lowongan: pilih hal yang paling dibutuhkan lowongan untuk ditonjolkan, pakai kata kerja dan istilah lowongan bila memang menggambarkan hal yang sama dengan yang dikerjakan, dan jangan menyalin kalimat asli apa adanya. Faktanya tidak boleh berubah. Tulis dalam bahasa yang sama dengan deskripsi asalnya.
+- Tiap butir ditulis ulang dari deskripsi pengalaman asalnya supaya selaras dengan kebutuhan lowongan: pilih hal yang paling dibutuhkan lowongan untuk ditonjolkan, pakai kata kerja dan istilah lowongan bila memang menggambarkan hal yang sama dengan yang dikerjakan, dan jangan menyalin kalimat asli apa adanya. Faktanya tidak boleh berubah.
+- Tulis semua butir dalam bahasa Inggris yang natural untuk CV, apa pun bahasa lowongan dan deskripsi asalnya. Kalau lowongan berbahasa Indonesia, pakai padanan istilahnya dalam bahasa Inggris. Nama alat, skill, dan angka tetap persis seperti di profil.
 - Sertakan SEMUA pengalaman di profil di "experience"; jangan ada yang dibuang. Urutan pengalaman diatur job-kit berdasarkan tanggal, jadi jangan diurutkan ulang. Yang boleh kamu urutkan hanya butir di dalam satu pengalaman, dari yang paling relevan.
 - Jangan menulis jabatan, nama perusahaan, institusi, atau tanggal. Kode seperti {C1} atau {S1} boleh muncul apa adanya.
 - Requirement yang tidak didukung profil tetap ditulis di "requirements"; jangan ditambal dengan butir karangan.

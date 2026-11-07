@@ -4,7 +4,7 @@ import { createAutosaver } from '../../core/profile/autosave'
 import { cvToText } from '../../core/tailor/cv-text'
 import { cvParts } from '../../core/tailor/edit'
 import { assemble } from '../../core/tailor/grounded'
-import { detectLanguage } from '../../core/tailor/language'
+import { CV_LANG } from '../../core/tailor/language'
 import { describeReplaced } from '../../core/tailor/pdf-layout'
 import type { Profile } from '../../core/profile/types'
 import type { CvParts } from '../../core/tailor/diff'
@@ -126,7 +126,7 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
   const copyCv = useCallback(async () => {
     if (!cv || !profile) return
     const doc = assemble(profile, cvParts(cv), cv.order)
-    const copied = await copyText(cvToText(doc, detectLanguage(doc.experience.flatMap((job) => [job.title, ...job.bullets]).join(' '))))
+    const copied = await copyText(cvToText(doc, CV_LANG))
     setDownloadNote(copied ? 'Teks CV disalin.' : 'Teks CV tidak bisa disalin otomatis. Pilih teks di halaman ini lalu salin.')
   }, [cv, profile])
 
