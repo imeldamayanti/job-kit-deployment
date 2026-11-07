@@ -4,8 +4,10 @@ import { formatShortDate } from '../../core/applications/view'
 import type { Profile } from '../../core/profile/types'
 import type { CvParts } from '../../core/tailor/diff'
 import { cvParts, overwritesEdits } from '../../core/tailor/edit'
+import type { CvOrder } from '../../core/tailor/types'
 import type { CvView } from '../../core/tailor/view'
 import { Button } from '../../ui/primitives/Button'
+import { Select } from '../../ui/primitives/Select'
 import { TextArea } from '../../ui/primitives/TextArea'
 import { CvDiff } from './CvDiff'
 import { Alert, Card } from './DocParts'
@@ -23,6 +25,8 @@ export type CvTabState = CvView & {
   // A hand edit. The page saves it (after a short pause) and marks the CV edited.
   onEdit: (parts: CvParts) => void
   onRestore: () => void
+  // Which of Education and Work Experience leads the CV. A layout choice, saved at once.
+  onOrder: (order: CvOrder) => void
   // Unduh PDF (T50), and Salin teks CV for when the PDF could not be made.
   onDownload: () => void
   onDownloadWord: () => void
@@ -110,7 +114,7 @@ function Editor({ draft, profile, onChange }: { draft: CvParts; profile: Profile
 
 export function CvTab({
   cv, availability, busy, message, rejected, notice, stale, profile, downloading, downloadError, downloadNote,
-  onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onDownload, onDownloadWord, onCopyText,
+  onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onOrder, onDownload, onDownloadWord, onCopyText,
 }: CvTabState) {
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
@@ -312,6 +316,12 @@ export function CvTab({
 
       <div className="flex flex-col gap-2">
         {blocked && <p className="text-[13px] text-text-secondary">{blocked.message}</p>}
+        <div className="max-w-[260px]">
+          <Select label="Urutan section" value={cv.order ?? 'education-first'} onChange={(event) => onOrder(event.target.value as CvOrder)}>
+            <option value="education-first">Pendidikan dulu</option>
+            <option value="experience-first">Pengalaman dulu</option>
+          </Select>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button onClick={onDownload} disabled={downloading}>
             <Download size={15} strokeWidth={2} aria-hidden="true" />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { assemble } from './grounded'
-import { A4, cvFileName, describeReplaced, layoutCv, toWinAnsi, winAnsiDocument, type Measure, type PdfOp } from './pdf-layout'
+import { A4, INDENT, SIZE, cvFileName, describeReplaced, layoutCv, toWinAnsi, winAnsiDocument, type Measure, type PdfOp } from './pdf-layout'
 import { SAMPLE_DATA_ANALYST, SAMPLE_WEB_DEV } from './sample-profiles'
 import type { CvDocument } from './types'
 
@@ -13,21 +13,60 @@ const texts = (page: PdfOp[]) => page.flatMap((op) => (op.kind === 'text' ? [op]
 const all = (pages: PdfOp[][]) => pages.flatMap(texts)
 
 describe('layoutCv', () => {
-  it('starts with the name in capitals, large, bold and centred, and the contacts centred under it', () => {
+  it('starts with the name in capitals, large, bold and centred, and the contacts centred under it in one line', () => {
     const [first] = layoutCv(web(), 'id', measure)
-    const [name, contacts] = texts(first!)
-    expect(name).toMatchObject({ text: 'SARI CONTOHWATI', size: 20, bold: true })
-    expect(name!.x).toBeCloseTo((A4.width - measure(name!.text, true, 20)) / 2)
-    expect(name!.y).toBeLessThan(A4.height - A4.margin)
-    expect(contacts?.text).toBe('081200000000 | sari@example.test | Denpasar')
-    expect(contacts!.x).toBeCloseTo((A4.width - measure(contacts!.text, false, 9.5)) / 2)
-    expect(contacts!.y).toBeLessThan(name!.y)
+    const [name, ...rest] = texts(first!)
+    expect(name).toMatchObject({ text: 'SARI CONTOHWATI', size: SIZE.name, bold: true })
+    expect(name!.x).toBeCloseTo((A4.width - measure(name!.text, true, SIZE.name)) / 2)
+    expect(name!.y).toBeLessThan(A4.height - A4.top)
+    // Each contact is its own piece, with a bar between, so one of them can be coloured as a link.
+    const line = rest.slice(0, 5)
+    expect(line.map((op) => op.text).join('')).toBe('081200000000  |  sari@example.test  |  Denpasar')
+    expect(new Set(line.map((op) => op.y)).size).toBe(1)
+    expect(line[0]!.x).toBeCloseTo((A4.width - line.reduce((sum, op) => sum + measure(op.text, false, SIZE.contact), 0)) / 2)
+    expect(line[0]!.y).toBeLessThan(name!.y)
+    expect(line.every((op) => op.gray < 0.2 && op.size === SIZE.contact)).toBe(true)
+  })
+
+  it('colours a web address in the contacts as a link, and leaves the rest plain', () => {
+    const doc = web()
+    doc.header.contacts = ['sari@example.test', 'linkedin.com/in/sari']
+    const ops = all(layoutCv(doc, 'id', measure))
+    expect(ops.find((op) => op.text === 'linkedin.com/in/sari')).toMatchObject({ link: true })
+    expect(ops.find((op) => op.text === 'sari@example.test')?.link).toBeUndefined()
   })
 
   it('names the sections in the language of the CV, education first', () => {
-    const sections = (lang: 'id' | 'en') => all(layoutCv(web(), lang, measure)).filter((op) => op.size === 12 && op.bold).map((op) => op.text)
-    expect(sections('id')).toEqual(['Pendidikan', 'Pengalaman', 'Skill'])
-    expect(sections('en')).toEqual(['Education', 'Experience', 'Skills'])
+    const sections = (lang: 'id' | 'en') => all(layoutCv(web(), lang, measure)).filter((op) => op.size === SIZE.heading && op.bold).map((op) => op.text)
+    expect(sections('id')).toEqual(['Pendidikan', 'Pengalaman Kerja', 'Skill'])
+    expect(sections('en')).toEqual(['Education', 'Work Experience', 'Skills'])
+  })
+
+  it('puts Work Experience above Education when the CV is set to lead with experience', () => {
+    const doc = { ...web(), order: 'experience-first' as const }
+    const sections = all(layoutCv(doc, 'en', measure)).filter((op) => op.size === SIZE.heading && op.bold).map((op) => op.text)
+    expect(sections).toEqual(['Work Experience', 'Education', 'Skills'])
+  })
+
+  it('ends with Certifications, one bullet each, when the CV has them', () => {
+    const doc = { ...web(), certifications: ['Dicoding, Belajar Dasar AI', 'Google Cloud, Prompt Design'] }
+    const ops = all(layoutCv(doc, 'en', measure))
+    const sections = ops.filter((op) => op.size === SIZE.heading && op.bold).map((op) => op.text)
+    expect(sections).toEqual(['Education', 'Work Experience', 'Skills', 'Certifications'])
+    const certHeading = ops.find((op) => op.text === 'Certifications')!
+    const below = ops.filter((op) => op.y < certHeading.y)
+    expect(below.filter((op) => op.text === '•')).toHaveLength(2)
+    expect(below.map((op) => op.text)).toContain('Dicoding, Belajar Dasar AI')
+  })
+
+  it('writes the place after the company in grey with an en dash, and nested achievements with en dashes', () => {
+    const doc = web()
+    doc.experience[0]!.location = 'Denpasar'
+    doc.education[0]!.achievements = ['Juara 1 Lomba Contoh (2024)']
+    const ops = all(layoutCv(doc, 'id', measure))
+    expect(ops.find((op) => op.text === '– Denpasar')).toMatchObject({ bold: true, gray: 0.5 })
+    expect(ops.find((op) => op.text === '–' && op.x < A4.margin + 2 * INDENT)).toBeDefined()
+    expect(ops.find((op) => op.text === 'Juara 1 Lomba Contoh (2024)')!.x).toBe(A4.margin + 2 * INDENT + 2)
   })
 
   it('writes each job with the company bold on the left, the dates flush right, and the title in italics under it', () => {
@@ -50,7 +89,8 @@ describe('layoutCv', () => {
     const marks = ops.filter((op) => op.text === '•')
     const gpas = web().education.filter((school) => school.gpa !== '').length
     expect(marks).toHaveLength(web().experience.reduce((n, e) => n + e.bullets.length, 0) + gpas)
-    expect(ops.some((op) => op.text.startsWith('Membangun fitur dashboard') && op.x === A4.margin + 14)).toBe(true)
+    expect(ops.some((op) => op.text.startsWith('Membangun fitur dashboard') && op.x === A4.margin + INDENT)).toBe(true)
+    expect(marks.every((op) => op.x === A4.margin && op.bold)).toBe(true)
   })
 
   it('keeps every line inside the margins', () => {
@@ -65,9 +105,9 @@ describe('layoutCv', () => {
   it('wraps a long bullet onto more lines, none wider than the column', () => {
     const doc = web()
     doc.experience[0]!.bullets = ['kata '.repeat(120).trim()]
-    const lines = all(layoutCv(doc, 'id', measure)).filter((op) => op.text.startsWith('kata') && op.x === A4.margin + 14)
+    const lines = all(layoutCv(doc, 'id', measure)).filter((op) => op.text.startsWith('kata') && op.x === A4.margin + INDENT)
     expect(lines.length).toBeGreaterThan(2)
-    for (const line of lines) expect(measure(line.text, false, line.size)).toBeLessThanOrEqual(A4.width - 2 * A4.margin - 14)
+    for (const line of lines) expect(measure(line.text, false, line.size)).toBeLessThanOrEqual(A4.width - 2 * A4.margin - INDENT)
   })
 
   it('breaks a word that is longer than the line instead of running past the margin', () => {
@@ -82,8 +122,9 @@ describe('layoutCv', () => {
     const pages = layoutCv(doc, 'id', measure)
     expect(pages.length).toBeGreaterThan(1)
     for (const page of pages.slice(0, -1)) {
-      const last = texts(page).at(-1)!
-      expect(last.bold && (last.size === 12 || last.size === 10.5), `last line of a page: ${last.text}`).toBe(false)
+      // A bullet mark is drawn after its text, so it is skipped: what matters is the last line of text.
+      const last = texts(page).filter((op) => op.text !== '•').at(-1)!
+      expect(last.bold && (last.size === SIZE.heading || last.size === SIZE.body), `last line of a page: ${last.text}`).toBe(false)
     }
     for (const page of pages) expect(texts(page).length).toBeGreaterThan(0)
   })
@@ -98,8 +139,8 @@ describe('layoutCv', () => {
     const doc = web()
     doc.education = []
     doc.skills = []
-    const sections = all(layoutCv(doc, 'id', measure)).filter((op) => op.size === 12 && op.bold).map((op) => op.text)
-    expect(sections).toEqual(['Pengalaman'])
+    const sections = all(layoutCv(doc, 'id', measure)).filter((op) => op.size === SIZE.heading && op.bold).map((op) => op.text)
+    expect(sections).toEqual(['Pengalaman Kerja'])
   })
 
   it('writes a school as institution and year on one line, then level and major in italics', () => {
@@ -146,42 +187,67 @@ describe('winAnsiDocument', () => {
     expect(doc.header.name).toBe('Nguyễn Contoh')
   })
 
+  it('cleans the certifications too and keeps the order', () => {
+    const doc = { ...web(), certifications: ['Kursus 李'], order: 'experience-first' as const }
+    const { doc: clean, replaced } = winAnsiDocument(doc)
+    expect(clean.certifications).toEqual(['Kursus ?'])
+    expect(clean.order).toBe('experience-first')
+    expect(replaced).toEqual(['李'])
+  })
+
   it('changes nothing for plain text', () => {
     expect(winAnsiDocument(web())).toEqual({ doc: web(), replaced: [] })
   })
 })
 
 describe('cvFileName (FR-42)', () => {
-  it('is CV-{company}.pdf with spaces as dashes', () => {
-    expect(cvFileName('PT Contoh Karya')).toBe('CV-PT-Contoh-Karya.pdf')
+  const NAME = 'Imelda Damayanti'
+
+  it('is cv_{name}_{company}.pdf: the name without spaces, the company short, all lower case with underscores', () => {
+    expect(cvFileName('PT Inovasi Daya', NAME)).toBe('cv_imeldadamayanti_inovasi_daya.pdf')
+    expect(cvFileName('MedRoyale', NAME)).toBe('cv_imeldadamayanti_medroyale.pdf')
   })
 
-  it('removes what a file name cannot hold', () => {
-    expect(cvFileName('Acme/Co: "X"? <Y>|*')).toBe('CV-Acme-Co-X-Y.pdf')
-    expect(cvFileName('..\\..\\etc')).toBe('CV-etc.pdf')
+  it('leaves the legal form out of the company: PT, CV, Tbk, Pte, Ltd, Inc', () => {
+    expect(cvFileName('PT Smartfren Telecom Tbk', NAME)).toBe('cv_imeldadamayanti_smartfren_telecom.pdf')
+    expect(cvFileName('Maju Jaya Pte. Ltd.', NAME)).toBe('cv_imeldadamayanti_maju_jaya.pdf')
+    expect(cvFileName('Acme, Inc.', NAME)).toBe('cv_imeldadamayanti_acme.pdf')
+  })
+
+  it('keeps at most three words of the company', () => {
+    expect(cvFileName('Apple Developer Academy Bali Indonesia', NAME)).toBe('cv_imeldadamayanti_apple_developer_academy.pdf')
   })
 
   it('turns accents into plain letters', () => {
-    expect(cvFileName('Café Müller & Söhne')).toBe('CV-Cafe-Muller-Sohne.pdf')
+    expect(cvFileName('Café Müller & Söhne', 'Dewi Sri')).toBe('cv_dewisri_cafe_muller_sohne.pdf')
   })
 
-  it('shortens a very long name', () => {
-    const name = cvFileName('Perusahaan '.repeat(30))
+  it('removes what a file name cannot hold', () => {
+    expect(cvFileName('Acme/Co: "X"? <Y>|*', NAME)).toBe('cv_imeldadamayanti_acme_x_y.pdf')
+    expect(cvFileName('..\\..\\etc', NAME)).toBe('cv_imeldadamayanti_etc.pdf')
+  })
+
+  it('stays short for a very long name', () => {
+    const name = cvFileName('Perusahaan '.repeat(30), NAME)
     expect(name.length).toBeLessThanOrEqual(64)
+    expect(name.startsWith('cv_imeldadamayanti_perusahaan')).toBe(true)
     expect(name.endsWith('.pdf')).toBe(true)
-    expect(name.startsWith('CV-Perusahaan')).toBe(true)
   })
 
-  it('is CV.pdf when nothing usable is left', () => {
-    expect(cvFileName('')).toBe('CV.pdf')
-    expect(cvFileName('   ')).toBe('CV.pdf')
-    expect(cvFileName('李公司')).toBe('CV.pdf')
-    expect(cvFileName('...')).toBe('CV.pdf')
+  it('leaves out the part it does not have, and is cv.pdf when nothing usable is left', () => {
+    expect(cvFileName('PT Inovasi Daya')).toBe('cv_inovasi_daya.pdf')
+    expect(cvFileName('', NAME)).toBe('cv_imeldadamayanti.pdf')
+    expect(cvFileName('   ')).toBe('cv.pdf')
+    expect(cvFileName('李公司')).toBe('cv.pdf')
+    expect(cvFileName('...')).toBe('cv.pdf')
   })
 
-  it('does not end in a dot or dash before the extension', () => {
-    expect(cvFileName('Acme Inc.')).toBe('CV-Acme-Inc.pdf')
-    expect(cvFileName('Acme -')).toBe('CV-Acme.pdf')
+  it('keeps a company that is only a legal form, so it still has a name', () => {
+    expect(cvFileName('PT', NAME)).toBe('cv_imeldadamayanti_pt.pdf')
+  })
+
+  it('does not end in an underscore before the extension', () => {
+    expect(cvFileName('Acme -', NAME)).toBe('cv_imeldadamayanti_acme.pdf')
   })
 })
 

@@ -34,9 +34,9 @@ describe('resolveApplication', () => {
 describe('panelContext', () => {
   it('says what is ready: the letter text, and the CV marker', () => {
     const a = app({ cvId: 'c1', letterId: 'l1' })
-    expect(panelContext(a, data([a], [letter()], [cv]))).toMatchObject({
+    expect(panelContext(a, data([a], [letter()], [cv]), 'Sari Contohwati')).toMatchObject({
       applicationId: 'a1', company: 'PT Contoh Karya', cvReady: true, letterReady: true, coverLetter: 'Dear team,\n\nI apply.',
-      cvFile: 'CV-PT-Contoh-Karya.pdf', cvDownloaded: false,
+      cvFile: 'cv_saricontohwati_contoh_karya.pdf', cvDownloaded: false,
     })
   })
 

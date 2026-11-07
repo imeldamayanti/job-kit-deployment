@@ -14,7 +14,8 @@ import { loadApplicationData, watchApplications } from '../../platform/applicati
 import { loadProfile, watchProfile } from '../../platform/storage'
 import { copyText } from '../../platform/clipboard'
 import { downloadCv } from '../../platform/cv-pdf'
-import { buildCv, cvStatus, restoreCv, saveCvEdit } from '../../platform/tailor'
+import { buildCv, cvStatus, restoreCv, saveCvEdit, saveCvOrder } from '../../platform/tailor'
+import type { CvOrder } from '../../core/tailor/types'
 import type { CvTabState } from '../../entrypoints/options/CvTab'
 
 type Link = Parameters<CvTabState['onLink']>[0]
@@ -99,6 +100,14 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
     await refresh()
   }, [cvId, editor, refresh])
 
+  // Which section leads the CV is saved at once, after any edit still waiting, and the page reads the CV again.
+  const changeOrder = useCallback(async (order: CvOrder) => {
+    if (!cvId) return
+    await editor?.flush()
+    await saveCvOrder(cvId, order)
+    await refresh()
+  }, [cvId, editor, refresh])
+
   // Unduh PDF or Word (T50): the file is made here, in this browser. When it cannot be, the reason is shown and the text can be copied.
   const download = useCallback(async (format: 'pdf' | 'docx' = 'pdf') => {
     if (!id) return
@@ -116,7 +125,7 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
 
   const copyCv = useCallback(async () => {
     if (!cv || !profile) return
-    const doc = assemble(profile, cvParts(cv))
+    const doc = assemble(profile, cvParts(cv), cv.order)
     const copied = await copyText(cvToText(doc, detectLanguage(doc.experience.flatMap((job) => [job.title, ...job.bullets]).join(' '))))
     setDownloadNote(copied ? 'Teks CV disalin.' : 'Teks CV tidak bisa disalin otomatis. Pilih teks di halaman ini lalu salin.')
   }, [cv, profile])
@@ -129,6 +138,7 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
     onDismissNotice: () => setNotice(null),
     onEdit: (parts) => editor?.schedule(parts),
     onRestore: () => void restore(),
+    onOrder: (order: CvOrder) => void changeOrder(order),
     onDownload: () => void download(),
     onDownloadWord: () => void download('docx'),
     onCopyText: () => void copyCv(),

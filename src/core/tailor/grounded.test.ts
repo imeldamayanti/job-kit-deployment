@@ -129,6 +129,8 @@ describe('checkText (shared with the cover letter)', () => {
   })
 })
 
+const empty0 = (): TailorOutput => ({ skills: [], experience: [], education: [] })
+
 describe('assemble', () => {
   it('takes title, company, dates and school from the Profile, never from the AI answer', () => {
     const cv = assemble(A, good())
@@ -141,7 +143,7 @@ describe('assemble', () => {
     expect(assemble(A, good()).header).toEqual({ name: 'Sari Contohwati', contacts: ['081200000000', 'sari@example.test', 'Denpasar'] })
   })
 
-  it('keeps the AI order of experience and drops entries the AI left out', () => {
+  it('keeps the AI order of experience', () => {
     const output: TailorOutput = {
       skills: ['React'],
       experience: [
@@ -151,7 +153,18 @@ describe('assemble', () => {
       education: [],
     }
     expect(assemble(A, output).experience.map((e) => e.sourceId)).toEqual(['exp-a2', 'exp-a1'])
-    expect(assemble(A, { ...output, experience: output.experience.slice(1) }).experience.map((e) => e.sourceId)).toEqual(['exp-a1'])
+  })
+
+  it('never drops an experience: one the AI left out goes after the others, with its Profile bullets', () => {
+    const output: TailorOutput = { skills: ['React'], experience: [{ sourceId: 'exp-a2', bullets: ['Membantu memindahkan halaman statis ke React.'] }], education: [] }
+    const cv = assemble(A, output)
+    expect(cv.experience.map((e) => e.sourceId)).toEqual(['exp-a2', 'exp-a1'])
+    expect(cv.experience[0]?.bullets).toEqual(['Membantu memindahkan halaman statis ke React.'])
+    expect(cv.experience[1]?.bullets).toEqual([
+      'Membangun fitur dashboard pelanggan dengan React dan TypeScript.',
+      'Menulis REST API dengan Node.js dan PostgreSQL.',
+      'Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%.',
+    ])
   })
 
   it('falls back to the Profile as written when the AI returns nothing (T45: small models often return no bullets)', () => {
@@ -170,6 +183,25 @@ describe('assemble', () => {
   it('falls back only for an experience whose bullets came back empty', () => {
     const output: TailorOutput = { skills: ['React'], experience: [{ sourceId: 'exp-a2', bullets: [] }], education: ['edu-a1'] }
     expect(assemble(A, output).experience[0]?.bullets).toEqual(['Memperbaiki bug tampilan di situs perusahaan.', 'Membantu memindahkan halaman statis ke React.'])
+  })
+
+  it('lists the Profile fields named Certification or Sertifikasi as certifications, and nothing else from custom', () => {
+    const profile: Profile = {
+      ...A,
+      custom: [
+        { id: 'c1', key: 'Certification', value: 'Dicoding, Belajar Dasar AI' },
+        { id: 'c2', key: ' sertifikasi ', value: 'Google Cloud, Prompt Design' },
+        { id: 'c3', key: 'Portfolio', value: 'https://contoh.test' },
+        { id: 'c4', key: 'Certification', value: '   ' },
+      ],
+    }
+    expect(assemble(profile, empty0()).certifications).toEqual(['Dicoding, Belajar Dasar AI', 'Google Cloud, Prompt Design'])
+    expect(assemble({ ...A, custom: [] }, empty0()).certifications).toEqual([])
+  })
+
+  it('leads with education by default and with experience when asked', () => {
+    expect(assemble(A, empty0()).order).toBe('education-first')
+    expect(assemble(A, empty0(), 'experience-first').order).toBe('experience-first')
   })
 
   it('returns an empty experience list for a Profile without experience', () => {

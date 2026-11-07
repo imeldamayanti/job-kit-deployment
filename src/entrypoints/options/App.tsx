@@ -39,7 +39,7 @@ import { letterViewFor } from '../../core/letters/view'
 
 // The CV tab in a dev preview shows a fixed state; its buttons do nothing.
 const NO_LETTER_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onCopy: () => {}, onLang: () => {}, onTone: () => {} }
-const NO_CV_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onDownload: () => {}, onDownloadWord: () => {}, onCopyText: () => {} }
+const NO_CV_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onOrder: () => {}, onDownload: () => {}, onDownloadWord: () => {}, onCopyText: () => {} }
 
 export function App() {
   const { profile, update, commit, saveState } = useProfile()

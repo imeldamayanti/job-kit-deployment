@@ -1,13 +1,13 @@
 import { formatPeriod } from '../core/tailor/format'
 import { CV_LABELS, type Lang } from '../core/tailor/language'
-import type { CvDocument } from '../core/tailor/types'
+import { cvSections, type CvDocument } from '../core/tailor/types'
 
 // The CV as a Word file (.docx), in the same layout as the PDF: name and contacts centred, Education, Experience, Skills,
 // each place with its dates flush right. Word writes any letter, so nothing is replaced. The library is loaded on first use.
 const PAGE_WIDTH = 11906 // A4, in twentieths of a point
 const MARGIN = 1020
 const TEXT_WIDTH = PAGE_WIDTH - 2 * MARGIN
-const GRAY = '444444'
+const INK = '111111'
 
 export async function renderCvDocx(doc: CvDocument, lang: Lang, title: string): Promise<Uint8Array> {
   const { AlignmentType, BorderStyle, Document, LevelFormat, Packer, Paragraph, Tab, TabStopType, TextRun } = await import('docx')
@@ -31,7 +31,7 @@ export async function renderCvDocx(doc: CvDocument, lang: Lang, title: string): 
       tabStops: [{ type: TabStopType.RIGHT, position: TEXT_WIDTH }],
       children: [
         run(left, { bold: true, size: 10.5 }),
-        ...(location !== '' ? [run(` - ${location}`, { bold: true, size: 10.5, color: '808080' })] : []),
+        ...(location !== '' ? [run(` – ${location}`, { bold: true, size: 10.5, color: '808080' })] : []),
         ...(right !== '' ? [new TextRun({ children: [new Tab(), right], font, size: 20 })] : []),
       ],
     })
@@ -43,12 +43,13 @@ export async function renderCvDocx(doc: CvDocument, lang: Lang, title: string): 
     new Paragraph({ alignment: AlignmentType.CENTER, children: [run(doc.header.name.toUpperCase(), { bold: true, size: 20 })] }),
   ]
   if (doc.header.contacts.length > 0) {
-    body.push(new Paragraph({ alignment: AlignmentType.CENTER, children: [run(doc.header.contacts.join(' | '), { size: 9.5, color: GRAY })] }))
+    body.push(new Paragraph({ alignment: AlignmentType.CENTER, children: [run(doc.header.contacts.join('  |  '), { size: 9.5, color: INK })] }))
   }
 
   if (doc.summary !== '') body.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 80 }, children: [run(doc.summary)] }))
 
-  if (doc.education.length > 0) {
+  const education = () => {
+    if (doc.education.length === 0) return
     body.push(heading(labels.education))
     for (const school of doc.education) {
       if (school.institution !== '') body.push(split(school.institution, school.year, school.location))
@@ -62,7 +63,8 @@ export async function renderCvDocx(doc: CvDocument, lang: Lang, title: string): 
       }
     }
   }
-  if (doc.experience.length > 0) {
+  const experience = () => {
+    if (doc.experience.length === 0) return
     body.push(heading(labels.experience))
     for (const job of doc.experience) {
       body.push(split(job.company !== '' ? job.company : job.title, formatPeriod(job.start, job.end, job.current, lang), job.company !== '' ? job.location : ''))
@@ -70,7 +72,8 @@ export async function renderCvDocx(doc: CvDocument, lang: Lang, title: string): 
       for (const text of job.bullets) body.push(bullet(text))
     }
   }
-  if (doc.projects.length > 0) {
+  const projects = () => {
+    if (doc.projects.length === 0) return
     body.push(heading(labels.projects))
     for (const project of doc.projects) {
       body.push(split(project.name, project.date))
@@ -78,9 +81,17 @@ export async function renderCvDocx(doc: CvDocument, lang: Lang, title: string): 
       for (const text of project.bullets) body.push(bullet(text))
     }
   }
-  if (doc.skills.length > 0) {
-    body.push(heading(labels.skills), new Paragraph({ children: [run(doc.skills.join(', '))] }))
+  const skills = () => {
+    if (doc.skills.length > 0) body.push(heading(labels.skills), new Paragraph({ children: [run(doc.skills.join(', '))] }))
   }
+  const certifications = () => {
+    if (doc.certifications.length === 0) return
+    body.push(heading(labels.certifications))
+    for (const text of doc.certifications) body.push(bullet(text))
+  }
+  // The same sections in the same order as the PDF and the text copy.
+  const draws = { education, experience, projects, skills, certifications }
+  for (const name of cvSections(doc.order)) draws[name]()
 
   const file = new Document({
     title,

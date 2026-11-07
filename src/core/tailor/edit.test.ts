@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { TailoredCv } from '../applications/types'
-import { cvParts, editCv, overwritesEdits, restoreAiVersion } from './edit'
+import { cvParts, editCv, overwritesEdits, restoreAiVersion, withCvOrder } from './edit'
 
 const cv = (change: Partial<TailoredCv> = {}): TailoredCv => ({
   id: 'cv-1', applicationId: 'a', createdAt: '2026-10-15T08:00:00.000Z', profileHash: 'h',
@@ -8,6 +8,22 @@ const cv = (change: Partial<TailoredCv> = {}): TailoredCv => ({
   coverage: { required: ['React'], covered: ['React'], missing: [] }, edited: false,
   aiVersion: { skills: ['React', 'TypeScript'], experience: [{ sourceId: 'x', bullets: ['Membangun dashboard.', 'Menulis tes.'] }], education: ['e1'] },
   ...change,
+})
+
+describe('withCvOrder', () => {
+  it('stores experience first, and drops the field again for the default so a plain CV stays plain', () => {
+    const lead = withCvOrder(cv(), 'experience-first')
+    expect(lead.order).toBe('experience-first')
+    expect(withCvOrder(lead, 'education-first')).not.toHaveProperty('order')
+  })
+
+  it('does not touch the wording, the edited mark or the AI version, and keeps the order through an edit and a restore', () => {
+    const before = cv({ edited: true })
+    const lead = withCvOrder(before, 'experience-first')
+    expect(lead).toMatchObject({ edited: true, experience: before.experience, aiVersion: before.aiVersion })
+    expect(editCv(lead, { ...cvParts(lead), skills: ['React'] }).order).toBe('experience-first')
+    expect(restoreAiVersion(lead).order).toBe('experience-first')
+  })
 })
 
 describe('editCv (FR-41)', () => {

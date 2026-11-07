@@ -32,7 +32,9 @@ export async function renderCvPdf(doc: CvDocument, lang: Lang, title: string): P
       if (op.kind === 'rule') {
         page.drawLine({ start: { x: op.x1, y: op.y }, end: { x: op.x2, y: op.y }, thickness: 1, color: rgb(0.07, 0.07, 0.07) })
       } else {
-        page.drawText(op.text, { x: op.x, y: op.y, size: op.size, font: op.bold ? bold : op.italic ? italic : regular, color: rgb(op.gray, op.gray, op.gray) })
+        // A web address in the contacts is blue, as on the person's own CV.
+        const color = op.link ? rgb(0.1, 0.27, 0.7) : rgb(op.gray, op.gray, op.gray)
+        page.drawText(op.text, { x: op.x, y: op.y, size: op.size, font: op.bold ? bold : op.italic ? italic : regular, color })
       }
     }
   }
@@ -53,7 +55,7 @@ type Options = {
 const describe = (error: unknown) => (error instanceof Error && error.message !== '' ? error.message : 'sebab tidak diketahui')
 
 // "Unduh PDF" (FR-42): draws the stored CV, so a hand edit is what is downloaded, hands it to the browser as
-// CV-{perusahaan}.pdf and notes the download in the history. When anything fails, nothing is noted and the person is
+// cv_{nama}_{perusahaan}.pdf and notes the download in the history. When anything fails, nothing is noted and the person is
 // told why; the CV stays on the page to be copied (PRD §8).
 const DOCX_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 const renderCvWord: typeof renderCvPdf = async (doc, lang, title) => ({ bytes: await renderCvDocx(doc, lang, title), replaced: [] })
@@ -64,9 +66,10 @@ export async function downloadCv(applicationId: string, { now = new Date(), form
   const cv = app ? data.cvs.find((item) => item.id === app.cvId) : undefined
   if (!app || !cv) return { ok: false, message: 'Belum ada CV untuk diunduh.' }
 
-  const doc = assemble(profile, cvParts(cv))
+  const doc = assemble(profile, cvParts(cv), cv.order)
   const lang = detectLanguage(doc.experience.flatMap((job) => [job.title, ...job.bullets]).join(' '))
-  const fileName = cvFileName(app.job.company).replace(/\.pdf$/, `.${format}`)
+  const person = [profile.personal.firstName, profile.personal.lastName].join(' ')
+  const fileName = cvFileName(app.job.company, person).replace(/\.pdf$/, `.${format}`)
 
   let rendered: RenderedPdf
   try {

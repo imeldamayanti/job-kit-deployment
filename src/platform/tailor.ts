@@ -3,7 +3,8 @@ import type { AiUsage, ScoringClient } from '../core/ai/score'
 import { attachCv } from '../core/applications/applications'
 import type { SaveOutcome } from '../core/profile/autosave'
 import type { CvParts } from '../core/tailor/diff'
-import { editCv, restoreAiVersion } from '../core/tailor/edit'
+import { editCv, restoreAiVersion, withCvOrder } from '../core/tailor/edit'
+import type { CvOrder } from '../core/tailor/types'
 import type { TailoredCv } from '../core/applications/types'
 import { acknowledgeNotice, needsNotice, trainingNotice } from '../core/tailor/privacy'
 import { countDocument, cvAvailability, type CvAvailability, type CvBlockReason } from '../core/tailor/limits'
@@ -86,3 +87,5 @@ async function updateCv(cvId: string, change: (cv: TailoredCv) => TailoredCv): P
 // The person's hand edit, and "Kembalikan ke versi AI" (FR-41).
 export const saveCvEdit = (cvId: string, parts: CvParts): Promise<SaveOutcome> => updateCv(cvId, (cv) => editCv(cv, parts))
 export const restoreCv = (cvId: string): Promise<SaveOutcome> => updateCv(cvId, restoreAiVersion)
+// Which of Education and Work Experience leads the CV.
+export const saveCvOrder = (cvId: string, order: CvOrder): Promise<SaveOutcome> => updateCv(cvId, (cv) => withCvOrder(cv, order))

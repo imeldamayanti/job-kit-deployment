@@ -12,10 +12,12 @@ describe('cvToText (the CV as plain text, for Salin when the PDF fails, PRD §8)
       'Sari Contohwati',
       '081200000000 · sari@example.test · Denpasar',
       '',
-      'SKILL',
-      'TypeScript, React, Node.js, PostgreSQL, Git, REST API, Jest',
+      'PENDIDIKAN',
+      'S1 Teknik Informatika',
+      'Universitas Contoh Nusantara · 2022',
+      'IPK: 3.5',
       '',
-      'PENGALAMAN',
+      'PENGALAMAN KERJA',
       'Software Engineer',
       'PT Contoh Teknologi · Agu 2023 – sekarang',
       '- Membangun fitur dashboard pelanggan dengan React dan TypeScript.',
@@ -28,11 +30,16 @@ describe('cvToText (the CV as plain text, for Salin when the PDF fails, PRD §8)
       '- Memperbaiki bug tampilan di situs perusahaan.',
       '- Membantu memindahkan halaman statis ke React.',
       '',
-      'PENDIDIKAN',
-      'S1 Teknik Informatika',
-      'Universitas Contoh Nusantara · 2022',
-      'IPK: 3.5',
+      'SKILL',
+      'TypeScript, React, Node.js, PostgreSQL, Git, REST API, Jest',
     ])
+  })
+
+  it('puts experience above education when the CV leads with experience, and ends with certifications', () => {
+    const doc = { ...assemble(SAMPLE_WEB_DEV, empty), order: 'experience-first' as const, certifications: ['Dicoding, Belajar Dasar AI'] }
+    const lines = cvToText(doc, 'id').split('\n')
+    expect(lines.indexOf('PENGALAMAN KERJA')).toBeLessThan(lines.indexOf('PENDIDIKAN'))
+    expect(lines.slice(-2)).toEqual(['SERTIFIKASI', '- Dicoding, Belajar Dasar AI'])
   })
 
   it('uses English section names and "present" for an English CV', () => {
