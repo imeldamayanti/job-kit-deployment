@@ -157,6 +157,15 @@ export function assemble(profile: Profile, output: TailorOutput, order: CvOrder 
   for (const source of profile.experience) {
     if (!seen.has(source.id)) experience.push(entryOf(source, bulletsFromDescription(source.description).slice(0, 3)))
   }
+  // The jobs the person still holds always lead, in the order the Profile lists them; the AI only orders the rest.
+  const profileOrder = new Map(profile.experience.map((e, index) => [e.id, index]))
+  const holds = (sourceId: string) => experienceById.get(sourceId)?.current === true
+  experience.splice(
+    0,
+    experience.length,
+    ...experience.filter((e) => holds(e.sourceId)).sort((a, b) => (profileOrder.get(a.sourceId) ?? 0) - (profileOrder.get(b.sourceId) ?? 0)),
+    ...experience.filter((e) => !holds(e.sourceId)),
+  )
 
   const educationById = new Map(profile.education.map((e) => [e.id, e]))
   const pickedEducation = [...new Set(output.education)].map((id) => educationById.get(id)).filter((e) => e !== undefined)

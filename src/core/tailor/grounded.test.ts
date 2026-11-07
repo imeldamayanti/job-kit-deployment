@@ -143,7 +143,8 @@ describe('assemble', () => {
     expect(assemble(A, good()).header).toEqual({ name: 'Sari Contohwati', contacts: ['081200000000', 'sari@example.test', 'Denpasar'] })
   })
 
-  it('keeps the AI order of experience', () => {
+  it('keeps the AI order of experience that has ended', () => {
+    const ended: Profile = { ...A, experience: A.experience.map((e) => ({ ...e, current: false })) }
     const output: TailorOutput = {
       skills: ['React'],
       experience: [
@@ -152,12 +153,38 @@ describe('assemble', () => {
       ],
       education: [],
     }
-    expect(assemble(A, output).experience.map((e) => e.sourceId)).toEqual(['exp-a2', 'exp-a1'])
+    expect(assemble(ended, output).experience.map((e) => e.sourceId)).toEqual(['exp-a2', 'exp-a1'])
+  })
+
+  it('keeps the jobs the person still holds at the top, in Profile order, whatever order the AI gave', () => {
+    const [first, second] = A.experience as [Profile['experience'][number], Profile['experience'][number]]
+    const profile: Profile = {
+      ...A,
+      experience: [
+        { ...first, id: 'now-1', current: true },
+        { ...first, id: 'now-2', current: true },
+        { ...second, id: 'old-1', current: false },
+        { ...second, id: 'old-2', current: false },
+      ],
+    }
+    const output: TailorOutput = {
+      skills: [],
+      experience: ['old-2', 'now-2', 'old-1', 'now-1'].map((sourceId) => ({ sourceId, bullets: ['Satu butir.'] })),
+      education: [],
+    }
+    // The ones still going come first as the Profile lists them; the rest keep the order the AI chose.
+    expect(assemble(profile, output).experience.map((e) => e.sourceId)).toEqual(['now-1', 'now-2', 'old-2', 'old-1'])
+  })
+
+  it('puts a current job the AI left out at the top as well', () => {
+    const output: TailorOutput = { skills: [], experience: [{ sourceId: 'exp-a2', bullets: ['Membantu.'] }], education: [] }
+    expect(assemble(A, output).experience.map((e) => e.sourceId)).toEqual(['exp-a1', 'exp-a2'])
   })
 
   it('never drops an experience: one the AI left out goes after the others, with its Profile bullets', () => {
+    const ended: Profile = { ...A, experience: A.experience.map((e) => ({ ...e, current: false })) }
     const output: TailorOutput = { skills: ['React'], experience: [{ sourceId: 'exp-a2', bullets: ['Membantu memindahkan halaman statis ke React.'] }], education: [] }
-    const cv = assemble(A, output)
+    const cv = assemble(ended, output)
     expect(cv.experience.map((e) => e.sourceId)).toEqual(['exp-a2', 'exp-a1'])
     expect(cv.experience[0]?.bullets).toEqual(['Membantu memindahkan halaman statis ke React.'])
     expect(cv.experience[1]?.bullets).toEqual([
@@ -182,7 +209,7 @@ describe('assemble', () => {
 
   it('falls back only for an experience whose bullets came back empty', () => {
     const output: TailorOutput = { skills: ['React'], experience: [{ sourceId: 'exp-a2', bullets: [] }], education: ['edu-a1'] }
-    expect(assemble(A, output).experience[0]?.bullets).toEqual(['Memperbaiki bug tampilan di situs perusahaan.', 'Membantu memindahkan halaman statis ke React.'])
+    expect(assemble(A, output).experience.find((e) => e.sourceId === 'exp-a2')?.bullets).toEqual(['Memperbaiki bug tampilan di situs perusahaan.', 'Membantu memindahkan halaman statis ke React.'])
   })
 
   it('lists the Profile fields named Certification or Sertifikasi as certifications, and nothing else from custom', () => {
