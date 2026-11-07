@@ -21,6 +21,10 @@ export function detectLanguage(text: string): Lang {
   return en > id ? 'en' : 'id'
 }
 
+// The CV is always in English: headings, dates and the AI's bullets, whatever language the posting or the Profile is in.
+// (The cover letter still follows the posting, through detectLanguage.)
+export const CV_LANG: Lang = 'en'
+
 // The section names of a CV in the language of its text.
 export const CV_LABELS: Record<Lang, { skills: string; experience: string; education: string; projects: string; certifications: string; gpa: string; publication: string; achievements: string; now: string }> = {
   id: { skills: 'Skill', experience: 'Pengalaman Kerja', education: 'Pendidikan', projects: 'Proyek', certifications: 'Sertifikasi', gpa: 'IPK', publication: 'Publikasi', achievements: 'Prestasi', now: 'sekarang' },
