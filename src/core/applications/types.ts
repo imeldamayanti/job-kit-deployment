@@ -1,4 +1,5 @@
 import { JOB_SOURCE_IDS, type JobSourceId } from '../feed/types'
+import type { CvOrder } from '../tailor/types'
 
 // RFC §3.3c. The application is the source of truth for status (D11); Job.status in the feed follows it.
 export const APP_STATUSES = ['draft', 'applied', 'in-review', 'interview', 'offer', 'rejected', 'withdrawn'] as const
@@ -48,6 +49,8 @@ export type TailoredCv = {
   edited: boolean
   // What the AI returned, for "Kembalikan ke versi AI".
   aiVersion: CvParts
+  // Which of Education and Work Experience leads the CV. Left out while it is the default (education first).
+  order?: CvOrder
 } & CvParts
 
 // Filled by T51.

@@ -70,6 +70,8 @@ function normalizeCv(raw: Loose): TailoredCv | null {
     coverage: { required: strings(coverage.required), covered: strings(coverage.covered), missing: strings(coverage.missing) },
     edited: raw.edited === true,
     aiVersion: isRecord(raw.aiVersion) ? cvParts(raw.aiVersion) : parts,
+    // Only the non-default order is kept; anything else reads as education first.
+    ...(raw.order === 'experience-first' && { order: 'experience-first' as const }),
   }
 }
 

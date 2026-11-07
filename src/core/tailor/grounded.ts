@@ -1,5 +1,5 @@
 import type { Profile } from '../profile/types'
-import type { CvDocument, Grounding, TailorOutput, Violation } from './types'
+import { DEFAULT_CV_ORDER, type CvDocument, type CvOrder, type Grounding, type TailorOutput, type Violation } from './types'
 
 // FR-40: nothing in a CV or letter may be absent from the Profile. The checks are mechanical, so they
 // catch an invented skill, number or technical term, not a stretched claim such as "memimpin tim"
@@ -134,7 +134,7 @@ const lines = (text: string | undefined) => (text ?? '').split('\n').map((line) 
 
 // Joins the AI's wording with the Profile's facts. Job title, employer, school and dates come from the Profile only (D12).
 // What the AI left empty falls back to the Profile as written, so a weak answer never yields an empty CV.
-export function assemble(profile: Profile, output: TailorOutput): CvDocument {
+export function assemble(profile: Profile, output: TailorOutput, order: CvOrder = DEFAULT_CV_ORDER): CvDocument {
   const skillByKey = new Map(profile.skills.map((s) => [squash(s.name), s.name]))
   const chosenSkills = [...new Set(output.skills.map((s) => skillByKey.get(squash(String(s)))).filter((s): s is string => s !== undefined))]
 
@@ -143,15 +143,19 @@ export function assemble(profile: Profile, output: TailorOutput): CvDocument {
   const picked = chosen.length > 0 ? chosen : profile.experience.map((e) => ({ sourceId: e.id, bullets: [] as string[] }))
   const seen = new Set<string>()
   const experience: CvDocument['experience'] = []
+  const entryOf = (source: Profile['experience'][number], bullets: string[]): CvDocument['experience'][number] => ({
+    sourceId: source.id, title: source.title, company: source.company, location: (source.location ?? '').trim(), start: source.start, end: source.end, current: source.current, bullets,
+  })
   for (const item of picked) {
     const source = experienceById.get(item.sourceId)
     if (!source || seen.has(item.sourceId)) continue
     seen.add(item.sourceId)
     const bullets = item.bullets.map((b) => b.trim()).filter((b) => b !== '')
-    experience.push({
-      sourceId: source.id, title: source.title, company: source.company, location: (source.location ?? '').trim(), start: source.start, end: source.end, current: source.current,
-      bullets: bullets.length > 0 ? bullets : bulletsFromDescription(source.description),
-    })
+    experience.push(entryOf(source, bullets.length > 0 ? bullets : bulletsFromDescription(source.description)))
+  }
+  // No experience is ever dropped: one the AI left out goes after the others, as the Profile wrote it (at most 3 bullets, like the AI's own).
+  for (const source of profile.experience) {
+    if (!seen.has(source.id)) experience.push(entryOf(source, bulletsFromDescription(source.description).slice(0, 3)))
   }
 
   const educationById = new Map(profile.education.map((e) => [e.id, e]))
@@ -162,7 +166,12 @@ export function assemble(profile: Profile, output: TailorOutput): CvDocument {
   }))
 
   const { personal, contact } = profile
+  const certifications = profile.custom
+    .filter((field) => /^(certifications?|sertifikasi|sertifikat)$/i.test(field.key.trim()) && field.value.trim() !== '')
+    .map((field) => field.value.trim())
   return {
+    order,
+    certifications,
     header: {
       name: [personal.firstName, personal.middleName, personal.lastName].map((p) => p.trim()).filter((p) => p !== '').join(' '),
       contacts: [contact.phone, contact.email, contact.linkedin, contact.website, contact.city].map((c) => c.trim()).filter((c) => c !== ''),

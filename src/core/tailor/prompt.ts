@@ -16,6 +16,7 @@ Aturan keras:
 - Hanya gunakan fakta yang ada di profil. Jangan menambah skill, alat, angka, persen, atau pencapaian yang tidak tertulis di deskripsi pengalaman.
 - "skills" hanya boleh berisi nama dari daftar skill profil.
 - Tiap butir ditulis ulang dari deskripsi pengalaman asalnya, maksimal 3 butir per pengalaman, dalam bahasa yang sama dengan deskripsi asalnya. Urutkan pengalaman dan butir dari yang paling relevan dengan lowongan.
+- Sertakan SEMUA pengalaman di profil di "experience", jangan ada yang dibuang. Yang kurang relevan tetap ditulis, cukup 1 butir dan diletakkan paling bawah.
 - Jangan menulis jabatan, nama perusahaan, institusi, atau tanggal. Kode seperti {C1} atau {S1} boleh muncul apa adanya.
 - Requirement yang tidak didukung profil tetap ditulis di "requirements"; jangan ditambal dengan butir karangan.
 - Balas hanya JSON, tanpa teks lain, tanpa code fence.

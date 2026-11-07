@@ -20,7 +20,8 @@ export type PanelContext = {
   cvDownloaded: boolean
 }
 
-export function panelContext(app: Application, data: ApplicationData): PanelContext {
+// `person` is the name the CV file carries (cv_{name}_{company}.pdf), from the Profile.
+export function panelContext(app: Application, data: ApplicationData, person = ''): PanelContext {
   const letter = app.letterId === null ? undefined : data.letters.find((item) => item.id === app.letterId && item.applicationId === app.id)
   return {
     applicationId: app.id,
@@ -28,7 +29,7 @@ export function panelContext(app: Application, data: ApplicationData): PanelCont
     cvReady: app.cvId !== null && data.cvs.some((cv) => cv.id === app.cvId && cv.applicationId === app.id),
     letterReady: letter !== undefined,
     coverLetter: letter?.body ?? '',
-    cvFile: cvFileName(app.job.company),
+    cvFile: cvFileName(app.job.company, person),
     cvDownloaded: app.events.some((event) => event.type === 'download'),
   }
 }

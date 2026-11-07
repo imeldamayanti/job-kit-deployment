@@ -1,23 +1,30 @@
 import { formatPeriod } from './format'
 import { CV_LABELS, type Lang } from './language'
-import type { CvDocument } from './types'
+import { cvSections, type CvDocument } from './types'
 
 // The one CV template (FR-42), as data: where each line goes on each A4 page. Pure, so it is tested without a PDF;
 // `platform/cv-pdf.ts` draws these operations with pdf-lib. Coordinates are points from the bottom left, as in PDF.
-export const A4 = { width: 595.28, height: 841.89, margin: 51 } as const
+// The look follows the person's own CV: centred name and contacts, a heavy section title with a thin rule, the place
+// in bold with its town in grey and the dates flush right, the role in italics, and bold bullets that hang.
+export const A4 = { width: 595.28, height: 841.89, margin: 45, top: 36 } as const
+
+// Point sizes. Body text is 9.6 and a line takes 1.34 of it, which is what fits a working life on one page.
+export const SIZE = { name: 20, contact: 9, body: 9.6, heading: 11.5 } as const
+// How far bullet text sits in from the margin.
+export const INDENT = 12.5
 
 export type PdfOp =
-  | { kind: 'text'; text: string; x: number; y: number; size: number; bold: boolean; gray: number; italic?: boolean }
+  | { kind: 'text'; text: string; x: number; y: number; size: number; bold: boolean; gray: number; italic?: boolean; link?: boolean }
   | { kind: 'rule'; x1: number; x2: number; y: number }
 
 // Width of a text in points. The real one comes from the font; tests pass a simple one.
 export type Measure = (text: string, bold: boolean, size: number) => number
 
-const LINE = 1.4
+const LINE = 1.34
 const INK = 0.07
-const QUIET = 0.27
 const PLACE = 0.5
-const INDENT = 14
+const BAR = '  |  '
+const isLink = (text: string) => /linkedin\.com|github\.com|^https?:\/\/|^www\./i.test(text)
 
 // A line is cut at spaces; a word wider than the line is cut inside the word, so nothing runs past the margin.
 function wrap(text: string, bold: boolean, size: number, width: number, measure: Measure): string[] {
@@ -50,7 +57,7 @@ function wrap(text: string, bold: boolean, size: number, width: number, measure:
 export function layoutCv(doc: CvDocument, lang: Lang, measure: Measure): PdfOp[][] {
   const labels = CV_LABELS[lang]
   const pages: PdfOp[][] = [[]]
-  const top = A4.height - A4.margin
+  const top = A4.height - A4.top
   const full = A4.width - 2 * A4.margin
   let y = top
 
@@ -68,98 +75,133 @@ export function layoutCv(doc: CvDocument, lang: Lang, measure: Measure): PdfOp[]
     y -= lineHeight(size)
     pages.at(-1)!.push({ kind: 'text', text, x, y, size, bold, gray, ...(italic ? { italic } : {}) })
   }
-  const paragraph = (text: string, { bold = false, size = 10, x = A4.margin, gray = INK, italic = false, center = false } = {}) => {
+  const paragraph = (text: string, { bold = false, size = SIZE.body as number, x = A4.margin as number, gray = INK as number, italic = false, center = false } = {}) => {
     for (const line of wrap(text, bold, size, A4.width - A4.margin - x, measure))
       draw(line, bold, size, center ? (A4.width - measure(line, bold, size)) / 2 : x, gray, italic)
   }
+  // The contacts in one centred line, each its own piece so a web address can be coloured as a link. A line too long
+  // for the page falls back to plain wrapped text.
+  const contactLine = (contacts: string[]) => {
+    const size = SIZE.contact
+    const pieces = contacts.flatMap((contact, index) => (index === 0 ? [contact] : [BAR, contact]))
+    const total = pieces.reduce((sum, piece) => sum + measure(piece, false, size), 0)
+    if (total > full) {
+      paragraph(contacts.join(' | '), { size, center: true })
+      return
+    }
+    keep(lineHeight(size))
+    y -= lineHeight(size)
+    let x = (A4.width - total) / 2
+    for (const piece of pieces) {
+      pages.at(-1)!.push({ kind: 'text', text: piece, x, y, size, bold: false, gray: INK, ...(piece !== BAR && isLink(piece) ? { link: true } : {}) })
+      x += measure(piece, false, size)
+    }
+  }
   // A line with the name of the place on the left (and where it is, in grey) and the dates flush right, as on the person's own CV.
-  const split = (left: string, right: string, location = '', { size = 10.5 } = {}) => {
+  const split = (left: string, right: string, location = '', { size = SIZE.body as number } = {}) => {
     keep(lineHeight(size))
     draw(left, true, size, A4.margin)
     const ops = pages.at(-1)!
-    if (location !== '') ops.push({ kind: 'text', text: `- ${location}`, x: A4.margin + measure(`${left} `, true, size) + 2, y, size, bold: true, gray: PLACE })
+    if (location !== '') ops.push({ kind: 'text', text: `– ${location}`, x: A4.margin + measure(`${left} `, true, size) + 2.5, y, size, bold: true, gray: PLACE })
     if (right !== '') ops.push({ kind: 'text', text: right, x: A4.width - A4.margin - measure(right, false, size), y, size, bold: false, gray: INK })
   }
   const rule = () => {
-    y -= 3
+    y -= 4.5
     pages.at(-1)!.push({ kind: 'rule', x1: A4.margin, x2: A4.width - A4.margin, y })
-    y -= 4
+    y -= 0.5
   }
   // The title of a section stays with the first thing under it.
   const section = (title: string, firstBlock: number) => {
-    keep(6 + lineHeight(12) + 7 + firstBlock)
-    y -= 6
-    draw(title, true, 12, A4.margin)
+    keep(5 + lineHeight(SIZE.heading) + 5 + firstBlock)
+    y -= 5
+    draw(title, true, SIZE.heading, A4.margin)
     rule()
   }
 
   // A bullet, optionally led by a bold label ("GPA: 3.87"): the label and the first words share the first line.
   const bullet = (text: string, label = '', x = A4.margin + INDENT, mark = '•') => {
     const lead = label !== '' ? `${label}: ` : ''
-    const lines = wrap(`${lead}${text}`, false, 10, A4.width - A4.margin - x, measure)
-    keep(lineHeight(10) * Math.min(lines.length, 2))
+    const lines = wrap(`${lead}${text}`, false, SIZE.body, A4.width - A4.margin - x, measure)
+    keep(lineHeight(SIZE.body) * Math.min(lines.length, 2))
     lines.forEach((line, index) => {
       const head = lead.trimEnd()
       if (index === 0 && head !== '' && line.startsWith(head)) {
-        draw(head, true, 10, x)
+        draw(head, true, SIZE.body, x)
         const rest = line.slice(head.length).trimStart()
-        if (rest !== '') pages.at(-1)!.push({ kind: 'text', text: rest, x: x + measure(lead, true, 10) + 2, y, size: 10, bold: false, gray: INK })
-      } else draw(line, false, 10, x)
-      if (index === 0) pages.at(-1)!.push({ kind: 'text', text: mark, x: x - (mark === '•' ? INDENT - 3 : INDENT - 4), y, size: 10, bold: false, gray: INK })
+        if (rest !== '') pages.at(-1)!.push({ kind: 'text', text: rest, x: x + measure(lead, true, SIZE.body) + 2, y, size: SIZE.body, bold: false, gray: INK })
+      } else draw(line, false, SIZE.body, x)
+      // The round bullet is drawn larger than the text, as on the person's own CV; the dash is body size.
+      if (index === 0) pages.at(-1)!.push({ kind: 'text', text: mark, x: mark === '•' ? x - INDENT : x - 9, y, size: mark === '•' ? 12 : SIZE.body, bold: mark === '•', gray: INK })
     })
   }
+  // What a heading and the first line under it need, so a title is never left alone at the foot of a page.
+  const firstBlock = lineHeight(SIZE.body) * 2
 
-  paragraph(doc.header.name.toUpperCase(), { bold: true, size: 20, center: true })
-  if (doc.header.contacts.length > 0) paragraph(doc.header.contacts.join(' | '), { size: 9.5, gray: QUIET, center: true })
-  if (doc.summary !== '') {
-    y -= 4
-    paragraph(doc.summary, { size: 10, center: true })
-  }
-  y -= 6
-
-  if (doc.education.length > 0) {
-    section(labels.education, lineHeight(10.5) + lineHeight(9))
+  const education = () => {
+    if (doc.education.length === 0) return
+    section(labels.education, firstBlock)
     for (const school of doc.education) {
-      keep(lineHeight(10.5) + lineHeight(10) * 2)
+      keep(lineHeight(SIZE.body) * 3)
       if (school.institution !== '') split(school.institution, school.year, school.location)
       const title = [school.level, school.major].filter((part) => part !== '').join(' ')
-      if (title !== '') paragraph(title, { size: 10, italic: true })
+      if (title !== '') paragraph(title, { italic: true })
       if (school.gpa !== '') bullet(school.gpa, labels.gpa)
       if (school.publication !== '') bullet(school.publication, labels.publication)
       if (school.achievements.length > 0) {
         bullet('', labels.achievements)
-        for (const text of school.achievements) bullet(text, '', A4.margin + 2 * INDENT, '-')
+        for (const text of school.achievements) bullet(text, '', A4.margin + 2 * INDENT + 2, '–')
       }
-      y -= 4
+      y -= 4.5
     }
   }
 
-  if (doc.experience.length > 0) {
-    section(labels.experience, lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+  const experience = () => {
+    if (doc.experience.length === 0) return
+    section(labels.experience, firstBlock + lineHeight(SIZE.body))
     for (const job of doc.experience) {
-      keep(lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+      keep(lineHeight(SIZE.body) * 3)
       split(job.company !== '' ? job.company : job.title, formatPeriod(job.start, job.end, job.current, lang), job.company !== '' ? job.location : '')
-      if (job.company !== '' && job.title !== '') paragraph(job.title, { size: 10, italic: true })
+      if (job.company !== '' && job.title !== '') paragraph(job.title, { italic: true })
       for (const text of job.bullets) bullet(text)
-      y -= 4
+      y -= 4.5
     }
   }
 
-  if (doc.projects.length > 0) {
-    section(labels.projects, lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+  const projects = () => {
+    if (doc.projects.length === 0) return
+    section(labels.projects, firstBlock + lineHeight(SIZE.body))
     for (const project of doc.projects) {
-      keep(lineHeight(10.5) + lineHeight(10) + lineHeight(10))
+      keep(lineHeight(SIZE.body) * 3)
       split(project.name, project.date)
-      if (project.role !== '') paragraph(project.role, { size: 10, italic: true })
+      if (project.role !== '') paragraph(project.role, { italic: true })
       for (const text of project.bullets) bullet(text)
-      y -= 4
+      y -= 4.5
     }
   }
 
-  if (doc.skills.length > 0) {
-    section(labels.skills, lineHeight(10))
+  const skills = () => {
+    if (doc.skills.length === 0) return
+    section(labels.skills, lineHeight(SIZE.body))
     paragraph(doc.skills.join(', '))
+    y -= 4.5
   }
+
+  const certifications = () => {
+    if (doc.certifications.length === 0) return
+    section(labels.certifications, lineHeight(SIZE.body))
+    for (const text of doc.certifications) bullet(text)
+  }
+
+  paragraph(doc.header.name.toUpperCase(), { bold: true, size: SIZE.name, center: true })
+  if (doc.header.contacts.length > 0) contactLine(doc.header.contacts)
+  if (doc.summary !== '') {
+    y -= 4
+    paragraph(doc.summary, { center: true })
+  }
+  y -= 4
+
+  const draws = { education, experience, projects, skills, certifications }
+  for (const name of cvSections(doc.order)) draws[name]()
   return pages
 }
 
@@ -204,6 +246,8 @@ export function winAnsiDocument(doc: CvDocument): { doc: CvDocument; replaced: s
     return result.text
   }
   const next: CvDocument = {
+    order: doc.order,
+    certifications: doc.certifications.map(clean),
     header: { name: clean(doc.header.name), contacts: doc.header.contacts.map(clean) },
     summary: clean(doc.summary),
     skills: doc.skills.map(clean),
@@ -219,17 +263,21 @@ export function winAnsiDocument(doc: CvDocument): { doc: CvDocument; replaced: s
   return { doc: next, replaced }
 }
 
-// "CV-{perusahaan}.pdf" (FR-42): letters and digits only, accents turned into plain letters, runs of anything else one dash.
-const MAX_NAME = 56
-export function cvFileName(company: string): string {
-  const base = company
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^A-Za-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, MAX_NAME)
-    .replace(/-+$/g, '')
-  return base === '' ? 'CV.pdf' : `CV-${base}.pdf`
+// "cv_{nama}_{perusahaan}.pdf" (FR-42), the way the person names her own files: the name without spaces, then the
+// company in a few words, all lower case with underscores: cv_imeldadamayanti_inovasi_daya.pdf. Letters and digits
+// only, accents turned into plain letters. A legal form (PT, Tbk, Ltd, ...) is left out of the company; a part there is
+// nothing usable for is left out, and with neither the file is cv.pdf.
+const LEGAL_FORMS = new Set(['pt', 'tbk', 'cv', 'persero', 'ltd', 'pte', 'inc', 'llc', 'co', 'corp', 'limited'])
+const MAX_COMPANY_WORDS = 3
+const MAX_PART = 40
+const plainWords = (text: string) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().match(/[a-z0-9]+/g) ?? []
+
+export function cvFileName(company: string, person = ''): string {
+  const name = plainWords(person).join('').slice(0, MAX_PART)
+  const words = plainWords(company)
+  const rest = words.filter((word) => !LEGAL_FORMS.has(word))
+  const short = (rest.length > 0 ? rest : words).slice(0, MAX_COMPANY_WORDS).join('_').slice(0, MAX_PART).replace(/_+$/, '')
+  return `${['cv', name, short].filter((part) => part !== '').join('_')}.pdf`
 }
 
 // What to tell the person after a download in which some characters had to be replaced; nothing when none were.

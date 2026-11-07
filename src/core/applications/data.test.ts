@@ -24,6 +24,21 @@ const letter = (id: string, applicationId: string): CoverLetter => ({
 
 const data = (applications: Application[], cvs: TailoredCv[] = [], letters: CoverLetter[] = []): ApplicationData => ({ applications, cvs, letters })
 
+describe('normalizeApplicationData and the CV order', () => {
+  // A CV is only kept when the application it belongs to is there.
+  const rawCv = (order: unknown) => ({
+    applications: [app('a')], letters: [],
+    cvs: [{ ...cv('cv-1', 'a'), order }],
+  })
+
+  it('keeps experience first and drops anything else, so an old or odd CV reads as education first', () => {
+    expect(normalizeApplicationData(rawCv('experience-first')).cvs[0]?.order).toBe('experience-first')
+    expect(normalizeApplicationData(rawCv('education-first')).cvs[0]).not.toHaveProperty('order')
+    expect(normalizeApplicationData(rawCv('zig-zag')).cvs[0]).not.toHaveProperty('order')
+    expect(normalizeApplicationData(rawCv(undefined)).cvs[0]).not.toHaveProperty('order')
+  })
+})
+
 describe('normalizeApplicationData', () => {
   it('keeps well-formed data as it is', () => {
     const full = data([app('a', 'job-a', { cvId: 'c1', letterId: 'l1', status: 'interview', followUpAt: '2026-10-21', notes: 'HR: Rina' })], [cv('c1', 'a')], [letter('l1', 'a')])

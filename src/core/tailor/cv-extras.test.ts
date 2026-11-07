@@ -4,7 +4,7 @@ import { parseImport, mergeProfile } from '../data/import'
 import type { Profile } from '../profile/types'
 import { assemble } from './grounded'
 import { profileHash } from './hash'
-import { A4, layoutCv, type Measure, type PdfOp } from './pdf-layout'
+import { A4, SIZE, layoutCv, type Measure, type PdfOp } from './pdf-layout'
 import { cvToText } from './cv-text'
 import { SAMPLE_WEB_DEV } from './sample-profiles'
 
@@ -52,13 +52,13 @@ describe('layoutCv with the optional parts', () => {
 
   it('centres the summary under the contacts', () => {
     const summary = ops().find((op) => op.text.startsWith('Pengembang web'))!
-    expect(summary.x).toBeCloseTo((A4.width - measure(summary.text, false, 10)) / 2)
+    expect(summary.x).toBeCloseTo((A4.width - measure(summary.text, false, SIZE.body)) / 2)
   })
 
   it('puts the place in grey after the company, with the dates on the same line', () => {
     const all = ops()
     const company = all.find((op) => op.text === 'PT Contoh Teknologi')!
-    const place = all.find((op) => op.text === '- Denpasar')!
+    const place = all.find((op) => op.text === '– Denpasar')!
     expect(place).toMatchObject({ bold: true, y: company.y })
     expect(place.gray).toBeGreaterThan(company.gray)
     expect(place.x).toBeGreaterThan(company.x)
@@ -67,14 +67,14 @@ describe('layoutCv with the optional parts', () => {
   it('writes GPA, Publication and Achievements with a bold label, achievements as dashes', () => {
     const all = ops()
     for (const label of ['GPA:', 'Publication:', 'Achievements:']) expect(all.find((op) => op.text === label), label).toMatchObject({ bold: true })
-    expect(all.filter((op) => op.text === '-').length).toBeGreaterThanOrEqual(2)
+    expect(all.filter((op) => op.text === '–').length).toBeGreaterThanOrEqual(2)
     expect(all.some((op) => op.text === 'Top 10 Kompetisi Contoh (2024)')).toBe(true)
   })
 
   it('adds a Projects section between Experience and Skills, with name, dates, role and bullets', () => {
     const all = ops()
-    const heading = (title: string) => all.findIndex((op) => op.size === 12 && op.text === title)
-    expect(heading('Experience')).toBeLessThan(heading('Projects'))
+    const heading = (title: string) => all.findIndex((op) => op.size === SIZE.heading && op.text === title)
+    expect(heading('Work Experience')).toBeLessThan(heading('Projects'))
     expect(heading('Projects')).toBeLessThan(heading('Skills'))
     const name = all.find((op) => op.text === 'BukuContoh')!
     expect(all.find((op) => op.text === 'Nov 2024')!.y).toBe(name.y)

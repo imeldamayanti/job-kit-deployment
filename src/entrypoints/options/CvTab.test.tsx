@@ -8,7 +8,7 @@ import { CvTab, type CvTabState } from './CvTab'
 
 let container: HTMLElement | null = null
 
-const handlers = () => ({ onCreate: vi.fn(), onContinue: vi.fn(), onDismissNotice: vi.fn(), onLink: vi.fn(), onEdit: vi.fn(), onRestore: vi.fn(), onDownload: vi.fn(), onDownloadWord: vi.fn(), onCopyText: vi.fn() })
+const handlers = () => ({ onCreate: vi.fn(), onContinue: vi.fn(), onDismissNotice: vi.fn(), onLink: vi.fn(), onEdit: vi.fn(), onRestore: vi.fn(), onOrder: vi.fn(), onDownload: vi.fn(), onDownloadWord: vi.fn(), onCopyText: vi.fn() })
 const state = (name: CvViewName, change: Partial<CvTabState> = {}): CvTabState => ({ ...cvViewFor(name), ...handlers(), ...change })
 
 async function render(tab: CvTabState): Promise<string> {
@@ -264,6 +264,37 @@ describe('CvTab: Buat ulang (FR-45)', () => {
     expect(again.length).toBeGreaterThan(0)
     await click(again[0])
     expect(tab.onCreate).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('CvTab: urutan section', () => {
+  const picker = () => container!.querySelector('select[aria-label], select') as HTMLSelectElement | null
+
+  it('offers a choice of which section leads, education first until the person picks otherwise', async () => {
+    await render(state('result'))
+    expect(container!.textContent).toContain('Urutan')
+    expect(picker()?.value).toBe('education-first')
+    expect([...picker()!.options].map((option) => option.textContent)).toEqual(['Pendidikan dulu', 'Pengalaman dulu'])
+  })
+
+  it('shows the order the CV has, and asks to change it when the person picks the other one', async () => {
+    const tab = state('result')
+    await render({ ...tab, cv: { ...tab.cv!, order: 'experience-first' } })
+    expect(picker()?.value).toBe('experience-first')
+
+    const other = state('result')
+    await render(other)
+    await act(async () => {
+      const select = picker()!
+      select.value = 'experience-first'
+      select.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+    expect(other.onOrder).toHaveBeenCalledWith('experience-first')
+  })
+
+  it('is not offered before there is a CV', async () => {
+    await render(state('empty'))
+    expect(container!.textContent).not.toContain('Urutan section')
   })
 })
 
