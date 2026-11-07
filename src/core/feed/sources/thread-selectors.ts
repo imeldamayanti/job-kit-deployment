@@ -1,8 +1,10 @@
 // Every guess about the Threads page lives here, so a layout change is a one-file fix.
-// These have not been checked against a live logged-in feed yet: the first real run shows if they hold.
+// Checked on the logged-in home feed (Nov 2026); the search page is assumed to draw posts the same way.
 export const THREAD_ORIGIN = 'https://www.threads.com'
-// The home page: "For you". It is what the account sees once it has no follows; with follows, point this at the Following feed instead.
-export const THREAD_FEED_URL = `${THREAD_ORIGIN}/`
+// The feed is mostly chatter; a keyword search gathers the hiring posts. Each run reads these searches, in order.
+export const THREAD_KEYWORDS = ['loker', 'lowongan kerja', 'hiring']
+// "Terbaru" tab of the search, so a daily run sees what was posted since the last one, not the same top posts.
+export const threadSearchUrl = (keyword: string) => `${THREAD_ORIGIN}/search?q=${encodeURIComponent(keyword)}&serp_type=default&filter=recent`
 
 export const THREAD_SELECTORS = {
   post: '[data-pressable-container="true"]',

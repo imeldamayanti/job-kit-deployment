@@ -23,9 +23,18 @@ export function canonicalUrl(raw: string): string {
 
 const squash = (value: string) => value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
 
+const LEGAL_FORMS = new Set(['pt', 'tbk', 'cv', 'persero', 'ltd', 'pte', 'inc', 'llc', 'co', 'corp', 'limited'])
+
+// "PT Maju Tbk" and "Maju" are one company. A name that is nothing but a legal form keeps it, so it still has a key.
+function companyWords(value: string): string {
+  const words = squash(value).split(' ').filter(Boolean)
+  const rest = words.filter((word) => !LEGAL_FORMS.has(word))
+  return (rest.length > 0 ? rest : words).join(' ')
+}
+
 // Fallback identity when two sources give different URLs for the same job.
 export function nameKey(title: string, company: string): string {
   const t = squash(title)
-  const c = squash(company)
+  const c = companyWords(company)
   return t === '' || c === '' ? '' : `${t}|${c}`
 }

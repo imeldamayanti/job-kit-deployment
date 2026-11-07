@@ -2,7 +2,7 @@ import type { AiFailure } from '../ai/errors'
 import { AiError } from '../ai/errors'
 import { scoreJobs, type AiUsage, type ScoringClient } from '../ai/score'
 import type { Profile } from '../profile/types'
-import { mergeFeed } from './merge'
+import { dedupeFeed, mergeFeed } from './merge'
 import { DEFAULT_LIMITS, isStale, pruneFeed } from './prune'
 import { passesRules } from './rules'
 import type { FeedSettings } from './settings'
@@ -55,7 +55,7 @@ export async function runFeed({ profile, settings, key, feed, runs, now, ctx, cl
   onStage?.('merge')
   const raws: RawJob[] = outcomes.flatMap((outcome) => outcome.jobs).filter((job) => passesRules(job, profile.jobPrefs) && !isStale(job.postedAt, now, DEFAULT_LIMITS.maxPostedDays ?? Infinity))
   const known = new Set(feed.map((job) => job.id))
-  const merged = pruneFeed(mergeFeed(feed, raws, stamp), now)
+  const merged = pruneFeed(dedupeFeed(mergeFeed(feed, raws, stamp)), now)
   const newJobs = merged.filter((job) => !known.has(job.id)).length
 
   onStage?.('score')

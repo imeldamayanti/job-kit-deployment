@@ -1,4 +1,4 @@
-export const JOB_SOURCE_IDS = ['greenhouse', 'lever', 'ashby', 'remotive', 'linkedin', 'thread'] as const
+export const JOB_SOURCE_IDS = ['greenhouse', 'lever', 'ashby', 'remotive', 'linkedin', 'thread', 'yc', 'wellfound', 'jobstreet', 'mycareersfuture'] as const
 export type JobSourceId = (typeof JOB_SOURCE_IDS)[number]
 
 export type Workplace = 'remote' | 'hybrid' | 'onsite' | 'unknown'
@@ -43,6 +43,8 @@ export type Job = RawJob & {
   status: JobStatus
   score: JobScore | null
   aiFilled: AiFilled[]
+  // Brought in by hand from a file (Impor), not fetched: Rekomendasi shows it whatever its score and title.
+  imported?: boolean
   firstSeenAt: string
   lastSeenAt: string
 }

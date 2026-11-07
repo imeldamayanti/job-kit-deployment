@@ -6,6 +6,10 @@ import { leverSource } from '../core/feed/sources/lever'
 import { createLinkedInSource } from '../core/feed/sources/linkedin'
 import { remotiveSource } from '../core/feed/sources/remotive'
 import { createThreadSource } from '../core/feed/sources/thread'
+import { wellfoundSource } from '../core/feed/sources/wellfound'
+import { jobStreetSource } from '../core/feed/sources/jobstreet'
+import { mcfSource } from '../core/feed/sources/mycareersfuture'
+import { ycSource } from '../core/feed/sources/yc'
 import { openThreadSession } from './thread-collector'
 import { loadFeed, loadAiKey, loadRuns, loadSettings, loadState, saveFeed, saveRuns, saveState } from './feed-storage'
 import { AI_ENABLED, THREAD_ENABLED } from '../core/build'
@@ -38,7 +42,7 @@ export async function executeRun({ auto }: { auto: boolean }): Promise<RunHandle
         ctx: { fetch: (url, init) => fetch(url, init), now, companies: settings.companies },
         client: await clientWithPermission(key, settings.ai.provider), // no key (shared build): the pipeline scores by rules and never calls the client
         sources: [
-          greenhouseSource, leverSource, ashbySource, remotiveSource, createLinkedInSource(offscreenParsers),
+          greenhouseSource, leverSource, ashbySource, remotiveSource, createLinkedInSource(offscreenParsers), ycSource, wellfoundSource, jobStreetSource, mcfSource,
           ...(THREAD_ENABLED ? [createThreadSource({ open: openThreadSession })] : []),
         ],
         onStage: stage,

@@ -1,0 +1,141 @@
+{
+ "totalCount": 5214,
+ "data": [
+  {
+   "id": "95698908",
+   "title": "Software Engineer",
+   "advertiser": {
+    "id": "61941084",
+    "description": "NAS Education"
+   },
+   "companyName": "NAS Education",
+   "locations": [
+    {
+     "label": "West Region",
+     "countryCode": "SG"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "3",
+      "label": {
+       "text": "Remote"
+      }
+     }
+    ],
+    "displayText": "Remote"
+   },
+   "workTypes": [
+    "Full time"
+   ],
+   "listingDate": "2026-11-04T06:20:57Z",
+   "salaryLabel": "",
+   "teaser": ", can work independently, and is passionate about improving product reliability, system architecture, and performance. You will play a key role in...",
+   "bulletPoints": [],
+   "branding": {}
+  },
+  {
+   "id": "95700042",
+   "title": "Software Engineer (Data Solutions), Ai & Data Platforms",
+   "advertiser": {
+    "id": "5431205",
+    "description": "Apple"
+   },
+   "companyName": "Apple",
+   "locations": [
+    {
+     "label": "Singapore",
+     "countryCode": "SG"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "1",
+      "label": {
+       "text": "On-site"
+      }
+     }
+    ]
+   },
+   "workTypes": [
+    "Full time"
+   ],
+   "listingDate": "2026-11-04T15:54:30Z",
+   "salaryLabel": "",
+   "teaser": "Build scalable cloud data platforms with cutting-edge AI/ML. Drive innovation from concept to production.",
+   "bulletPoints": [],
+   "branding": {
+    "serpLogoUrl": "https://bx-branding-gateway.cloud.seek.com.au/7b97c1a0-3bce-435a-b756-094d684588e6.1/jdpLogo"
+   }
+  },
+  {
+   "id": "95694327",
+   "title": "Software Engineer, Apple Online Store (Early Careers)",
+   "advertiser": {
+    "id": "5431205",
+    "description": "Apple"
+   },
+   "companyName": "Apple",
+   "locations": [
+    {
+     "label": "Singapore",
+     "countryCode": "SG"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "1",
+      "label": {
+       "text": "On-site"
+      }
+     }
+    ]
+   },
+   "workTypes": [
+    "Full time"
+   ],
+   "listingDate": "2026-11-04T09:03:06Z",
+   "salaryLabel": "",
+   "teaser": "Work on systems serving a billion devices. Shape Apple's future as a Software Engineer in our global team.",
+   "bulletPoints": [],
+   "branding": {
+    "serpLogoUrl": "https://bx-branding-gateway.cloud.seek.com.au/7b97c1a0-3bce-435a-b756-094d684588e6.1/jdpLogo"
+   }
+  },
+  {
+   "id": "95699074",
+   "title": "Software Engineer",
+   "advertiser": {
+    "id": "61941084",
+    "description": "RESARO SINGAPORE PTE. LTD."
+   },
+   "locations": [
+    {
+     "label": "Orchard, Central Region",
+     "countryCode": "SG"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "1",
+      "label": {
+       "text": "On-site"
+      }
+     }
+    ]
+   },
+   "workTypes": [
+    "Full time"
+   ],
+   "listingDate": "2026-11-04T02:27:21Z",
+   "salaryLabel": "",
+   "teaser": "We're looking for a Software Engineer to be a cornerstone of our AI platform. Our team of AI Engineers and Scientists produce world-class...",
+   "bulletPoints": [],
+   "branding": {}
+  }
+ ]
+}

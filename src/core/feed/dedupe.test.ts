@@ -31,6 +31,16 @@ describe('nameKey', () => {
     expect(nameKey('Frontend  Engineer (React)', 'PT Contoh, Karya')).toBe(nameKey('frontend engineer react', 'pt contoh karya'))
   })
 
+  it('ignores a legal form in the company name: PT, Tbk, CV, Pte Ltd, Inc', () => {
+    expect(nameKey('Data Engineer', 'PT Contoh Karya Tbk')).toBe(nameKey('Data Engineer', 'Contoh Karya'))
+    expect(nameKey('Data Engineer', 'Maju Pte. Ltd.')).toBe(nameKey('Data Engineer', 'maju'))
+    expect(nameKey('Data Engineer', 'Acme, Inc.')).toBe(nameKey('Data Engineer', 'Acme'))
+  })
+
+  it('keeps a company that is only a legal form, so it still has a key', () => {
+    expect(nameKey('Data Engineer', 'PT')).not.toBe('')
+  })
+
   it('is empty when the title or the company is missing', () => {
     expect(nameKey('', 'PT Contoh')).toBe('')
     expect(nameKey('Engineer', '  ')).toBe('')

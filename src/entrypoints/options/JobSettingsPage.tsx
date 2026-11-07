@@ -39,8 +39,12 @@ const SOURCES: { id: JobSourceId; name: string; about: string }[] = [
   { id: 'ashby', name: 'Ashby', about: 'Papan lowongan perusahaan pilihanmu' },
   { id: 'remotive', name: 'Remotive', about: 'Papan lowongan remote' },
   { id: 'linkedin', name: 'LinkedIn', about: 'Halaman pencarian publik, tanpa login' },
+  { id: 'yc', name: 'Y Combinator', about: 'Lowongan remote startup YC, tanpa login. Yang wajib warga atau visa AS dibuang' },
+  { id: 'wellfound', name: 'Wellfound', about: 'Eksperimen: situsnya bisa menolak kapan saja, lalu sumber ini berhenti sendiri setelah tiga kali gagal' },
+  { id: 'jobstreet', name: 'JobStreet', about: 'Pencarian Indonesia, tanpa login. Singapura ikut dicari kalau Singapore ada di lokasi Preferensi kerja' },
+  { id: 'mycareersfuture', name: 'MyCareersFuture', about: 'Papan lowongan pemerintah Singapura, tanpa login. Hampir semua kerja di kantor Singapura: tambahkan Singapore di lokasi Preferensi kerja' },
   ...(THREAD_ENABLED
-    ? [{ id: 'thread' as const, name: 'Threads', about: 'Beranda "For you" dari akun cadangan yang sudah login di browser ini. Melanggar aturan Meta: jangan pakai akun utama' }]
+    ? [{ id: 'thread' as const, name: 'Threads', about: 'Pencarian "loker", "lowongan kerja" dan "hiring" (Terbaru) dari akun cadangan yang sudah login di browser ini. Melanggar aturan Meta: jangan pakai akun utama' }]
     : []),
 ]
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { importIntoFeed, type ImportResult } from '../../core/feed/import'
+import { dedupeFeed } from '../../core/feed/merge'
 import { initialFeedState, type FeedState } from '../../core/feed/schedule'
 import type { Job, JobStatus, SourceRun } from '../../core/feed/types'
-import { setJobStatus } from '../../core/feed/view'
+import { setJobStatus, setJobsStatus } from '../../core/feed/view'
 import { markJobApplied } from '../../platform/applications'
 import { loadFeed, loadRuns, loadState, saveFeed, saveState, watchFeed, watchRuns, watchState } from '../../platform/feed-storage'
 
@@ -12,7 +14,12 @@ export function useFeed() {
   const [state, setState] = useState<FeedState>(initialFeedState)
 
   useEffect(() => {
-    void loadFeed().then(setFeed)
+    // Copies of one job that piled up before are cleared once, when the page opens.
+    void loadFeed().then((stored) => {
+      const clean = dedupeFeed(stored)
+      if (clean.length < stored.length) void saveFeed(clean)
+      setFeed(clean)
+    })
     void loadRuns().then(setRuns)
     void loadState().then(setState)
     const stops = [watchFeed(setFeed), watchRuns(setRuns), watchState(setState)]
@@ -29,5 +36,15 @@ export function useFeed() {
       ? void markJobApplied(id)
       : void loadFeed().then((stored) => saveFeed(setJobStatus(stored, id, status)))
 
-  return { feed, runs, state, markSeen, changeStatus }
+  // Sends several saved jobs back to Rekomendasi in one write, so the writes do not overtake each other.
+  const restoreSaved = (ids: string[]) => void loadFeed().then((stored) => saveFeed(setJobsStatus(stored, ids, 'new')))
+
+  // Reads the stored feed first, for the same reason as above, then writes the merged one back.
+  const importJobs = async (text: string): Promise<ImportResult> => {
+    const result = importIntoFeed(await loadFeed(), text, new Date().toISOString())
+    if (result.ok) await saveFeed(result.feed)
+    return result
+  }
+
+  return { feed, runs, state, markSeen, changeStatus, restoreSaved, importJobs }
 }

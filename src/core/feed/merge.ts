@@ -34,6 +34,31 @@ const matches = (job: Job, incoming: RawJob) => {
   return name !== '' && name === nameKey(job.title, job.company)
 }
 
+const scoreOf = (job: Job) => job.score?.value ?? -1
+
+// Removes copies of the same job: a new job with the same link, or the same title and company, as another one.
+// Only new jobs are ever removed. A job the user saved, applied to or hid is never touched, and it wins over a new copy,
+// so an application never loses the job it points to. Among new copies the scored one stays, then the earlier one.
+export function dedupeFeed(feed: readonly Job[]): Job[] {
+  const groups = new Map<string, number[]>()
+  const keysOf = feed.map((job) => [canonicalUrl(job.url), nameKey(job.title, job.company)].filter((key) => key !== ''))
+  keysOf.forEach((keys, index) => keys.forEach((key) => groups.set(key, [...(groups.get(key) ?? []), index])))
+
+  const drop = new Set<number>()
+  feed.forEach((job, index) => {
+    if (job.status !== 'new') return
+    const twins = new Set(keysOf[index]?.flatMap((key) => groups.get(key) ?? []))
+    const beaten = [...twins].some((other) => {
+      if (other === index) return false
+      const twin = feed[other] as Job
+      if (twin.status !== 'new') return true
+      return scoreOf(twin) > scoreOf(job) || (scoreOf(twin) === scoreOf(job) && other < index)
+    })
+    if (beaten) drop.add(index)
+  })
+  return feed.filter((_, index) => !drop.has(index))
+}
+
 // Folds one run into the feed. A job already there is refreshed, never reset: status, score and
 // the AI marks stay (FR-28). An empty incoming value never erases a known one.
 export function mergeFeed(existing: readonly Job[], incoming: readonly RawJob[], now: string): Job[] {

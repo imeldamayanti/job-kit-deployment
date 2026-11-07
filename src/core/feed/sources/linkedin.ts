@@ -24,12 +24,16 @@ export type LinkedInDeps = {
 
 export type SearchPlace = { location: string; remote?: boolean }
 
+// Wide places LinkedIn takes as a location. Their results are cards listed in a city of that region, and the
+// remote filter makes them remote jobs; the rules then keep only those that can be worked from Indonesia.
+const REMOTE_REGIONS = ['Worldwide', 'Asia Pacific', 'EMEA']
+
 // One search per wanted location, so a second city is not lost, plus one for remote jobs anywhere when remote is wanted:
 // a remote job is listed under its company's country, so a city search never finds it.
 export function searchPlaces(prefs: JobPreferences): SearchPlace[] {
   if (prefs.locations.length === 0) return [{ location: 'Worldwide' }]
   const wantsRemote = prefs.workModes.length === 0 || prefs.workModes.includes('Remote')
-  return [...prefs.locations.map((location) => ({ location })), ...(wantsRemote ? [{ location: 'Worldwide', remote: true }] : [])]
+  return [...prefs.locations.map((location) => ({ location })), ...(wantsRemote ? REMOTE_REGIONS.map((location) => ({ location, remote: true })) : [])]
 }
 
 export function buildSearchUrl(prefs: JobPreferences, role: string, start: number, place?: SearchPlace): string {
@@ -87,7 +91,8 @@ export function createLinkedInSource(deps: LinkedInDeps): JobSource {
               const url = canonicalUrl(card.url) || card.url
               if (seen.has(url)) continue
               seen.add(url)
-              found.push({ ...card, url })
+              // The remote filter was on, so LinkedIn says this one is remote even if the card does not.
+              found.push({ ...card, url, workplace: place.remote && card.workplace === 'unknown' ? 'remote' : card.workplace })
             }
           }
         }

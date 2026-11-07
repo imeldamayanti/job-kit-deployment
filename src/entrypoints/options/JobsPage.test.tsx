@@ -2,13 +2,19 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Application } from '../../core/applications/types'
+import { createDefaultSettings, setSourceEnabled } from '../../core/feed/settings'
 import { initialFeedState } from '../../core/feed/schedule'
+import { createEmptyProfile } from '../../core/profile/profile'
+import { emptyJob } from '../../core/feed/sources/shared'
+import type { Job } from '../../core/feed/types'
 import { JobsPage } from './JobsPage'
 
 // Looks at every state of the T28 mockup through the dev preview hash, the way a person would.
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
-const live = { feed: [], runs: [], state: initialFeedState(), changeStatus: vi.fn() }
+const importJobs = vi.fn(async (_text: string) => ({ ok: true as const, feed: [] as Job[], added: 2, updated: 0, skipped: 1 }))
+const restoreSaved = vi.fn()
+const live = { feed: [], runs: [], state: initialFeedState(), changeStatus: vi.fn(), importJobs, restoreSaved }
 let container: HTMLElement | null = null
 
 const at = '2026-10-15T08:00:00.000Z'
@@ -132,5 +138,100 @@ describe('JobsPage states', () => {
     await act(async () => [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Buka lamaran')?.click())
 
     expect(opened).toEqual(['app-s2'])
+  })
+
+  it('imports jobs from a chosen JSON file and says what happened', async () => {
+    container = document.createElement('div')
+    document.body.append(container)
+    const root = createRoot(container)
+    await act(async () => root.render(<JobsPage profile={null} settings={null} live={live} applications={[]} onOpenApplication={() => {}} onSettings={() => {}} onPreferences={() => {}} />))
+
+    const button = [...container.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Impor')
+    expect(button).toBeTruthy()
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')
+    expect(input?.accept).toContain('.json')
+
+    const file = new File(['[{"title":"Dev","company":"PT A","url":"https://a.test/1"}]'], 'lowongan.json', { type: 'application/json' })
+    Object.defineProperty(input, 'files', { value: [file], configurable: true })
+    await act(async () => {
+      input?.dispatchEvent(new Event('change', { bubbles: true }))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+
+    expect(importJobs).toHaveBeenCalledWith('[{"title":"Dev","company":"PT A","url":"https://a.test/1"}]')
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('2 lowongan ditambahkan ke Rekomendasi, 1 dilewati karena datanya tidak lengkap.')
+  })
+
+  const feedJob = (id: string, change: Partial<Job>): Job => ({
+    ...emptyJob('jobstreet'), id, title: `Role ${id}`, status: 'new', aiFilled: [], score: null, firstSeenAt: at, lastSeenAt: at, ...change,
+  })
+
+  async function renderFeed(feed: Job[], applications: Application[] = []) {
+    container = document.createElement('div')
+    document.body.append(container)
+    const root = createRoot(container)
+    // The list only shows when there are roles to search for and a source is on.
+    const profile = createEmptyProfile()
+    profile.jobPrefs.roles = ['Frontend Engineer']
+    const settings = setSourceEnabled(createDefaultSettings(), 'linkedin', true)
+    await act(async () => root.render(<JobsPage profile={profile} settings={settings} live={{ ...live, feed }} applications={applications} onOpenApplication={() => {}} onSettings={() => {}} onPreferences={() => {}} />))
+  }
+
+  it('Disimpan: one button sends every saved job without an application back to Rekomendasi', async () => {
+    restoreSaved.mockClear()
+    const feed = [feedJob('s1', { status: 'saved' }), feedJob('s2', { status: 'saved' }), feedJob('s3', { status: 'applied' }), feedJob('n1', {})]
+    await renderFeed(feed, [applicationFor('s2')])
+    await act(async () => [...container!.querySelectorAll('[role="tab"]')].find((el) => el.textContent?.includes('Disimpan'))?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+
+    const button = [...container!.querySelectorAll('button')].find((b) => b.textContent?.includes('Kembalikan semua ke Rekomendasi'))
+    expect(button?.textContent).toContain('(1)')
+    await act(async () => button?.click())
+    expect(restoreSaved).toHaveBeenCalledWith(['s1'])
+  })
+
+  it('Disimpan: no button when every saved job has an application', async () => {
+    await renderFeed([feedJob('s2', { status: 'saved' })], [applicationFor('s2')])
+    await act(async () => [...container!.querySelectorAll('[role="tab"]')].find((el) => el.textContent?.includes('Disimpan'))?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+    expect(container!.textContent).not.toContain('Kembalikan semua')
+  })
+
+  it('card: a remote job whose location says Remote shows one Remote chip, not two', async () => {
+    await renderFeed([feedJob('r1', { location: 'Remote', workplace: 'remote' })])
+    const chips = [...container!.querySelectorAll('li')].map((li) => li.textContent?.trim()).filter((text) => text === 'Remote')
+    expect(chips).toHaveLength(1)
+  })
+
+  it('does not say the preferences are empty while the profile is still loading', async () => {
+    container = document.createElement('div')
+    document.body.append(container)
+    const root = createRoot(container)
+    const feed = [feedJob('n1', {})]
+    await act(async () => root.render(<JobsPage profile={null} settings={null} live={{ ...live, feed }} applications={[]} onOpenApplication={() => {}} onSettings={() => {}} onPreferences={() => {}} />))
+    expect(container.textContent).not.toContain('Preferensi kerja masih kosong')
+    expect(container.textContent).not.toContain('Lowongan belum dinyalakan')
+  })
+
+  it('still says the preferences are empty once a loaded profile has no roles', async () => {
+    container = document.createElement('div')
+    document.body.append(container)
+    const root = createRoot(container)
+    const settings = setSourceEnabled(createDefaultSettings(), 'linkedin', true)
+    await act(async () => root.render(<JobsPage profile={createEmptyProfile()} settings={settings} live={live} applications={[]} onOpenApplication={() => {}} onSettings={() => {}} onPreferences={() => {}} />))
+    expect(container.textContent).toContain('Preferensi kerja masih kosong')
+  })
+
+  it('counts every new job in Rekomendasi, whatever its score', async () => {
+    const job = (id: string, score: number | null): Job => ({
+      ...emptyJob('thread'), id, title: `Role ${id}`, status: 'new', aiFilled: [], firstSeenAt: at, lastSeenAt: at,
+      score: score === null ? null : ({ value: score } as Job['score']),
+    })
+    const feed = [job('a', 80), job('b', 30), job('c', null)]
+    container = document.createElement('div')
+    document.body.append(container)
+    const root = createRoot(container)
+    await act(async () => root.render(<JobsPage profile={null} settings={null} live={{ ...live, feed }} applications={[]} onOpenApplication={() => {}} onSettings={() => {}} onPreferences={() => {}} />))
+    const tab = [...container.querySelectorAll('[role="tab"]')].find((el) => el.textContent?.includes('Rekomendasi'))
+    expect(tab?.textContent).toContain('3')
+    expect(container.textContent).not.toContain('tidak ditampilkan')
   })
 })
