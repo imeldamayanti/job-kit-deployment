@@ -132,6 +132,24 @@ export function bulletsFromDescription(description: string): string[] {
 
 const lines = (text: string | undefined) => (text ?? '').split('\n').map((line) => line.trim()).filter((line) => line !== '')
 
+// "2025-04" as a month number; a bare year too. Anything else is null: a date is never guessed.
+function monthOf(value: string): number | null {
+  const month = /^(\d{4})-(\d{2})$/.exec(value.trim())
+  if (month) return Number(month[1]) * 12 + Number(month[2]) - 1
+  const year = /^\d{4}$/.exec(value.trim())
+  return year ? Number(year[0]) * 12 : null
+}
+
+// By when each job started, newest on top, the way the person's own CV lists them; a tie goes to the later end. When a
+// start date cannot be read the Profile's own order is kept, because a guess could put the wrong job on top.
+function newestFirst<T extends { start: string; end: string; current: boolean }>(jobs: readonly T[]): T[] {
+  const keyed = jobs.map((job, index) => ({
+    job, index, start: monthOf(job.start), end: job.current ? Number.MAX_SAFE_INTEGER : (monthOf(job.end) ?? 0),
+  }))
+  if (keyed.some((k) => k.start === null)) return [...jobs]
+  return keyed.sort((a, b) => (b.start as number) - (a.start as number) || b.end - a.end || a.index - b.index).map((k) => k.job)
+}
+
 // Joins the AI's wording with the Profile's facts. Job title, employer, school and dates come from the Profile only (D12).
 // What the AI left empty falls back to the Profile as written, so a weak answer never yields an empty CV.
 export function assemble(profile: Profile, output: TailorOutput, order: CvOrder = DEFAULT_CV_ORDER): CvDocument {
@@ -139,33 +157,23 @@ export function assemble(profile: Profile, output: TailorOutput, order: CvOrder 
   const chosenSkills = [...new Set(output.skills.map((s) => skillByKey.get(squash(String(s)))).filter((s): s is string => s !== undefined))]
 
   const experienceById = new Map(profile.experience.map((e) => [e.id, e]))
-  const chosen = output.experience.filter((item) => experienceById.has(item.sourceId))
-  const picked = chosen.length > 0 ? chosen : profile.experience.map((e) => ({ sourceId: e.id, bullets: [] as string[] }))
-  const seen = new Set<string>()
-  const experience: CvDocument['experience'] = []
+  // The AI supplies only the wording of each job. Which jobs there are and in what order is the Profile's, so no
+  // experience is dropped and none is moved: newest first by date, whatever order the AI listed them in.
+  const written = new Map<string, string[]>()
+  for (const item of output.experience) {
+    if (experienceById.has(item.sourceId) && !written.has(item.sourceId)) written.set(item.sourceId, item.bullets.map((b) => b.trim()).filter((b) => b !== ''))
+  }
   const entryOf = (source: Profile['experience'][number], bullets: string[]): CvDocument['experience'][number] => ({
     sourceId: source.id, title: source.title, company: source.company, location: (source.location ?? '').trim(), start: source.start, end: source.end, current: source.current, bullets,
   })
-  for (const item of picked) {
-    const source = experienceById.get(item.sourceId)
-    if (!source || seen.has(item.sourceId)) continue
-    seen.add(item.sourceId)
-    const bullets = item.bullets.map((b) => b.trim()).filter((b) => b !== '')
-    experience.push(entryOf(source, bullets.length > 0 ? bullets : bulletsFromDescription(source.description)))
-  }
-  // No experience is ever dropped: one the AI left out goes after the others, as the Profile wrote it (at most 3 bullets, like the AI's own).
-  for (const source of profile.experience) {
-    if (!seen.has(source.id)) experience.push(entryOf(source, bulletsFromDescription(source.description).slice(0, 3)))
-  }
-  // The jobs the person still holds always lead, in the order the Profile lists them; the AI only orders the rest.
-  const profileOrder = new Map(profile.experience.map((e, index) => [e.id, index]))
-  const holds = (sourceId: string) => experienceById.get(sourceId)?.current === true
-  experience.splice(
-    0,
-    experience.length,
-    ...experience.filter((e) => holds(e.sourceId)).sort((a, b) => (profileOrder.get(a.sourceId) ?? 0) - (profileOrder.get(b.sourceId) ?? 0)),
-    ...experience.filter((e) => !holds(e.sourceId)),
-  )
+  const experience = newestFirst(profile.experience).map((source) => {
+    const bullets = written.get(source.id) ?? []
+    if (bullets.length > 0) return entryOf(source, bullets)
+    // What the AI left empty falls back to the Profile as written. A job the AI left out of a real answer gets at most
+    // 3 bullets, like the AI's own.
+    const fromProfile = bulletsFromDescription(source.description)
+    return entryOf(source, !written.has(source.id) && written.size > 0 ? fromProfile.slice(0, 3) : fromProfile)
+  })
 
   const educationById = new Map(profile.education.map((e) => [e.id, e]))
   const pickedEducation = [...new Set(output.education)].map((id) => educationById.get(id)).filter((e) => e !== undefined)
