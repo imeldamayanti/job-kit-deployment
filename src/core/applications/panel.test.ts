@@ -36,7 +36,7 @@ describe('panelContext', () => {
     const a = app({ cvId: 'c1', letterId: 'l1' })
     expect(panelContext(a, data([a], [letter()], [cv]), 'Sari Contohwati')).toMatchObject({
       applicationId: 'a1', company: 'PT Contoh Karya', cvReady: true, letterReady: true, coverLetter: 'Dear team,\n\nI apply.',
-      cvFile: 'cv_saricontohwati_contoh_karya.pdf', cvDownloaded: false,
+      cvFile: 'CV_SariContohwati_ContohKarya.pdf', cvDownloaded: false,
     })
   })
 
