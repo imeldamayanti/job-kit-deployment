@@ -263,21 +263,23 @@ export function winAnsiDocument(doc: CvDocument): { doc: CvDocument; replaced: s
   return { doc: next, replaced }
 }
 
-// "cv_{nama}_{perusahaan}.pdf" (FR-42), the way the person names her own files: the name without spaces, then the
-// company in a few words, all lower case with underscores: cv_imeldadamayanti_inovasi_daya.pdf. Letters and digits
-// only, accents turned into plain letters. A legal form (PT, Tbk, Ltd, ...) is left out of the company; a part there is
-// nothing usable for is left out, and with neither the file is cv.pdf.
+// "CV_{Nama}_{Perusahaan}.pdf" (FR-42), written the way the person names her own files: each word starts with a capital
+// and the words run together, CV_ImeldaDamayanti_InovasiDaya.pdf. Letters and digits only, accents turned into plain
+// letters. The company is short: a legal form (PT, Tbk, Ltd, ...) is left out and at most three words are kept. A part
+// there is nothing usable for is left out, and with neither the file is CV.pdf.
 const LEGAL_FORMS = new Set(['pt', 'tbk', 'cv', 'persero', 'ltd', 'pte', 'inc', 'llc', 'co', 'corp', 'limited'])
 const MAX_COMPANY_WORDS = 3
 const MAX_PART = 40
-const plainWords = (text: string) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().match(/[a-z0-9]+/g) ?? []
+const plainWords = (text: string) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[A-Za-z0-9]+/g) ?? []
+// "lion" -> "Lion"; the rest of a word stays as written, so "MedRoyale" is not flattened.
+const capitalised = (words: string[]) => words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('')
 
 export function cvFileName(company: string, person = ''): string {
-  const name = plainWords(person).join('').slice(0, MAX_PART)
+  const name = capitalised(plainWords(person)).slice(0, MAX_PART)
   const words = plainWords(company)
-  const rest = words.filter((word) => !LEGAL_FORMS.has(word))
-  const short = (rest.length > 0 ? rest : words).slice(0, MAX_COMPANY_WORDS).join('_').slice(0, MAX_PART).replace(/_+$/, '')
-  return `${['cv', name, short].filter((part) => part !== '').join('_')}.pdf`
+  const rest = words.filter((word) => !LEGAL_FORMS.has(word.toLowerCase()))
+  const short = capitalised((rest.length > 0 ? rest : words).slice(0, MAX_COMPANY_WORDS)).slice(0, MAX_PART)
+  return `${['CV', name, short].filter((part) => part !== '').join('_')}.pdf`
 }
 
 // What to tell the person after a download in which some characters had to be replaced; nothing when none were.

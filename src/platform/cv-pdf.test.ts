@@ -102,9 +102,9 @@ describe('downloadCv', () => {
     await seed()
     const delivered: { name: string; bytes: Uint8Array }[] = []
     const result = await downloadCv('app-1', { now: NOW, deliver: (name, bytes) => void delivered.push({ name, bytes }) })
-    expect(result).toEqual({ ok: true, fileName: 'cv_saricontohwati_contoh_karya.pdf', replaced: [] })
+    expect(result).toEqual({ ok: true, fileName: 'CV_SariContohwati_ContohKarya.pdf', replaced: [] })
     expect(delivered).toHaveLength(1)
-    expect(delivered[0]?.name).toBe('cv_saricontohwati_contoh_karya.pdf')
+    expect(delivered[0]?.name).toBe('CV_SariContohwati_ContohKarya.pdf')
     expect(await textOf(delivered[0]!.bytes)).toContain('Membangun dashboard pelanggan dengan React dan TypeScript.')
     const app = (await loadApplicationData()).applications[0]!
     expect(app.events.at(-1)).toEqual({ at: AT, type: 'download' })
@@ -114,7 +114,7 @@ describe('downloadCv', () => {
     await seed()
     const delivered: { name: string; bytes: Uint8Array }[] = []
     const result = await downloadCv('app-1', { now: NOW, format: 'docx', deliver: (name, bytes) => void delivered.push({ name, bytes }) })
-    expect(result).toEqual({ ok: true, fileName: 'cv_saricontohwati_contoh_karya.docx', replaced: [] })
+    expect(result).toEqual({ ok: true, fileName: 'CV_SariContohwati_ContohKarya.docx', replaced: [] })
     // A .docx is a zip: it starts with "PK" and holds word/document.xml, which carries the CV text.
     const bytes = delivered[0]!.bytes
     expect([bytes[0], bytes[1]]).toEqual([0x50, 0x4b])

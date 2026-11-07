@@ -55,7 +55,7 @@ type Options = {
 const describe = (error: unknown) => (error instanceof Error && error.message !== '' ? error.message : 'sebab tidak diketahui')
 
 // "Unduh PDF" (FR-42): draws the stored CV, so a hand edit is what is downloaded, hands it to the browser as
-// cv_{nama}_{perusahaan}.pdf and notes the download in the history. When anything fails, nothing is noted and the person is
+// CV_{Nama}_{Perusahaan}.pdf and notes the download in the history. When anything fails, nothing is noted and the person is
 // told why; the CV stays on the page to be copied (PRD §8).
 const DOCX_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 const renderCvWord: typeof renderCvPdf = async (doc, lang, title) => ({ bytes: await renderCvDocx(doc, lang, title), replaced: [] })

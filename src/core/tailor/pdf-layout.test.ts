@@ -203,51 +203,56 @@ describe('winAnsiDocument', () => {
 describe('cvFileName (FR-42)', () => {
   const NAME = 'Imelda Damayanti'
 
-  it('is cv_{name}_{company}.pdf: the name without spaces, the company short, all lower case with underscores', () => {
-    expect(cvFileName('PT Inovasi Daya', NAME)).toBe('cv_imeldadamayanti_inovasi_daya.pdf')
-    expect(cvFileName('MedRoyale', NAME)).toBe('cv_imeldadamayanti_medroyale.pdf')
+  it('is CV_{Name}_{Company}.pdf, written like the person\'s own files: each word capitalised, no spaces or underscores inside', () => {
+    expect(cvFileName('PT Inovasi Daya', NAME)).toBe('CV_ImeldaDamayanti_InovasiDaya.pdf')
+    expect(cvFileName('MedRoyale', NAME)).toBe('CV_ImeldaDamayanti_MedRoyale.pdf')
+  })
+
+  it('capitalises the first letter of each word and leaves the rest as it was written', () => {
+    expect(cvFileName('kulu', 'imelda damayanti')).toBe('CV_ImeldaDamayanti_Kulu.pdf')
+    expect(cvFileName('lion parcel', NAME)).toBe('CV_ImeldaDamayanti_LionParcel.pdf')
   })
 
   it('leaves the legal form out of the company: PT, CV, Tbk, Pte, Ltd, Inc', () => {
-    expect(cvFileName('PT Smartfren Telecom Tbk', NAME)).toBe('cv_imeldadamayanti_smartfren_telecom.pdf')
-    expect(cvFileName('Maju Jaya Pte. Ltd.', NAME)).toBe('cv_imeldadamayanti_maju_jaya.pdf')
-    expect(cvFileName('Acme, Inc.', NAME)).toBe('cv_imeldadamayanti_acme.pdf')
+    expect(cvFileName('PT Smartfren Telecom Tbk', NAME)).toBe('CV_ImeldaDamayanti_SmartfrenTelecom.pdf')
+    expect(cvFileName('Maju Jaya Pte. Ltd.', NAME)).toBe('CV_ImeldaDamayanti_MajuJaya.pdf')
+    expect(cvFileName('Acme, Inc.', NAME)).toBe('CV_ImeldaDamayanti_Acme.pdf')
   })
 
   it('keeps at most three words of the company', () => {
-    expect(cvFileName('Apple Developer Academy Bali Indonesia', NAME)).toBe('cv_imeldadamayanti_apple_developer_academy.pdf')
+    expect(cvFileName('Apple Developer Academy Bali Indonesia', NAME)).toBe('CV_ImeldaDamayanti_AppleDeveloperAcademy.pdf')
   })
 
   it('turns accents into plain letters', () => {
-    expect(cvFileName('Café Müller & Söhne', 'Dewi Sri')).toBe('cv_dewisri_cafe_muller_sohne.pdf')
+    expect(cvFileName('Café Müller & Söhne', 'Dewi Sri')).toBe('CV_DewiSri_CafeMullerSohne.pdf')
   })
 
   it('removes what a file name cannot hold', () => {
-    expect(cvFileName('Acme/Co: "X"? <Y>|*', NAME)).toBe('cv_imeldadamayanti_acme_x_y.pdf')
-    expect(cvFileName('..\\..\\etc', NAME)).toBe('cv_imeldadamayanti_etc.pdf')
+    expect(cvFileName('Acme/Co: "X"? <Y>|*', NAME)).toBe('CV_ImeldaDamayanti_AcmeXY.pdf')
+    expect(cvFileName('..\\..\\etc', NAME)).toBe('CV_ImeldaDamayanti_Etc.pdf')
   })
 
   it('stays short for a very long name', () => {
     const name = cvFileName('Perusahaan '.repeat(30), NAME)
     expect(name.length).toBeLessThanOrEqual(64)
-    expect(name.startsWith('cv_imeldadamayanti_perusahaan')).toBe(true)
+    expect(name.startsWith('CV_ImeldaDamayanti_Perusahaan')).toBe(true)
     expect(name.endsWith('.pdf')).toBe(true)
   })
 
-  it('leaves out the part it does not have, and is cv.pdf when nothing usable is left', () => {
-    expect(cvFileName('PT Inovasi Daya')).toBe('cv_inovasi_daya.pdf')
-    expect(cvFileName('', NAME)).toBe('cv_imeldadamayanti.pdf')
-    expect(cvFileName('   ')).toBe('cv.pdf')
-    expect(cvFileName('李公司')).toBe('cv.pdf')
-    expect(cvFileName('...')).toBe('cv.pdf')
+  it('leaves out the part it does not have, and is CV.pdf when nothing usable is left', () => {
+    expect(cvFileName('PT Inovasi Daya')).toBe('CV_InovasiDaya.pdf')
+    expect(cvFileName('', NAME)).toBe('CV_ImeldaDamayanti.pdf')
+    expect(cvFileName('   ')).toBe('CV.pdf')
+    expect(cvFileName('李公司')).toBe('CV.pdf')
+    expect(cvFileName('...')).toBe('CV.pdf')
   })
 
   it('keeps a company that is only a legal form, so it still has a name', () => {
-    expect(cvFileName('PT', NAME)).toBe('cv_imeldadamayanti_pt.pdf')
+    expect(cvFileName('PT', NAME)).toBe('CV_ImeldaDamayanti_PT.pdf')
   })
 
   it('does not end in an underscore before the extension', () => {
-    expect(cvFileName('Acme -', NAME)).toBe('cv_imeldadamayanti_acme.pdf')
+    expect(cvFileName('Acme -', NAME)).toBe('CV_ImeldaDamayanti_Acme.pdf')
   })
 })
 
