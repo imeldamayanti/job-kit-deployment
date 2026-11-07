@@ -50,9 +50,13 @@ describe('tailorCv', () => {
       skills: ['React', 'TypeScript'], education: ['edu-a1'],
     })
     // The code the model echoed is restored before the bullet is kept.
-    // The experience the model did not pick (exp-a2) is kept after it, with the Profile's own bullets.
+    // The model wrote two bullets for exp-a1; a third comes from the Profile so the job keeps three. The experience the
+    // model did not pick (exp-a2) is kept after it, with the Profile's own bullets.
     expect(result.cv.experience).toEqual([
-      { sourceId: 'exp-a1', bullets: ['Membangun dashboard pelanggan dengan React dan TypeScript untuk PT Contoh Teknologi.', 'Menaikkan cakupan tes dari 40% ke 70% dengan Jest.'] },
+      {
+        sourceId: 'exp-a1',
+        bullets: ['Membangun dashboard pelanggan dengan React dan TypeScript untuk PT Contoh Teknologi.', 'Menaikkan cakupan tes dari 40% ke 70% dengan Jest.', 'Menulis REST API dengan Node.js dan PostgreSQL.'],
+      },
       { sourceId: 'exp-a2', bullets: ['Memperbaiki bug tampilan di situs perusahaan.', 'Membantu memindahkan halaman statis ke React.'] },
     ])
     expect(result.cv.aiVersion).toEqual({ skills: result.cv.skills, experience: result.cv.experience, education: result.cv.education })

@@ -140,6 +140,20 @@ function monthOf(value: string): number | null {
   return year ? Number(year[0]) * 12 : null
 }
 
+const wordsOf = (text: string): string[] => text.toLowerCase().match(/[\p{L}\p{N}]{4,}/gu) ?? []
+
+// Brings `bullets` up to `target` with facts from the Profile that the bullets do not already say. A fact counts as said
+// when most of its longer words already appear in the AI's bullets, so a reworded bullet is not repeated beside its source.
+function topUp(bullets: string[], facts: string[], target: number): string[] {
+  if (bullets.length >= target) return bullets
+  const said = new Set(bullets.flatMap(wordsOf))
+  const unsaid = facts.filter((fact) => {
+    const words = wordsOf(fact)
+    return words.length === 0 || words.filter((word) => said.has(word)).length / words.length < 0.6
+  })
+  return [...bullets, ...unsaid].slice(0, target)
+}
+
 // The jobs the person still holds (no end date, marked as current) come first; then the rest, by when each started.
 // Within each group the newest start is on top, the way the person's own CV lists them, and a tie goes to the later
 // end. When a start date cannot be read the Profile's own order is kept, because a guess could put the wrong job on top.
@@ -169,10 +183,12 @@ export function assemble(profile: Profile, output: TailorOutput, order: CvOrder 
   })
   const experience = newestFirst(profile.experience).map((source) => {
     const bullets = written.get(source.id) ?? []
-    if (bullets.length > 0) return entryOf(source, bullets)
+    const fromProfile = bulletsFromDescription(source.description)
+    // Every job keeps three bullets so the CV looks even: when the AI wrote fewer, the Profile's own facts that its
+    // bullets do not already carry fill the gap. Never more than the Profile has.
+    if (bullets.length > 0) return entryOf(source, topUp(bullets, fromProfile, Math.min(3, fromProfile.length)))
     // What the AI left empty falls back to the Profile as written. A job the AI left out of a real answer gets at most
     // 3 bullets, like the AI's own.
-    const fromProfile = bulletsFromDescription(source.description)
     return entryOf(source, !written.has(source.id) && written.size > 0 ? fromProfile.slice(0, 3) : fromProfile)
   })
 
