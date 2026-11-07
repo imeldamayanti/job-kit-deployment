@@ -140,14 +140,15 @@ function monthOf(value: string): number | null {
   return year ? Number(year[0]) * 12 : null
 }
 
-// By when each job started, newest on top, the way the person's own CV lists them; a tie goes to the later end. When a
-// start date cannot be read the Profile's own order is kept, because a guess could put the wrong job on top.
+// The jobs the person still holds (no end date, marked as current) come first; then the rest, by when each started.
+// Within each group the newest start is on top, the way the person's own CV lists them, and a tie goes to the later
+// end. When a start date cannot be read the Profile's own order is kept, because a guess could put the wrong job on top.
 function newestFirst<T extends { start: string; end: string; current: boolean }>(jobs: readonly T[]): T[] {
   const keyed = jobs.map((job, index) => ({
-    job, index, start: monthOf(job.start), end: job.current ? Number.MAX_SAFE_INTEGER : (monthOf(job.end) ?? 0),
+    job, index, held: job.current ? 1 : 0, start: monthOf(job.start), end: job.current ? Number.MAX_SAFE_INTEGER : (monthOf(job.end) ?? 0),
   }))
   if (keyed.some((k) => k.start === null)) return [...jobs]
-  return keyed.sort((a, b) => (b.start as number) - (a.start as number) || b.end - a.end || a.index - b.index).map((k) => k.job)
+  return keyed.sort((a, b) => b.held - a.held || (b.start as number) - (a.start as number) || b.end - a.end || a.index - b.index).map((k) => k.job)
 }
 
 // Joins the AI's wording with the Profile's facts. Job title, employer, school and dates come from the Profile only (D12).

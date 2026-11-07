@@ -163,6 +163,15 @@ describe('assemble', () => {
     expect(assemble(profile, answer('web', 'lab', 'telecom', 'now')).experience.map((e) => e.sourceId)).toEqual(['now', 'telecom', 'lab', 'web'])
   })
 
+  it('puts a job still marked as held above one that has an end date, even one that started later', () => {
+    // The remote job is still going; the academy started later but has an end date (December), so it comes second.
+    const profile: Profile = {
+      ...A,
+      experience: [job('akademi', '2026-03', '2026-12'), job('remote', '2025-10', '', true), job('magang', '2025-04', '2025-08')],
+    }
+    expect(assemble(profile, answer('akademi', 'magang', 'remote')).experience.map((e) => e.sourceId)).toEqual(['remote', 'akademi', 'magang'])
+  })
+
   it('keeps the wording the AI wrote for each job while the order stays by date', () => {
     const profile: Profile = { ...A, experience: [job('lama', '2021-09', '2022-01'), job('baru', '2025-04', '2025-08')] }
     const cv = assemble(profile, answer('lama', 'baru'))
