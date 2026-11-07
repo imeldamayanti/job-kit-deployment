@@ -172,6 +172,31 @@ describe('assemble', () => {
     expect(assemble(profile, answer('akademi', 'magang', 'remote')).experience.map((e) => e.sourceId)).toEqual(['remote', 'akademi', 'magang'])
   })
 
+  describe('three bullets for every job', () => {
+    const facts = 'Membangun aplikasi kasir dengan Laravel.\nMenulis laporan penjualan mingguan untuk manajer.\nMengelola basis data pelanggan di MySQL.\nMengikuti rapat mingguan dengan klien.'
+    const one = (description: string): Profile => ({ ...A, experience: [{ ...job('x', '2024-01', '2024-06'), description }] })
+
+    it('tops up to three from the Profile when the AI wrote fewer, with facts its bullets do not already carry', () => {
+      const cv = assemble(one(facts), { skills: [], experience: [{ sourceId: 'x', bullets: ['Membangun aplikasi kasir berbasis Laravel untuk toko.'] }], education: [] })
+      const bullets = cv.experience[0]!.bullets
+      expect(bullets).toHaveLength(3)
+      expect(bullets[0]).toBe('Membangun aplikasi kasir berbasis Laravel untuk toko.')
+      expect(bullets).not.toContain('Membangun aplikasi kasir dengan Laravel.')
+      expect(bullets.slice(1)).toEqual(['Menulis laporan penjualan mingguan untuk manajer.', 'Mengelola basis data pelanggan di MySQL.'])
+    })
+
+    it('leaves the AI\'s three bullets as they are', () => {
+      const three = ['Satu.', 'Dua.', 'Tiga.']
+      expect(assemble(one(facts), { skills: [], experience: [{ sourceId: 'x', bullets: three }], education: [] }).experience[0]!.bullets).toEqual(three)
+    })
+
+    it('never makes up bullets: it does not go past the number of facts the Profile has for that job', () => {
+      const answer1 = { skills: [], experience: [{ sourceId: 'x', bullets: ['Satu.'] }], education: [] }
+      expect(assemble(one('Membangun aplikasi kasir.\nMenulis laporan penjualan.'), answer1).experience[0]!.bullets).toEqual(['Satu.', 'Membangun aplikasi kasir.'])
+      expect(assemble(one('Membangun aplikasi kasir.'), answer1).experience[0]!.bullets).toEqual(['Satu.'])
+    })
+  })
+
   it('keeps the wording the AI wrote for each job while the order stays by date', () => {
     const profile: Profile = { ...A, experience: [job('lama', '2021-09', '2022-01'), job('baru', '2025-04', '2025-08')] }
     const cv = assemble(profile, answer('lama', 'baru'))
@@ -193,7 +218,8 @@ describe('assemble', () => {
     const output: TailorOutput = { skills: ['React'], experience: [{ sourceId: 'exp-a2', bullets: ['Membantu memindahkan halaman statis ke React.'] }], education: [] }
     const cv = assemble(ended, output)
     expect(cv.experience.map((e) => e.sourceId)).toEqual(['exp-a1', 'exp-a2'])
-    expect(cv.experience[1]?.bullets).toEqual(['Membantu memindahkan halaman statis ke React.'])
+    // The AI's bullet covers the second fact, so the first fact joins it to make the two bullets the Profile has.
+    expect(cv.experience[1]?.bullets).toEqual(['Membantu memindahkan halaman statis ke React.', 'Memperbaiki bug tampilan di situs perusahaan.'])
     expect(cv.experience[0]?.bullets).toEqual([
       'Membangun fitur dashboard pelanggan dengan React dan TypeScript.',
       'Menulis REST API dengan Node.js dan PostgreSQL.',
