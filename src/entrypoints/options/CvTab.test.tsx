@@ -54,6 +54,31 @@ describe('CvTab: before there is a CV', () => {
     expect(text).toContain('Biasanya 10–20 detik')
   })
 
+  // A person who sees nothing move cannot tell loading from stuck: while the CV is made, something spins.
+  const spinning = (root: Element | null | undefined) =>
+    [...(root?.querySelectorAll('svg, g') ?? [])].some((el) => (el.getAttribute('class') ?? '').includes('animate-spin'))
+
+  it('shows a spinning mascot and a status line while the CV is made, and a spinner on the button', async () => {
+    await render(state('busy'))
+    const status = container!.querySelector('[role="status"]')
+    expect(status?.textContent).toContain('Sedang membuat CV')
+    expect(spinning(status)).toBe(true)
+    expect(spinning(button('Sedang membuat…'))).toBe(true)
+  })
+
+  it('only spins while it is working: nothing spins when no CV is being made', async () => {
+    await render(state('empty'))
+    expect(spinning(container)).toBe(false)
+    await render(state('result'))
+    expect(spinning(container)).toBe(false)
+  })
+
+  it('spins the button too when a CV is made again over an old one', async () => {
+    const tab = state('result')
+    await render({ ...tab, busy: true })
+    expect(spinning(button('Membuat…'))).toBe(true)
+  })
+
   it('turns the button off and says why, with a way to fix it (AI tidak tersedia)', async () => {
     const tab = state('off')
     const text = await render(tab)
