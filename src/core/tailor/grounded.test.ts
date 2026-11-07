@@ -143,51 +143,49 @@ describe('assemble', () => {
     expect(assemble(A, good()).header).toEqual({ name: 'Sari Contohwati', contacts: ['081200000000', 'sari@example.test', 'Denpasar'] })
   })
 
-  it('keeps the AI order of experience that has ended', () => {
-    const ended: Profile = { ...A, experience: A.experience.map((e) => ({ ...e, current: false })) }
-    const output: TailorOutput = {
-      skills: ['React'],
-      experience: [
-        { sourceId: 'exp-a2', bullets: ['Membantu memindahkan halaman statis ke React.'] },
-        { sourceId: 'exp-a1', bullets: ['Menulis REST API dengan Node.js.'] },
-      ],
-      education: [],
-    }
-    expect(assemble(ended, output).experience.map((e) => e.sourceId)).toEqual(['exp-a2', 'exp-a1'])
+  // The order of experience is the person's to keep: newest first by date, never the order the AI happened to give.
+  const job = (id: string, start: string, end: string, current = false): Profile['experience'][number] => ({
+    id, company: `PT ${id}`, title: `Peran ${id}`, start, end, current, description: `Butir ${id}.`,
+  })
+  const answer = (...ids: string[]): TailorOutput => ({ skills: [], experience: ids.map((sourceId) => ({ sourceId, bullets: [`Butir AI ${sourceId}.`] })), education: [] })
+
+  it('lists experience newest first by date, whatever order the AI gave', () => {
+    const profile: Profile = { ...A, experience: [job('lama', '2021-09', '2022-01'), job('baru', '2025-04', '2025-08'), job('tengah', '2024-05', '2025-06')] }
+    expect(assemble(profile, answer('lama', 'tengah', 'baru')).experience.map((e) => e.sourceId)).toEqual(['baru', 'tengah', 'lama'])
   })
 
-  it('keeps the jobs the person still holds at the top, in Profile order, whatever order the AI gave', () => {
-    const [first, second] = A.experience as [Profile['experience'][number], Profile['experience'][number]]
+  it('orders by when each job started, as the person\'s own CV does, not by when it ended', () => {
+    // The lab started a month before the telecom internship but ended a year after it: the start decides.
     const profile: Profile = {
       ...A,
-      experience: [
-        { ...first, id: 'now-1', current: true },
-        { ...first, id: 'now-2', current: true },
-        { ...second, id: 'old-1', current: false },
-        { ...second, id: 'old-2', current: false },
-      ],
+      experience: [job('lab', '2024-05', '2025-06'), job('telecom', '2024-06', '2024-09'), job('now', '2025-10', '', true), job('web', '2021-09', '2022-01')],
     }
-    const output: TailorOutput = {
-      skills: [],
-      experience: ['old-2', 'now-2', 'old-1', 'now-1'].map((sourceId) => ({ sourceId, bullets: ['Satu butir.'] })),
-      education: [],
-    }
-    // The ones still going come first as the Profile lists them; the rest keep the order the AI chose.
-    expect(assemble(profile, output).experience.map((e) => e.sourceId)).toEqual(['now-1', 'now-2', 'old-2', 'old-1'])
+    expect(assemble(profile, answer('web', 'lab', 'telecom', 'now')).experience.map((e) => e.sourceId)).toEqual(['now', 'telecom', 'lab', 'web'])
   })
 
-  it('puts a current job the AI left out at the top as well', () => {
+  it('keeps the wording the AI wrote for each job while the order stays by date', () => {
+    const profile: Profile = { ...A, experience: [job('lama', '2021-09', '2022-01'), job('baru', '2025-04', '2025-08')] }
+    const cv = assemble(profile, answer('lama', 'baru'))
+    expect(cv.experience.map((e) => [e.sourceId, e.bullets])).toEqual([['baru', ['Butir AI baru.']], ['lama', ['Butir AI lama.']]])
+  })
+
+  it('keeps the Profile order when a date cannot be read, rather than guess', () => {
+    const profile: Profile = { ...A, experience: [job('a', 'Agustus 2023', ''), job('b', '2025-04', '2025-08'), job('c', '2021-09', '2022-01')] }
+    expect(assemble(profile, answer('c', 'b', 'a')).experience.map((e) => e.sourceId)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('puts a current job the AI left out in its place by date too', () => {
     const output: TailorOutput = { skills: [], experience: [{ sourceId: 'exp-a2', bullets: ['Membantu.'] }], education: [] }
     expect(assemble(A, output).experience.map((e) => e.sourceId)).toEqual(['exp-a1', 'exp-a2'])
   })
 
-  it('never drops an experience: one the AI left out goes after the others, with its Profile bullets', () => {
+  it('never drops an experience: one the AI left out stays in its place by date, with its Profile bullets', () => {
     const ended: Profile = { ...A, experience: A.experience.map((e) => ({ ...e, current: false })) }
     const output: TailorOutput = { skills: ['React'], experience: [{ sourceId: 'exp-a2', bullets: ['Membantu memindahkan halaman statis ke React.'] }], education: [] }
     const cv = assemble(ended, output)
-    expect(cv.experience.map((e) => e.sourceId)).toEqual(['exp-a2', 'exp-a1'])
-    expect(cv.experience[0]?.bullets).toEqual(['Membantu memindahkan halaman statis ke React.'])
-    expect(cv.experience[1]?.bullets).toEqual([
+    expect(cv.experience.map((e) => e.sourceId)).toEqual(['exp-a1', 'exp-a2'])
+    expect(cv.experience[1]?.bullets).toEqual(['Membantu memindahkan halaman statis ke React.'])
+    expect(cv.experience[0]?.bullets).toEqual([
       'Membangun fitur dashboard pelanggan dengan React dan TypeScript.',
       'Menulis REST API dengan Node.js dan PostgreSQL.',
       'Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%.',
