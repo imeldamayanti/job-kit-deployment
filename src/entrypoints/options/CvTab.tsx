@@ -7,6 +7,7 @@ import { cvParts, overwritesEdits } from '../../core/tailor/edit'
 import type { CvOrder } from '../../core/tailor/types'
 import type { CvView } from '../../core/tailor/view'
 import { Button } from '../../ui/primitives/Button'
+import { WorkingMascot } from '../../ui/mascot/WorkingMascot'
 import { Select } from '../../ui/primitives/Select'
 import { TextArea } from '../../ui/primitives/TextArea'
 import { CvDiff } from './CvDiff'
@@ -125,7 +126,13 @@ export function CvTab({
   const regenerate = () => (overwritesEdits(cv) ? setConfirming(true) : onCreate())
   const create = (label: string, variant: 'primary' | 'secondary' = 'primary') => (
     <Button variant={variant} onClick={regenerate} disabled={off}>
-      {variant === 'primary' ? <Sparkles size={15} strokeWidth={2} aria-hidden="true" /> : <RefreshCw size={15} strokeWidth={2} aria-hidden="true" />}
+      {busy ? (
+        <RefreshCw size={15} strokeWidth={2} aria-hidden="true" className="motion-safe:animate-spin" />
+      ) : variant === 'primary' ? (
+        <Sparkles size={15} strokeWidth={2} aria-hidden="true" />
+      ) : (
+        <RefreshCw size={15} strokeWidth={2} aria-hidden="true" />
+      )}
       {busy ? (cv ? 'Membuat…' : 'Sedang membuat…') : label}
     </Button>
   )
@@ -180,10 +187,14 @@ export function CvTab({
         <div className="flex flex-col gap-4">
           {notices}
           <Card title="Sedang membuat">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="text-[13px] text-text-secondary">Biasanya 10–20 detik</span>
-              {create('Buat CV')}
+            <div role="status" className="flex items-center gap-4">
+              <WorkingMascot size={64} />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold text-text-primary">Sedang membuat CV…</span>
+                <span className="text-[13px] text-text-secondary">Biasanya 10–20 detik</span>
+              </div>
             </div>
+            <div className="flex flex-wrap items-center gap-3">{create('Buat CV')}</div>
             <p className="text-[12px] text-text-secondary">Membaca requirement lowongan → menyusun CV → memeriksa semua fakta terhadap Profile.</p>
           </Card>
         </div>
