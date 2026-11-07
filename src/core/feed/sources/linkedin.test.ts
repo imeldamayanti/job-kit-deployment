@@ -89,11 +89,12 @@ describe('buildSearchUrl', () => {
 })
 
 describe('searchPlaces', () => {
-  it('searches every wanted location, then remote jobs worldwide when remote is wanted', () => {
+  it('searches every wanted location, then remote jobs in each wide region when remote is wanted', () => {
     expect(searchPlaces(prefs({ locations: ['Jakarta', 'Bali'], workModes: ['Remote', 'Hybrid'] }))).toEqual([
-      { location: 'Jakarta' }, { location: 'Bali' }, { location: 'Worldwide', remote: true },
+      { location: 'Jakarta' }, { location: 'Bali' },
+      { location: 'Worldwide', remote: true }, { location: 'Asia Pacific', remote: true }, { location: 'EMEA', remote: true },
     ])
-    expect(searchPlaces(prefs({ locations: ['Jakarta'] }))).toEqual([{ location: 'Jakarta' }, { location: 'Worldwide', remote: true }])
+    expect(searchPlaces(prefs({ locations: ['Jakarta'] }))).toHaveLength(4)
   })
 
   it('adds no remote search when remote is not wanted, and one search without a location', () => {
@@ -119,8 +120,18 @@ describe('LinkedIn source', () => {
     const t = setup(() => html(SEARCH), { maxPages: 3, maxDetails: 0 })
     await t.source.fetch(prefs({ locations: ['Jakarta', 'Bali'], workModes: ['Remote', 'Hybrid'] }), t.ctx)
     const queries = t.urls.map((u) => new URL(u).searchParams)
-    expect(queries.map((q) => q.get('location'))).toEqual(['Jakarta', 'Bali', 'Worldwide'])
-    expect(queries.map((q) => q.get('f_WT'))).toEqual(['2,3', '2,3', '2'])
+    expect(queries.map((q) => q.get('location'))).toEqual(['Jakarta', 'Bali', 'Worldwide', 'Asia Pacific', 'EMEA'])
+    expect(queries.map((q) => q.get('f_WT'))).toEqual(['2,3', '2,3', '2', '2', '2'])
+  })
+
+  it('reads a job found by a remote search as remote, and one found by a city search as the card says', async () => {
+    const t = setup((url) => html(new URL(url).searchParams.get('f_WT') === '2' ? SEARCH : '<ul></ul>'), { maxPages: 3, maxDetails: 0 })
+    const jobs = await t.source.fetch(prefs({ locations: ['Jakarta'], workModes: ['Remote', 'Hybrid'] }), t.ctx)
+    expect(jobs.length).toBeGreaterThan(0)
+    expect(jobs.every((job) => job.workplace === 'remote')).toBe(true)
+    const city = setup(() => html(SEARCH), { maxPages: 1, maxDetails: 0 })
+    const cityJobs = await city.source.fetch(prefs({ locations: ['Jakarta'], workModes: ['Hybrid'] }), city.ctx)
+    expect(cityJobs.some((job) => job.workplace !== 'remote')).toBe(true)
   })
 
   it('stops when a page has no more results', async () => {

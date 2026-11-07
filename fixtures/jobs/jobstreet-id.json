@@ -1,0 +1,149 @@
+{
+ "totalCount": 2118,
+ "data": [
+  {
+   "id": "95140055",
+   "title": "Software Engineer",
+   "advertiser": {
+    "id": "60284593",
+    "description": "PetroSYNC"
+   },
+   "companyName": "Petrosync",
+   "locations": [
+    {
+     "label": "West Jakarta, Jakarta",
+     "countryCode": "ID"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "1",
+      "label": {
+       "text": "On-site"
+      }
+     }
+    ]
+   },
+   "workTypes": [
+    "Full time"
+   ],
+   "listingDate": "2026-10-08T05:44:02Z",
+   "salaryLabel": "Rp 5.800.000 – Rp 7.000.000 per month",
+   "teaser": "Maintenance website perusahaan.\nMemperbarui fitur web. \nMengirimkan report tepat waktu. \nMenjalin kerjasama yang baik antar team.",
+   "bulletPoints": [],
+   "branding": {
+    "serpLogoUrl": "https://bx-branding-gateway.cloud.seek.com.au/bd06e77f-b637-402c-8ed7-b9080619e7e8.1/jdpLogo"
+   }
+  },
+  {
+   "id": "95681021",
+   "title": "Software Developer & Programmer",
+   "advertiser": {
+    "id": "61017399",
+    "description": "PT Sinar Terang Mentari"
+   },
+   "companyName": "PT Sinar Terang Mentari",
+   "locations": [
+    {
+     "label": "Penjaringan, Jakarta",
+     "countryCode": "ID"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "1",
+      "label": {
+       "text": "On-site"
+      }
+     }
+    ]
+   },
+   "workTypes": [
+    "Full time"
+   ],
+   "listingDate": "2026-11-04T06:20:00Z",
+   "salaryLabel": "",
+   "teaser": "Bekerja sama dengan tim operasional pabrik, supply chain, penjualan, dan manajemen untuk menerjemahkan kebutuhan bisnis menjadi fitur aplikasi",
+   "bulletPoints": [],
+   "branding": {
+    "serpLogoUrl": "https://bx-branding-gateway.cloud.seek.com.au/f7360847-ab8b-4ef5-8b96-096b4b2fa8eb.1/jdpLogo"
+   }
+  },
+  {
+   "id": "95652345",
+   "title": "Software Engineer Project Manager (JAPANESE or MANDARIN Speaker)",
+   "advertiser": {
+    "id": "62998229",
+    "description": "HITHINK TECHNOLOGY INDONESIA"
+   },
+   "companyName": "HiThink Technology Indonesia",
+   "locations": [
+    {
+     "label": "South Jakarta, Jakarta",
+     "countryCode": "ID"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "1",
+      "label": {
+       "text": "On-site"
+      }
+     }
+    ]
+   },
+   "workTypes": [
+    "Full time"
+   ],
+   "listingDate": "2026-11-03T01:42:45Z",
+   "salaryLabel": "Rp 12.500.000 – Rp 18.500.000 per month",
+   "teaser": "Software Engineer in dynamic tech firm - gain valuable experience, collaborate with cross-functional teams.",
+   "bulletPoints": [
+    "New opportunities in Indonesia market with potential career path goal.",
+    "South Jakarta CBD area",
+    "Multinational Company (PMA)"
+   ],
+   "branding": {
+    "serpLogoUrl": "https://bx-branding-gateway.cloud.seek.com.au/132732fd-5229-42af-82ef-85b904cbd5f2.1/jdpLogo"
+   }
+  },
+  {
+   "id": "95163313",
+   "title": "Software Engineer",
+   "advertiser": {
+    "id": "60235663",
+    "description": "PT Strange Tech Cikarang Indonesia"
+   },
+   "companyName": "PT Strange Tech Cikarang Indonesia",
+   "locations": [
+    {
+     "label": "South Cikarang, West Java",
+     "countryCode": "ID"
+    }
+   ],
+   "workArrangements": {
+    "data": [
+     {
+      "id": "1",
+      "label": {
+       "text": "On-site"
+      }
+     }
+    ]
+   },
+   "workTypes": [
+    "Contract/Temp"
+   ],
+   "listingDate": "2026-10-09T03:42:47Z",
+   "salaryLabel": "Rp 6.500.000 – Rp 8.000.000 per month",
+   "teaser": "Kembangkan skill teknis pada proyek menantang. Kompensasi kompetitif, asuransi kesehatan, fleksibilitas kontrak.",
+   "bulletPoints": [],
+   "branding": {
+    "serpLogoUrl": "https://bx-branding-gateway.cloud.seek.com.au/63dda935-15ac-4025-bb87-16a839501a69.1/jdpLogo"
+   }
+  }
+ ]
+}

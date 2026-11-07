@@ -42,6 +42,10 @@ const ORIGINS: Record<JobSourceId, string[]> = {
   remotive: ['https://remotive.com/*'],
   linkedin: ['https://www.linkedin.com/*'],
   thread: ['https://www.threads.com/*'],
+  yc: ['https://www.ycombinator.com/*'],
+  wellfound: ['https://wellfound.com/*'],
+  jobstreet: ['https://id.jobstreet.com/*', 'https://sg.jobstreet.com/*'],
+  mycareersfuture: ['https://api.mycareersfuture.gov.sg/*'],
 }
 
 const AI_ORIGINS: Record<AiProvider, string[]> = {

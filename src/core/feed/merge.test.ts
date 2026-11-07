@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mergeFeed } from './merge'
+import { dedupeFeed, mergeFeed } from './merge'
 import type { Job, RawJob } from './types'
 
 const NOW = '2026-10-10T08:00:00.000Z'
@@ -77,5 +77,47 @@ describe('mergeFeed', () => {
     const existing: Job[] = []
     mergeFeed(existing, [raw()], NOW)
     expect(existing).toEqual([])
+  })
+})
+
+describe('dedupeFeed', () => {
+  const job = (id: string, change: Partial<Job> = {}): Job => ({
+    ...raw({ url: `https://boards.example.test/jobs/${id}` }), id, status: 'new', score: null, aiFilled: [], firstSeenAt: NOW, lastSeenAt: NOW, ...change,
+  })
+  const score = (value: number) => ({ value, matches: [], gaps: [], summary: '', rough: false, inputHash: 'h' })
+  const ids = (jobs: Job[]) => jobs.map((j) => j.id)
+
+  it('drops a new job that has the same title and company as an earlier one, even from another source', () => {
+    const feed = [job('a'), job('b', { source: 'lever', company: 'Contoh Karya' })]
+    expect(ids(dedupeFeed(feed))).toEqual(['a'])
+  })
+
+  it('drops a new job with the same link as another one', () => {
+    const feed = [job('a'), job('b', { title: 'Other title', company: 'Other', url: 'https://boards.example.test/jobs/a?utm_source=x' })]
+    expect(ids(dedupeFeed(feed))).toEqual(['a'])
+  })
+
+  it('keeps the copy that has a score', () => {
+    const feed = [job('a'), job('b', { score: score(70) })]
+    expect(ids(dedupeFeed(feed))).toEqual(['b'])
+  })
+
+  it('keeps the saved, applied or hidden copy and drops the new one', () => {
+    for (const status of ['saved', 'applied', 'hidden'] as const) {
+      expect(ids(dedupeFeed([job('new-copy'), job('kept', { status })]))).toEqual(['kept'])
+    }
+  })
+
+  it('never drops a job the user has acted on, even when two of them look the same', () => {
+    const feed = [job('a', { status: 'saved' }), job('b', { status: 'applied' })]
+    expect(ids(dedupeFeed(feed))).toEqual(['a', 'b'])
+  })
+
+  it('leaves different jobs alone and does not change the list it was given', () => {
+    const feed = [job('a'), job('b', { title: 'Backend Engineer' }), job('c', { company: 'PT Lain' })]
+    expect(ids(dedupeFeed(feed))).toEqual(['a', 'b', 'c'])
+    const copy = [job('a'), job('b')]
+    dedupeFeed(copy)
+    expect(copy).toHaveLength(2)
   })
 })

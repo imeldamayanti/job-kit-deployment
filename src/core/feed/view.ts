@@ -2,7 +2,7 @@ import type { FeedState } from './schedule'
 import type { Job, JobSourceId, JobStatus, SourceRun } from './types'
 
 export const SOURCE_NAMES: Record<JobSourceId, string> = {
-  greenhouse: 'Greenhouse', lever: 'Lever', ashby: 'Ashby', remotive: 'Remotive', linkedin: 'LinkedIn', thread: 'Threads',
+  greenhouse: 'Greenhouse', lever: 'Lever', ashby: 'Ashby', remotive: 'Remotive', linkedin: 'LinkedIn', thread: 'Threads', yc: 'Y Combinator', wellfound: 'Wellfound', jobstreet: 'JobStreet', mycareersfuture: 'MyCareersFuture',
 }
 
 export type ScoreTier = { tier: 'hi' | 'mid' | 'lo'; label: 'Cocok' | 'Lumayan' | 'Kurang' }
@@ -13,19 +13,17 @@ export function scoreTier(value: number): ScoreTier {
   return { tier: 'lo', label: 'Kurang' }
 }
 
-// Rekomendasi only shows jobs scored at least this much; unscored jobs wait until they are scored.
-export const MIN_RECOMMENDED_SCORE = 50
-
 export type FeedTab = 'recommended' | 'saved'
 export type WorkplaceFilter = 'all' | 'remote' | 'hybrid' | 'onsite'
 export type SavedStatusFilter = 'all' | 'saved' | 'applied' | 'hidden'
 export type FeedFilter = { tab: FeedTab; workplace: WorkplaceFilter; query: string; status: SavedStatusFilter }
 
+// Rekomendasi shows every new job (one not saved, applied or hidden), whatever its score, so each can get "Siapkan lamaran".
+// The score only orders the list.
 export function filterFeed(feed: readonly Job[], { tab, workplace, query, status }: FeedFilter): Job[] {
   const needle = query.trim().toLowerCase()
   return feed.filter((job) => {
     if (tab === 'recommended' ? job.status !== 'new' : status === 'all' ? job.status !== 'saved' && job.status !== 'applied' : job.status !== status) return false
-    if (tab === 'recommended' && (job.score?.value ?? -1) < MIN_RECOMMENDED_SCORE) return false
     if (tab === 'recommended' && workplace !== 'all' && job.workplace !== workplace) return false
     if (needle === '') return true
     return [job.title, job.company, job.location, job.source].some((text) => text.toLowerCase().includes(needle))
@@ -50,7 +48,13 @@ export function setJobStatus(feed: readonly Job[], id: string, status: JobStatus
   return feed.map((job) => (job.id === id ? { ...job, status } : job))
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+// Sets one status on several jobs at once, so a bulk move is one write instead of one per job.
+export function setJobsStatus(feed: readonly Job[], ids: readonly string[], status: JobStatus): Job[] {
+  const chosen = new Set(ids)
+  return feed.map((job) => (chosen.has(job.id) ? { ...job, status } : job))
+}
+
+const MONTHS =['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
 const DAY = 24 * 60 * 60 * 1000
 
 function postedText(postedAt: string, now: Date): string {

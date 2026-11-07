@@ -7,6 +7,7 @@ import {
   jobMeta,
   scoreTier,
   setJobStatus,
+  setJobsStatus,
   sortFeed,
   sourceNotices,
 } from './view'
@@ -49,9 +50,16 @@ describe('filterFeed', () => {
     expect(ids(filterFeed(feed, { tab: 'recommended', workplace: 'all', query: '', status: 'all' }))).toEqual(['a', 'b'])
   })
 
-  it('Rekomendasi hides jobs scored below 50 and jobs not scored yet', () => {
-    const mixed = [job('lo', { score: score(49) }), job('none'), job('ok', { score: score(50) })]
-    expect(ids(filterFeed(mixed, { tab: 'recommended', workplace: 'all', query: '', status: 'all' }))).toEqual(['ok'])
+  it('Rekomendasi shows every new job, whatever its score or title, so each one can get Siapkan lamaran', () => {
+    const mixed = [job('lo', { score: score(10) }), job('none'), job('ok', { score: score(80) }), job('odd', { title: 'Barista' }), job('done', { status: 'applied' })]
+    expect(ids(filterFeed(mixed, { tab: 'recommended', workplace: 'all', query: '', status: 'all' }))).toEqual(['lo', 'none', 'ok', 'odd'])
+  })
+
+  it('setJobsStatus changes the status of the named jobs only', () => {
+    const list = [job('a', { status: 'saved' }), job('b', { status: 'saved' }), job('c', { status: 'applied' })]
+    const next = setJobsStatus(list, ['a', 'c'], 'new')
+    expect(next.map((j) => [j.id, j.status])).toEqual([['a', 'new'], ['b', 'saved'], ['c', 'new']])
+    expect(list[0]?.status).toBe('saved')
   })
 
   it('Rekomendasi filters by work type', () => {

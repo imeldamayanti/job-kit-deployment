@@ -38,7 +38,8 @@ function levelOfJob(job: RawJob): JobLevel | null {
   return null
 }
 
-function roleFit(job: RawJob, roles: string[]): number {
+// How much of the closest wanted role the title carries: 1 for the whole role, a part for some of its words.
+export function roleFit(job: Pick<RawJob, 'title'>, roles: readonly string[]): number {
   if (roles.length === 0) return 0.5
   const title = job.title.toLowerCase()
   return Math.max(

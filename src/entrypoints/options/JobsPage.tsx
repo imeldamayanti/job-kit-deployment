@@ -1,6 +1,7 @@
-import { RefreshCw, SlidersHorizontal } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { RefreshCw, SlidersHorizontal, Upload } from 'lucide-react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { aiErrorMessage } from '../../core/ai/errors'
+import { importMessage, type ImportResult } from '../../core/feed/import'
 import { canEnableFeed, type FeedSettings } from '../../core/feed/settings'
 import { countNew, type FeedState } from '../../core/feed/schedule'
 import { previewFeedFromHash } from '../../core/feed/preview'
@@ -32,7 +33,14 @@ import { Empty } from './EmptyState'
 import { ActionMenu, JobCard } from './JobCard'
 import { FolderTabs } from './FolderTabs'
 
-type Live = { feed: Job[]; runs: SourceRun[]; state: FeedState; changeStatus: (id: string, status: JobStatus) => void }
+type Live = {
+  feed: Job[]
+  runs: SourceRun[]
+  state: FeedState
+  changeStatus: (id: string, status: JobStatus) => void
+  restoreSaved: (ids: string[]) => void
+  importJobs: (text: string) => Promise<ImportResult>
+}
 
 const WORKPLACES: { id: WorkplaceFilter; title: string }[] = [
   { id: 'all', title: 'Semua' }, { id: 'remote', title: 'Remote' }, { id: 'hybrid', title: 'Hybrid' }, { id: 'onsite', title: 'On-site' },
@@ -137,19 +145,39 @@ export function JobsPage({
   const set = (change: Partial<FeedFilter>) => setFilter({ ...filter, ...change })
   const applicationOf = (job: Job) => applications.find((app) => app.jobId === job.id)
 
-  const recommended = data.feed.filter((job) => job.status === 'new')
+  const recommended = filterFeed(data.feed, { ...filter, tab: 'recommended', workplace: 'all', query: '' })
   const saved = data.feed.filter((job) => job.status === 'saved' || job.status === 'applied')
   const shown = sortFeed(filterFeed(data.feed, filter), order)
   const onRecommended = filter.tab === 'recommended'
-  const view = describeFeed({
-    hasRoles: data.hasRoles, anySourceOn: data.anySourceOn, state: data.state, runs: data.runs,
-    recommended: filterFeed(data.feed, { ...filter, workplace: 'all', query: '' }).length, shown: shown.length,
-  })
+  // Saved jobs with no application yet: the ones that can still go back to Rekomendasi for "Siapkan lamaran".
+  const restorable = saved.filter((job) => job.status === 'saved' && !applicationOf(job)).map((job) => job.id)
+  // The profile and the settings load a moment after the feed. Until both are in, nothing is known about the
+  // preferences yet, so the page must not claim they are empty.
+  const loading = !preview && (profile === null || settings === null)
+  const view = loading
+    ? 'loading'
+    : describeFeed({
+        hasRoles: data.hasRoles, anySourceOn: data.anySourceOn, state: data.state, runs: data.runs,
+        recommended: filterFeed(data.feed, { ...filter, workplace: 'all', query: '' }).length, shown: shown.length,
+      })
   const notices = sourceNotices(data.runs, data.state.paused)
 
   const refresh = () => {
     setAnswer('')
     void requestRefresh().then((status) => setAnswer(status === 'busy' ? 'Masih ada pengambilan yang berjalan.' : status === 'no-prefs' ? 'Isi role incaran di Preferensi kerja dulu.' : ''))
+  }
+  // "Impor": a JSON file of jobs collected elsewhere goes into the feed as saved jobs.
+  const fileInput = useRef<HTMLInputElement>(null)
+  const importFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || preview) return
+    setAnswer('')
+    try {
+      setAnswer(importMessage(await live.importJobs(await file.text())))
+    } catch {
+      setAnswer('Penyimpanan penuh. Tidak ada lowongan yang tersimpan.')
+    }
   }
   const change = preview ? () => {} : live.changeStatus
   const open = (job: Job) => {
@@ -169,6 +197,11 @@ export function JobsPage({
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-end gap-2">
         <span className="mr-1 text-[13px] text-text-secondary">{formatUpdated(data.state.lastRunAt, data.state.newJobs || countNew(data.feed, ''))}</span>
+        <input ref={fileInput} type="file" accept=".json,application/json" className="hidden" aria-label="Berkas lowongan JSON" onChange={(event) => void importFile(event)} />
+        <Button variant="secondary" onClick={() => fileInput.current?.click()}>
+          <Upload size={16} strokeWidth={2} aria-hidden="true" />
+          Impor
+        </Button>
         <Button variant="secondary" disabled={data.state.running || !data.anySourceOn} onClick={refresh}>
           <RefreshCw size={16} strokeWidth={2} aria-hidden="true" className={data.state.running ? 'animate-spin' : ''} />
           {data.state.running ? 'Sedang mengambil…' : 'Segarkan'}
@@ -244,6 +277,11 @@ export function JobsPage({
                   <FilterChip key={id} selected={filter.status === id} onClick={() => set({ status: id })}>{title}</FilterChip>
                 ))}
               </div>
+            )}
+            {!onRecommended && restorable.length > 0 && (
+              <Button variant="secondary" onClick={() => !preview && live.restoreSaved(restorable)}>
+                Kembalikan semua ke Rekomendasi ({restorable.length})
+              </Button>
             )}
             {onRecommended && (
               <Select

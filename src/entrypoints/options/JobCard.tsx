@@ -144,8 +144,10 @@ export function JobCard({
   startOpen?: boolean
 }) {
   const [reasons, setReasons] = useState(startOpen)
+  // A location that only says "Remote" repeats the work-type chip, so it is left out.
+  const place = job.location.trim().toLowerCase() === WORKPLACE_TEXT[job.workplace].toLowerCase() ? '' : job.location
   const chips: { text: string; ai?: boolean; pin?: boolean }[] = [
-    { text: job.location, pin: true },
+    { text: place, pin: true },
     { text: WORKPLACE_TEXT[job.workplace], ai: job.aiFilled.includes('workplace') },
     { text: job.contract, ai: job.aiFilled.includes('contract') },
     { text: job.level, ai: job.aiFilled.includes('level') },

@@ -1,0 +1,197 @@
+{
+ "total": 892,
+ "results": [
+  {
+   "uuid": "d79c61fae9edc00c420cec7caf2c7087",
+   "title": "Senior Software Engineer",
+   "description": "<p><strong >Together, We Can Make A Significant Impact – Position Overview</strong></p><p><span >As a Senior Software Engineer, you will be part of an Agile, cross-functional product delivery team responsible for designing, developing, testing, and maintaining mission-critical digital solutions. You will deliver the full scope of Software Engineer responsibilities while taking on greater ownership in technical design, code quality, testing strategy, estimation, delivery risk management, and technical guidance for assigned modules or workstreams.</span></p><p><span >Working under the guidance o",
+   "salary": {
+    "maximum": 7500,
+    "minimum": 6000,
+    "type": {
+     "id": 4,
+     "salaryType": "Monthly"
+    }
+   },
+   "employmentTypes": [
+    {
+     "id": 7,
+     "employmentType": "Permanent"
+    }
+   ],
+   "positionLevels": [
+    {
+     "id": 8,
+     "position": "Senior Executive"
+    }
+   ],
+   "minimumYearsExperience": 4,
+   "postedCompany": {
+    "name": "CODEX SOLUTIONS PTE. LTD.",
+    "logoUploadPath": "https://static.mycareersfuture.gov.sg/images/company/logos/16559e7ec3c92a1c98982dd941cf76a2/codex-solutions.png"
+   },
+   "hiringCompany": null,
+   "address": {
+    "isOverseas": false,
+    "overseasCountry": null,
+    "districts": [
+     {
+      "region": "West"
+     }
+    ]
+   },
+   "metadata": {
+    "newPostingDate": "2026-10-07",
+    "expiryDate": "2026-11-06",
+    "isHideSalary": false,
+    "jobDetailsUrl": "https://www.mycareersfuture.gov.sg/job/engineering/senior-software-engineer-codex-solutions-d79c61fae9edc00c420cec7caf2c7087"
+   },
+   "flexibleWorkArrangements": []
+  },
+  {
+   "uuid": "9b9eef323b83a74211d35a97f670ba0c",
+   "title": "Senior Software Engineer / Technical Lead (C++Middleware & Interfaces)",
+   "description": "<h1><u>Senior Software Engineer / Technical Lead (C++Middleware & Interfaces)</u></h1><p><u><strong>About the role</strong></u></p><p>Lead the technical delivery of a customised C++middleware solution for a customer environment. The role is responsible for translating customer and system requirements into a robust software architecture, managing day-to-day software-development activities, and ensuring the delivered interfaces are reliable, testable, maintainable, and suitable for integration into the customer’s wider system. This role shall also participate in the software development after th",
+   "salary": {
+    "maximum": 7000,
+    "minimum": 6000,
+    "type": {
+     "id": 4,
+     "salaryType": "Monthly"
+    }
+   },
+   "employmentTypes": [
+    {
+     "id": 3,
+     "employmentType": "Contract"
+    }
+   ],
+   "positionLevels": [
+    {
+     "id": 9,
+     "position": "Executive"
+    }
+   ],
+   "minimumYearsExperience": 5,
+   "postedCompany": {
+    "name": "TECH AALTO PTE. LTD.",
+    "logoUploadPath": "https://static.mycareersfuture.gov.sg/images/company/logos/6c834d6e49ca5ec79c11b56c3cb897a9/tech-aalto.jpg"
+   },
+   "hiringCompany": null,
+   "address": {
+    "isOverseas": false,
+    "overseasCountry": null,
+    "districts": [
+     {
+      "region": "Islandwide"
+     }
+    ]
+   },
+   "metadata": {
+    "newPostingDate": "2026-11-04",
+    "expiryDate": "2026-11-18",
+    "isHideSalary": false,
+    "jobDetailsUrl": "https://www.mycareersfuture.gov.sg/job/information-technology/senior-software-engineer-technical-lead-tech-aalto-9b9eef323b83a74211d35a97f670ba0c"
+   },
+   "flexibleWorkArrangements": []
+  },
+  {
+   "uuid": "92f0360a8d374c12ac0f8509150a20a1",
+   "title": "Software Engineer (C#) | Semiconductor Test Equipment | $6,000–$10,000",
+   "description": "<h1>Software Engineer (C#) – Semiconductor Test Equipment | Silicon Photonics & Optical Testing | $6,000–$10,000</h1><p>Join a global provider of advanced test equipment and instruments serving the optical and semiconductor industries. We are seeking an experienced <strong>C# Software Engineer</strong> to develop control software for high-end semiconductor test equipment, including optical and high-speed communication testing systems.</p><p>This role combines <strong>software engineering, hardware integration and precision equipment applications</strong>. You will work closely with hardware en",
+   "salary": {
+    "maximum": 10000,
+    "minimum": 6000,
+    "type": {
+     "id": 4,
+     "salaryType": "Monthly"
+    }
+   },
+   "employmentTypes": [
+    {
+     "id": 7,
+     "employmentType": "Permanent"
+    },
+    {
+     "id": 8,
+     "employmentType": "Full Time"
+    }
+   ],
+   "positionLevels": [
+    {
+     "id": 8,
+     "position": "Senior Executive"
+    }
+   ],
+   "minimumYearsExperience": 3,
+   "postedCompany": {
+    "name": "HRNET VENTURES PTE. LTD.",
+    "logoUploadPath": null
+   },
+   "hiringCompany": null,
+   "address": {
+    "isOverseas": false,
+    "overseasCountry": null,
+    "districts": [
+     {
+      "region": "Central"
+     }
+    ]
+   },
+   "metadata": {
+    "newPostingDate": "2026-10-26",
+    "expiryDate": "2026-11-25",
+    "isHideSalary": false,
+    "jobDetailsUrl": "https://www.mycareersfuture.gov.sg/job/others/software-engineer-semiconductor-test-equipment-6000%E2%80%9310000-hrnet-ventures-92f0360a8d374c12ac0f8509150a20a1"
+   },
+   "flexibleWorkArrangements": []
+  },
+  {
+   "uuid": "88dff940e868f85aa6c1d8096521be19",
+   "title": "Software Engineer",
+   "description": "<h2>About US</h2><p>Vocalbeats is a fast-growing global technology company focused on AI-driven innovation. We build intelligent, intuitive, and user-centered AI applications serving tens of millions of users worldwide. With offices in Singapore, Japan, and China, we are rapidly expanding our global presence.</p><p>Our team brings together talents from leading global universities such as <strong>Cornell, CMU, UMich, UCL, NUS, and HKU</strong>, along with professionals from top technology companies. At Vocalbeats, you will work with exceptional talents to explore the possibilities of AI and bui",
+   "salary": {
+    "maximum": 9000,
+    "minimum": 6000,
+    "type": {
+     "id": 4,
+     "salaryType": "Monthly"
+    }
+   },
+   "employmentTypes": [
+    {
+     "id": 7,
+     "employmentType": "Permanent"
+    }
+   ],
+   "positionLevels": [
+    {
+     "id": 9,
+     "position": "Executive"
+    }
+   ],
+   "minimumYearsExperience": 3,
+   "postedCompany": {
+    "name": "VOCALBEATS.AI PTE. LTD.",
+    "logoUploadPath": "https://static.mycareersfuture.gov.sg/images/company/logos/a14ae059da4f0d2a86d3e29a3a7b0dd9/vocalbeatsai.png"
+   },
+   "hiringCompany": null,
+   "address": {
+    "isOverseas": false,
+    "overseasCountry": null,
+    "districts": [
+     {
+      "region": "Central"
+     }
+    ]
+   },
+   "metadata": {
+    "newPostingDate": "2026-10-16",
+    "expiryDate": "2026-11-15",
+    "isHideSalary": false,
+    "jobDetailsUrl": "https://www.mycareersfuture.gov.sg/job/information-technology/software-engineer-vocalbeatsai-88dff940e868f85aa6c1d8096521be19"
+   },
+   "flexibleWorkArrangements": []
+  }
+ ]
+}

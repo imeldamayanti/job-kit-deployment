@@ -26,6 +26,29 @@ export function asArray(value: unknown): Record<string, unknown>[] {
   return value.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
 }
 
+const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+
+// Pages of one site, read one after another with a short random pause so they do not come in a burst. A page that fails
+// is skipped; the source fails only when every one does. A refusal stops the rest: asking again is what gets a client banned.
+export async function collectPages(ctx: FetchContext, urls: string[], load: (url: string) => Promise<RawJob[]>): Promise<RawJob[]> {
+  const jobs: RawJob[] = []
+  let firstError: SourceError | null = null
+  let worked = 0
+  for (const [index, url] of urls.entries()) {
+    if (index > 0) await (ctx.sleep ?? defaultSleep)(1000 + Math.random() * 1500)
+    try {
+      jobs.push(...(await load(url)))
+      worked += 1
+    } catch (error) {
+      if (!(error instanceof SourceError)) throw error
+      firstError ??= error
+      if (error.reason === 'blocked') break
+    }
+  }
+  if (urls.length > 0 && worked === 0 && firstError) throw firstError
+  return jobs
+}
+
 // Company boards: each company is its own request; the source only fails when every one does.
 export async function fetchBoards(
   ctx: FetchContext,
