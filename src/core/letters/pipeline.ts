@@ -7,7 +7,7 @@ import { NO_TOKENS, ungroundedMessage, type TailorFailure } from '../tailor/pipe
 import { pseudonymize } from '../tailor/privacy'
 import { finishLetter, withoutSignOff } from './closing'
 import { validateLetter } from './grounded'
-import { postingLanguage, type Lang, type Tone } from './language'
+import { LETTER_LANG, type Lang, type Tone } from './language'
 import { parseLetter } from './parse'
 import { letterSystem, letterUserPrompt } from './prompt'
 
@@ -33,7 +33,7 @@ export type LetterFailure = TailorFailure
 export async function writeLetter({ profile, application, lang, tone = 'formal', client, key, model, now, newId, maxTokens = 2000 }: LetterInput): Promise<LetterSuccess | LetterFailure> {
   const job = application.job
   if (job.description.trim() === '') return { ok: false, reason: 'no-text', message: 'Tempel teks lowongan dulu.', usage: NO_TOKENS }
-  const language = lang ?? postingLanguage(job)
+  const language = lang ?? LETTER_LANG
 
   const hidden = pseudonymize(profile)
   let reply
