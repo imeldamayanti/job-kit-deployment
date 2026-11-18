@@ -9,6 +9,8 @@ export type FetchContext = {
   // Board names the user picked, per ATS source (S6).
   companies: Partial<Record<JobSourceId, string[]>>
   timeoutMs?: number
+  // Longest one source may take in total, retries and pauses included.
+  sourceDeadlineMs?: number
   // Waits between retries; tests pass an instant one.
   sleep?: (ms: number) => Promise<void>
 }

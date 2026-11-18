@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { importIntoFeed, type ImportResult } from '../../core/feed/import'
 import { dedupeFeed } from '../../core/feed/merge'
-import { initialFeedState, type FeedState } from '../../core/feed/schedule'
+import { initialFeedState, settleStuckRun, type FeedState } from '../../core/feed/schedule'
 import type { Job, JobStatus, SourceRun } from '../../core/feed/types'
 import { setJobStatus, setJobsStatus } from '../../core/feed/view'
 import { markJobApplied } from '../../platform/applications'
@@ -11,7 +11,14 @@ import { loadFeed, loadRuns, loadState, saveFeed, saveState, watchFeed, watchRun
 export function useFeed() {
   const [feed, setFeed] = useState<Job[]>([])
   const [runs, setRuns] = useState<SourceRun[]>([])
-  const [state, setState] = useState<FeedState>(initialFeedState)
+  const [stored, setState] = useState<FeedState>(initialFeedState)
+  const [now, setNow] = useState(() => new Date())
+  // A run that died without clearing its flag would otherwise lock "Segarkan" forever.
+  useEffect(() => {
+    const tick = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(tick)
+  }, [])
+  const state = settleStuckRun(stored, now)
 
   useEffect(() => {
     // Copies of one job that piled up before are cleared once, when the page opens.
