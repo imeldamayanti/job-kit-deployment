@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canStartRun, countNew, isRunDue, nextRunTime, type FeedState, initialFeedState } from './schedule'
+import { canStartRun, countNew, isRunDue, nextRunTime, settleStuckRun, type FeedState, initialFeedState } from './schedule'
 import type { Job } from './types'
 
 const at = (d: number, h: number, m = 0) => new Date(2026, 9, d, h, m) // local time, October 2026
@@ -54,6 +54,20 @@ describe('canStartRun', () => {
 
   it('allows a new run when the old one looks stuck', () => {
     expect(canStartRun(running(at(10, 8)), at(10, 8, 30))).toBe(true)
+  })
+})
+
+describe('settleStuckRun', () => {
+  const running = (startedAt: Date): FeedState => ({ ...initialFeedState(), running: true, startedAt: startedAt.toISOString(), stage: 'fetch' })
+
+  it('keeps a recent run as running', () => {
+    expect(settleStuckRun(running(at(10, 8)), at(10, 8, 2)).running).toBe(true)
+  })
+
+  it('shows an old unfinished run as stopped, so the button unlocks', () => {
+    const settled = settleStuckRun(running(at(10, 8)), at(10, 8, 30))
+    expect(settled.running).toBe(false)
+    expect(settled.stage).toBe('idle')
   })
 })
 

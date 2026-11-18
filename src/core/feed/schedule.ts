@@ -50,6 +50,12 @@ export function canStartRun(state: FeedState, now: Date): boolean {
   return now.getTime() - Date.parse(state.startedAt) > STUCK_AFTER_MS
 }
 
+// A run the background never finished (worker killed, page closed) stays `running` in storage.
+// Pages show it as stopped once it is old enough that a new run is allowed anyway.
+export function settleStuckRun(state: FeedState, now: Date): FeedState {
+  return state.running && canStartRun(state, now) ? { ...state, running: false, stage: 'idle' } : state
+}
+
 export function countNew(feed: readonly Job[], seenAt: string): number {
   return feed.filter((job) => job.status === 'new' && (seenAt === '' || job.firstSeenAt > seenAt)).length
 }
