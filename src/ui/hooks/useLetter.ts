@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Application, CoverLetter } from '../../core/applications/types'
-import { postingLanguage, type Lang, type Tone } from '../../core/letters/language'
+import { LETTER_LANG, type Lang, type Tone } from '../../core/letters/language'
 import { createAutosaver } from '../../core/profile/autosave'
 import { isStale } from '../../core/tailor/hash'
 import type { CvAvailability } from '../../core/tailor/limits'
@@ -57,7 +57,7 @@ export function useLetter(application: Application | undefined, onLink: (link: L
     setCopyNote(null)
   }, [id, letterId])
 
-  const lang = pickedLang ?? letter?.lang ?? (job ? postingLanguage(job) : 'id')
+  const lang = pickedLang ?? letter?.lang ?? LETTER_LANG
   const tone = pickedTone ?? letter?.tone ?? 'formal'
 
   const create = useCallback(

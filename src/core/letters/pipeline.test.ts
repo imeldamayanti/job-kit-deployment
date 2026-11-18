@@ -77,12 +77,12 @@ describe('writeLetter', () => {
     expect(await run(client)).toMatchObject({ ok: false, reason: 'ungrounded' })
   })
 
-  it('writes an Indonesian letter for an Indonesian posting', async () => {
+  it('writes an English letter even for an Indonesian posting', async () => {
     const { client, requests } = fake({ letter: LETTER })
     const result = await run(client, { application: application({ description: 'Kami mencari engineer yang memiliki pengalaman membangun aplikasi web dan bisa bekerja sama dalam tim.' }) })
-    expect(result.ok && result.letter.lang).toBe('id')
-    expect(requests[0]?.system).toMatch(/Indonesia/)
-    expect(result.ok && result.letter.body.endsWith('Hormat saya,\nSari Contohwati')).toBe(true)
+    expect(result.ok && result.letter.lang).toBe('en')
+    expect(requests[0]?.system).toMatch(/English/)
+    expect(result.ok && result.letter.body.endsWith('Sincerely,\nSari Contohwati')).toBe(true)
   })
 
   it('follows the language and tone the person chose', async () => {
