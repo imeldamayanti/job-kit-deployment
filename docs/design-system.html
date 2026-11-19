@@ -551,9 +551,6 @@ del.rm{color:var(--text-secondary);text-decoration:line-through}
 .credit.big .amt{font-size:32px}
 .opt-side .acct{margin:auto 0 0;display:flex;flex-direction:column;gap:10px}
 .opt.narrow .opt-side .acct{margin:0}
-.opt-nav button.ro{color:var(--text-secondary)}
-.opt-nav button .tag{display:inline-flex;align-items:center;gap:4px}
-.opt-nav button .tag .i{width:11px;height:11px;flex-basis:11px}
 
 /* alasan tombol nonaktif, tepat di atas tombolnya */
 .gate{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);margin-top:14px}
@@ -2598,7 +2595,7 @@ Titik riwayat memakai <code>.tl</code>: hijau untuk hasil berhasil (melamar), ab
 <h2>10. Akun, preview, dan kredit AI</h2>
 <p class="note">Mockup T56 untuk akun wajib, kredit AI, dan pembelian lewat QRIS (desain <code>docs/superpowers/specs/2026-11-19-monetisasi-design.md</code>
 &sect;3, &sect;5 dan &sect;6). Tanpa masuk, pengguna hanya melihat <b>preview</b> dengan data contoh. Setelah masuk dan mendapat <b>3 kredit gratis saat daftar</b>,
-Lowongan, Lamaran, CV, dan Surat terbuka selama kredit percobaan masih ada; habis percobaan menjadi hanya-baca sampai membeli paket.
+semua halaman terbuka dan bisa diedit: Lowongan, Lamaran, Profile, dan Data. Yang membedakan hanya saldo AI; habis percobaan, hanya AI yang berhenti sampai membeli kredit.
 Satu paket: <b>50 kredit, Rp10.800, sudah termasuk semua biaya</b>. Kredit tidak bisa diuangkan dan hangus 1 tahun sejak pembelian terakhir.
 Semua dibuat dari token dan komponen yang sudah ada; komponen baru ada enam dan didaftar di <code>design-system.md</code> &sect;4.4:
 blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riwayat kredit. Semua nama, email, tanggal, dan angka adalah contoh.</p>
@@ -2757,8 +2754,28 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
 </div>
 <p class="frame-note" style="max-width:none;margin-bottom:12px">Hanya email dan kode, tanpa kata sandi dan tanpa login Google. Salah kode memakai pola kolom salah yang sudah ada (<code>.inp.bad</code> + <code>.err</code>); kedaluwarsa memakai alert amber dengan satu jalan keluar, Kirim kode baru.</p>
 
+<!-- 10.2b Sesi habis -->
+<p class="frame-cap" style="margin-top:28px">S10 &mdash; Sesi habis &middot; kembali ke gerbang masuk, data tidak hilang</p>
+<div class="frames" style="margin-bottom:12px">
+  <div class="mfr">
+    <p class="frame-cap">Sesi habis</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body" style="gap:12px;padding:20px 16px 8px">
+        <div class="brand" style="margin:0"><span class="brand-mark">JF</span><span class="brand-name">job-kit</span></div>
+        <div><h4 style="margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.01em">Masuk lagi ke job-kit</h4>
+          <p style="margin:0;color:var(--text-secondary)">Kami kirim kode masuk ke emailmu, tanpa kata sandi.</p></div>
+        <div class="alert warn"><svg class="i"><use href="#i-timer"/></svg><span><b>Sesi masukmu sudah habis.</b> Masuk lagi untuk memakai AI. Data dan profilmu tetap ada di browser ini.</span></div>
+        <div class="f" style="margin:0"><label for="lg-email2">Email</label>
+          <input id="lg-email2" class="inp" type="email" value="nama@example.test" autocomplete="email"></div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full"><svg class="i"><use href="#i-mail"/></svg>Kirim kode</button></div>
+    </div></div>
+  </div>
+</div>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Muncul saat token masuk tidak bisa disegarkan lagi, di options maupun panel. Hanya sesi yang hilang: Profile, Lowongan, Lamaran, dan semua data di <code>storage.local</code> tetap utuh, dan setelah masuk lagi semuanya tampil seperti sebelumnya.</p>
+
 <!-- 10.3 Sidebar -->
-<p class="frame-cap" style="margin-top:28px">S11 &mdash; Sidebar Options &middot; saldo, percobaan, hanya-baca, penanda hangus</p>
+<p class="frame-cap" style="margin-top:28px">S11 &mdash; Sidebar Options &middot; saldo, percobaan, percobaan habis, penanda hangus</p>
 <div class="frames" style="margin-bottom:12px">
   <div class="mfr sm">
     <p class="frame-cap">Percobaan (3 kredit gratis)</p>
@@ -2766,34 +2783,34 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
       <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
       <nav class="opt-nav col" aria-label="Options">
         <button>Profile</button>
-        <button class="has" aria-current="page"><span>Lowongan</span><span class="badge prog">Percobaan</span></button>
-        <button class="has"><span>Lamaran</span><span class="badge prog">Percobaan</span></button>
+        <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+        <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
         <button>Data</button>
         <button>Akun</button>
       </nav>
       <div class="acct">
         <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
-          <span class="amt">3<small>kredit</small></span><span>Percobaan gratis. Habis, Lowongan dan Lamaran jadi hanya-baca.</span></div>
+          <span class="amt">3<small>kredit</small></span><span>Percobaan gratis. Habis, hanya AI yang berhenti.</span></div>
         <button class="btn sec sm full">Beli kredit</button>
       </div>
     </aside></div>
   </div>
 
   <div class="mfr sm">
-    <p class="frame-cap">Hanya-baca (percobaan habis)</p>
+    <p class="frame-cap">Percobaan habis (hanya AI yang berhenti)</p>
     <div class="frame"><aside class="opt-side" style="border-right:0;min-height:430px">
       <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
       <nav class="opt-nav col" aria-label="Options">
         <button>Profile</button>
-        <button class="has ro" aria-current="page"><span>Lowongan</span><span class="badge dim tag"><svg class="i"><use href="#i-lock"/></svg>Hanya baca</span></button>
-        <button class="has ro"><span>Lamaran</span><span class="badge dim tag"><svg class="i"><use href="#i-lock"/></svg>Hanya baca</span></button>
+        <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+        <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
         <button>Data</button>
         <button>Akun</button>
       </nav>
       <div class="acct">
         <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
-          <span class="amt">0<small>kredit</small></span><span>Percobaanmu habis. Data dan profilmu tetap utuh.</span></div>
-        <button class="btn pri sm full">Beli paket untuk lanjut</button>
+          <span class="amt">0<small>kredit</small></span><span>Percobaanmu habis. Hanya AI yang berhenti; halaman dan datamu tetap terbuka.</span></div>
+        <button class="btn pri sm full">Beli kredit</button>
       </div>
     </aside></div>
   </div>
@@ -2837,12 +2854,19 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
     </aside></div>
   </div>
 </div>
-<p class="frame-cap" style="margin-top:20px">S11 &mdash; Lowongan saat hanya-baca (potongan; kartu tetap bisa dibaca, aksi AI berhenti)</p>
+<p class="frame-cap" style="margin-top:20px">S11 &mdash; Lowongan saat kredit habis (kartu tetap bisa diedit; tombol AI mati + &lsquo;Beli kredit&rsquo;)</p>
 <div class="opt" style="margin-bottom:12px">
   <main class="opt-main">
     <div class="alert info" style="margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-      <span style="flex:1 1 240px"><b>Percobaan gratismu sudah habis.</b> Lowongan dan Lamaran masih bisa dibaca; Siapkan lamaran, Buat CV, dan Nilai dengan AI berhenti sampai kamu membeli paket.</span>
-      <button class="btn pri sm">Beli paket untuk lanjut</button>
+      <span style="flex:1 1 240px"><b>Percobaan gratismu sudah habis.</b> Lowongan dan Lamaran tetap terbuka dan bisa kamu edit; hanya Siapkan lamaran, Buat CV, dan Nilai dengan AI yang berhenti sampai kamu membeli kredit.</span>
+      <button class="btn pri sm">Beli kredit</button>
+    </div>
+    <div class="jbar" style="margin:0 0 12px">
+      <div class="fgroup" role="group" aria-label="Tipe kerja">
+        <button class="fchip" aria-pressed="true">Semua</button>
+        <button class="fchip" aria-pressed="false">Remote</button>
+      </div>
+      <button class="btn sec sm" disabled aria-describedby="gate-ro"><svg class="i"><use href="#i-sparkles"/></svg>Nilai dengan AI &middot; 1 kredit</button>
     </div>
     <div class="jlist">
       <article class="jcard">
@@ -2851,10 +2875,10 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
           <h4 class="jt">Web Developer &mdash; Platform Pembayaran</h4>
           <div class="jco"><span class="nm">Studio Contoh &middot; Lever</span></div>
           <div class="jchips"><span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Bandung</span><span class="jchip">Hybrid</span><span class="jchip">Kontrak</span></div>
-          <div class="gate" id="gate-ro"><svg class="i"><use href="#i-lock"/></svg>Beli paket untuk lanjut</div>
+          <div class="gate" id="gate-ro"><svg class="i"><use href="#i-coins"/></svg>Kredit habis. Beli kredit untuk memakai AI.</div>
           <div class="jacts">
             <button class="btn pri sm">Buka &amp; isi</button>
-            <button class="btn sec sm" disabled aria-describedby="gate-ro"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran</button>
+            <button class="btn sec sm" disabled aria-describedby="gate-ro"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran &middot; 1 kredit</button>
             <button class="icn" aria-label="Simpan lowongan"><svg class="i"><use href="#i-bookmark"/></svg></button>
           </div>
         </div>
@@ -2863,7 +2887,7 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
     </div>
   </main>
 </div>
-<p class="frame-note" style="max-width:none;margin-bottom:12px">Hanya AI yang berhenti. Buka &amp; isi, Simpan, Profile, dan Data tetap jalan, jadi kredit habis tidak mengunci fitur atau data. Item sidebar memakai badge, bukan ikon gembok saja, supaya statusnya terbaca tanpa warna.</p>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Hanya AI yang berhenti. Buka &amp; isi, Simpan, filter, Profile, dan Data tetap jalan dan bisa diedit, jadi kredit habis tidak mengunci halaman atau data. Item sidebar tampil normal, tanpa gembok dan tanpa badge; yang berubah hanya tombol AI dan ajakan Beli kredit.</p>
 
 <!-- 10.4 Tombol AI -->
 <p class="frame-cap" style="margin-top:28px">S8 &mdash; Tombol AI berbiaya &middot; state (contoh pada tab CV; Surat memakai pola yang sama: &ldquo;Buat surat &middot; 1 kredit&rdquo;)</p>
@@ -2991,7 +3015,7 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
       <div class="modal-head"><h4>Beli kredit AI</h4><button class="icn" aria-label="Tutup"><svg class="i"><use href="#i-x"/></svg></button></div>
       <div class="modal-body">
         <div class="win"><span class="ico"><svg class="i" style="width:20px;height:20px"><use href="#i-check"/></svg></span>
-          <h4>Pembayaran diterima</h4><p>50 kredit sudah masuk. Lowongan, Lamaran, CV, dan Surat terbuka.</p></div>
+          <h4>Pembayaran diterima</h4><p>50 kredit sudah masuk. Kamu bisa memakai AI lagi.</p></div>
         <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo sekarang</span>
           <span class="amt">53<small>kredit &middot; +50</small></span><span>Hangus 19 Nov 2027</span></div>
       </div>
@@ -3026,7 +3050,7 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
     </div></div></div>
   </div>
 </div>
-<p class="frame-note" style="max-width:none;margin-bottom:12px">Satu modal, tidak bertumpuk. Harga yang tertulis sama dengan yang dibayar, dan kalimat &ldquo;Sudah termasuk semua biaya&rdquo; tampil di setiap state yang menampilkan harga. Latar redup dibuat dari <code>--text-primary</code> dengan <code>color-mix</code>, tanpa token baru.</p>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Satu modal, tidak bertumpuk. Harga yang tertulis sama dengan yang dibayar, dan kalimat &ldquo;Sudah termasuk semua biaya&rdquo; tampil di setiap state yang menampilkan harga. Latar redup dibuat dari <code>--text-primary</code> dengan <code>color-mix</code>, tanpa token baru. Kontrak modal: <code>role="dialog"</code> dengan <code>aria-modal="true"</code> dan nama (<code>aria-label</code>), fokus pindah ke dalam modal saat dibuka, Escape menutup, dan fokus kembali ke tombol yang membukanya. Tombol Beli nonaktif selama permintaan membuat QR berjalan.</p>
 
 <!-- 10.6 Akun -->
 <p class="frame-cap" style="margin-top:28px">S13 &mdash; Akun (tujuan sidebar baru: saldo, tanggal hangus, riwayat kredit, hapus akun)</p>
@@ -3105,7 +3129,7 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
         <li><span class="d">20 Nov 2026</span><span class="t"><b>Buat CV</b><em>Frontend Engineer (React)</em></span><span class="n">−1</span></li>
       </ul>
     </div>
-    <div class="hint">Hangus tercatat di riwayat. Lowongan dan Lamaran tetap terbuka (sudah pernah membeli); hanya AI yang berhenti.</div>
+    <div class="hint">Hangus tercatat di riwayat. Lowongan dan Lamaran tetap terbuka dan bisa diedit; hanya AI yang berhenti.</div>
   </div>
 
   <div class="card sh">

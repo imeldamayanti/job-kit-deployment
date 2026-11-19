@@ -43,7 +43,7 @@
 **Interfaces:**
 - Produces: copy UI final yang dipakai Task 7–9, yaitu label tombol, pesan kasus kredit (desain §6), dan teks modal beli.
 
-- [ ] **Step 1:** Tambah §10 di `design-system.html` dengan frame berikut, lebar ≤ 420 px untuk panel: preview options + panel (data contoh, aksi nonaktif, "Masuk untuk memakai"); masuk (email, kode, salah kode, kode kedaluwarsa); sidebar dengan saldo, item percobaan, item hanya-baca "Beli paket untuk lanjut", penanda hangus; tombol AI "Buat CV · 1 kredit" dengan state saldo kurang, plafon, batas laju, offline; modal beli (QR, "Rp10.800", "50 kredit ≈ 25 CV + 25 surat", "Sudah termasuk semua biaya", hitung mundur, menunggu, berhasil, kedaluwarsa, gagal membuat QR); halaman Akun (saldo, tanggal hangus, riwayat kredit, hapus akun); tombol "Nilai dengan AI · 1 kredit" di halaman Lowongan.
+- [ ] **Step 1:** Tambah §10 di `design-system.html` dengan frame berikut, lebar ≤ 420 px untuk panel: preview options + panel (data contoh, aksi nonaktif, "Masuk untuk memakai"); masuk (email, kode, salah kode, kode kedaluwarsa); sidebar dengan saldo, item percobaan, item percobaan habis dengan ajakan "Beli kredit" (halaman tetap terbuka, tanpa gembok atau badge; hanya AI yang berhenti, keputusan PIC 2026-11-19), penanda hangus; sesi habis (gerbang masuk dengan pesan sesi habis, data tidak hilang); tombol AI "Buat CV · 1 kredit" dengan state saldo kurang, plafon, batas laju, offline; modal beli (QR, "Rp10.800", "50 kredit ≈ 25 CV + 25 surat", "Sudah termasuk semua biaya", hitung mundur, menunggu, berhasil, kedaluwarsa, gagal membuat QR); halaman Akun (saldo, tanggal hangus, riwayat kredit, hapus akun); tombol "Nilai dengan AI · 1 kredit" di halaman Lowongan.
 - [ ] **Step 2:** Cek di browser pada viewport 424 px: tidak ada overflow horizontal, dan tidak ada kata "admin" di §10 (`grep -c "admin" docs/design-system.html` tidak bertambah).
 - [ ] **Step 3:** Minta persetujuan PIC. Task 7–9 tidak dimulai sebelum disetujui.
 - [ ] **Step 4: Commit** `docs(design): mockup akun, preview, dan beli kredit`
@@ -318,8 +318,8 @@ Expected: PASS.
   export type AccountStatus = { credits: number; paid: boolean; trialGranted: boolean; expiresAt: string | null; checkedAt: string }
   export type AccessLevel = 'preview' | 'free' | 'trial' | 'paid'
   export function accessLevel(signedIn: boolean, status: AccountStatus | null): AccessLevel
-  export type FeatureMode = 'open' | 'read-only' | 'locked'
-  export function featureMode(level: AccessLevel, status: AccountStatus | null): FeatureMode  // paid|trial → open; free + trialGranted → read-only; selain itu locked
+  export type FeatureMode = 'open' | 'locked'
+  export function featureMode(level: AccessLevel, status: AccountStatus | null): FeatureMode  // paid|trial|free+trialGranted → open; selain itu locked. Tombol AI mengikuti saldo (credits > 0), bukan featureMode
   export function expiryWarning(status: AccountStatus | null, now: Date): boolean            // credits > 0 dan ≤ 30 hari menuju expiresAt
   export const PACKAGE = { id: 'basic', priceIdr: 10800, credits: 50 } as const
   // platform/sync.ts
@@ -334,7 +334,7 @@ Expected: PASS.
   ```
 - Nama `paid` dipakai agar tidak bentrok dengan `Account.unlocked` (kunci sinkron) di `platform/sync.ts`.
 
-- [ ] **Step 1: Tulis tes yang gagal:** tabel kebenaran `aiModeFrom`; `accessLevel` (tanpa sesi → `preview`; `paid` → `paid`; credits 2 dan belum bayar → `trial`; credits 0, trialGranted, belum bayar → `free`); `featureMode` untuk keempat level; `expiryWarning` di batas 30 hari tepat; `callGenerate` mengirim `Authorization: Bearer <access>` dan `apikey` ke `/functions/v1/generate`; sesi null → `{ ok: false, error: 'unauthenticated' }` tanpa fetch; status dari `refreshAccountStatus` tersimpan di cache dan dipakai `loadAccountStatus` saat fetch gagal (offline).
+- [ ] **Step 1: Tulis tes yang gagal:** tabel kebenaran `aiModeFrom`; `accessLevel` (tanpa sesi → `preview`; `paid` → `paid`; credits 2 dan belum bayar → `trial`; credits 0, trialGranted, belum bayar → `free`); `featureMode` untuk semua level (`paid`, `trial`, dan `free` dengan `trialGranted` → `open`; `free` tanpa `trialGranted`, status null, dan `preview` → `locked`); `expiryWarning` di batas 30 hari tepat; `callGenerate` mengirim `Authorization: Bearer <access>` dan `apikey` ke `/functions/v1/generate`; sesi null → `{ ok: false, error: 'unauthenticated' }` tanpa fetch; status dari `refreshAccountStatus` tersimpan di cache dan dipakai `loadAccountStatus` saat fetch gagal (offline).
 - [ ] **Step 2: Run** `npx vitest run src/core/build.test.ts src/core/account src/platform/account.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implementasi.** Tambah script `"dev:byok": "WXT_AI_MODE=byok wxt"` dan `"build:byok": "WXT_AI_MODE=byok wxt build"`.
 - [ ] **Step 4: Run** perintah yang sama lalu `npm test` dan `npm run typecheck`. Expected: PASS.
@@ -346,7 +346,7 @@ Expected: PASS.
 
 **Files:**
 - Create: `src/entrypoints/options/LoginGate.tsx`, `src/entrypoints/options/useAccess.ts`, `src/entrypoints/sidepanel/PanelLoginGate.tsx`
-- Modify: `src/entrypoints/options/App.tsx` (sidebar dan gerbang), komponen akar panel di `src/entrypoints/sidepanel/`, halaman Lowongan dan Lamaran (mode hanya-baca)
+- Modify: `src/entrypoints/options/App.tsx` (sidebar dan gerbang), komponen akar panel di `src/entrypoints/sidepanel/`, halaman Lowongan dan Lamaran (tetap terbuka dan bisa diedit di semua level setelah masuk; hanya tombol AI mengikuti saldo, tanpa mode terkunci untuk halaman)
 - Test: `src/entrypoints/options/LoginGate.test.tsx`, `src/entrypoints/options/App.access.test.tsx`
 
 **Interfaces:**
@@ -356,11 +356,11 @@ Expected: PASS.
 - [ ] **Step 1: Tulis tes yang gagal** (happy-dom, pola `AccountPage.test.tsx`):
   - tanpa sesi: data contoh tampil, tombol Fill dan Buat `disabled`, teks "Masuk untuk memakai";
   - setelah `finishLogin` sukses, `ensure_account` dipanggil sekali dan profil sendiri tampil;
-  - level `free` dengan trialGranted: halaman Lowongan menampilkan daftar tanpa tombol aksi dan teks "Beli paket untuk lanjut";
+  - level `free` dengan trialGranted dan credits 0 (percobaan habis): Lowongan dan Lamaran tetap terbuka dan bisa diedit (Simpan, Buka & isi, filter jalan); tombol AI ("Siapkan lamaran · 1 kredit", "Nilai dengan AI · 1 kredit") `disabled` dengan teks "Kredit habis. Beli kredit untuk memakai AI." dan tombol "Beli kredit"; item sidebar tampil normal tanpa gembok atau badge, saldo "0 kredit" dengan "Percobaanmu habis. Hanya AI yang berhenti; halaman dan datamu tetap terbuka.";
   - level `paid` dengan credits 0: Lowongan dan Lamaran tetap terbuka penuh;
-  - sesi habis (`currentSession` null): kembali ke gerbang dan data `storage.local` tidak dihapus (Review Focus 3).
+  - frame mockup "sesi habis" (§10, S10): `currentSession` null → kembali ke gerbang masuk dengan judul "Masuk lagi ke job-kit" dan pesan "Sesi masukmu sudah habis. Masuk lagi untuk memakai AI. Data dan profilmu tetap ada di browser ini."; data `storage.local` (profil, lowongan, lamaran) tidak dihapus dan tampil lagi setelah masuk (Review Focus 3).
 - [ ] **Step 2: Run** `npx vitest run src/entrypoints`. Expected: FAIL.
-- [ ] **Step 3: Implementasi** mengikuti mockup Task 0. Saldo dan penanda hangus di sidebar.
+- [ ] **Step 3: Implementasi** mengikuti mockup Task 0 (§10 di `docs/design-system.html`), dengan teks persis dari mockup. Saldo dan penanda hangus di sidebar. Teks sidebar: percobaan "Percobaan gratis. Habis, hanya AI yang berhenti." dengan tombol "Beli kredit"; terbuka "Hangus 18 Des 2026" (tanggal contoh); belum masuk "Belum masuk" dan "Kamu sedang melihat preview dengan data contoh." dengan tombol "Masuk"; alert preview "Ini preview dengan data contoh. Lowongan, Lamaran, CV, dan Surat baru bisa dipakai setelah kamu masuk." dengan tombol "Masuk untuk memakai"; alert percobaan habis di Lowongan "Percobaan gratismu sudah habis. Lowongan dan Lamaran tetap terbuka dan bisa kamu edit; hanya Siapkan lamaran, Buat CV, dan Nilai dengan AI yang berhenti sampai kamu membeli kredit." dengan tombol "Beli kredit".
 - [ ] **Step 4: Run** `npx vitest run src/entrypoints` lalu `npm test`. Expected: PASS.
 - [ ] **Step 5: Verifikasi manual:** `npm run dev`, profil Chrome bersih → preview → masuk → profil dan Autofill bisa dipakai.
 - [ ] **Step 6: Commit** `feat(options): login wajib, preview, dan tingkatan akses`
@@ -383,7 +383,7 @@ Expected: PASS.
   export const remoteScore: RemoteScore
   export function scoreTopWithAi(): Promise<{ scored: number; refused?: GenerateError }>  // 10 lowongan teratas berskor kasar, 1 kredit
   ```
-- `cvAvailability` di mode server tidak memeriksa kunci. Alasan blokir baru: `'no-credits'` ("Kredit tidak cukup."), `'signed-out'` ("Masuk dulu untuk memakai AI."), `'offline'`. Plafon dan batas laju datang dari server sebagai `refused`.
+- `cvAvailability` di mode server tidak memeriksa kunci. Alasan blokir baru: `'no-credits'` ("Kredit tidak cukup."), `'signed-out'` ("Masuk untuk memakai", teks gerbang di mockup), `'offline'` ("Tidak ada koneksi internet. Sambungkan dulu untuk memakai AI."). Plafon dan batas laju datang dari server sebagai `refused`.
 - `runFeedPipeline` mendapat opsi `aiScoring: boolean`. Di mode server nilainya `false`, sehingga `scoreJobs({ limit: 0 })`.
 
 - [ ] **Step 1: Tulis tes yang gagal**
@@ -425,8 +425,11 @@ Expected: PASS.
   ```
 
 - [ ] **Step 1: Tulis tes yang gagal**
-  - `nextState`: `created ok` → `waiting`; `polled 'paid'` → `paid`; `tick` setelah `expiresAt` → `expired`; `created` gagal → `error` dengan pesan "QR gagal dibuat. Coba lagi.".
-  - modal: menampilkan "Rp10.800", "50 kredit", "Sudah termasuk semua biaya", gambar dari `qrUrl`, dan hitung mundur; tidak ada teks "admin"; menutup modal tidak membatalkan pembelian; membuka lagi saat pending masih berlaku menampilkan QR yang sama (karena `create_purchase` mengembalikan pending yang ada).
+  - `nextState`: `created ok` → `waiting`; `polled 'paid'` → `paid`; `tick` setelah `expiresAt` → `expired`; `created` gagal → `error` dengan pesan "Kode QR belum bisa dibuat. Kamu belum ditagih. Cek koneksi internetmu, lalu coba lagi." (tombol "Coba lagi").
+  - modal (teks persis dari mockup §10 S12): menampilkan "Rp10.800", "50 kredit ≈ 25 CV + 25 surat", "Sudah termasuk semua biaya", gambar dari `qrUrl`, hitung mundur "Berlaku 28:41" dan "Menunggu pembayaran…", catatan "kredit tidak bisa diuangkan, dan hangus 1 tahun sejak pembelian terakhir"; state kedaluwarsa menampilkan "Kode QR sudah kedaluwarsa. Kalau kamu sudah membayar, kredit tetap masuk. Kalau belum, buat kode baru." dengan tombol "Buat kode baru"; state berhasil menampilkan "Pembayaran diterima", "50 kredit sudah masuk. Kamu bisa memakai AI lagi.", "Saldo sekarang", dan tombol "Selesai"; tidak ada teks "admin"; menutup modal tidak membatalkan pembelian; membuka lagi saat pending masih berlaku menampilkan QR yang sama (karena `create_purchase` mengembalikan pending yang ada).
+  - kontrak modal (mockup §10 S12): `role="dialog"` dengan `aria-modal="true"` dan nama (`aria-label` "Beli kredit AI"); fokus pindah ke dalam modal saat dibuka; Escape menutup; fokus kembali ke tombol "Beli kredit" yang membukanya;
+  - tombol "Beli kredit" (pemicu) dan "Buat kode baru" / "Coba lagi" `disabled` selama permintaan `createPayment` berjalan, jadi klik berulang tidak membuat dua permintaan;
+  - poller status beli punya batas waktu: tiap `purchaseStatus` dipanggil dengan timeout (10 detik) dan kegagalan satu putaran tidak menghentikan polling; polling berakhir di `expiresAt` (state `expired`) dan berhenti saat modal ditutup. Tes dengan timer palsu;
   - setelah `paid`: `refreshAccountStatus` dipanggil dan sidebar menampilkan saldo baru tanpa muat ulang.
   - Akun: riwayat menampilkan `purchase +50`, `generate -1`, `refund +1`, `trial +3`, `expire -n` dengan label Indonesia; tanggal hangus tampil; penanda muncul bila `expiryWarning`.
 - [ ] **Step 2: Run** `npx vitest run src/core/account src/entrypoints/options`. Expected: FAIL.

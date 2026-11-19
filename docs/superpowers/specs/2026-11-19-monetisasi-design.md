@@ -71,13 +71,17 @@ Alasan memilih A: login, sinkron, dan tabel sudah berjalan di proyek Supabase ya
 
 ```
 Belum login       → Preview: UI dengan data contoh, semua aksi nonaktif, ajakan "Masuk"
-Login (gratis)    → Profil, Import CV, Data (Export/Import), panel Autofill (Fill/Undo)
-Percobaan         → 3 kredit gratis sekali per akun saat daftar; Lowongan, Lamaran, CV, Surat
-  terbuka selama kredit percobaan masih ada, lalu jadi hanya-baca sampai membeli
-Terbuka           → + Lowongan, Lamaran, CV, Surat, Atur Lowongan
-  (pernah membeli ≥1 paket; tidak pernah terkunci lagi)
+Login (gratis)    → Semua halaman terbuka dan bisa diedit: Lowongan, Lamaran, Profile, Data
+                    (Export/Import), panel Autofill (Fill/Undo). Yang membedakan hanya saldo AI.
+Percobaan         → 3 kredit gratis sekali per akun saat daftar; semua halaman terbuka.
+                    Kredit habis → hanya AI yang berhenti; tombol AI nonaktif + "Beli kredit"
+                    (PIC 2026-11-19, final). Halaman tidak pernah dikunci setelah login.
+Terbuka           → pernah membeli ≥1 paket; tidak ada beda akses halaman, hanya saldo AI
+                    (tidak pernah terkunci lagi)
 AI                → butuh saldo kredit; saldo 0 = tombol Buat nonaktif + "Beli kredit"
 ```
+
+Tabel kebenaran `featureMode` (`src/core/account/access.ts`): `paid`, `trial`, dan `free` dengan `trialGranted` → `open`; `preview` dan `free` tanpa `trialGranted` (atau status belum diketahui) → `locked`. `open` berarti halaman terbuka dan bisa diedit; aktif tidaknya tombol AI ditentukan terpisah oleh saldo kredit (`credits > 0`).
 
 Ambil lowongan (termasuk LinkedIn, mati bawaan) tidak memakai kredit karena tidak memanggil AI. Feed harian selalu memakai "Skor kasar"; skor AI hanya berjalan saat pengguna menekan "Nilai dengan AI" (1 kredit per 10 lowongan, yang teratas lebih dulu). Kredit tidak pernah berkurang tanpa tindakan pengguna.
 
@@ -192,7 +196,7 @@ Hapus akun (sudah ada, `delete_account()`): `accounts` ikut terhapus; `purchases
 ### 5.5 Extension
 
 - **Build pengguna tanpa jalur kunci sendiri.** Pilihan penyedia, model, kunci API, dan bridge Claude Code tidak ada di build pengguna; tetap ada di build pengembang PIC.
-- **Gerbang login** di options dan panel. Tanpa sesi: preview dengan data contoh (`?state=list` yang sudah ada di build dev), semua tombol aksi nonaktif dengan "Masuk untuk memakai".
+- **Gerbang login** di options dan panel. Tanpa sesi: preview dengan data contoh (`?state=list` yang sudah ada di build dev), semua tombol aksi nonaktif dengan "Masuk untuk memakai". Sudah login: semua halaman terbuka dan bisa diedit; hanya tombol AI yang mengikuti saldo (nonaktif + "Beli kredit" bila saldo 0). Sesi habis (token tidak bisa disegarkan) kembali ke gerbang login dengan pesan sesi habis; data di `storage.local` tidak dihapus.
 - **Status akun** (`credits`, `unlocked_at`) disimpan di `storage.local` sebagai cache, disegarkan saat options dibuka, setelah membeli, dan setelah tiap generate. Offline: cache dipakai.
 - **Beli kredit:** modal dengan QR (gambar dari `qrUrl`), harga "Rp10.800, sudah termasuk semua biaya", hitung mundur 30 menit, cek status tiap 3 detik, lalu layar berhasil dengan saldo baru. Modal ditutup sebelum bayar tidak membatalkan pembelian; saldo masuk saat callback datang.
 - **Tombol Buat** menampilkan biaya ("Buat CV · 1 kredit") dan nonaktif dengan sebab bila saldo kurang, plafon tercapai, atau offline.
@@ -271,7 +275,7 @@ Margin 25–40% berarti ratusan kredit per paket; PIC memilih **50 kredit per pa
 
 1. ~~Isi paket~~ **50 kredit per Rp10.800** (PIC 2026-11-19). Tarif: CV 1, surat 1, skor 10 lowongan 1 kredit (PIC 2026-11-19).
 2. ~~Skor AI harian~~ **Hanya saat pengguna menekan "Nilai dengan AI"**; feed harian memakai skor kasar gratis (PIC 2026-11-19).
-3. ~~Kredit percobaan~~ **3 kredit gratis sekali per akun** (PIC 2026-11-19); fitur terbuka selama kredit percobaan ada, lalu hanya-baca sampai membeli.
+3. ~~Kredit percobaan~~ **3 kredit gratis sekali per akun** (PIC 2026-11-19); habis, hanya AI yang berhenti (PIC 2026-11-19, final).
 4. ~~Kedaluwarsa kredit~~ **1 tahun sejak pembelian terakhir**; tiap pembelian memperpanjang seluruh saldo (PIC 2026-11-19). Tanggal hangus tampil di halaman Akun; 30 hari sebelumnya muncul penanda di sidebar (tanpa email).
 
 ## 10. Selesai bila
