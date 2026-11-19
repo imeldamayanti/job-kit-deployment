@@ -90,6 +90,30 @@ describe('runFeed', () => {
     expect(result.feed.every((job) => job.score?.rough === true)).toBe(true)
   })
 
+  it('scores by rules only, with no call and no problem to report, when the AI is off for the run', async () => {
+    let called = 0
+    const client: ScoringClient = { complete: async () => (called++, { text: '[]', usage: { inputTokens: 0, outputTokens: 0 } }) }
+    const result = await runFeed(options({ aiScoring: false, client }))
+    expect(called).toBe(0)
+    expect(result.aiProblem).toBeNull()
+    expect(result.usage).toEqual({ inputTokens: 0, outputTokens: 0 })
+    expect(result.feed).toHaveLength(3)
+    expect(result.feed.every((job) => job.score?.rough === true)).toBe(true)
+  })
+
+  it('needs neither a client nor a key when the AI is off for the run', async () => {
+    const { client: _client, ...withoutClient } = options({ key: '' })
+    const result = await runFeed({ ...withoutClient, aiScoring: false })
+    expect(result.aiProblem).toBeNull()
+    expect(result.feed.every((job) => job.score?.rough === true)).toBe(true)
+  })
+
+  it('keeps a score the AI gave earlier when the AI is off for the run', async () => {
+    const first = await runFeed(options())
+    const second = await runFeed(options({ feed: first.feed, runs: first.runs, aiScoring: false }))
+    expect(second.feed.every((job) => job.score?.rough === false)).toBe(true)
+  })
+
   it('reports a refused key and still returns every job with a rough score', async () => {
     const result = await runFeed(options({ client: { complete: async () => { throw new AiError('invalid-key') } } }))
     expect(result.aiProblem).toBe('invalid-key')

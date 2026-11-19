@@ -78,17 +78,9 @@ function readFill(raw: unknown): ScoreFill {
   return fill
 }
 
-// The model's answer, kept only where it is valid. A bad item is dropped, never repaired or invented.
-export function parseScoreOutput(text: string, ids: string[]): ScoreResult[] {
-  const start = text.indexOf('[')
-  const end = text.lastIndexOf(']')
-  if (start === -1 || end <= start) return []
-  let data: unknown
-  try {
-    data = JSON.parse(text.slice(start, end + 1))
-  } catch {
-    return []
-  }
+// Rows of a score answer, kept only where they are valid. A bad row is dropped, never repaired or invented. Shared by the
+// local model's text and by a server's result, which the extension must not trust any more than a model's.
+export function readScoreResults(data: unknown, ids: string[]): ScoreResult[] {
   if (!Array.isArray(data)) return []
   const results: ScoreResult[] = []
   for (const item of data) {
@@ -102,6 +94,20 @@ export function parseScoreOutput(text: string, ids: string[]): ScoreResult[] {
     results.push({ id: row.id, score: Math.round(row.score), matches, gaps, summary: truncateText(row.summary.trim(), 240), fill: readFill(row.fill) })
   }
   return results
+}
+
+// The model's answer as text: the JSON array in it, read by `readScoreResults`.
+export function parseScoreOutput(text: string, ids: string[]): ScoreResult[] {
+  const start = text.indexOf('[')
+  const end = text.lastIndexOf(']')
+  if (start === -1 || end <= start) return []
+  let data: unknown
+  try {
+    data = JSON.parse(text.slice(start, end + 1))
+  } catch {
+    return []
+  }
+  return readScoreResults(data, ids)
 }
 
 // What the model is asked, built the same way on the server (spec §5.4) from the postings it was sent.

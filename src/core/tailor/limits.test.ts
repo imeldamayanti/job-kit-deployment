@@ -90,3 +90,44 @@ describe('cvAvailability (FR-46, PRD §8)', () => {
     expect(cvAvailability({ ...base(), key: '', usage: { date: '2026-10-15', documents: 99 } })).toMatchObject({ reason: 'no-key' })
   })
 })
+
+describe('cvAvailability in the server build', () => {
+  const server = (change: Partial<NonNullable<CvAvailabilityInput['server']>> = {}) => ({ signedIn: true, credits: 42, online: true, ...change })
+
+  it('needs no key, and ignores the provider problems and the daily count', () => {
+    const input = { ...base(), key: '', aiProblem: 'invalid-key' as const, usage: { date: '2026-10-15', documents: 99 }, server: server() }
+    expect(cvAvailability(input)).toEqual({ ok: true })
+  })
+
+  it('is off with no credits, with the one text for it and no place to fix it', () => {
+    expect(cvAvailability({ ...base(), server: server({ credits: 0 }) })).toEqual({ ok: false, reason: 'no-credits', message: 'Kredit tidak cukup.', link: 'none' })
+  })
+
+  it('leaves the decision to the server while the balance is not known', () => {
+    expect(cvAvailability({ ...base(), server: server({ credits: null }) })).toEqual({ ok: true })
+  })
+
+  it('asks to sign in when signed out', () => {
+    expect(cvAvailability({ ...base(), server: server({ signedIn: false, credits: null }) })).toEqual({ ok: false, reason: 'signed-out', message: 'Masuk untuk memakai', link: 'none' })
+  })
+
+  it('is off while offline, even with credits', () => {
+    expect(cvAvailability({ ...base(), server: server({ online: false }) })).toEqual({
+      ok: false, reason: 'offline', message: 'Tidak ada koneksi internet. Sambungkan dulu untuk memakai AI.', link: 'none',
+    })
+  })
+
+  it('still asks for the Work Experience and the posting text first', () => {
+    expect(cvAvailability({ ...base(), profile: createEmptyProfile(), server: server({ signedIn: false }) })).toMatchObject({ reason: 'no-experience' })
+    expect(cvAvailability({ ...base(), jobText: '', server: server({ credits: 0 }) })).toMatchObject({ reason: 'no-text' })
+  })
+
+  it('is still off when the build has no AI at all', () => {
+    expect(cvAvailability({ ...base(), aiEnabled: false, server: server() })).toMatchObject({ reason: 'ai-unavailable' })
+  })
+
+  it('checks signed-out before offline before credits', () => {
+    expect(cvAvailability({ ...base(), server: server({ signedIn: false, online: false, credits: 0 }) })).toMatchObject({ reason: 'signed-out' })
+    expect(cvAvailability({ ...base(), server: server({ online: false, credits: 0 }) })).toMatchObject({ reason: 'offline' })
+  })
+})

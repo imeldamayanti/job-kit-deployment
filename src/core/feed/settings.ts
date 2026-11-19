@@ -14,7 +14,6 @@ export const DEFAULT_MODELS: Record<AiProvider, string> = {
   // An alias `claude -p --model` understands; the local bridge (scripts/bridge.mjs) passes it through.
   'claude-code': 'haiku',
 }
-export const BRIDGE_URL = 'http://127.0.0.1:8787/complete'
 export const DEFAULT_TIME = '08:00'
 // Calls a day for CVs and letters (FR-46), apart from the 50 for scoring jobs.
 export const DEFAULT_DOCUMENT_LIMIT = 20
@@ -47,15 +46,6 @@ const ORIGINS: Record<JobSourceId, string[]> = {
   jobstreet: ['https://id.jobstreet.com/*', 'https://sg.jobstreet.com/*'],
   mycareersfuture: ['https://api.mycareersfuture.gov.sg/*'],
 }
-
-const AI_ORIGINS: Record<AiProvider, string[]> = {
-  anthropic: ['https://api.anthropic.com/*'],
-  gemini: ['https://generativelanguage.googleapis.com/*'],
-  'opencode-zen': ['https://opencode.ai/*'],
-  'claude-code': ['http://127.0.0.1/*'],
-}
-
-export const aiOrigins = (provider: AiProvider): string[] => AI_ORIGINS[provider]
 
 // Asked for when the user turns a source on, never at install (FR-32).
 export const originsForSource = (source: JobSourceId): string[] => ORIGINS[source]

@@ -12,7 +12,10 @@ export function aiModeFrom(mode: unknown, share: unknown): AiMode {
   return mode === 'byok' ? 'byok' : 'server'
 }
 
-export const AI_MODE: AiMode = aiModeFrom(import.meta.env.WXT_AI_MODE, import.meta.env.WXT_SHARE_BUILD)
+// Written out as comparisons with literals (the same rules as `aiModeFrom`, which wxt.config.ts and the tests use) so the bundler
+// can see the mode at build time and drop the code of the other modes: the server build then holds no provider address and no key
+// handling (src/core/build.test.ts reads the bundle for that).
+export const AI_MODE: AiMode = import.meta.env.WXT_SHARE_BUILD === 'true' ? 'off' : import.meta.env.WXT_AI_MODE === 'byok' ? 'byok' : 'server'
 // Everything AI-shaped checks this one flag (the name predates the modes).
 export const AI_ENABLED: boolean = AI_MODE !== 'off'
 // The Threads source reads a logged-in session, which is for the owner's own browser only, so it stays out of the shared build.

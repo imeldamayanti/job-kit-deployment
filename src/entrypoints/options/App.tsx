@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { SIGNED_OUT_APPLICATIONS } from '../../core/applications/preview'
 import { AI_MODE } from '../../core/build'
 import { countNew } from '../../core/feed/schedule'
 import type { SectionId } from '../../core/profile/sections'
 import { addManualApplication, changeApplicationStatus, patchApplication, removeApplication } from '../../platform/applications'
+import { loadAccountStatus } from '../../platform/account'
 import { openApplication } from '../../platform/open-job'
+import { describeScore, scoreTopWithAi } from '../../platform/remote'
 import { useApplications } from '../../ui/hooks/useApplications'
 import { useCv } from '../../ui/hooks/useCv'
 import { useLetter } from '../../ui/hooks/useLetter'
@@ -77,12 +79,22 @@ export function App() {
   const detailId = route.page === 'applications' ? (route.applicationId ?? preview?.detail?.id ?? null) : null
   const detailApp = detailId ? (preview?.applications ?? applications).find((app) => app.id === detailId) : undefined
   const backToBoard = () => go(applicationsRoute())
-  const cvTab = useCv(preview ? undefined : detailApp, (link) => go(link === 'settings' ? jobsRoute(true) : profileRoute('experience')), `${route.page}/${route.applicationId ?? ''}/${route.settings ? 's' : ''}`)
+  // What the CV and letter tabs need from the account: "Beli kredit", and the balance read again once credits were spent.
+  const refreshAccess = access.refresh
+  const spending = useMemo(() => (accounts ? { onBuy: NO_BUY, onSpent: () => void refreshAccess() } : undefined), [accounts, refreshAccess])
+  const cvTab = useCv(preview ? undefined : detailApp, (link) => go(link === 'settings' ? jobsRoute(true) : profileRoute('experience')), `${route.page}/${route.applicationId ?? ''}/${route.settings ? 's' : ''}`, spending)
 
-  const letterTab = useLetter(preview ? undefined : detailApp, (link) => go(link === 'settings' ? jobsRoute(true) : profileRoute('experience')), `${route.page}/${route.applicationId ?? ''}/${route.settings ? 's' : ''}`)
+  const letterTab = useLetter(preview ? undefined : detailApp, (link) => go(link === 'settings' ? jobsRoute(true) : profileRoute('experience')), `${route.page}/${route.applicationId ?? ''}/${route.settings ? 's' : ''}`, spending)
 
   const ai = accounts ? access.ai : undefined
   const trialEnded = Boolean(access.status?.trialGranted && !access.status.paid)
+  // "Nilai dengan AI": the ten best roughly scored jobs for one credit. The feed page follows the stored jobs by itself.
+  const scoreNow = async () => {
+    const outcome = await scoreTopWithAi()
+    const balance = await loadAccountStatus()
+    void refreshAccess()
+    return describeScore(outcome, balance?.credits ?? null)
+  }
   const signIn = () => setLoginOpen(true)
   const signedIn = async () => {
     setLoginOpen(false)
@@ -168,7 +180,7 @@ export function App() {
                 onOpenApplication={(id) => go(applicationRoute(id))}
                 onSettings={() => go(jobsRoute(true))}
                 onPreferences={() => go(profileRoute('preferences'))}
-                access={ai ? { ai } : undefined}
+                access={ai ? { ai, onScore: scoreNow, onBuy: NO_BUY } : undefined}
               />
             )}
             {route.page === 'jobs' && route.settings && feed.settings && (

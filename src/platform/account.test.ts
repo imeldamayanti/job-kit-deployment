@@ -6,7 +6,7 @@ import type { Session } from '../core/sync/api'
 vi.mock('../core/sync/config', () => ({ SUPABASE_CONFIG: { url: 'https://abc.supabase.co', key: 'sb_publishable_test' } }))
 vi.mock('./sync', () => ({ currentSession: vi.fn(), storedUserId: vi.fn() }))
 
-import { callGenerate, createPayment, loadAccountStatus, loadLedger, purchaseStatus, refreshAccountStatus } from './account'
+import { callGenerate, createPayment, loadAccountStatus, loadLedger, noteCredits, purchaseStatus, refreshAccountStatus } from './account'
 import { currentSession, storedUserId } from './sync'
 
 const session: Session = { accessToken: 'access-1', refreshToken: 'r', expiresAt: 9_999_999_999, userId: 'u1', email: 'a@b.co' }
@@ -253,5 +253,32 @@ describe('loadLedger', () => {
     vi.mocked(currentSession).mockResolvedValue(session)
     serve(() => new Error('offline'))
     expect(await loadLedger()).toEqual([])
+  })
+})
+
+describe('noteCredits', () => {
+  it('moves the cached balance and keeps the rest of the status', async () => {
+    serve((url) => (url.includes('ensure_account') ? { body: null } : { body: [accountRow] }))
+    await refreshAccountStatus()
+    await noteCredits(2)
+    expect(await loadAccountStatus()).toMatchObject({ credits: 2, trialGranted: true, paid: false, expiresAt: '2027-11-19T01:00:00.000Z' })
+  })
+
+  it('does nothing without a cached status, or for somebody else\'s', async () => {
+    await noteCredits(9)
+    expect(await loadAccountStatus()).toBeNull()
+    serve((url) => (url.includes('ensure_account') ? { body: null } : { body: [accountRow] }))
+    await refreshAccountStatus()
+    vi.mocked(storedUserId).mockResolvedValue('u2')
+    await noteCredits(9)
+    vi.mocked(storedUserId).mockResolvedValue('u1')
+    expect((await loadAccountStatus())?.credits).toBe(3)
+  })
+
+  it('ignores a number that is not a balance', async () => {
+    serve((url) => (url.includes('ensure_account') ? { body: null } : { body: [accountRow] }))
+    await refreshAccountStatus()
+    await noteCredits(Number.NaN)
+    expect((await loadAccountStatus())?.credits).toBe(3)
   })
 })

@@ -74,6 +74,16 @@ export async function refreshAccountStatus(): Promise<AccountStatus | null> {
   return status
 }
 
+// After a generate call the server says what is left. The cached balance follows it at once, so the screens show the new
+// balance without another round trip. Only for whoever the cache is of, and only when there is a cache to update: the full
+// status (paid, expiry) is read by refreshAccountStatus.
+export async function noteCredits(credits: number): Promise<void> {
+  if (!Number.isFinite(credits)) return
+  const [userId, cached] = await Promise.all([storedUserId(), statusItem.getValue()])
+  if (userId === null || cached?.userId !== userId) return
+  await statusItem.setValue({ userId, status: { ...cached.status, credits, checkedAt: new Date().toISOString() } })
+}
+
 const refusal = (error: 'unauthenticated' | 'ai', message: string): GenerateResponse => ({ ok: false, error, message, credits: null })
 const isGenerateResponse = (body: unknown): body is GenerateResponse => isRecord(body) && typeof body.ok === 'boolean'
 

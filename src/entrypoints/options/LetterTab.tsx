@@ -8,7 +8,7 @@ import { Button } from '../../ui/primitives/Button'
 import { FilterChip } from '../../ui/primitives/FilterChip'
 import { TextArea } from '../../ui/primitives/TextArea'
 import type { CvLink } from './CvTab'
-import { Alert, Card } from './DocParts'
+import { Alert, Balance, Card, NoCreditsAlert, withCost, type CreditCost } from './DocParts'
 import { Empty } from './EmptyState'
 
 // What the tab needs from the page: what to show (LetterView) and what the buttons do.
@@ -24,6 +24,10 @@ export type LetterTabState = LetterView & {
   onCopy: () => void
   onLang: (lang: Lang) => void
   onTone: (tone: Tone) => void
+  // The server build: buttons that spend credits say so, and the balance shows beside them. Absent elsewhere.
+  credit?: CreditCost
+  // After a letter was made and paid for: "Surat siap. 1 kredit terpakai, sisa 41."
+  done?: string | null
 }
 
 const LINK_LABEL: Record<CvLink, string> = { settings: 'Buka Atur Lowongan', profile: 'Ke Profile', description: 'Tempel teks lowongan', none: '' }
@@ -93,25 +97,33 @@ function Editor({ body, aiBody, edited, onChange, onRestore }: { body: string; a
 }
 
 export function LetterTab(tab: LetterTabState) {
-  const { letter, availability, busy, message, rejected, notice, stale, lang, tone, langAuto, copyNote, onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onCopy } = tab
+  const { letter, availability, busy, message, rejected, notice, stale, lang, tone, langAuto, copyNote, onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onCopy, credit, done = null } = tab
   const [confirming, setConfirming] = useState(false)
   const blocked = availability !== null && !availability.ok ? availability : null
   const off = busy || availability === null || blocked !== null
+  const noCredits = blocked?.reason === 'no-credits'
 
   // Buat ulang on a letter the person edited would throw the edits away, so it asks first (FR-45).
   const regenerate = () => (overwritesEdits(letter) ? setConfirming(true) : onCreate())
-  const create = (label: string, variant: 'primary' | 'secondary' = 'primary') => (
-    <Button variant={variant} onClick={regenerate} disabled={off}>
-      {variant === 'primary' ? <Sparkles size={15} strokeWidth={2} aria-hidden="true" /> : <RefreshCw size={15} strokeWidth={2} aria-hidden="true" />}
-      {busy ? (letter ? 'Membuat…' : 'Sedang membuat…') : label}
+  // With no credits the button steps down, so "Beli kredit" is the one main button (mockup S8).
+  const create = (label: string, wanted: 'primary' | 'secondary' = 'primary') => (
+    <Button variant={noCredits ? 'secondary' : wanted} onClick={regenerate} disabled={off}>
+      {wanted === 'primary' ? <Sparkles size={15} strokeWidth={2} aria-hidden="true" /> : <RefreshCw size={15} strokeWidth={2} aria-hidden="true" />}
+      {busy ? (letter ? 'Membuat…' : 'Sedang membuat…') : withCost(label, credit)}
     </Button>
   )
+  const buy = noCredits && credit && <Button onClick={credit.onBuy}>Beli kredit</Button>
   const linkButton = blocked && blocked.link !== 'none' && <Button variant="secondary" onClick={() => onLink(blocked.link)}>{LINK_LABEL[blocked.link]}</Button>
   const pending = letter !== null && (lang !== letter.lang || tone !== letter.tone)
   const hint = pending ? 'Dipakai saat Buat ulang.' : letter === null && langAuto ? 'Bahasa dipilih dari teks lowongan.' : null
 
   const notices = (
     <>
+      {done !== null && (
+        <Alert tone="ok" role="status">
+          <p>{done}</p>
+        </Alert>
+      )}
       {notice !== null && (
         <Alert tone="warn" role="note">
           <p>{notice}</p>
@@ -181,15 +193,21 @@ export function LetterTab(tab: LetterTabState) {
         <div className="flex flex-col gap-4">
           {notices}
           <Card title="Surat untuk lowongan ini belum dibuat">
-            <Alert tone={blocked.reason === 'daily-limit' ? 'warn' : 'info'} role="status">
-              <p>
-                <b>{blocked.message}</b> Tracker tetap bisa dipakai penuh.
-              </p>
-            </Alert>
+            {noCredits && credit ? (
+              <NoCreditsAlert message={blocked.message} what="Buat surat" />
+            ) : (
+              <Alert tone={blocked.reason === 'daily-limit' || blocked.reason === 'offline' ? 'warn' : 'info'} role="status">
+                <p>
+                  <b>{blocked.message}</b> Tracker tetap bisa dipakai penuh.
+                </p>
+              </Alert>
+            )}
             <Choices state={tab} hint={hint} />
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {create('Buat surat')}
+              {buy}
               {linkButton}
+              {!noCredits && <Balance credit={credit} />}
             </div>
           </Card>
         </div>
@@ -201,6 +219,7 @@ export function LetterTab(tab: LetterTabState) {
         <Empty mascot="neutral" title="Surat untuk lowongan ini belum dibuat" body="job-kit menulis surat dari Profile dan teks lowongan, dalam bahasa lowongan. Tidak ada yang dikarang.">
           <Choices state={tab} hint={hint} />
           {create('Buat surat')}
+          <Balance credit={credit} />
         </Empty>
         {sent}
       </div>
@@ -253,7 +272,9 @@ export function LetterTab(tab: LetterTabState) {
             Salin
           </Button>
           {create('Buat ulang', 'secondary')}
+          {buy}
           {linkButton}
+          <Balance credit={credit} />
         </div>
         {copyNote !== null && <p role="status" className="text-[12px] text-text-secondary">{copyNote}</p>}
       </div>

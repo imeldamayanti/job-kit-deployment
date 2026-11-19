@@ -4,7 +4,7 @@ import type { Profile } from '../profile/types'
 import type { Job } from '../feed/types'
 import { AiError } from './errors'
 import { RemoteRefusal, SCORE_BATCH, type RemoteScore, type ScoreRequest } from '../generate/protocol'
-import { SCORE_SYSTEM, buildProfileSummary, hashSummary, parseScoreOutput, scoreJobs, scorePrompt, type ScoringClient } from './score'
+import { SCORE_SYSTEM, buildProfileSummary, hashSummary, parseScoreOutput, readScoreResults, scoreJobs, scorePrompt, type ScoringClient } from './score'
 
 const NOW = new Date('2026-10-10T08:00:00Z')
 
@@ -276,5 +276,28 @@ describe('scorePrompt', () => {
     expect(seen[0]?.system).toBe(SCORE_SYSTEM)
     expect(seen[0]?.user).toBe(scorePrompt(buildProfileSummary(profile(), NOW), jobs))
     expect(scorePrompt(buildProfileSummary(profile(), NOW), jobs)).toContain('Postings:')
+  })
+})
+
+describe('readScoreResults', () => {
+  const row = { id: 'a', score: 82.4, matches: ['React'], gaps: [], summary: ' Cocok. ', fill: { workplace: 'remote', salary: 7 } }
+
+  it('reads rows already parsed, the way a server sends them', () => {
+    expect(readScoreResults([row], ['a'])).toEqual([{ id: 'a', score: 82, matches: ['React'], gaps: [], summary: 'Cocok.', fill: { workplace: 'remote' } }])
+  })
+
+  it('gives nothing for anything that is not a list of rows', () => {
+    expect(readScoreResults(undefined, ['a'])).toEqual([])
+    expect(readScoreResults('x', ['a'])).toEqual([])
+    expect(readScoreResults({ results: [row] }, ['a'])).toEqual([])
+  })
+
+  it('drops rows with an unknown id, a repeated id, a score out of range, or no reason', () => {
+    const rows = [row, { ...row }, { ...row, id: 'zzz' }, { ...row, id: 'b', score: -1 }, { ...row, id: 'c', score: 101 }, { ...row, id: 'd', summary: ' ' }, { ...row, id: 'e', matches: 'x' }]
+    expect(readScoreResults(rows, ['a', 'b', 'c', 'd', 'e']).map((r) => r.id)).toEqual(['a'])
+  })
+
+  it('agrees with parseScoreOutput on the same rows', () => {
+    expect(parseScoreOutput(JSON.stringify([row]), ['a'])).toEqual(readScoreResults([row], ['a']))
   })
 })

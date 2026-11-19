@@ -11,7 +11,7 @@ import { WorkingMascot } from '../../ui/mascot/WorkingMascot'
 import { Select } from '../../ui/primitives/Select'
 import { TextArea } from '../../ui/primitives/TextArea'
 import { CvDiff } from './CvDiff'
-import { Alert, Card } from './DocParts'
+import { Alert, Balance, Card, NoCreditsAlert, withCost, type CreditCost } from './DocParts'
 import { Empty } from './EmptyState'
 
 export type CvLink = 'profile' | 'description' | 'settings' | 'none'
@@ -32,6 +32,10 @@ export type CvTabState = CvView & {
   onDownload: () => void
   onDownloadWord: () => void
   onCopyText: () => void
+  // The server build: buttons that spend credits say so, and the balance shows beside them. Absent elsewhere.
+  credit?: CreditCost
+  // After a CV was made and paid for: "CV siap. 1 kredit terpakai, sisa 41."
+  done?: string | null
 }
 
 const LINK_LABEL: Record<CvLink, string> = { settings: 'Buka Atur Lowongan', profile: 'Ke Profile', description: 'Tempel teks lowongan', none: '' }
@@ -115,31 +119,39 @@ function Editor({ draft, profile, onChange }: { draft: CvParts; profile: Profile
 
 export function CvTab({
   cv, availability, busy, message, rejected, notice, stale, profile, downloading, downloadError, downloadNote,
-  onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onOrder, onDownload, onDownloadWord, onCopyText,
+  onCreate, onContinue, onDismissNotice, onLink, onEdit, onRestore, onOrder, onDownload, onDownloadWord, onCopyText, credit, done = null,
 }: CvTabState) {
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const blocked = availability !== null && !availability.ok ? availability : null
   const off = busy || availability === null || blocked !== null
+  const noCredits = blocked?.reason === 'no-credits'
 
   // Buat ulang on a CV the person edited would throw the edits away, so it asks first (FR-45).
   const regenerate = () => (overwritesEdits(cv) ? setConfirming(true) : onCreate())
-  const create = (label: string, variant: 'primary' | 'secondary' = 'primary') => (
-    <Button variant={variant} onClick={regenerate} disabled={off}>
+  // With no credits the button steps down, so "Beli kredit" is the one main button (mockup S8).
+  const create = (label: string, wanted: 'primary' | 'secondary' = 'primary') => (
+    <Button variant={noCredits ? 'secondary' : wanted} onClick={regenerate} disabled={off}>
       {busy ? (
         <RefreshCw size={15} strokeWidth={2} aria-hidden="true" className="motion-safe:animate-spin" />
-      ) : variant === 'primary' ? (
+      ) : wanted === 'primary' ? (
         <Sparkles size={15} strokeWidth={2} aria-hidden="true" />
       ) : (
         <RefreshCw size={15} strokeWidth={2} aria-hidden="true" />
       )}
-      {busy ? (cv ? 'Membuat…' : 'Sedang membuat…') : label}
+      {busy ? (cv ? 'Membuat…' : 'Sedang membuat…') : withCost(label, credit)}
     </Button>
   )
+  const buy = noCredits && credit && <Button onClick={credit.onBuy}>Beli kredit</Button>
   const linkButton = blocked && blocked.link !== 'none' && <Button variant="secondary" onClick={() => onLink(blocked.link)}>{LINK_LABEL[blocked.link]}</Button>
 
   const notices = (
     <>
+      {done !== null && (
+        <Alert tone="ok" role="status">
+          <p>{done}</p>
+        </Alert>
+      )}
       {notice !== null && (
         <Alert tone="warn" role="note">
           <p>{notice}</p>
@@ -205,14 +217,20 @@ export function CvTab({
         <div className="flex flex-col gap-4">
           {notices}
           <Card title="CV untuk lowongan ini belum dibuat">
-            <Alert tone={blocked.reason === 'daily-limit' ? 'warn' : 'info'} role="status">
-              <p>
-                <b>{blocked.message}</b> Tracker tetap bisa dipakai penuh.
-              </p>
-            </Alert>
-            <div className="flex flex-wrap gap-2">
+            {noCredits && credit ? (
+              <NoCreditsAlert message={blocked.message} what="Buat CV" />
+            ) : (
+              <Alert tone={blocked.reason === 'daily-limit' || blocked.reason === 'offline' ? 'warn' : 'info'} role="status">
+                <p>
+                  <b>{blocked.message}</b> Tracker tetap bisa dipakai penuh.
+                </p>
+              </Alert>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
               {create('Buat CV')}
+              {buy}
               {linkButton}
+              {!noCredits && <Balance credit={credit} />}
             </div>
           </Card>
         </div>
@@ -223,6 +241,7 @@ export function CvTab({
         {notices}
         <Empty mascot="neutral" title="CV untuk lowongan ini belum dibuat" body="job-kit menyusun CV dari Profile dan requirement lowongan. Tidak ada yang dikarang.">
           {create('Buat CV')}
+          <Balance credit={credit} />
         </Empty>
         <Alert tone="info" role="note">
           <p>
@@ -347,6 +366,7 @@ export function CvTab({
             {editing ? 'Selesai' : 'Edit'}
           </Button>
           {create('Buat ulang', 'secondary')}
+          {buy}
           {cv.edited && (
             <Button
               variant="secondary"
@@ -360,6 +380,7 @@ export function CvTab({
             </Button>
           )}
           {linkButton}
+          <Balance credit={credit} />
         </div>
         <p className="text-[12px] text-text-secondary">PDF dibuat di browser ini dan tidak diunggah ke mana pun.</p>
       </div>

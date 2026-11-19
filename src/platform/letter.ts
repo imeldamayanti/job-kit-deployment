@@ -7,8 +7,9 @@ import { writeLetter, type LetterFailure } from '../core/letters/pipeline'
 import type { SaveOutcome } from '../core/profile/autosave'
 import { acknowledgeNotice, needsNotice, trainingNotice } from '../core/tailor/privacy'
 import { countDocument, type CvAvailability, type CvBlockReason } from '../core/tailor/limits'
+import { AI_MODE } from '../core/build'
 import { documentModel } from '../core/feed/settings'
-import { clientWithPermission } from './ai-client'
+import { documentSource } from './ai-source'
 import { loadApplicationData, loadDocumentUsage, saveApplicationData, saveApplications, saveDocumentUsage, saveLetters } from './application-storage'
 import { loadAiKey, loadSettings, loadState, saveState } from './feed-storage'
 import { loadProfile } from './storage'
@@ -30,30 +31,36 @@ export const letterStatus = (applicationId: string, now = new Date()): Promise<C
 type Options = { client?: ScoringClient; now?: Date; acknowledged?: boolean; lang?: Lang; tone?: Tone }
 
 // "Buat surat" (FR-43): one AI call, then the letter is stored and the application points at it. A refused or failed answer
-// changes nothing, so an earlier letter stays (PRD §8). A call that got an answer counts for the day, even if it was refused.
+// changes nothing, so an earlier letter stays (PRD §8). The daily count and the notice are for the own-key build; in the server
+// build the credits count and the server refunds what it refuses (spec §6).
 export async function buildLetter(applicationId: string, { client, now = new Date(), acknowledged = false, lang, tone }: Options = {}): Promise<BuildLetterResult> {
-  const [data, profile, settings, key, usage] = await Promise.all([loadApplicationData(), loadProfile(), loadSettings(), loadAiKey(), loadDocumentUsage()])
+  const [data, profile, settings, key, usage] = await Promise.all([
+    loadApplicationData(), loadProfile(), loadSettings(), AI_MODE === 'byok' ? loadAiKey() : Promise.resolve(''), loadDocumentUsage(),
+  ])
   const app = data.applications.find((item) => item.id === applicationId)
   if (!app) return { ok: false, reason: 'missing', message: 'Lamaran tidak ditemukan.' }
 
   const status = await availabilityOf(applicationId, now)
   if (!status.ok) return { ok: false, reason: 'blocked', block: status.reason, message: status.message, link: status.link }
 
-  const docChoice = { provider: settings.ai.provider, model: documentModel(settings) }
-  if (needsNotice(app, docChoice)) {
-    if (!acknowledged) return { ok: false, reason: 'notice', message: trainingNotice(docChoice)?.message ?? '' }
-    const saved = await saveApplications(data.applications.map((item) => (item.id === app.id ? acknowledgeNotice(item, docChoice) : item)))
-    if (!saved.ok) return { ok: false, reason: 'storage-full', message: 'Penyimpanan penuh. Hapus data lama atau ekspor dulu.' }
+  if (AI_MODE === 'byok') {
+    const docChoice = { provider: settings.ai.provider, model: documentModel(settings) }
+    if (needsNotice(app, docChoice)) {
+      if (!acknowledged) return { ok: false, reason: 'notice', message: trainingNotice(docChoice)?.message ?? '' }
+      const saved = await saveApplications(data.applications.map((item) => (item.id === app.id ? acknowledgeNotice(item, docChoice) : item)))
+      if (!saved.ok) return { ok: false, reason: 'storage-full', message: 'Penyimpanan penuh. Hapus data lama atau ekspor dulu.' }
+    }
   }
 
   const result = await writeLetter({
-    profile, application: app, lang, tone, client: client ?? (await clientWithPermission(key, settings.ai.provider)), key, model: documentModel(settings), now, newId,
+    profile, application: app, lang, tone, now, newId,
+    ...(await documentSource(settings, key, client)),
   })
 
-  if (result.ok || result.reason === 'ungrounded' || result.reason === 'unreadable') await saveDocumentUsage(countDocument(usage, now))
+  if (AI_MODE === 'byok' && (result.ok || result.reason === 'ungrounded' || result.reason === 'unreadable')) await saveDocumentUsage(countDocument(usage, now))
   const state = await loadState()
   if (!result.ok) {
-    if (result.reason === 'ai' && result.ai && LASTING.includes(result.ai)) await saveState({ ...state, aiProblem: result.ai })
+    if (AI_MODE === 'byok' && result.reason === 'ai' && result.ai && LASTING.includes(result.ai)) await saveState({ ...state, aiProblem: result.ai })
     return result
   }
 
