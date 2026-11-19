@@ -2854,11 +2854,11 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
     </aside></div>
   </div>
 </div>
-<p class="frame-cap" style="margin-top:20px">S11 &mdash; Lowongan saat kredit habis (kartu tetap bisa diedit; tombol AI mati + &lsquo;Beli kredit&rsquo;)</p>
+<p class="frame-cap" style="margin-top:20px">S11 &mdash; Lowongan saat kredit habis (kartu tetap bisa diedit dan Siapkan lamaran tetap jalan karena tidak memanggil AI; tombol AI mati + &lsquo;Beli kredit&rsquo;)</p>
 <div class="opt" style="margin-bottom:12px">
   <main class="opt-main">
     <div class="alert info" style="margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-      <span style="flex:1 1 240px"><b>Percobaan gratismu sudah habis.</b> Lowongan dan Lamaran tetap terbuka dan bisa kamu edit; hanya Siapkan lamaran, Buat CV, dan Nilai dengan AI yang berhenti sampai kamu membeli kredit.</span>
+      <span style="flex:1 1 240px"><b>Percobaan gratismu sudah habis.</b> Lowongan dan Lamaran tetap terbuka dan bisa kamu edit; hanya Buat CV, Buat surat, dan Nilai dengan AI yang berhenti sampai kamu membeli kredit.</span>
       <button class="btn pri sm">Beli kredit</button>
     </div>
     <div class="jbar" style="margin:0 0 12px">
@@ -2867,6 +2867,7 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
         <button class="fchip" aria-pressed="false">Remote</button>
       </div>
       <button class="btn sec sm" disabled aria-describedby="gate-ro"><svg class="i"><use href="#i-sparkles"/></svg>Nilai dengan AI &middot; 1 kredit</button>
+      <span id="gate-ro" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Kredit tidak cukup. Butuh 1 kredit; saldomu 0.</span>
     </div>
     <div class="jlist">
       <article class="jcard">
@@ -2875,10 +2876,9 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
           <h4 class="jt">Web Developer &mdash; Platform Pembayaran</h4>
           <div class="jco"><span class="nm">Studio Contoh &middot; Lever</span></div>
           <div class="jchips"><span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Bandung</span><span class="jchip">Hybrid</span><span class="jchip">Kontrak</span></div>
-          <div class="gate" id="gate-ro"><svg class="i"><use href="#i-coins"/></svg>Kredit tidak cukup. Butuh 1 kredit; saldomu 0.</div>
           <div class="jacts">
             <button class="btn pri sm">Buka &amp; isi</button>
-            <button class="btn sec sm" disabled aria-describedby="gate-ro"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran &middot; 1 kredit</button>
+            <button class="btn sec sm"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran</button>
             <button class="icn" aria-label="Simpan lowongan"><svg class="i"><use href="#i-bookmark"/></svg></button>
           </div>
         </div>
@@ -2887,7 +2887,7 @@ blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riw
     </div>
   </main>
 </div>
-<p class="frame-note" style="max-width:none;margin-bottom:12px">Hanya AI yang berhenti. Buka &amp; isi, Simpan, filter, Profile, dan Data tetap jalan dan bisa diedit, jadi kredit habis tidak mengunci halaman atau data. Item sidebar tampil normal, tanpa gembok dan tanpa badge; yang berubah hanya tombol AI dan ajakan Beli kredit.</p>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Hanya AI yang berhenti. Buka &amp; isi, Siapkan lamaran (tanpa AI, tanpa biaya kredit), Simpan, filter, Profile, dan Data tetap jalan dan bisa diedit, jadi kredit habis tidak mengunci halaman atau data. Item sidebar tampil normal, tanpa gembok dan tanpa badge; yang berubah hanya tombol AI dan ajakan Beli kredit.</p>
 
 <!-- 10.4 Tombol AI -->
 <p class="frame-cap" style="margin-top:28px">S8 &mdash; Tombol AI berbiaya &middot; state (contoh pada tab CV; Surat memakai pola yang sama: &ldquo;Buat surat &middot; 1 kredit&rdquo;)</p>

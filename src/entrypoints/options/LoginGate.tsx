@@ -198,7 +198,7 @@ export function AccessAlert({
     return (
       <div role="note" className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-accent-wash px-4 py-3 text-[13px] text-text-primary">
         <p className="min-w-[15rem] flex-1">
-          <b>{trialEnded ? 'Percobaan gratismu sudah habis.' : 'Kreditmu habis.'}</b> Lowongan dan Lamaran tetap terbuka dan bisa kamu edit; hanya Siapkan lamaran, Buat CV, dan Nilai dengan AI yang berhenti sampai kamu membeli kredit.
+          <b>{trialEnded ? 'Percobaan gratismu sudah habis.' : 'Kreditmu habis.'}</b> Lowongan dan Lamaran tetap terbuka dan bisa kamu edit; hanya Buat CV, Buat surat, dan Nilai dengan AI yang berhenti sampai kamu membeli kredit.
         </p>
         <Button onClick={onBuy}>Beli kredit</Button>
       </div>

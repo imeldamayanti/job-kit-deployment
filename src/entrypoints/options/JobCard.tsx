@@ -147,8 +147,8 @@ export function JobCard({
   // A job with an application takes its status from it (D11), so it has no status menu of its own.
   application?: Application
   startOpen?: boolean
-  // What the AI button may do (useAccess). Absent in a build without accounts: no cost shown, nothing gated.
-  // Signed out (the preview) turns every action off; no credits or a balance not yet known turns only "Siapkan lamaran" off.
+  // The state of the account (useAccess). Absent in a build without accounts: nothing gated.
+  // Only signed out (the preview) turns the card's actions off. "Siapkan lamaran" calls no AI, so it has no cost and no credit gate.
   ai?: AiAvailability
   // A sample job of the preview, marked "Contoh".
   sample?: boolean
@@ -166,8 +166,6 @@ export function JobCard({
   const saved = job.status === 'saved'
   const gateId = useId()
   const previewing = ai === 'signed-out'
-  const aiOff = ai !== undefined && ai !== 'ready'
-  const costed = ai !== undefined && !previewing
 
   return (
     <article className="grid grid-cols-[40px_minmax(0,1fr)_auto] gap-x-2.5 rounded-xl border border-border bg-surface p-3.5 sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:gap-x-3.5 sm:px-5 sm:py-4">
@@ -216,7 +214,7 @@ export function JobCard({
             <DocChip kind="letter" ok={documentMarks(application).letter} />
           </p>
         )}
-        {ai !== undefined && <GateNote id={gateId} ai={ai} />}
+        {previewing && <GateNote id={gateId} ai={ai} />}
         <div className="mt-3.5 flex flex-wrap items-center gap-2">
           <Button disabled={previewing} aria-describedby={previewing ? gateId : undefined} onClick={() => onOpen(job)}>Buka &amp; isi</Button>
           {application ? (
@@ -225,9 +223,9 @@ export function JobCard({
               Buka lamaran
             </Button>
           ) : (
-            <Button variant="secondary" disabled={aiOff} aria-describedby={aiOff ? gateId : undefined} onClick={() => onPrepare(job)}>
+            <Button variant="secondary" disabled={previewing} aria-describedby={previewing ? gateId : undefined} onClick={() => onPrepare(job)}>
               <Sparkles size={16} strokeWidth={2} aria-hidden="true" />
-              {costed ? 'Siapkan lamaran · 1 kredit' : 'Siapkan lamaran'}
+              Siapkan lamaran
             </Button>
           )}
           {job.status === 'new' && !application && (
