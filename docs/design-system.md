@@ -322,6 +322,7 @@ Peta badge status lamaran (tetap): Draft `dim` · Dilamar `ok` · Direview `prog
 | Riwayat kredit (`.ledger`) | Daftar tiga kolom: tanggal 12px tabular-nums, jenis (tebal, 1 baris ellipsis) dengan keterangan 12px di bawahnya, jumlah bertanda (`−1`, `+50`; `+` hijau `--status-success-fg`, `−` tinta biasa). Tanda ±, bukan warna, yang membawa arti (D2). Maks 20 catatan terakhir, tanpa pagination |
 
 Bentuk tombol AI: label selalu memuat biaya ("Buat CV · 1 kredit", "Buat surat · 1 kredit", "Nilai dengan AI · 1 kredit", "Buat ulang · 1 kredit"). Saat saldo kurang, tombol Buat turun jadi sekunder nonaktif dan "Beli kredit" jadi primer, supaya hanya ada satu tombol utama. Pesan kasus kredit (spec §6): "AI sedang gangguan. Kreditmu tidak terpakai." (alert merah), "Kredit tidak cukup" dan "Layanan AI penuh bulan ini" dan "Terlalu cepat, coba lagi sebentar" (alert amber), "CV disusun dari profilmu apa adanya; kredit tidak terpakai." (alert info). Tombol "Beli kredit" tidak muncul untuk plafon dan batas laju, karena membeli tidak menyelesaikannya. Badge sidebar: "Percobaan" (`.badge.prog`) dan "Hanya baca" (`.badge.dim` dengan gembok); item hanya-baca memakai "Beli paket untuk lanjut".
+
 ---
 
 ## 5. Aturan yang tidak boleh dilanggar
