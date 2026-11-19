@@ -86,8 +86,15 @@ describe('remoteDocument', () => {
 
   it('returns the text and usage, and keeps the cached balance in step with the server', async () => {
     generate.mockResolvedValue(ok('jawaban', 41))
-    await expect(remoteDocument(request)).resolves.toEqual({ text: 'jawaban', usage: USAGE })
+    await expect(remoteDocument(request)).resolves.toEqual({ text: 'jawaban', usage: USAGE, fallback: false })
     expect(noteCredits).toHaveBeenCalledWith(41)
+  })
+
+  it('carries the fallback flag of the server, and only a true flag counts', async () => {
+    generate.mockResolvedValue(ok('x', 42, true))
+    expect((await remoteDocument(request)).fallback).toBe(true)
+    generate.mockResolvedValue({ ok: true, kind: 'cv', text: 'x', fallback: 'ya' as never, credits: 41, usage: USAGE })
+    expect((await remoteDocument(request)).fallback).toBe(false)
   })
 
   it('turns a budget refusal into a RemoteRefusal with its own message, and updates the balance it reports', async () => {
@@ -205,6 +212,28 @@ describe('buildCv in the server mode', () => {
     expect(result).toMatchObject({ ok: true, fallback: true, note: 'CV disusun dari profilmu apa adanya; kredit tidak terpakai.' })
   })
 
+  it('takes the claim from the flag of the server, not from what the answer looks like', async () => {
+    // An empty-looking answer that the server did not flag: charged, so no "kredit tidak terpakai".
+    generate.mockResolvedValue(ok(emptyAnswer, 41, false))
+    expect(await buildCv('app-1', { now: NOW })).toMatchObject({ ok: true, fallback: false, note: null })
+    // A normal answer that the server flagged: it did not charge, and says so.
+    generate.mockResolvedValue(ok(cvAnswer, 42, true))
+    expect(await buildCv('app-1', { now: NOW })).toMatchObject({ ok: true, fallback: true, note: 'CV disusun dari profilmu apa adanya; kredit tidak terpakai.' })
+  })
+
+  it('says the credit is spent when the server answered and this device turns the answer down', async () => {
+    generate.mockResolvedValue(ok('bukan json', 41))
+    const unreadable = await buildCv('app-1', { now: NOW })
+    expect(unreadable).toMatchObject({ ok: false, reason: 'unreadable' })
+    expect(unreadable.ok === false && unreadable.message).toContain('1 kredit sudah terpakai.')
+    expect(unreadable.ok === false && unreadable.message).not.toContain('Kreditmu tidak terpakai')
+    const bad = JSON.stringify({ requirements: ['x'], skills: ['React'], experience: [{ sourceId: 'exp-a1', bullets: ['Memakai Kubernetes untuk memangkas 50%.'] }], education: [] })
+    generate.mockResolvedValue(ok(bad, 40))
+    const ungrounded = await buildCv('app-1', { now: NOW })
+    expect(ungrounded).toMatchObject({ ok: false, reason: 'ungrounded' })
+    expect(ungrounded.ok === false && ungrounded.message).toContain('1 kredit sudah terpakai.')
+  })
+
   it('has no note when the answer is a normal one', async () => {
     generate.mockResolvedValue(ok(cvAnswer))
     const result = await buildCv('app-1', { now: NOW })
@@ -240,6 +269,13 @@ describe('buildLetter in the server mode', () => {
     expect(generate.mock.calls[0]?.[0]).toMatchObject({ kind: 'letter', lang: 'id', tone: 'formal' })
     expect(clientWithPermission).not.toHaveBeenCalled()
     expect((await loadApplicationData()).letters).toHaveLength(1)
+  })
+
+  it('says the credit is spent when the server answered and this device turns the letter down', async () => {
+    generate.mockResolvedValue({ ok: true, kind: 'letter', text: JSON.stringify({ letter: 'Terlalu pendek.' }), fallback: false, credits: 41, usage: USAGE })
+    const result = await buildLetter('app-1', { now: NOW, lang: 'id' })
+    expect(result).toMatchObject({ ok: false, reason: 'unreadable' })
+    expect(result.ok === false && result.message).toContain('1 kredit sudah terpakai.')
   })
 
   it('shows a refusal as refused', async () => {
@@ -322,6 +358,51 @@ describe('scoreTopWithAi', () => {
     generate.mockResolvedValue(refusal('budget'))
     expect(await scoreTopWithAi(NOW)).toEqual({ scored: 0, refused: 'budget', message: 'Layanan AI penuh bulan ini. Kreditmu tidak terpakai.' })
     expect(await loadFeed()).toEqual(before)
+  })
+
+  it('keeps a change the person made to a job while the call ran, and adds only what the AI gave', async () => {
+    await saveFeed([job('a', 50), job('b', 40)])
+    generate.mockImplementation(async (request) => {
+      // While "Menilai…" runs the person saves one job, hides the other and a new job arrives.
+      await saveFeed([job('a', 50, { status: 'saved' }), job('b', 40, { status: 'hidden' }), job('c', 30)])
+      return { ok: true, kind: 'score', results: [...scoreRows(request), { id: 'a', score: 5, matches: [], gaps: [], summary: 'dobel', fill: {} }] as never, credits: 41, usage: USAGE }
+    })
+    expect(await scoreTopWithAi(NOW)).toEqual({ scored: 2 })
+    const feed = await loadFeed()
+    expect(feed.map((j) => [j.id, j.status])).toEqual([['a', 'saved'], ['b', 'hidden'], ['c', 'new']])
+    expect(feed.find((j) => j.id === 'a')?.score).toMatchObject({ value: 88, rough: false })
+    expect(feed.find((j) => j.id === 'b')?.score).toMatchObject({ value: 88, rough: false })
+    expect(feed.find((j) => j.id === 'c')?.score).toMatchObject({ value: 30, rough: true })
+  })
+
+  it('copies what the AI filled in only where the job is still empty', async () => {
+    await saveFeed([job('a', 50, { workplace: 'unknown', salary: '' })])
+    generate.mockImplementation(async () => {
+      await saveFeed([job('a', 50, { workplace: 'unknown', salary: 'Rp10 juta' })])
+      return { ok: true, kind: 'score', results: [{ id: 'a', score: 80, matches: [], gaps: [], summary: 'ok', fill: { workplace: 'remote', salary: 'Rp99 juta' } }] as never, credits: 41, usage: USAGE }
+    })
+    await scoreTopWithAi(NOW)
+    const [a] = await loadFeed()
+    expect(a).toMatchObject({ workplace: 'remote', salary: 'Rp10 juta' })
+    expect(a?.aiFilled).toEqual(['workplace'])
+  })
+
+  it('says so when the server answered and took the credit but nothing usable came back', async () => {
+    await saveFeed([job('a', 50)])
+    generate.mockResolvedValue({ ok: true, kind: 'score', results: [], credits: 41, usage: USAGE })
+    const outcome = await scoreTopWithAi(NOW)
+    expect(outcome).toEqual({ scored: 0, charged: true, message: 'AI tidak mengembalikan skor yang bisa dipakai; 1 kredit terpakai.' })
+    expect(describeScore(outcome, 41)).toEqual({ ok: false, text: 'AI tidak mengembalikan skor yang bisa dipakai; 1 kredit terpakai.' })
+  })
+
+  it('reports a problem that came up inside the run instead of dropping it', async () => {
+    await saveFeed([job('a', 50)])
+    generate.mockResolvedValue({ ok: true, kind: 'score', results: scoreRows({ kind: 'score', summary: SUMMARY, jobs: [{ id: 'a' }] as never }) as never, credits: 41, usage: USAGE })
+    vi.mocked(noteCredits).mockRejectedValueOnce(new Error('storage'))
+    const outcome = await scoreTopWithAi(NOW)
+    expect(outcome).toMatchObject({ scored: 0, aiProblem: 'network' })
+    expect(outcome.message).toBeTruthy()
+    expect(describeScore(outcome, 41)).toMatchObject({ ok: false, text: outcome.message })
   })
 
   it('reports the cost-free failure of the AI with the server message', async () => {

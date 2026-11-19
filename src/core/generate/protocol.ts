@@ -42,7 +42,9 @@ export class RemoteRefusal extends Error {
 
 // Stands in for `ScoringClient.complete` when the server does the call. It returns the model's text, which the
 // pipeline reads, restores and checks exactly as it does a local answer. Throws RemoteRefusal when refused.
-export type RemoteDocument = (request: CvRequest | LetterRequest) => Promise<{ text: string; usage: AiUsage }>
+// `fallback` is the server's own word that it did not charge for an empty answer (spec §6). The extension never works that out
+// itself for a credit claim: a server and an extension of different versions could disagree.
+export type RemoteDocument = (request: CvRequest | LetterRequest) => Promise<{ text: string; usage: AiUsage; fallback: boolean }>
 // The server has already read the answer, so a score comes back as results.
 export type RemoteScore = (request: ScoreRequest) => Promise<{ results: ScoreResult[]; usage: AiUsage }>
 

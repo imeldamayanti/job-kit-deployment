@@ -29,16 +29,16 @@ export async function askForDocument(
   source: AiSource,
   local: { system: string; user: string; maxTokens: number },
   remoteRequest: Parameters<RemoteDocument>[0],
-): Promise<{ ok: true; text: string; usage: AiUsage } | { ok: false; failure: TailorFailure }> {
+): Promise<{ ok: true; text: string; usage: AiUsage; remote: { fallback: boolean } | null } | { ok: false; failure: TailorFailure }> {
   try {
     if (source.remote) {
       const reply = await source.remote(remoteRequest)
-      return { ok: true, text: reply.text, usage: reply.usage }
+      return { ok: true, text: reply.text, usage: reply.usage, remote: { fallback: reply.fallback === true } }
     }
     // The union guarantees these three when there is no remote.
     const { client, key, model } = source as { client: ScoringClient; key: string; model: string }
     const reply = await client.complete({ key, model, ...local })
-    return { ok: true, text: reply.text, usage: reply.usage }
+    return { ok: true, text: reply.text, usage: reply.usage, remote: null }
   } catch (error) {
     if (error instanceof RemoteRefusal) {
       return { ok: false, failure: { ok: false, reason: 'refused', refused: error.code, message: error.message, usage: NO_TOKENS, violations: error.violations } }
@@ -50,6 +50,11 @@ export async function askForDocument(
 
 // What the AI left empty is filled from the Profile as written (T45), and the server does not charge for it (spec §6).
 export const usesFallback = (output: TailorOutput): boolean => output.experience.length === 0 || output.experience.some((e) => e.bullets.every((b) => b.trim() === ''))
+
+// The server answered and took the credit (it does not for a fallback answer), and then the check on this device turned the
+// answer down. Nothing is refunded from here, so the message says so plainly instead of promising it back.
+export const CHARGED_NOTE = '1 kredit sudah terpakai.'
+export const chargedNote = (remote: { fallback: boolean } | null): string => (remote !== null && !remote.fallback ? ` ${CHARGED_NOTE}` : '')
 
 export const NO_TOKENS: AiUsage = { inputTokens: 0, outputTokens: 0 }
 const MAX_SHOWN = 3
@@ -92,18 +97,19 @@ export async function tailorCv(input: TailorInput): Promise<TailorSuccess | Tail
   const usage = reply.usage
 
   const parsed = parseOutput(reply.text)
-  if (!parsed.ok) return { ok: false, reason: 'unreadable', message: parsed.reason, usage }
+  if (!parsed.ok) return { ok: false, reason: 'unreadable', message: parsed.reason + chargedNote(reply.remote), usage }
 
   const output = hidden.restoreOutput(parsed.output)
   const grounding = validateGrounded(output, profile)
   if (!grounding.ok) {
-    return { ok: false, reason: 'ungrounded', message: ungroundedMessage(grounding.violations), usage, violations: grounding.violations }
+    return { ok: false, reason: 'ungrounded', message: ungroundedMessage(grounding.violations) + chargedNote(reply.remote), usage, violations: grounding.violations }
   }
 
   // What the AI left empty is filled from the Profile as written, so a weak answer never gives an empty CV (T45).
   const doc = assemble(profile, output)
   const parts = { skills: doc.skills, experience: doc.experience.map((e) => ({ sourceId: e.sourceId, bullets: e.bullets })), education: doc.education.map((e) => e.id) }
-  const fallback = usesFallback(output)
+  // A credit claim follows the server's flag; the own-key build, which has no credit, keeps its own count of an empty answer.
+  const fallback = reply.remote ? reply.remote.fallback : usesFallback(output)
   const cv: TailoredCv = {
     id: newId(),
     applicationId: application.id,

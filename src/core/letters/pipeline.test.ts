@@ -135,11 +135,11 @@ describe('writeLetter', () => {
   })
 
   describe('with a remote', () => {
-    const remoteWith = (text: string) => {
+    const remoteWith = (text: string, fallback = false) => {
       const requests: LetterRequest[] = []
       const remote: RemoteDocument = async (request) => {
         requests.push(request as LetterRequest)
-        return { text: JSON.stringify({ letter: text }), usage: { inputTokens: 7, outputTokens: 8 } }
+        return { text: JSON.stringify({ letter: text }), usage: { inputTokens: 7, outputTokens: 8 }, fallback }
       }
       return { remote, requests }
     }
@@ -165,6 +165,17 @@ describe('writeLetter', () => {
       const { remote, requests } = remoteWith(LETTER)
       await run(client, { remote })
       expect(requests[0]).toMatchObject({ lang: 'en', tone: 'formal' })
+    })
+
+    it('says the credit is spent when the server took it and this device then turns the letter down', async () => {
+      const { client } = fake({ letter: LETTER })
+      const bad = await run(client, { remote: remoteWith(LETTER.replace('with Jest', 'with Kubernetes')).remote })
+      expect(bad).toMatchObject({ ok: false, reason: 'ungrounded' })
+      expect(bad.ok === false && bad.message.endsWith(' 1 kredit sudah terpakai.')).toBe(true)
+      expect(bad.ok === false && bad.message).not.toContain('tidak terpakai')
+      const short = await run(client, { remote: remoteWith('Terlalu pendek.').remote })
+      expect(short).toMatchObject({ ok: false, reason: 'unreadable' })
+      expect(short.ok === false && short.message.endsWith(' 1 kredit sudah terpakai.')).toBe(true)
     })
 
     it('turns a refusal into a failure with its code', async () => {

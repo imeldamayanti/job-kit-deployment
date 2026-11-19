@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { aiModeFrom, isShareBuild } from './build'
 import { SUPABASE_CONFIG } from './sync/config'
 
@@ -31,6 +31,28 @@ describe('aiModeFrom', () => {
     expect(aiModeFrom('', '')).toBe('server')
     expect(aiModeFrom('server', undefined)).toBe('server')
     expect(aiModeFrom('whatever', '1')).toBe('server')
+  })
+})
+
+// `AI_MODE` is written as literal comparisons so the bundler can fold them, and `aiModeFrom` states the same rules for wxt.config.ts
+// and the tests. This is what keeps the two from drifting apart: every combination of the two variables must give the same mode.
+describe('AI_MODE agrees with aiModeFrom', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  const share = [undefined, 'true', 'false', '1', ''] as const
+  const mode = [undefined, 'byok', 'server', 'BYOK', 'whatever', ''] as const
+  const cases = share.flatMap((s) => mode.map((m) => [s, m] as const))
+
+  it.each(cases)('share %j, mode %j', async (s, m) => {
+    vi.resetModules()
+    vi.stubEnv('WXT_SHARE_BUILD', s as string)
+    vi.stubEnv('WXT_AI_MODE', m as string)
+    const build = await import('./build')
+    expect(build.AI_MODE).toBe(aiModeFrom(m, s))
+    expect(build.AI_ENABLED).toBe(build.AI_MODE !== 'off')
   })
 })
 

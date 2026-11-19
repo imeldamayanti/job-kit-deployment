@@ -214,6 +214,11 @@ describe('LetterTab: credits in the server build', () => {
     expect(button('Buat ulang · 1 kredit')).toBeTruthy()
   })
 
+  it('says that trying again costs a credit', async () => {
+    await render(state('rejected', { credit: credit() }))
+    expect(button('Coba lagi · 1 kredit')).toBeTruthy()
+  })
+
   it('shows no cost outside the server build', async () => {
     expect(await render(state('empty'))).not.toContain('kredit')
   })

@@ -153,11 +153,11 @@ describe('tailorCv', () => {
   })
 
   describe('with a remote', () => {
-    const remoteWith = (text: unknown) => {
+    const remoteWith = (text: unknown, fallback = false) => {
       const requests: CvRequest[] = []
       const remote: RemoteDocument = async (request) => {
         requests.push(request as CvRequest)
-        return { text: JSON.stringify(text), usage: { inputTokens: 5, outputTokens: 6 } }
+        return { text: JSON.stringify(text), usage: { inputTokens: 5, outputTokens: 6 }, fallback }
       }
       return { remote, requests }
     }
@@ -184,6 +184,32 @@ describe('tailorCv', () => {
       const { client } = fake(good)
       const { remote } = remoteWith({ ...good, skills: ['React', 'Kubernetes'] })
       expect(await runRemote(remote, client)).toMatchObject({ ok: false, reason: 'ungrounded' })
+    })
+
+    it('says the credit is spent when the server took it and this device then turns the answer down', async () => {
+      const { client } = fake(good)
+      const ungrounded = await runRemote(remoteWith({ ...good, skills: ['React', 'Kubernetes'] }).remote, client)
+      expect(ungrounded).toMatchObject({ ok: false, reason: 'ungrounded' })
+      expect(ungrounded.ok === false && ungrounded.message.endsWith(' 1 kredit sudah terpakai.')).toBe(true)
+      expect(ungrounded.ok === false && ungrounded.message).not.toContain('tidak terpakai')
+      const unreadable = await runRemote(remoteWith('bukan CV').remote, client)
+      expect(unreadable).toMatchObject({ ok: false, reason: 'unreadable' })
+      expect(unreadable.ok === false && unreadable.message.endsWith(' 1 kredit sudah terpakai.')).toBe(true)
+    })
+
+    it('does not say that when the server marked the answer as a fallback: it took no credit', async () => {
+      const { client } = fake(good)
+      const result = await runRemote(remoteWith({ ...good, skills: ['React', 'Kubernetes'] }, true).remote, client)
+      expect(result.ok === false && result.message).not.toContain('kredit sudah terpakai')
+    })
+
+    it('takes the fallback from the flag of the server, not from the content', async () => {
+      const { client } = fake(good)
+      const empty = { requirements: ['x'], skills: ['React'], experience: [], education: [] }
+      const unflagged = await runRemote(remoteWith(empty, false).remote, client)
+      expect(unflagged).toMatchObject({ ok: true, fallback: false })
+      const flagged = await runRemote(remoteWith(good, true).remote, client)
+      expect(flagged).toMatchObject({ ok: true, fallback: true })
     })
 
     it('turns a refusal into a failure that keeps the code', async () => {

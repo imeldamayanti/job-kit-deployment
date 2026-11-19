@@ -1,3 +1,4 @@
+import { aiErrorMessage, type AiFailure } from '../core/ai/errors'
 import { buildProfileSummary, hashSummary, readScoreResults, scoreJobs, type AiUsage } from '../core/ai/score'
 import type { Job } from '../core/feed/types'
 import {
@@ -57,7 +58,7 @@ export const remoteDocument: RemoteDocument = async (request) => {
   const response = await ask(request)
   if (!response.ok) throw refuse(response)
   if (response.kind === 'score' || typeof response.text !== 'string') throw new RemoteRefusal('ai', BAD_ANSWER)
-  return { text: response.text, usage: cleanUsage(response.usage) }
+  return { text: response.text, usage: cleanUsage(response.usage), fallback: response.fallback === true }
 }
 
 export const remoteScore: RemoteScore = async (request) => {
@@ -81,11 +82,27 @@ export async function doneLine(what: 'CV' | 'Surat'): Promise<string> {
   return status ? `${what} siap. 1 kredit terpakai, sisa ${status.credits}.` : `${what} siap. 1 kredit terpakai.`
 }
 
-export type ScoreOutcome = { scored: number; refused?: GenerateError; message?: string }
+// `charged`: the server answered and took the credit, but nothing usable came out of it. `aiProblem`: the call itself failed
+// on this side.
+export type ScoreOutcome = { scored: number; refused?: GenerateError; aiProblem?: AiFailure; charged?: boolean; message?: string }
+
+const NO_USABLE_SCORES = 'AI tidak mengembalikan skor yang bisa dipakai; 1 kredit terpakai.'
+
+// What the AI gave a job is copied onto the job as it is now, not as it was when the call began: a job the person saved, hid or
+// opened while the call ran keeps that. Only the score and the fields the AI filled (and their marks) come across.
+function withAiResult(fresh: Job, scored: Job): Job {
+  const added = scored.aiFilled.filter((key) => !fresh.aiFilled.includes(key))
+  const next: Job = { ...fresh, score: scored.score }
+  for (const key of added) {
+    const empty = fresh[key] === '' || fresh[key] === 'unknown'
+    if (empty) (next as Record<string, unknown>)[key] = scored[key]
+  }
+  return { ...next, aiFilled: [...fresh.aiFilled, ...added.filter((key) => next[key] === scored[key])] }
+}
 
 // "Nilai dengan AI" (spec §5.4): the ten best jobs that still have only a rough score go to the server in one call, for one
 // credit. Jobs the person hid are left out, and so are those the AI has already scored for this Profile. The feed is read again
-// before it is saved, so a run that wrote in the meantime is not overwritten; only jobs the AI scored are changed.
+// before it is saved, and only the AI's part is merged into each job (see withAiResult).
 export async function scoreTopWithAi(now = new Date()): Promise<ScoreOutcome> {
   const [profile, feed] = await Promise.all([loadProfile(), loadFeed()])
   const hash = hashSummary(buildProfileSummary(profile, now))
@@ -96,17 +113,30 @@ export async function scoreTopWithAi(now = new Date()): Promise<ScoreOutcome> {
     .slice(0, SCORE_BATCH)
   if (top.length === 0) return { scored: 0 }
 
-  const run = await scoreJobs({ jobs: top, profile, now, limit: SCORE_BATCH, remote: remoteScore })
+  // Whether the server answered at all: an answer with nothing usable in it was still paid for.
+  let answered = false
+  const remote: RemoteScore = async (request) => {
+    const reply = await remoteScore(request)
+    answered = true
+    return reply
+  }
+  const run = await scoreJobs({ jobs: top, profile, now, limit: SCORE_BATCH, remote })
   if (run.refused) return { scored: 0, refused: run.refused, message: MESSAGES[run.refused] }
+  if (run.aiProblem) return { scored: 0, aiProblem: run.aiProblem, message: aiErrorMessage(run.aiProblem) }
 
   const scoredNow = new Map(run.jobs.filter(current).map((job) => [job.id, job]))
-  if (scoredNow.size > 0) await saveFeed((await loadFeed()).map((job) => scoredNow.get(job.id) ?? job))
+  if (scoredNow.size === 0) return answered ? { scored: 0, charged: true, message: NO_USABLE_SCORES } : { scored: 0 }
+  await saveFeed((await loadFeed()).map((job) => {
+    const scored = scoredNow.get(job.id)
+    return scored ? withAiResult(job, scored) : job
+  }))
   return { scored: run.aiScored }
 }
 
 // What the Lowongan page says after "Nilai dengan AI" (mockup S4): the result with the balance, or why nothing was spent.
 export function describeScore(outcome: ScoreOutcome, credits: number | null): { ok: boolean; text: string } {
   if (outcome.refused) return { ok: false, text: outcome.message ?? MESSAGES[outcome.refused] }
+  if (outcome.aiProblem || outcome.charged) return { ok: false, text: outcome.message ?? NO_USABLE_SCORES }
   if (outcome.scored === 0) return { ok: true, text: 'Tidak ada lowongan yang perlu dinilai AI.' }
   const left = credits === null ? '' : `, sisa ${credits}`
   return { ok: true, text: `${outcome.scored} lowongan dinilai. 1 kredit terpakai${left}.` }

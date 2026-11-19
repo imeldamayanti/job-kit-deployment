@@ -425,6 +425,13 @@ describe('CvTab: credits in the server build', () => {
     expect(tab.onCreate).not.toHaveBeenCalled()
   })
 
+  it('says that trying again costs a credit', async () => {
+    await render(state('rejected', { credit: credit() }))
+    expect(button('Coba lagi · 1 kredit')).toBeTruthy()
+    await render(state('rejected'))
+    expect(button('Coba lagi')).toBeTruthy()
+  })
+
   it('offers Beli kredit beside a CV that exists, too', async () => {
     await render(state('result', { credit: credit(0), availability: { ok: false, reason: 'no-credits', message: 'Kredit tidak cukup.', link: 'none' } }))
     expect(button('Buat ulang · 1 kredit')?.hasAttribute('disabled')).toBe(true)

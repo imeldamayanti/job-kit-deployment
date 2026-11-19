@@ -144,7 +144,7 @@ export function LetterTab(tab: LetterTabState) {
             <div className="mt-2.5">
               <Button variant="secondary" onClick={regenerate} disabled={off}>
                 <RefreshCw size={15} strokeWidth={2} aria-hidden="true" />
-                Coba lagi
+                {withCost('Coba lagi', credit)}
               </Button>
             </div>
           )}
