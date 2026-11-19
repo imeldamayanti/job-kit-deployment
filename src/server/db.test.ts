@@ -1,0 +1,92 @@
+// @vitest-environment node
+import { describe, expect, it } from 'vitest'
+import { createDb } from './db'
+
+type Seen = { url: string; init: RequestInit }
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
+const spy = (respond: () => Response) => {
+  const seen: Seen[] = []
+  const fetchImpl = async (url: string | URL | Request, init?: RequestInit) => (seen.push({ url: String(url), init: init as RequestInit }), respond())
+  return { seen, fetchImpl }
+}
+const body = (call: Seen | undefined) => JSON.parse(String(call?.init.body))
+const USER = '11111111-1111-1111-1111-111111111111'
+
+describe('createDb', () => {
+  it('calls the RPC with the service key in apikey and Authorization', async () => {
+    const { seen, fetchImpl } = spy(() => json('00000000-0000-0000-0000-000000000001'))
+    const db = createDb('https://proj.supabase.test', 'service-key', fetchImpl)
+    await db.reserve(USER, 'cv', 1)
+    expect(seen[0]?.url).toBe('https://proj.supabase.test/rest/v1/rpc/reserve_credits')
+    expect(seen[0]?.init.method).toBe('POST')
+    const headers = seen[0]?.init.headers as Record<string, string>
+    expect(headers.apikey).toBe('service-key')
+    expect(headers.Authorization).toBe('Bearer service-key')
+    expect(body(seen[0])).toEqual({ p_user: USER, p_kind: 'cv', p_cost: 1 })
+  })
+
+  it('reserve returns the generation id', async () => {
+    const { fetchImpl } = spy(() => json('00000000-0000-0000-0000-000000000001'))
+    expect(await createDb('https://p.test', 'k', fetchImpl).reserve(USER, 'letter', 1)).toEqual({ ok: true, id: '00000000-0000-0000-0000-000000000001' })
+  })
+
+  it.each(['insufficient', 'expired'] as const)('reserve maps a PostgREST "%s" 400 to a refusal', async (message) => {
+    const { fetchImpl } = spy(() => json({ code: 'P0001', message, details: null, hint: null }, 400))
+    expect(await createDb('https://p.test', 'k', fetchImpl).reserve(USER, 'cv', 1)).toEqual({ ok: false, error: message })
+  })
+
+  it.each([
+    [{ code: 'P0001', message: 'invalid_cost' }, 400],
+    [{ code: '28000', message: 'unauthenticated' }, 403],
+    [{ message: 'upstream down' }, 502],
+  ])('reserve throws on an error it does not know (%j)', async (error, status) => {
+    const { fetchImpl } = spy(() => json(error, status))
+    await expect(createDb('https://p.test', 'k', fetchImpl).reserve(USER, 'cv', 1)).rejects.toThrow()
+  })
+
+  it('does not put the service key in a thrown error', async () => {
+    const { fetchImpl } = spy(() => json({ message: 'boom' }, 500))
+    const error = await createDb('https://p.test', 'secret-service-key', fetchImpl).guard(USER, 50, 30).catch((e: Error) => e)
+    expect(String((error as Error).message)).not.toContain('secret-service-key')
+  })
+
+  it('settle sends every argument and returns the new balance', async () => {
+    const { seen, fetchImpl } = spy(() => json(7))
+    const balance = await createDb('https://p.test', 'k', fetchImpl).settle('gen-1', false, 'ai', 'deepseek-chat', 100, 40, 0.00123)
+    expect(balance).toBe(7)
+    expect(seen[0]?.url).toBe('https://p.test/rest/v1/rpc/settle_generation')
+    expect(body(seen[0])).toEqual({ p_id: 'gen-1', p_ok: false, p_refund_reason: 'ai', p_model: 'deepseek-chat', p_in: 100, p_out: 40, p_cost: 0.00123 })
+  })
+
+  it('settle throws when the database says not_found', async () => {
+    const { fetchImpl } = spy(() => json({ code: 'P0001', message: 'not_found' }, 400))
+    await expect(createDb('https://p.test', 'k', fetchImpl).settle('x', true, null, 'm', 0, 0, 0)).rejects.toThrow()
+  })
+
+  it.each(['ok', 'budget', 'rate-limit'] as const)('guard returns %s', async (answer) => {
+    const { seen, fetchImpl } = spy(() => json(answer))
+    expect(await createDb('https://p.test', 'k', fetchImpl).guard(USER, 50, 30)).toBe(answer)
+    expect(seen[0]?.url).toBe('https://p.test/rest/v1/rpc/ai_guard')
+    expect(body(seen[0])).toEqual({ p_user: USER, p_budget_usd: 50, p_rate: 30 })
+  })
+
+  it('guard throws on an answer it does not know', async () => {
+    const { fetchImpl } = spy(() => json('maybe'))
+    await expect(createDb('https://p.test', 'k', fetchImpl).guard(USER, 50, 30)).rejects.toThrow()
+  })
+
+  it('balance reads credits from the account row, and 0 when there is none', async () => {
+    const found = spy(() => json([{ credits: 42 }]))
+    expect(await createDb('https://p.test', 'k', found.fetchImpl).balance(USER)).toBe(42)
+    expect(found.seen[0]?.url).toBe(`https://p.test/rest/v1/accounts?user_id=eq.${USER}&select=credits`)
+    expect(found.seen[0]?.init.method).toBe('GET')
+    const none = spy(() => json([]))
+    expect(await createDb('https://p.test', 'k', none.fetchImpl).balance(USER)).toBe(0)
+  })
+
+  it('tolerates a trailing slash in the url', async () => {
+    const { seen, fetchImpl } = spy(() => json(1))
+    await createDb('https://p.test/', 'k', fetchImpl).settle('x', true, null, 'm', 0, 0, 0)
+    expect(seen[0]?.url).toBe('https://p.test/rest/v1/rpc/settle_generation')
+  })
+})

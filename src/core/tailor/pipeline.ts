@@ -9,7 +9,7 @@ import { profileHash } from './hash'
 import { parseOutput } from './parse'
 import { pseudonymize } from './privacy'
 import { CV_SYSTEM, cvUserPrompt } from './prompt'
-import type { Violation } from './types'
+import type { TailorOutput, Violation } from './types'
 
 export type TailorInput = {
   profile: Profile
@@ -47,6 +47,9 @@ export async function askForDocument(
     return { ok: false, failure: { ok: false, reason: 'ai', ai, message: aiErrorMessage(ai), usage: NO_TOKENS } }
   }
 }
+
+// What the AI left empty is filled from the Profile as written (T45), and the server does not charge for it (spec §6).
+export const usesFallback = (output: TailorOutput): boolean => output.experience.length === 0 || output.experience.some((e) => e.bullets.every((b) => b.trim() === ''))
 
 export const NO_TOKENS: AiUsage = { inputTokens: 0, outputTokens: 0 }
 const MAX_SHOWN = 3
@@ -100,7 +103,7 @@ export async function tailorCv(input: TailorInput): Promise<TailorSuccess | Tail
   // What the AI left empty is filled from the Profile as written, so a weak answer never gives an empty CV (T45).
   const doc = assemble(profile, output)
   const parts = { skills: doc.skills, experience: doc.experience.map((e) => ({ sourceId: e.sourceId, bullets: e.bullets })), education: doc.education.map((e) => e.id) }
-  const fallback = output.experience.length === 0 || output.experience.some((e) => e.bullets.every((b) => b.trim() === ''))
+  const fallback = usesFallback(output)
   const cv: TailoredCv = {
     id: newId(),
     applicationId: application.id,
