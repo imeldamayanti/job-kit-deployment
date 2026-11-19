@@ -81,7 +81,7 @@ Rancangan yang menjaga janji privasi:
 - **Konflik:** `updated_at` terbaru menang, per `kind`.
 - **Tidak disinkronkan:** kunci API, daftar lowongan hasil ambil, pemakaian AI harian.
 - **Ekstensi langsung ke Supabase** dengan token pengguna, tanpa API sendiri.
-- **Izin baru:** host Supabase, diminta saat pengguna menyalakan sinkron.
+- **Izin baru:** host Supabase. Di build pengguna (server) izin ini diberikan saat instal, bukan saat sinkron dinyalakan.
 - **Hak pengguna:** Export, hapus akun beserta semua datanya, dari dalam aplikasi.
 - **Dokumen:** PRD §4, README, RFC, dan kebijakan privasi ditulis ulang; syarat layanan ditambah.
 

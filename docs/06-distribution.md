@@ -55,7 +55,7 @@ Akun penerbit adalah akun teman PIC; ia hanya memegang listing. Login, saldo, da
 - [ ] **Formulir pengungkapan data (Privacy practices):** isi dengan
   - email (akun, untuk login);
   - riwayat pembelian (tanggal, jumlah, status);
-  - isi CV tersamar yang dikirim ke penyedia AI lewat server PIC (nama perusahaan dan kampus diganti kode; nama, email, telepon, alamat, dan tanggal lahir tidak dikirim).
+  - data tersamar yang dikirim ke penyedia AI pihak ketiga lewat server PIC: untuk CV dan surat skill, jabatan, butir deskripsi pengalaman, jenjang dan jurusan, serta teks lowongan; untuk skor role incaran, level, skill, judul dan lama pengalaman, jenjang, lokasi, dan tipe kerja, serta teks lowongan (nama perusahaan dan kampus diganti kode; nama, email, telepon, alamat, dan tanggal lahir tidak dikirim).
   Tetap isi: tidak ada penjualan atau transfer data pengguna, tidak ada kode jarak jauh. Cocokkan dengan kategori pada formulir saat ini **[verifikasi]**. Tautkan [kebijakan privasi](../site/privasi.html) dan [harga](../site/harga.html).
 - [ ] **ID extension tetap lewat `key` di `manifest`.** Tujuannya supaya pindah akun penerbit tidak mengubah ID dan memutus login pengguna. Langkah: unggah draf pertama ke dashboard, salin public key dari tab Package ("View public key" di dashboard penerbit) **[verifikasi]**, taruh sebagai `manifest.key` di `wxt.config.ts`, lalu pakai ID yang sama untuk secret `EXTENSION_ID` di Supabase (`supabase/README.md`). Belum ditambahkan ke repo; menunggu akun penerbit. **Jangan** menaruh private key (`.pem`) di repo.
 - [ ] **Izin:** host Supabase menjadi izin wajib (login wajib); origin penyedia AI tidak ada di build pengguna.

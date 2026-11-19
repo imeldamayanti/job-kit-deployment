@@ -52,8 +52,26 @@ describe('static site', () => {
   it('privacy page is honest about what survives account deletion', () => {
     const html = read('privasi.html')
     expect(html).not.toContain('semua data online')
-    expect(html).toContain('tanpa pengenal')
+    expect(html).not.toContain('tanpa pengenal')
     expect(html).toContain('pembukuan')
+    expect(html).toContain('tidak lagi terkait dengan akunmu')
+    expect(html).toContain('Midtrans menyimpan alamat email pembayar pada tiap transaksinya')
+  })
+
+  it('privacy page names the AI recipient neutrally and lists what is sent, as the code sends it', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('DeepSeek')
+    expect(html).toContain('penyedia AI pihak ketiga')
+    for (const text of ['role incaran, level, skill', 'lokasi dan tipe kerja', 'butir deskripsi pengalaman', 'jenjang dan jurusan', 'teks lowongan']) {
+      expect(html, text).toContain(text)
+    }
+  })
+
+  it('privacy page does not call the account optional or say all data lives only in the browser', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('Akun dan sinkron (opsional')
+    expect(html).toContain('<h2>Sinkron antar perangkat (opsional, mati secara bawaan)</h2>')
+    expect(html).not.toContain('Karena data hanya ada di browsermu')
   })
 
   it('price page states the package, the all-in price, non-cash-out credits, and the 1 year expiry', () => {

@@ -1019,7 +1019,7 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 - [ ] Modal beli memanggil `create-payment`, menampilkan QR, harga, perkiraan pemakaian, hitung mundur (FR-52)
 - [ ] Status dicek tiap 3 detik; berhasil → saldo baru dan fitur terbuka tanpa muat ulang; kedaluwarsa → tombol QR baru (FR-52)
 - [ ] Menutup modal tidak membatalkan; membuka lagi menampilkan pembelian yang masih berlaku (FR-52)
-- [ ] CSP extension mengizinkan gambar QR Midtrans saja
+- [ ] CSP bawaan MV3 berlaku dan tidak ada CSP yang dideklarasikan di manifest; gambar QR dimuat dengan `referrerpolicy=no-referrer`
 - [ ] Halaman Akun: saldo, tanggal hangus, dan riwayat kredit dari `credit_ledger`; penanda sidebar 30 hari sebelum hangus (FR-54)
 
 **Done when:** pembayaran sandbox dari extension menambah saldo dan riwayat menampilkannya.
@@ -1034,6 +1034,9 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 - [ ] Uji ujung ke ujung di profil Chrome bersih: instal → preview → masuk → beli (sandbox) → CV → riwayat (tertunda PIC: deploy/prasyarat; saldo yang diharapkan 3 − 1 + 50 = 52)
 - [ ] (tertunda PIC: deploy/prasyarat) Midtrans produksi aktif; satu transaksi nyata Rp10.800 oleh pengguna bukan PIC; biaya AI + QRIS dicatat (PRD §10)
 - [ ] README, RFC §3.3d, dan `06-distribution.md` (centang pembelian dalam aplikasi, pengungkapan data) sesuai hasil akhir (sudah diperbarui 2026-11-19; cek ulang setelah e2e dan produksi)
+- [ ] **Gerbang sebelum `site/privasi.html` dipublikasikan:** proxy AI pihak ketiga diganti API resmi penyedia (keputusan 10 di desain), atau privasi dan README disesuaikan dengan penerima data yang sebenarnya; sampai itu terjadi privasi hanya menyebut "penyedia AI pihak ketiga"
+- [ ] **Gerbang saat deploy ke Cloudflare Pages:** teks telemetri dan analitik website di `privasi.html` diperbarui (bagian "Website ini" masih menyebut Vercel Web Analytics dan hosting Vercel) dan skrip `/_vercel/insights/script.js` dihapus dari tiap halaman; cek juga apakah `main` masih auto-deploy ke Vercel dan matikan bila ya
+- [ ] **Gerbang saat deploy ke Cloudflare Pages:** hanya berkas website yang terpublikasi. Cloudflare Pages tidak membaca `.vercelignore`, jadi `site/` tidak boleh dipublikasikan apa adanya: build command menyalin html, css, js runtime, `assets/`, dan `favicon.png` ke folder `dist`, dan output directory-nya `dist` (tes, SQL, `*.d.ts`, dan README tidak ikut)
 
 **Done when:** metrik kredit dan pembayaran di PRD §10 tercatat di tiket ini.
 

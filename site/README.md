@@ -7,7 +7,7 @@ Folder ini adalah seluruh website: HTML, CSS, dan sedikit JS. Tanpa build, tanpa
 Vercel Hobby tidak boleh dipakai komersial, jadi website pindah ke Cloudflare Pages sejak kredit AI berbayar.
 
 1. Cloudflare dashboard > Workers & Pages > Create > Pages > hubungkan repo GitHub.
-2. Build command kosong; **Build output directory: `site`**.
+2. Build command kosong; **Build output directory: `site`** hanya untuk uji awal. Sebelum dipublikasikan sungguhan, pakai build command yang menyalin hanya html, css, js runtime, `assets/`, dan `favicon.png` ke folder `dist`, lalu output directory `dist` (gerbang T63 di `docs/plan.md`).
 3. Header (CSP dan lainnya) dibaca dari `_headers`. URL bersih (`/pasang`, `/harga`) sudah bawaan Cloudflare Pages.
 4. Cek respons halaman: `curl -sI https://<alamat-pages>/ | grep -i content-security-policy` harus memuat CSP yang sama dengan `_headers`.
 5. Setelah header terbukti dipakai, hapus `vercel.json` (belum dihapus: menunggu langkah ini; tes `site.test.ts` yang membandingkan CSP-nya ikut disesuaikan). Cloudflare Pages tidak membaca `.vercelignore`: pastikan berkas tes, SQL, dan README ini tidak ikut terpublikasi (misalnya lewat build command yang menyalin hanya berkas website) **[verifikasi]**.
