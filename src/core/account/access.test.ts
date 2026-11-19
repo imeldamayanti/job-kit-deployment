@@ -29,20 +29,21 @@ describe('accessLevel', () => {
 })
 
 describe('featureMode', () => {
-  it('opens for paid and trial', () => {
+  it('opens for every signed-in level', () => {
     expect(featureMode('paid', status({ paid: true }))).toBe('open')
     expect(featureMode('trial', status({ credits: 2, trialGranted: true }))).toBe('open')
-  })
-
-  it('stays open for a free account that has had its trial (only AI stops, via the credit balance)', () => {
     expect(featureMode('free', status({ trialGranted: true }))).toBe('open')
     expect(featureMode('free', status({ trialGranted: true, credits: 0 }))).toBe('open')
   })
 
-  it('is locked for a free account that never got a trial, and for preview', () => {
-    expect(featureMode('free', status({ trialGranted: false }))).toBe('locked')
-    expect(featureMode('free', null)).toBe('locked')
+  it('stays open for a signed-in free account with no trial granted and for an unknown status (AI follows credits only)', () => {
+    expect(featureMode('free', status({ trialGranted: false }))).toBe('open')
+    expect(featureMode('free', null)).toBe('open')
+  })
+
+  it('is locked only for preview (not signed in), whatever the cache says', () => {
     expect(featureMode('preview', null)).toBe('locked')
+    expect(featureMode('preview', status({ paid: true, credits: 9, trialGranted: true }))).toBe('locked')
   })
 })
 
