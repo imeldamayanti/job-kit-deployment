@@ -298,9 +298,12 @@ begin
 end;
 $$;
 
--- apply_payment: the gateway's callback. Only a 'pending' or 'expired' purchase can change, so a repeated
--- callback has no second effect. PAID with the right amount credits the balance, even after 'expired'
--- (the money was received). A different amount becomes 'mismatch' and credits nothing.
+-- apply_payment: the gateway's callback. Only a 'pending', 'expired' or 'failed' purchase can change, so a repeated
+-- callback has no second effect. PAID with the right amount credits the balance, even after 'expired' or 'failed'
+-- (the money was received). A different amount becomes 'mismatch' and credits nothing. EXPIRED and FAILED only end a
+-- pending purchase, and only when they come from the recorded gateway transaction (an orphan charge's must not end it).
+-- A balance past its expiry that the daily sweep has not zeroed yet is zeroed (with an 'expire' ledger row) before
+-- the purchased credits are added, so a purchase never revives credits that were already lost.
 -- Returns the final status, or 'duplicate' when a PAID callback names another gateway transaction than the one
 -- that already paid the purchase (a second charge was paid: nothing is credited, the caller reports it).
 create or replace function public.apply_payment(p_purchase uuid, p_reference text, p_status text, p_amount integer) returns text
@@ -308,13 +311,15 @@ language plpgsql security definer set search_path = '' as $$
 declare
   v_p public.purchases;
   v_status text := upper(p_status);
+  v_credits integer;
+  v_expires timestamptz;
 begin
   select * into v_p from public.purchases where id = p_purchase for update;
   if not found then
     raise exception 'not_found';
   end if;
 
-  if v_p.status not in ('pending', 'expired') then
+  if v_p.status not in ('pending', 'expired', 'failed') then
     if v_p.status = 'paid' and v_status = 'PAID' and v_p.gateway_reference is distinct from p_reference then
       return 'duplicate';
     end if;
@@ -334,6 +339,11 @@ begin
     -- user_id is null once the account was deleted: the payment is recorded, there is nobody to credit.
     if v_p.user_id is not null then
       insert into public.accounts (user_id) values (v_p.user_id) on conflict (user_id) do nothing;
+      select credits, credits_expire_at into v_credits, v_expires from public.accounts where user_id = v_p.user_id for update;
+      if v_credits > 0 and v_expires < now() then
+        insert into public.credit_ledger (user_id, delta, reason) values (v_p.user_id, -v_credits, 'expire');
+        update public.accounts set credits = 0 where user_id = v_p.user_id;
+      end if;
       update public.accounts
         set credits = credits + v_p.credits,
             unlocked_at = coalesce(unlocked_at, now()),
@@ -345,8 +355,11 @@ begin
     return 'paid';
   end if;
 
-  -- EXPIRED and FAILED only end a pending purchase; anything else (UNPAID, REFUND) changes nothing.
-  if v_p.status = 'pending' and v_status in ('EXPIRED', 'FAILED') then
+  -- EXPIRED and FAILED only end a pending purchase, and only for the transaction on record (none recorded yet counts as
+  -- a match). A different one is an orphan charge, e.g. a QR that was created but never attached. Anything else
+  -- (UNPAID, REFUND) changes nothing.
+  if v_p.status = 'pending' and v_status in ('EXPIRED', 'FAILED')
+     and (v_p.gateway_reference is null or v_p.gateway_reference = p_reference) then
     update public.purchases set status = lower(v_status) where id = p_purchase;
     return lower(v_status);
   end if;

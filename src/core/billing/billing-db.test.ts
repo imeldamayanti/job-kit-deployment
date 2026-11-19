@@ -323,6 +323,80 @@ describe('payments', () => {
     expect(await pay(p.id, 'REFUND', 10800, 'T-orphan')).toBe('paid')
   })
 
+  it('apply_payment ignores EXPIRED and FAILED of a gateway transaction other than the recorded one (an orphan charge)', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    const p = await newPurchase(user)
+    await db.query('select public.attach_gateway($1, $2, $3)', [p.id, 'T-real', 'https://qr.example/real.png'])
+    expect(await pay(p.id, 'EXPIRED', 10800, 'T-orphan')).toBe('pending')
+    expect(await pay(p.id, 'FAILED', 10800, 'T-orphan')).toBe('pending')
+    // The recorded transaction still ends it, and can still be paid afterwards.
+    expect(await pay(p.id, 'EXPIRED', 10800, 'T-real')).toBe('expired')
+    expect(await pay(p.id, 'PAID', 10800, 'T-real')).toBe('paid')
+    expect((await account(user)).credits).toBe(53)
+  })
+
+  it('apply_payment still credits the recorded transaction after an orphan charge was refused', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    const p = await newPurchase(user)
+    await db.query('select public.attach_gateway($1, $2, $3)', [p.id, 'T-real', 'https://qr.example/real.png'])
+    expect(await pay(p.id, 'FAILED', 10800, 'T-orphan')).toBe('pending')
+    expect(await pay(p.id, 'PAID', 10800, 'T-real')).toBe('paid')
+    expect((await account(user)).credits).toBe(53)
+  })
+
+  it('apply_payment treats PAID on a failed purchase like one on an expired purchase: credited when the amount matches', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    const p = await newPurchase(user)
+    expect(await pay(p.id, 'FAILED')).toBe('failed')
+    expect(await pay(p.id, 'PAID')).toBe('paid')
+    const acct = await account(user)
+    expect(acct.credits).toBe(53)
+    expect(acct.unlocked_at).not.toBeNull()
+    expect((await ledgerRows(user)).filter((r) => r.reason === 'purchase')).toEqual([{ delta: 50, reason: 'purchase' }])
+    expect(await pay(p.id, 'PAID')).toBe('paid') // still idempotent
+    expect((await account(user)).credits).toBe(53)
+  })
+
+  it('apply_payment marks a PAID with another amount on a failed purchase mismatch', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    const p = await newPurchase(user)
+    expect(await pay(p.id, 'FAILED')).toBe('failed')
+    expect(await pay(p.id, 'PAID', 1)).toBe('mismatch')
+    expect((await account(user)).credits).toBe(3)
+  })
+
+  it('a purchase zeroes an expired balance that was not swept yet, with an expire ledger row, before adding the credits', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    await db.query(`update public.accounts set credits_expire_at = now() - interval '1 day' where user_id = $1`, [user])
+    const p = await newPurchase(user)
+    expect(await pay(p.id)).toBe('paid')
+    const acct = await account(user)
+    expect(acct.credits).toBe(50)
+    expect(daysFromNow(acct.credits_expire_at!)).toBeCloseTo(365, 0)
+    expect((await ledgerRows(user)).slice(-2)).toEqual([{ delta: -3, reason: 'expire' }, { delta: 50, reason: 'purchase' }])
+  })
+
+  it('a purchase adds an empty or still valid balance to nothing extra: no expire row', async () => {
+    const empty = await addUser()
+    await ensureAccount(empty)
+    await adjust(empty, -3)
+    await db.query(`update public.accounts set credits_expire_at = now() - interval '1 day' where user_id = $1`, [empty])
+    await pay((await newPurchase(empty)).id)
+    expect((await account(empty)).credits).toBe(50)
+    expect((await ledgerRows(empty)).filter((r) => r.reason === 'expire')).toHaveLength(0)
+
+    const valid = await addUser()
+    await ensureAccount(valid)
+    await pay((await newPurchase(valid)).id, 'PAID', 10800, 'T-valid')
+    expect((await account(valid)).credits).toBe(53)
+    expect((await ledgerRows(valid)).filter((r) => r.reason === 'expire')).toHaveLength(0)
+  })
+
   it('a purchase extends the expiry of the whole balance to now + 1 year', async () => {
     const user = await addUser()
     await ensureAccount(user)
