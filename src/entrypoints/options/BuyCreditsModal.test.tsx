@@ -12,7 +12,7 @@ vi.mock('../../platform/account', () => ({
   refreshAccountStatus: vi.fn(),
 }))
 
-import { createPayment, purchaseStatus, refreshAccountStatus } from '../../platform/account'
+import { createPayment, purchaseStatus, refreshAccountStatus, type PurchaseStatus } from '../../platform/account'
 import { BuyCreditsModal } from './BuyCreditsModal'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -337,5 +337,147 @@ describe('BuyCreditsModal: the dialog contract', () => {
 
     expect(tab.defaultPrevented).toBe(true)
     expect(document.activeElement).toBe(focusable[0])
+  })
+})
+
+describe('BuyCreditsModal: a payment in the last seconds or after the code expired', () => {
+  const START = Date.parse(NOW)
+  const EXPIRES = Date.parse('2026-11-19T10:30:00.000Z')
+  const TO_EXPIRY = EXPIRES - START
+  type Answer = (status: PurchaseStatus) => void
+
+  // From `from` ms after the start every status call hangs until the test answers it; before that the answer is pending.
+  function holdCallsFrom(from: number): Answer[] {
+    const held: Answer[] = []
+    vi.mocked(purchaseStatus).mockImplementation((): Promise<PurchaseStatus> => (Date.now() >= START + from ? new Promise((resolve) => held.push(resolve)) : Promise.resolve('pending')))
+    return held
+  }
+
+  it('shows paid, not expired, when the payment lands exactly at expiresAt (the last call is made before giving up)', async () => {
+    const onPaid = vi.fn()
+    vi.mocked(purchaseStatus).mockImplementation(async () => (Date.now() >= EXPIRES ? 'paid' : 'pending'))
+    await open(onPaid)
+    await advance(TO_EXPIRY)
+
+    expect(text()).toContain('Pembayaran diterima')
+    expect(text()).not.toContain('Kode QR sudah kedaluwarsa')
+    expect(refreshAccountStatus).toHaveBeenCalledTimes(1)
+    expect(onPaid).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the code on screen while the last call runs, then calls it expired when it came back pending', async () => {
+    const held = holdCallsFrom(TO_EXPIRY)
+    await open()
+    await advance(TO_EXPIRY)
+    expect(held).toHaveLength(1)
+    expect(text()).toContain('Menunggu pembayaran…')
+    expect(text()).not.toContain('Kode QR sudah kedaluwarsa')
+
+    await act(async () => held[0]!('pending'))
+    expect(text()).toContain('Kode QR sudah kedaluwarsa.')
+    expect(refreshAccountStatus).not.toHaveBeenCalled()
+  })
+
+  it('gives up on a last call that hangs after 10 seconds and calls the code expired', async () => {
+    holdCallsFrom(TO_EXPIRY)
+    await open()
+    await advance(TO_EXPIRY)
+    await advance(9_999)
+    expect(text()).not.toContain('Kode QR sudah kedaluwarsa')
+    await advance(1)
+    expect(text()).toContain('Kode QR sudah kedaluwarsa.')
+  })
+
+  it('still applies the answer of a round that was in flight when the code expired', async () => {
+    const onPaid = vi.fn()
+    const held = holdCallsFrom(TO_EXPIRY - 2000)
+    await open(onPaid)
+    await advance(TO_EXPIRY)
+    // the round that began 2 seconds before expiry and the last call are both still out
+    expect(held).toHaveLength(2)
+
+    await advance(1000)
+    await act(async () => held[0]!('paid'))
+    expect(text()).toContain('Pembayaran diterima')
+    expect(refreshAccountStatus).toHaveBeenCalledTimes(1)
+    expect(onPaid).toHaveBeenCalledTimes(1)
+
+    await act(async () => held[1]!('pending'))
+    expect(text()).toContain('Pembayaran diterima')
+    expect(onPaid).toHaveBeenCalledTimes(1)
+  })
+
+  it('Buat kode baru asks about the old purchase first: paid means paid, and no new code is made', async () => {
+    const onPaid = vi.fn()
+    await open(onPaid)
+    await advance(TO_EXPIRY + 11_000)
+    expect(text()).toContain('Kode QR sudah kedaluwarsa.')
+    expect(createPayment).toHaveBeenCalledTimes(1)
+
+    let answer: Answer = () => {}
+    vi.mocked(purchaseStatus).mockClear()
+    vi.mocked(purchaseStatus).mockImplementation(() => new Promise((resolve) => (answer = resolve)))
+    await click(button('Buat kode baru'))
+    expect(purchaseStatus).toHaveBeenCalledWith('p1')
+    expect(button('Buat kode baru')?.disabled).toBe(true)
+    await click(button('Buat kode baru'))
+    expect(purchaseStatus).toHaveBeenCalledTimes(1)
+
+    await act(async () => answer('paid'))
+    expect(createPayment).toHaveBeenCalledTimes(1)
+    expect(text()).toContain('Pembayaran diterima')
+    expect(text()).toContain('Saldo sekarang')
+    expect(refreshAccountStatus).toHaveBeenCalledTimes(1)
+    expect(onPaid).toHaveBeenCalledTimes(1)
+  })
+
+  it('Buat kode baru makes a new code when the old purchase is really still unpaid', async () => {
+    await open()
+    await advance(TO_EXPIRY + 11_000)
+    vi.mocked(purchaseStatus).mockResolvedValue('pending')
+    vi.mocked(createPayment).mockResolvedValue(created({ purchaseId: 'p2', qrUrl: 'https://api.midtrans.com/v2/qris/p2/qr-code', expiresAt: '2026-11-19T11:00:00.000Z' }))
+    await click(button('Buat kode baru'))
+    await flush()
+
+    expect(createPayment).toHaveBeenCalledTimes(2)
+    expect(dialog()?.querySelector('img')?.getAttribute('src')).toBe('https://api.midtrans.com/v2/qris/p2/qr-code')
+    expect(refreshAccountStatus).not.toHaveBeenCalled()
+  })
+
+  it('does not let a payment of the old code show up on the new code', async () => {
+    const onPaid = vi.fn()
+    const held = holdCallsFrom(TO_EXPIRY - 2000)
+    await open(onPaid)
+    await advance(TO_EXPIRY)
+    expect(held).toHaveLength(2)
+    // the server says the old code expired, while the last call for it is still out
+    await act(async () => held[0]!('expired'))
+    expect(text()).toContain('Kode QR sudah kedaluwarsa.')
+
+    vi.mocked(purchaseStatus).mockImplementation(async () => 'pending')
+    vi.mocked(createPayment).mockResolvedValue(created({ purchaseId: 'p2', qrUrl: 'https://api.midtrans.com/v2/qris/p2/qr-code', expiresAt: '2026-11-19T11:00:00.000Z' }))
+    await click(button('Buat kode baru'))
+    await flush()
+    expect(dialog()?.querySelector('img')?.getAttribute('src')).toBe('https://api.midtrans.com/v2/qris/p2/qr-code')
+
+    await act(async () => held[1]!('paid'))
+    expect(dialog()?.querySelector('img')?.getAttribute('src')).toBe('https://api.midtrans.com/v2/qris/p2/qr-code')
+    expect(text()).toContain('Menunggu pembayaran…')
+    expect(text()).not.toContain('Pembayaran diterima')
+    expect(refreshAccountStatus).not.toHaveBeenCalled()
+    expect(onPaid).not.toHaveBeenCalled()
+  })
+
+  it('a paid answer that arrives after the modal was closed still reaches the page', async () => {
+    const onPaid = vi.fn()
+    const held = holdCallsFrom(0)
+    await open(onPaid)
+    expect(held).toHaveLength(1)
+    await click(button('Tutup'))
+    await act(async () => held[0]!('paid'))
+    await flush()
+
+    expect(refreshAccountStatus).toHaveBeenCalledTimes(1)
+    expect(onPaid).toHaveBeenCalledTimes(1)
   })
 })

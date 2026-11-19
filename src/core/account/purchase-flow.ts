@@ -31,10 +31,13 @@ export function nextState(state: FlowState, event: FlowEvent): FlowState {
     if (!event.res.ok) return { step: 'error', message: CREATE_FAILED_MESSAGE }
     return { step: 'waiting', purchaseId: event.res.purchaseId, qrUrl: event.res.qrUrl, expiresAt: event.res.expiresAt }
   }
-  // Polls and ticks only mean something while a code waits; a late one after paid or expired changes nothing.
+  // Paid is final and wins over expired: money paid in the last seconds, or after the code ran out, still counts.
+  if (event.type === 'polled' && event.status === 'paid' && (state.step === 'waiting' || state.step === 'expired')) {
+    return { step: 'paid', credits: event.credits ?? PACKAGE.credits }
+  }
+  // Every other poll and tick only means something while a code waits; a late one after paid or expired changes nothing.
   if (state.step !== 'waiting') return state
   if (event.type === 'polled') {
-    if (event.status === 'paid') return { step: 'paid', credits: event.credits ?? PACKAGE.credits }
     // A failed payment cannot be paid again: the only way on is a new code, same as an expired one.
     if (event.status === 'expired' || event.status === 'failed') return { step: 'expired' }
     return state

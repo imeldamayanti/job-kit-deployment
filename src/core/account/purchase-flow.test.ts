@@ -40,6 +40,13 @@ describe('nextState', () => {
     expect(nextState(waiting, { type: 'tick', now: at('2026-11-19T11:00:00.000Z') })).toEqual({ step: 'expired' })
   })
 
+  it('lets a payment seen after the code expired win over expired, and nothing else revive it', () => {
+    const expired: FlowState = { step: 'expired' }
+    expect(nextState(expired, { type: 'polled', status: 'paid' })).toEqual({ step: 'paid', credits: 50 })
+    expect(nextState(expired, { type: 'polled', status: 'pending' })).toBe(expired)
+    expect(nextState(expired, { type: 'tick', now: at('2030-01-01T00:00:00.000Z') })).toBe(expired)
+  })
+
   it('ignores events that arrive in a step they do not belong to', () => {
     const paid: FlowState = { step: 'paid', credits: 50 }
     expect(nextState(paid, { type: 'polled', status: 'expired' })).toBe(paid)

@@ -79,22 +79,72 @@ export function BuyCreditsModal({ onClose, onPaid }: { onClose: () => void; onPa
   const alive = useRef(false)
   const asking = useRef(false)
   const paidSeen = useRef(false)
+  // The purchase of the code on screen (or the last one, once it expired); answers about any other purchase are not ours.
+  const latestId = useRef<string | null>(null)
   const onCloseRef = useRef(onClose)
   const onPaidRef = useRef(onPaid)
   onCloseRef.current = onClose
   onPaidRef.current = onPaid
 
-  const makeCode = useCallback(async () => {
-    if (asking.current) return
-    asking.current = true
-    setBusy(true)
-    const res = await requestPayment()
-    asking.current = false
-    if (!alive.current) return
-    setBusy(false)
-    setNow(new Date())
-    setFlow((state) => nextState(state, { type: 'created', res }))
+  // Paid is seen once: read the balance again (this updates the cache the sidebar reads) and tell the page, even if the modal
+  // was closed meanwhile.
+  const notePaid = useCallback(() => {
+    if (paidSeen.current) return
+    paidSeen.current = true
+    void refreshAccountStatus().then((status) => {
+      if (alive.current) setBalance(status)
+      onPaidRef.current()
+    })
   }, [])
+
+  // The server's answer about code `id`. It counts for the code on screen only: an answer about an older code is dropped, so a
+  // payment of the old code never shows up on a new one. It is applied even after the step moved on (a round that was still in
+  // flight when the code expired), and when the modal is already closed a paid answer still reaches the page.
+  const applyStatus = useCallback(
+    (id: string, status: PurchaseStatus) => {
+      if (latestId.current !== id) return
+      if (!alive.current) {
+        if (status === 'paid') notePaid()
+        return
+      }
+      setFlow((state) => nextState(state, { type: 'polled', status }))
+    },
+    [notePaid],
+  )
+
+  // `renew` is "Buat kode baru": the old code may have been paid in its last seconds or after it expired, so it is asked about
+  // once first. Paid means no new code (that would let the person pay twice); anything else makes one.
+  const makeCode = useCallback(
+    async (renew = false) => {
+      if (asking.current) return
+      asking.current = true
+      setBusy(true)
+      const old = latestId.current
+      if (renew && old !== null) {
+        const status = await withTimeout(purchaseStatus(old), STATUS_TIMEOUT_MS)
+        if (!alive.current) {
+          asking.current = false
+          if (status === 'paid') notePaid()
+          return
+        }
+        if (status === 'paid') {
+          asking.current = false
+          setBusy(false)
+          setFlow((state) => nextState(state, { type: 'polled', status: 'paid' }))
+          return
+        }
+      }
+      const res = await requestPayment()
+      asking.current = false
+      if (!alive.current) return
+      setBusy(false)
+      setNow(new Date())
+      if (res.ok) latestId.current = res.purchaseId
+      // A payment seen while the request ran wins over the code that came back.
+      setFlow((state) => (state.step === 'paid' ? state : nextState(state, { type: 'created', res })))
+    },
+    [notePaid],
+  )
 
   // The dialog contract: focus goes in when it opens and returns to whatever opened it when it closes.
   useEffect(() => {
@@ -123,40 +173,45 @@ export function BuyCreditsModal({ onClose, onPaid }: { onClose: () => void; onPa
   }, [flow.step])
 
   const waitingFor = flow.step === 'waiting' ? flow.purchaseId : null
+  const expiresAt = flow.step === 'waiting' ? flow.expiresAt : ''
 
-  // While a code waits: the clock ticks every second (this is what ends it at expiresAt) and the status is asked every POLL_MS.
+  // While a code waits: the clock ticks every second and the status is asked every POLL_MS. At expiresAt the rounds stop, but one
+  // last status call is made before the code is called expired: a payment in the last seconds must not be thrown away. A round that
+  // is still in flight keeps its answer too (applyStatus does not look at whether this effect is still live).
   useEffect(() => {
     if (waitingFor === null) return
+    const id = waitingFor
+    let polling = true
+    let next: ReturnType<typeof setTimeout> | undefined
     const tick = setInterval(() => {
       const current = new Date()
       setNow(current)
-      setFlow((state) => nextState(state, { type: 'tick', now: current }))
+      if (remainingMs(expiresAt, current) > 0) return
+      polling = false
+      clearInterval(tick)
+      clearTimeout(next)
+      void withTimeout(purchaseStatus(id), STATUS_TIMEOUT_MS).then((status) => {
+        if (status !== null) applyStatus(id, status)
+        if (latestId.current === id && alive.current) setFlow((state) => nextState(state, { type: 'tick', now: new Date() }))
+      })
     }, 1000)
-    let stopped = false
-    let next: ReturnType<typeof setTimeout> | undefined
     const round = async () => {
-      const status = await withTimeout(purchaseStatus(waitingFor), STATUS_TIMEOUT_MS)
-      if (stopped) return
-      if (status !== null) setFlow((state) => nextState(state, { type: 'polled', status }))
-      next = setTimeout(() => void round(), POLL_MS)
+      const status = await withTimeout(purchaseStatus(id), STATUS_TIMEOUT_MS)
+      if (status !== null) applyStatus(id, status)
+      if (polling) next = setTimeout(() => void round(), POLL_MS)
     }
     void round()
     return () => {
-      stopped = true
+      polling = false
       clearInterval(tick)
       clearTimeout(next)
     }
-  }, [waitingFor])
+  }, [waitingFor, expiresAt, applyStatus])
 
-  // Paid: read the balance again (this updates the cache the sidebar reads) and tell the page, even if the modal was closed meanwhile.
+  // Paid, however it was seen.
   useEffect(() => {
-    if (flow.step !== 'paid' || paidSeen.current) return
-    paidSeen.current = true
-    void refreshAccountStatus().then((status) => {
-      if (alive.current) setBalance(status)
-      onPaidRef.current()
-    })
-  }, [flow.step])
+    if (flow.step === 'paid') notePaid()
+  }, [flow.step, notePaid])
 
   const trapTab = (event: React.KeyboardEvent) => {
     if (event.key !== 'Tab') return
@@ -175,7 +230,7 @@ export function BuyCreditsModal({ onClose, onPaid }: { onClose: () => void; onPa
   }
 
   const renewButton = (label: string) => (
-    <Button disabled={busy} onClick={() => void makeCode()}>
+    <Button disabled={busy} onClick={() => void makeCode(flow.step === 'expired')}>
       <RefreshCw size={16} strokeWidth={2} aria-hidden="true" />
       {label}
     </Button>
