@@ -534,6 +534,77 @@ del.rm{color:var(--text-secondary);text-decoration:line-through}
 @media(max-width:520px){.board,.diff{grid-template-columns:1fr}}
 @media(max-width:600px){.sankey-svg{display:none}.flist{display:flex}}
 
+/* ---------- AKUN, PREVIEW, KREDIT AI (T56) — hanya token. Memakai ulang: .opt, .opt-side, .opt-nav, .badge, .btn, .alert,
+   .card, .inp, .f, .hint, .bar, .sec, .jcard, .jbar, .fchip, .score, .panel, .field, .mini. Yang baru di bawah ini. ---------- */
+.mfr{width:400px;max-width:100%}
+.mfr .frame{width:100%;flex:none}
+.mfr.sm{width:264px}
+
+/* blok saldo — sidebar dan halaman Akun */
+.credit{background:var(--surface-sunken);border-radius:var(--radius-lg);padding:12px;display:flex;flex-direction:column;
+  gap:6px;font-size:12px;line-height:1.5;color:var(--text-secondary)}
+.credit .lbl{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:650;letter-spacing:.03em;text-transform:uppercase}
+.credit .amt{display:flex;align-items:baseline;gap:6px;font-size:22px;line-height:1.15;font-weight:700;
+  color:var(--text-primary);font-variant-numeric:tabular-nums}
+.credit .amt small{font-size:12px;font-weight:500;color:var(--text-secondary)}
+.credit.big{padding:16px 20px}
+.credit.big .amt{font-size:32px}
+.opt-side .acct{margin:auto 0 0;display:flex;flex-direction:column;gap:10px}
+.opt.narrow .opt-side .acct{margin:0}
+.opt-nav button.ro{color:var(--text-secondary)}
+.opt-nav button .tag{display:inline-flex;align-items:center;gap:4px}
+.opt-nav button .tag .i{width:11px;height:11px;flex-basis:11px}
+
+/* alasan tombol nonaktif, tepat di atas tombolnya */
+.gate{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);margin-top:14px}
+.gate .i{width:13px;height:13px;flex-basis:13px}
+.gate+.jacts{margin-top:6px}
+
+/* modal beli kredit — latar redup diturunkan dari --text-primary, bukan nilai mentah */
+.scrim{background:color-mix(in srgb,var(--text-primary) 45%,transparent);padding:20px 10px;display:flex;justify-content:center}
+.modal{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);
+  box-shadow:var(--shadow-lg);font-size:13px;line-height:1.5;display:flex;flex-direction:column;min-width:0}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 12px 0 16px}
+.modal-head h4{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.modal-body{padding:10px 16px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.modal-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pkg .price{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.pkg .what{margin-top:4px;font-size:13px;font-weight:600}
+.pkg .incl{margin-top:2px;font-size:12px;color:var(--status-success-fg);font-weight:600}
+.qrbox{align-self:center;width:200px;height:200px;max-width:100%;padding:12px;background:var(--surface);
+  border:1px solid var(--border-strong);border-radius:var(--radius-lg);color:var(--text-primary);display:grid;
+  place-items:center;position:relative}
+.qrbox>svg{width:100%;height:100%;display:block}
+.qrbox.skel{background:var(--surface-subtle);border-style:dashed;color:var(--text-secondary)}
+.qrbox.gone>svg{opacity:.12}
+.qrbox .over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;font-size:13px;font-weight:650;text-align:center;padding:12px}
+.cdown{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary)}
+.cdown .t{display:inline-flex;align-items:center;gap:6px;font-weight:650;color:var(--text-primary);font-variant-numeric:tabular-nums}
+.cdown .live{display:inline-flex;align-items:center;gap:6px}
+.live i{width:8px;height:8px;border-radius:var(--radius-full);background:var(--status-progress-fg);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.win{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:4px 0}
+.win .ico{width:40px;height:40px;border-radius:var(--radius-full);background:var(--status-success-bg);color:var(--status-success-fg);
+  display:grid;place-items:center}
+.win h4{margin:4px 0 0;font-size:15px;font-weight:650}
+.win p{margin:0;color:var(--text-secondary)}
+
+/* riwayat kredit */
+.ledger{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ledger li{display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:0 12px;align-items:baseline;padding:10px 0;
+  border-bottom:1px solid var(--border);font-size:13px}
+.ledger li:first-child{padding-top:0}
+.ledger li:last-child{border-bottom:0;padding-bottom:0}
+.ledger .d{font-size:12px;color:var(--text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger .t{min-width:0;display:flex;flex-direction:column}
+.ledger .t b,.ledger .t em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ledger .t b{font-weight:600}
+.ledger .t em{font-style:normal;font-size:12px;color:var(--text-secondary)}
+.ledger .n{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger .n.plus{color:var(--status-success-fg)}
+.opt.narrow .ledger li{grid-template-columns:76px minmax(0,1fr) auto}
+
 .type-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}
 .type-row:last-child{border-bottom:0}
 .type-row .tag{flex:0 0 160px;font-size:11px;color:var(--text-tertiary);
@@ -568,6 +639,16 @@ del.rm{color:var(--text-secondary);text-decoration:line-through}
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.54 21.69a.5.5 0 0 0 .94-.03l6.5-19a.5.5 0 0 0-.64-.64l-19 6.5a.5.5 0 0 0-.02.94l7.93 3.18a2 2 0 0 1 1.11 1.11Z"/><path d="m21.85 2.15-10.94 10.94"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 21v-6M12 21V3M19 21V9"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+  <symbol id="i-wifioff" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></symbol>
+  <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24"><path d="M10 2h4"/><path d="M12 14l3-3"/><circle cx="12" cy="14" r="8"/></symbol>
+  <symbol id="i-login" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="qr-sample" viewBox="0 0 25 25"><path fill="currentColor" shape-rendering="crispEdges" d="M0 0h7v1h-7zM10 0h1v1h-1zM14 0h3v1h-3zM18 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM11 1h1v1h-1zM13 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h2v1h-2zM11 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h3v1h-3zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h2v1h-2zM12 3h3v1h-3zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h3v1h-3zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM15 4h2v1h-2zM18 4h1v1h-1zM20 4h3v1h-3zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h4v1h-4zM14 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h7v1h-7zM8 6h2v1h-2zM11 6h1v1h-1zM13 6h1v1h-1zM16 6h1v1h-1zM18 6h7v1h-7zM9 7h1v1h-1zM12 7h1v1h-1zM14 7h3v1h-3zM1 8h2v1h-2zM5 8h2v1h-2zM9 8h1v1h-1zM12 8h1v1h-1zM14 8h4v1h-4zM19 8h1v1h-1zM24 8h1v1h-1zM3 9h1v1h-1zM6 9h2v1h-2zM11 9h1v1h-1zM14 9h2v1h-2zM17 9h1v1h-1zM21 9h2v1h-2zM0 10h1v1h-1zM2 10h1v1h-1zM6 10h4v1h-4zM11 10h3v1h-3zM16 10h3v1h-3zM20 10h2v1h-2zM24 10h1v1h-1zM1 11h3v1h-3zM6 11h4v1h-4zM11 11h1v1h-1zM14 11h2v1h-2zM17 11h2v1h-2zM20 11h3v1h-3zM1 12h3v1h-3zM10 12h1v1h-1zM13 12h1v1h-1zM15 12h4v1h-4zM21 12h1v1h-1zM24 12h1v1h-1zM0 13h1v1h-1zM3 13h2v1h-2zM7 13h1v1h-1zM12 13h3v1h-3zM16 13h1v1h-1zM20 13h2v1h-2zM23 13h1v1h-1zM3 14h3v1h-3zM7 14h2v1h-2zM10 14h4v1h-4zM16 14h1v1h-1zM4 15h2v1h-2zM7 15h1v1h-1zM9 15h3v1h-3zM15 15h1v1h-1zM18 15h3v1h-3zM22 15h2v1h-2zM2 16h1v1h-1zM5 16h1v1h-1zM7 16h2v1h-2zM10 16h1v1h-1zM12 16h1v1h-1zM14 16h2v1h-2zM17 16h1v1h-1zM19 16h1v1h-1zM22 16h1v1h-1zM13 17h1v1h-1zM15 17h1v1h-1zM19 17h1v1h-1zM21 17h2v1h-2zM24 17h1v1h-1zM0 18h7v1h-7zM8 18h1v1h-1zM12 18h1v1h-1zM15 18h8v1h-8zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM15 19h1v1h-1zM18 19h1v1h-1zM21 19h3v1h-3zM0 20h1v1h-1zM2 20h3v1h-3zM6 20h1v1h-1zM9 20h2v1h-2zM12 20h2v1h-2zM15 20h1v1h-1zM17 20h1v1h-1zM20 20h1v1h-1zM0 21h1v1h-1zM2 21h3v1h-3zM6 21h1v1h-1zM8 21h1v1h-1zM13 21h4v1h-4zM18 21h2v1h-2zM21 21h3v1h-3zM0 22h1v1h-1zM2 22h3v1h-3zM6 22h1v1h-1zM12 22h1v1h-1zM21 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h2v1h-2zM13 23h1v1h-1zM16 23h2v1h-2zM19 23h2v1h-2zM0 24h7v1h-7zM8 24h3v1h-3zM12 24h5v1h-5zM19 24h4v1h-4z"/></symbol>
 </defs></svg>
 <div class="wrap">
 
@@ -2513,8 +2594,665 @@ Titik riwayat memakai <code>.tl</code>: hijau untuk hasil berhasil (melamar), ab
 </div>
 <p class="frame-note" style="max-width:none">Di lebar sempit penukar pindah ke bawah judul; papan menumpuk jadi satu kolom per status dan hanya kolom yang berisi yang digambar; Visualisasi menampilkan daftar batang dengan angka yang sama dengan diagram.</p>
 
-<!-- 10. ATURAN -->
-<h2>10. Aturan yang tidak boleh dilanggar</h2>
+<!-- 10. AKUN, PREVIEW, KREDIT AI -->
+<h2>10. Akun, preview, dan kredit AI</h2>
+<p class="note">Mockup T56 untuk akun wajib, kredit AI, dan pembelian lewat QRIS (desain <code>docs/superpowers/specs/2026-11-19-monetisasi-design.md</code>
+&sect;3, &sect;5 dan &sect;6). Tanpa masuk, pengguna hanya melihat <b>preview</b> dengan data contoh. Setelah masuk dan mendapat <b>3 kredit gratis saat daftar</b>,
+Lowongan, Lamaran, CV, dan Surat terbuka selama kredit percobaan masih ada; habis percobaan menjadi hanya-baca sampai membeli paket.
+Satu paket: <b>50 kredit, Rp10.800, sudah termasuk semua biaya</b>. Kredit tidak bisa diuangkan dan hangus 1 tahun sejak pembelian terakhir.
+Semua dibuat dari token dan komponen yang sudah ada; komponen baru ada enam dan didaftar di <code>design-system.md</code> &sect;4.4:
+blok saldo, alasan tombol nonaktif, modal beli, kotak QR, hitung mundur, dan riwayat kredit. Semua nama, email, tanggal, dan angka adalah contoh.</p>
+
+<!-- 10.1 Preview -->
+<p class="frame-cap">S9 &mdash; Preview sebelum masuk &middot; Options (Lowongan, data contoh, aksi nonaktif)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <div class="acct">
+      <div class="credit"><span class="lbl"><svg class="i"><use href="#i-lock"/></svg>Belum masuk</span><span>Kamu sedang melihat preview dengan data contoh.</span></div>
+      <button class="btn sec sm full"><svg class="i"><use href="#i-login"/></svg>Masuk</button>
+    </div>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lowongan</h1><p>Lowongan yang cocok dengan profilmu, diambil tiap hari.</p></div>
+      <div class="acts">
+        <button class="btn sec sm" disabled><svg class="i"><use href="#i-refresh"/></svg>Segarkan</button>
+        <button class="btn sec sm" disabled><svg class="i"><use href="#i-sliders"/></svg>Atur</button>
+      </div>
+    </div>
+    <div class="alert info" style="margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <span style="flex:1 1 240px"><b>Ini preview dengan data contoh.</b> Lowongan, Lamaran, CV, dan Surat baru bisa dipakai setelah kamu masuk.</span>
+      <button class="btn pri sm"><svg class="i"><use href="#i-login"/></svg>Masuk untuk memakai</button>
+    </div>
+    <div class="jlist">
+      <article class="jcard">
+        <span class="logo" aria-hidden="true">CK</span>
+        <div>
+          <h4 class="jt">Frontend Engineer (React)</h4>
+          <div class="jco"><span class="nm">PT Contoh Karya &middot; Greenhouse</span><span class="badge dim">Contoh</span></div>
+          <div class="jchips">
+            <span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Jakarta</span>
+            <span class="jchip">Remote</span><span class="jchip">Full-time</span>
+          </div>
+          <div class="gate" id="gate-s9"><svg class="i"><use href="#i-lock"/></svg>Masuk untuk memakai</div>
+          <div class="jacts">
+            <button class="btn pri sm" disabled aria-describedby="gate-s9">Buka &amp; isi</button>
+            <button class="btn sec sm" disabled aria-describedby="gate-s9"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran</button>
+            <button class="icn" disabled aria-label="Simpan lowongan" aria-describedby="gate-s9"><svg class="i"><use href="#i-bookmark"/></svg></button>
+          </div>
+        </div>
+        <button class="score hi" aria-expanded="false" aria-label="Skor 86, Cocok. Tampilkan alasan"><b>86</b>Cocok<svg class="i"><use href="#i-chev"/></svg></button>
+      </article>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Sidebar dan skor tetap bisa dibuka supaya orang melihat isi produk. Yang nonaktif hanya aksi, dan alasannya (&ldquo;Masuk untuk memakai&rdquo;) tertulis tepat di atas tombolnya. Tombol Masuk di spanduk dan di sidebar menuju layar yang sama (S10).</p>
+
+<div class="frames" style="margin-top:28px">
+  <div class="mfr">
+    <p class="frame-cap">S9 &mdash; Preview sebelum masuk &middot; Panel (Autofill)</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-head">
+        <div class="brand"><span class="brand-mark">JF</span><span class="brand-name">JobFill</span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true"><span>Autofill</span></button>
+          <button role="tab" aria-selected="false"><span>Profile</span></button>
+        </div>
+      </div>
+      <div class="panel-body panel-scroll">
+        <div class="alert info"><span>&#9432;</span><span><b>Ini preview dengan data contoh.</b> Isi form otomatis baru jalan setelah kamu masuk.</span></div>
+        <div class="site">
+          <span class="favicon">J</span>
+          <span class="txt"><span class="dom">contoh-karir.example</span><div class="ttl">Application &mdash; iOS Developer, PT Contoh Karya</div></span>
+        </div>
+        <div class="fields">
+          <div class="field off"><span class="box"></span><span class="txt"><span class="lbl">Full name</span><div class="val">Nama Contoh</div></span><span class="end"><span class="badge dim">Contoh</span></span></div>
+          <div class="field off"><span class="box"></span><span class="txt"><span class="lbl">Email address</span><div class="val">nama@example.test</div></span><span class="end"><span class="badge dim">Contoh</span></span></div>
+          <div class="field off"><span class="box"></span><span class="txt"><span class="lbl">Phone</span><div class="val">+62 813-0000-0000</div></span><span class="end"><span class="badge dim">Contoh</span></span></div>
+        </div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full"><svg class="i"><use href="#i-login"/></svg>Masuk untuk memakai</button></div>
+    </div></div>
+    <p class="frame-note">Footer sticky tetap satu tombol. Isi 9 field tidak ditampilkan nonaktif di sini: aksinya memang belum ada, jadi tombolnya diganti jalan masuknya.</p>
+  </div>
+</div>
+
+<!-- 10.2 Masuk -->
+<p class="frame-cap" style="margin-top:28px">S10 &mdash; Masuk dengan email &middot; Panel (di Options, kartu yang sama tampil di tengah halaman)</p>
+<div class="frames" style="margin-bottom:12px">
+  <div class="mfr">
+    <p class="frame-cap">1 &middot; Email</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body" style="gap:12px;padding:20px 16px 8px">
+        <div class="brand" style="margin:0"><span class="brand-mark">JF</span><span class="brand-name">job-kit</span></div>
+        <div><h4 style="margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.01em">Masuk ke job-kit</h4>
+          <p style="margin:0;color:var(--text-secondary)">Masukkan emailmu. Kami kirim kode masuk, tanpa kata sandi.</p></div>
+        <div class="f" style="margin:0"><label for="lg-email">Email</label>
+          <input id="lg-email" class="inp" type="email" value="nama@example.test" autocomplete="email"></div>
+        <div class="alert info"><svg class="i"><use href="#i-coins"/></svg><span>Akun baru dapat <b>3 kredit gratis saat daftar</b> untuk mencoba CV, surat, dan skor AI.</span></div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full"><svg class="i"><use href="#i-mail"/></svg>Kirim kode</button></div>
+    </div></div>
+  </div>
+
+  <div class="mfr">
+    <p class="frame-cap">2 &middot; Kode</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body" style="gap:12px;padding:20px 16px 8px">
+        <div class="brand" style="margin:0"><span class="brand-mark">JF</span><span class="brand-name">job-kit</span></div>
+        <div><h4 style="margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.01em">Cek emailmu</h4>
+          <p style="margin:0;color:var(--text-secondary)">Kode dikirim ke <b style="color:var(--text-primary)">nama@example.test</b>.</p></div>
+        <div class="f" style="margin:0"><label for="lg-code">Kode</label>
+          <input id="lg-code" class="inp" inputmode="numeric" autocomplete="one-time-code" placeholder="Masukkan kode"></div>
+        <div class="mini" style="justify-content:space-between">
+          <button class="btn ghost sm" disabled>Kirim ulang kode &middot; 0:42</button>
+          <button class="btn ghost sm">Ganti email</button>
+        </div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full">Masuk</button></div>
+    </div></div>
+  </div>
+
+  <div class="mfr">
+    <p class="frame-cap">3 &middot; Kode salah</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body" style="gap:12px;padding:20px 16px 8px">
+        <div class="brand" style="margin:0"><span class="brand-mark">JF</span><span class="brand-name">job-kit</span></div>
+        <div><h4 style="margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.01em">Cek emailmu</h4>
+          <p style="margin:0;color:var(--text-secondary)">Kode dikirim ke <b style="color:var(--text-primary)">nama@example.test</b>.</p></div>
+        <div class="f" style="margin:0"><label for="lg-code2">Kode</label>
+          <input id="lg-code2" class="inp bad" inputmode="numeric" value="482913" aria-invalid="true" aria-describedby="lg-err">
+          <div class="err" id="lg-err">Kodenya salah. Periksa lagi, atau minta kode baru.</div></div>
+        <div class="mini" style="justify-content:space-between">
+          <button class="btn ghost sm">Kirim ulang kode</button>
+          <button class="btn ghost sm">Ganti email</button>
+        </div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full">Masuk</button></div>
+    </div></div>
+  </div>
+
+  <div class="mfr">
+    <p class="frame-cap">4 &middot; Kode kedaluwarsa</p>
+    <div class="frame"><div class="panel">
+      <div class="panel-body" style="gap:12px;padding:20px 16px 8px">
+        <div class="brand" style="margin:0"><span class="brand-mark">JF</span><span class="brand-name">job-kit</span></div>
+        <div><h4 style="margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.01em">Cek emailmu</h4>
+          <p style="margin:0;color:var(--text-secondary)">Kode dikirim ke <b style="color:var(--text-primary)">nama@example.test</b>.</p></div>
+        <div class="alert warn"><svg class="i"><use href="#i-timer"/></svg><span><b>Kode sudah kedaluwarsa.</b> Minta kode baru; kode yang lama tidak bisa dipakai lagi.</span></div>
+        <div class="f" style="margin:0"><label for="lg-code3">Kode</label>
+          <input id="lg-code3" class="inp" inputmode="numeric" placeholder="Masukkan kode" disabled></div>
+        <div class="mini"><button class="btn ghost sm">Ganti email</button></div>
+      </div>
+      <div class="panel-foot"><button class="btn pri full"><svg class="i"><use href="#i-mail"/></svg>Kirim kode baru</button></div>
+    </div></div>
+  </div>
+</div>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Hanya email dan kode, tanpa kata sandi dan tanpa login Google. Salah kode memakai pola kolom salah yang sudah ada (<code>.inp.bad</code> + <code>.err</code>); kedaluwarsa memakai alert amber dengan satu jalan keluar, Kirim kode baru.</p>
+
+<!-- 10.3 Sidebar -->
+<p class="frame-cap" style="margin-top:28px">S11 &mdash; Sidebar Options &middot; saldo, percobaan, hanya-baca, penanda hangus</p>
+<div class="frames" style="margin-bottom:12px">
+  <div class="mfr sm">
+    <p class="frame-cap">Percobaan (3 kredit gratis)</p>
+    <div class="frame"><aside class="opt-side" style="border-right:0;min-height:430px">
+      <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+      <nav class="opt-nav col" aria-label="Options">
+        <button>Profile</button>
+        <button class="has" aria-current="page"><span>Lowongan</span><span class="badge prog">Percobaan</span></button>
+        <button class="has"><span>Lamaran</span><span class="badge prog">Percobaan</span></button>
+        <button>Data</button>
+        <button>Akun</button>
+      </nav>
+      <div class="acct">
+        <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
+          <span class="amt">3<small>kredit</small></span><span>Percobaan gratis. Habis, Lowongan dan Lamaran jadi hanya-baca.</span></div>
+        <button class="btn sec sm full">Beli kredit</button>
+      </div>
+    </aside></div>
+  </div>
+
+  <div class="mfr sm">
+    <p class="frame-cap">Hanya-baca (percobaan habis)</p>
+    <div class="frame"><aside class="opt-side" style="border-right:0;min-height:430px">
+      <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+      <nav class="opt-nav col" aria-label="Options">
+        <button>Profile</button>
+        <button class="has ro" aria-current="page"><span>Lowongan</span><span class="badge dim tag"><svg class="i"><use href="#i-lock"/></svg>Hanya baca</span></button>
+        <button class="has ro"><span>Lamaran</span><span class="badge dim tag"><svg class="i"><use href="#i-lock"/></svg>Hanya baca</span></button>
+        <button>Data</button>
+        <button>Akun</button>
+      </nav>
+      <div class="acct">
+        <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
+          <span class="amt">0<small>kredit</small></span><span>Percobaanmu habis. Data dan profilmu tetap utuh.</span></div>
+        <button class="btn pri sm full">Beli paket untuk lanjut</button>
+      </div>
+    </aside></div>
+  </div>
+
+  <div class="mfr sm">
+    <p class="frame-cap">Terbuka (sudah membeli)</p>
+    <div class="frame"><aside class="opt-side" style="border-right:0;min-height:430px">
+      <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+      <nav class="opt-nav col" aria-label="Options">
+        <button>Profile</button>
+        <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+        <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+        <button>Data</button>
+        <button>Akun</button>
+      </nav>
+      <div class="acct">
+        <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
+          <span class="amt">42<small>kredit</small></span><span>Hangus 18 Des 2026</span></div>
+        <button class="btn sec sm full">Beli kredit</button>
+      </div>
+    </aside></div>
+  </div>
+
+  <div class="mfr sm">
+    <p class="frame-cap">Penanda hangus (30 hari)</p>
+    <div class="frame"><aside class="opt-side" style="border-right:0;min-height:430px">
+      <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+      <nav class="opt-nav col" aria-label="Options">
+        <button>Profile</button>
+        <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+        <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+        <button>Data</button>
+        <button>Akun</button>
+      </nav>
+      <div class="acct">
+        <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
+          <span class="amt">42<small>kredit</small></span></div>
+        <div class="alert warn" style="flex-direction:column;gap:4px"><span><b>Kreditmu hangus pada 18 Des 2026.</b> Beli paket memperpanjang 1 tahun.</span></div>
+        <button class="btn pri sm full">Beli kredit</button>
+      </div>
+    </aside></div>
+  </div>
+</div>
+<p class="frame-cap" style="margin-top:20px">S11 &mdash; Lowongan saat hanya-baca (potongan; kartu tetap bisa dibaca, aksi AI berhenti)</p>
+<div class="opt" style="margin-bottom:12px">
+  <main class="opt-main">
+    <div class="alert info" style="margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <span style="flex:1 1 240px"><b>Percobaan gratismu sudah habis.</b> Lowongan dan Lamaran masih bisa dibaca; Siapkan lamaran, Buat CV, dan Nilai dengan AI berhenti sampai kamu membeli paket.</span>
+      <button class="btn pri sm">Beli paket untuk lanjut</button>
+    </div>
+    <div class="jlist">
+      <article class="jcard">
+        <span class="logo" aria-hidden="true">SC</span>
+        <div>
+          <h4 class="jt">Web Developer &mdash; Platform Pembayaran</h4>
+          <div class="jco"><span class="nm">Studio Contoh &middot; Lever</span></div>
+          <div class="jchips"><span class="jchip"><svg class="i"><use href="#i-pin"/></svg>Bandung</span><span class="jchip">Hybrid</span><span class="jchip">Kontrak</span></div>
+          <div class="gate" id="gate-ro"><svg class="i"><use href="#i-lock"/></svg>Beli paket untuk lanjut</div>
+          <div class="jacts">
+            <button class="btn pri sm">Buka &amp; isi</button>
+            <button class="btn sec sm" disabled aria-describedby="gate-ro"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran</button>
+            <button class="icn" aria-label="Simpan lowongan"><svg class="i"><use href="#i-bookmark"/></svg></button>
+          </div>
+        </div>
+        <button class="score mid" aria-expanded="false" aria-label="Skor 64, Lumayan. Tampilkan alasan"><b>64</b>Lumayan<svg class="i"><use href="#i-chev"/></svg></button>
+      </article>
+    </div>
+  </main>
+</div>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Hanya AI yang berhenti. Buka &amp; isi, Simpan, Profile, dan Data tetap jalan, jadi kredit habis tidak mengunci fitur atau data. Item sidebar memakai badge, bukan ikon gembok saja, supaya statusnya terbaca tanpa warna.</p>
+
+<!-- 10.4 Tombol AI -->
+<p class="frame-cap" style="margin-top:28px">S8 &mdash; Tombol AI berbiaya &middot; state (contoh pada tab CV; Surat memakai pola yang sama: &ldquo;Buat surat &middot; 1 kredit&rdquo;)</p>
+<div class="grid cols-2" style="margin-bottom:12px">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Siap</h3></div>
+    <div class="mini" style="margin:12px 0;justify-content:space-between">
+      <button class="btn pri"><svg class="i"><use href="#i-sparkles"/></svg>Buat CV · 1 kredit</button>
+      <span class="sync" style="font-size:13px;color:var(--text-secondary)">Saldo 42 kredit</span>
+    </div>
+    <div class="hint">Biayanya tampil di tombol sebelum ditekan, bukan sesudahnya. Kredit tidak pernah berkurang tanpa tindakanmu.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Hasil tampil (kredit terpakai)</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert ok"><span>&#10003;</span><span><b>CV siap.</b> 1 kredit terpakai, sisa 41.</span></div>
+      <div class="mini"><button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Buat ulang · 1 kredit</button></div>
+    </div>
+    <div class="hint">Buat ulang memotong kredit lagi, dan itu tertulis di tombolnya. Mengedit hasil tidak mengubah saldo.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Saldo kurang</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><svg class="i"><use href="#i-coins"/></svg><span><b>Kredit tidak cukup</b><br>Buat CV butuh 1 kredit; saldomu 0.</span></div>
+      <div class="mini"><button class="btn sec" disabled><svg class="i"><use href="#i-sparkles"/></svg>Buat CV · 1 kredit</button><button class="btn pri">Beli kredit</button></div>
+    </div>
+    <div class="hint">Alasan di atas tombol. Buat turun jadi sekunder dan Beli kredit jadi primer, supaya hanya ada satu tombol utama.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Plafon bulanan tercapai</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><span>&#9888;</span><span><b>Layanan AI penuh bulan ini</b><br>Kreditmu tidak terpakai.</span></div>
+      <div class="mini"><button class="btn pri" disabled><svg class="i"><use href="#i-sparkles"/></svg>Buat CV · 1 kredit</button></div>
+    </div>
+    <div class="hint">Plafon dihitung di server untuk semua pengguna. Tidak ada Beli kredit di sini: membeli tidak menyelesaikan masalahnya.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Batas laju</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><svg class="i"><use href="#i-timer"/></svg><span><b>Terlalu cepat, coba lagi sebentar</b><br>Kreditmu tidak terpakai.</span></div>
+      <div class="mini"><button class="btn pri"><svg class="i"><use href="#i-sparkles"/></svg>Buat CV · 1 kredit</button></div>
+    </div>
+    <div class="hint">Sementara, jadi tombol tetap bisa ditekan lagi; tidak dinonaktifkan.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Offline</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><svg class="i"><use href="#i-wifioff"/></svg><span><b>Tidak ada koneksi internet.</b> Sambungkan dulu untuk memakai AI.</span></div>
+      <div class="mini"><button class="btn pri" disabled><svg class="i"><use href="#i-sparkles"/></svg>Buat CV · 1 kredit</button><span class="sync" style="font-size:13px;color:var(--text-secondary)">Saldo 42 kredit</span></div>
+    </div>
+    <div class="hint">Saldo yang tampil adalah salinan terakhir dan disegarkan begitu tersambung lagi. Yang tanpa AI tetap jalan.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>AI gangguan (kredit kembali)</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert bad"><span>&#9888;</span><span><b>AI sedang gangguan. Kreditmu tidak terpakai.</b></span></div>
+      <div class="mini"><button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Coba lagi</button></div>
+    </div>
+    <div class="hint">Pesan yang sama untuk error, waktu habis, dan balasan yang tidak terbaca. Kredit yang sempat tertahan kembali otomatis; bila belum, saldo benar setelah disegarkan.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Ditolak pemeriksa fakta (kredit kembali)</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert bad"><span>&#9888;</span><span><b>CV tidak ditampilkan.</b> Hasil AI memuat hal yang tidak ada di Profile:
+        &ldquo;Kubernetes&rdquo;, &ldquo;50%&rdquo;. Tidak ada yang dikarang untukmu. Kreditmu tidak terpakai.</span></div>
+      <div class="mini"><button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Coba lagi · 1 kredit</button></div>
+    </div>
+    <div class="hint">Sebab penolakan tetap sama seperti sekarang; hanya satu kalimat soal kredit ditambahkan. Coba lagi memotong kredit bila berhasil, jadi biayanya ada di tombol.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>CV jatuh ke isi Profile (kredit kembali)</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert info"><span>&#9432;</span><span>CV disusun dari profilmu apa adanya; kredit tidak terpakai.</span></div>
+    </div>
+    <div class="hint">Muncul bila AI mengembalikan pengalaman kosong. CV tetap tampil dengan penanda seperti biasa; yang berubah hanya saldonya.</div>
+  </div>
+</div>
+
+<!-- 10.5 Modal beli -->
+<p class="frame-cap" style="margin-top:28px">S12 &mdash; Modal beli kredit (QRIS) &middot; state</p>
+<div class="frames" style="margin-bottom:12px">
+  <div class="mfr">
+    <p class="frame-cap">1 &middot; Membuat kode QR</p>
+    <div class="frame"><div class="scrim"><div class="modal" role="dialog" aria-label="Beli kredit AI">
+      <div class="modal-head"><h4>Beli kredit AI</h4><button class="icn" aria-label="Tutup"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <div class="modal-body">
+        <div class="pkg"><div class="price">Rp10.800</div><div class="what">50 kredit ≈ 25 CV + 25 surat</div><div class="incl">Sudah termasuk semua biaya</div></div>
+        <div class="qrbox skel" role="status"><div class="over"><svg class="i" style="width:24px;height:24px;flex-basis:24px"><use href="#i-refresh"/></svg>Membuat kode QR&hellip;</div></div>
+        <div class="hint" style="margin:0">Catatan: kredit tidak bisa diuangkan, dan hangus 1 tahun sejak pembelian terakhir.</div>
+      </div>
+      <div class="modal-foot"><button class="btn ghost">Tutup</button></div>
+    </div></div></div>
+  </div>
+
+  <div class="mfr">
+    <p class="frame-cap">2 &middot; QR siap, menunggu pembayaran</p>
+    <div class="frame"><div class="scrim"><div class="modal" role="dialog" aria-label="Beli kredit AI">
+      <div class="modal-head"><h4>Beli kredit AI</h4><button class="icn" aria-label="Tutup"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <div class="modal-body">
+        <div class="pkg"><div class="price">Rp10.800</div><div class="what">50 kredit ≈ 25 CV + 25 surat</div><div class="incl">Sudah termasuk semua biaya</div></div>
+        <div class="qrbox"><svg role="img" aria-label="Kode QR contoh untuk pembayaran QRIS" viewBox="0 0 25 25"><use href="#qr-sample"/></svg></div>
+        <div>
+          <div class="cdown"><span class="t"><svg class="i"><use href="#i-timer"/></svg>Berlaku 28:41</span><span class="live"><i aria-hidden="true"></i>Menunggu pembayaran&hellip;</span></div>
+          <div class="bar" style="margin-top:8px" role="progressbar" aria-label="Sisa waktu kode QR" aria-valuemin="0" aria-valuemax="30" aria-valuenow="28"><i style="width:95%"></i></div>
+        </div>
+        <div class="hint" style="margin:0">Buka e-wallet atau m-banking, pilih bayar dengan QR, lalu scan kode ini. Menutup jendela tidak membatalkan pembelian; kredit masuk begitu pembayaran diterima.</div>
+        <div class="hint" style="margin:0">Catatan: kredit tidak bisa diuangkan, dan hangus 1 tahun sejak pembelian terakhir.</div>
+      </div>
+      <div class="modal-foot"><button class="btn ghost">Tutup</button></div>
+    </div></div></div>
+    <p class="frame-note">Gambar QR di atas hanya contoh dan bukan kode yang valid. Status dicek tiap 3 detik; hitung mundur 30 menit.</p>
+  </div>
+
+  <div class="mfr">
+    <p class="frame-cap">3 &middot; Berhasil</p>
+    <div class="frame"><div class="scrim"><div class="modal" role="dialog" aria-label="Pembayaran diterima">
+      <div class="modal-head"><h4>Beli kredit AI</h4><button class="icn" aria-label="Tutup"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <div class="modal-body">
+        <div class="win"><span class="ico"><svg class="i" style="width:20px;height:20px"><use href="#i-check"/></svg></span>
+          <h4>Pembayaran diterima</h4><p>50 kredit sudah masuk. Lowongan, Lamaran, CV, dan Surat terbuka.</p></div>
+        <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo sekarang</span>
+          <span class="amt">53<small>kredit &middot; +50</small></span><span>Hangus 19 Nov 2027</span></div>
+      </div>
+      <div class="modal-foot"><button class="btn pri">Selesai</button></div>
+    </div></div></div>
+  </div>
+
+  <div class="mfr">
+    <p class="frame-cap">4 &middot; QR kedaluwarsa</p>
+    <div class="frame"><div class="scrim"><div class="modal" role="dialog" aria-label="Beli kredit AI">
+      <div class="modal-head"><h4>Beli kredit AI</h4><button class="icn" aria-label="Tutup"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <div class="modal-body">
+        <div class="pkg"><div class="price">Rp10.800</div><div class="what">50 kredit ≈ 25 CV + 25 surat</div><div class="incl">Sudah termasuk semua biaya</div></div>
+        <div class="qrbox gone"><svg aria-hidden="true" viewBox="0 0 25 25"><use href="#qr-sample"/></svg>
+          <div class="over"><svg class="i" style="width:24px;height:24px;flex-basis:24px"><use href="#i-timer"/></svg>Kode kedaluwarsa</div></div>
+        <div class="alert warn"><span>&#9888;</span><span><b>Kode QR sudah kedaluwarsa.</b> Kalau kamu sudah membayar, kredit tetap masuk. Kalau belum, buat kode baru.</span></div>
+      </div>
+      <div class="modal-foot"><button class="btn ghost">Tutup</button><button class="btn pri"><svg class="i"><use href="#i-refresh"/></svg>Buat kode baru</button></div>
+    </div></div></div>
+  </div>
+
+  <div class="mfr">
+    <p class="frame-cap">5 &middot; Gagal membuat QR</p>
+    <div class="frame"><div class="scrim"><div class="modal" role="dialog" aria-label="Beli kredit AI">
+      <div class="modal-head"><h4>Beli kredit AI</h4><button class="icn" aria-label="Tutup"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <div class="modal-body">
+        <div class="pkg"><div class="price">Rp10.800</div><div class="what">50 kredit ≈ 25 CV + 25 surat</div><div class="incl">Sudah termasuk semua biaya</div></div>
+        <div class="alert bad"><span>&#9888;</span><span><b>Kode QR belum bisa dibuat.</b> Kamu belum ditagih. Cek koneksi internetmu, lalu coba lagi.</span></div>
+        <div class="hint" style="margin:0">Catatan: kredit tidak bisa diuangkan, dan hangus 1 tahun sejak pembelian terakhir.</div>
+      </div>
+      <div class="modal-foot"><button class="btn ghost">Tutup</button><button class="btn pri"><svg class="i"><use href="#i-refresh"/></svg>Coba lagi</button></div>
+    </div></div></div>
+  </div>
+</div>
+<p class="frame-note" style="max-width:none;margin-bottom:12px">Satu modal, tidak bertumpuk. Harga yang tertulis sama dengan yang dibayar, dan kalimat &ldquo;Sudah termasuk semua biaya&rdquo; tampil di setiap state yang menampilkan harga. Latar redup dibuat dari <code>--text-primary</code> dengan <code>color-mix</code>, tanpa token baru.</p>
+
+<!-- 10.6 Akun -->
+<p class="frame-cap" style="margin-top:28px">S13 &mdash; Akun (tujuan sidebar baru: saldo, tanggal hangus, riwayat kredit, hapus akun)</p>
+<div class="opt" style="margin-bottom:12px">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+      <button aria-current="page">Akun</button>
+    </nav>
+    <div class="acct">
+      <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
+        <span class="amt">42<small>kredit</small></span><span>Hangus 18 Des 2026</span></div>
+    </div>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Akun</h1><p>nama@example.test</p></div>
+      <div class="acts"><button class="btn sec sm">Keluar</button></div>
+    </div>
+    <div class="stack" style="gap:16px">
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Saldo kredit</h3></div>
+        <div class="credit big" style="margin-top:8px">
+          <span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Kredit AI</span>
+          <span class="amt">42<small>kredit</small></span>
+          <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">Hangus pada 18 Des 2026, 1 tahun sejak pembelian terakhir <span class="badge warn">29 hari lagi</span></span>
+        </div>
+        <div class="mini" style="margin-top:12px"><button class="btn pri"><svg class="i"><use href="#i-coins"/></svg>Beli kredit</button></div>
+        <div class="hint">Paket 50 kredit, Rp10.800, sudah termasuk semua biaya. 1 CV = 1 kredit, 1 surat = 1 kredit, nilai 10 lowongan = 1 kredit. Kredit tidak bisa diuangkan.</div>
+      </div>
+
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Riwayat kredit</h3><span class="cnt">20 catatan terakhir</span></div>
+        <ul class="ledger" aria-label="Riwayat kredit" style="margin-top:8px">
+          <li><span class="d">19 Nov 2026</span><span class="t"><b>Buat CV</b><em>Frontend Engineer (React)</em></span><span class="n">−1</span></li>
+          <li><span class="d">19 Nov 2026</span><span class="t"><b>Dikembalikan</b><em>AI sedang gangguan</em></span><span class="n plus">+1</span></li>
+          <li><span class="d">18 Nov 2026</span><span class="t"><b>Nilai dengan AI</b><em>10 lowongan</em></span><span class="n">−1</span></li>
+          <li><span class="d">15 Nov 2026</span><span class="t"><b>Buat surat</b><em>Web Developer — Platform Pembayaran</em></span><span class="n">−1</span></li>
+          <li><span class="d">18 Des 2025</span><span class="t"><b>Pembelian</b><em>Paket 50 kredit · Rp10.800</em></span><span class="n plus">+50</span></li>
+          <li><span class="d">4 Des 2025</span><span class="t"><b>Percobaan gratis</b><em>Kredit saat daftar</em></span><span class="n plus">+3</span></li>
+        </ul>
+      </div>
+
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Hapus akun</h3></div>
+        <p style="margin:8px 0 12px;font-size:13px;color:var(--text-secondary)">Akun dan sisa kredit dihapus permanen. Catatan pembelian tetap disimpan tanpa terhubung ke emailmu, untuk pembukuan.</p>
+        <button class="btn danger sm"><svg class="i"><use href="#i-trash"/></svg>Hapus akun&hellip;</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<p class="frame-cap" style="margin-top:28px">S13 &mdash; Akun &middot; state</p>
+<div class="grid cols-2" style="margin-bottom:12px">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Konfirmasi hapus akun</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert bad"><span>&#9888;</span><span><b>Ini tidak bisa dibatalkan.</b> Akun nama@example.test dan 42 kredit yang tersisa akan hilang.</span></div>
+      <div class="f" style="margin:0"><label for="del-confirm">Ketik HAPUS untuk melanjutkan</label><input id="del-confirm" class="inp" autocomplete="off"></div>
+      <div class="mini"><button class="btn ghost sm">Batal</button><button class="btn danger sm" disabled><svg class="i"><use href="#i-trash"/></svg>Hapus akun permanen</button></div>
+    </div>
+    <div class="hint">Tombol baru aktif setelah kata HAPUS diketik persis, mengikuti aturan konfirmasi destruktif (<code>screens.md</code> D4).</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Kredit hangus</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><svg class="i"><use href="#i-timer"/></svg><span><b>Kreditmu hangus pada 18 Des 2026.</b> Beli paket untuk melanjutkan memakai AI.</span></div>
+      <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span><span class="amt">0<small>kredit</small></span></div>
+      <ul class="ledger" aria-label="Riwayat kredit">
+        <li><span class="d">18 Des 2026</span><span class="t"><b>Hangus</b><em>1 tahun sejak pembelian terakhir</em></span><span class="n">−12</span></li>
+        <li><span class="d">20 Nov 2026</span><span class="t"><b>Buat CV</b><em>Frontend Engineer (React)</em></span><span class="n">−1</span></li>
+      </ul>
+    </div>
+    <div class="hint">Hangus tercatat di riwayat. Lowongan dan Lamaran tetap terbuka (sudah pernah membeli); hanya AI yang berhenti.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Riwayat kosong</h3></div>
+    <div class="empty" style="padding:22px 12px 12px">
+      <img src="../src/ui/mascot/empty.svg" alt="" width="72" height="72" style="margin-bottom:10px">
+      <h4>Belum ada pemakaian kredit</h4>
+      <p>Pembelian dan pemakaian kredit muncul di sini.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 10.7 Nilai dengan AI -->
+<p class="frame-cap" style="margin-top:28px">S4 &mdash; Lowongan &middot; tombol <b>Nilai dengan AI</b> di baris filter (feed harian tetap memakai Skor kasar, tanpa kredit)</p>
+<div class="grid cols-2" style="margin-bottom:12px">
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Siap</h3></div>
+    <div class="jbar" style="margin:12px 0 8px">
+      <div class="fgroup" role="group" aria-label="Tipe kerja">
+        <button class="fchip" aria-pressed="true">Semua</button>
+        <button class="fchip" aria-pressed="false">Remote</button>
+      </div>
+      <button class="btn pri sm"><svg class="i"><use href="#i-sparkles"/></svg>Nilai dengan AI · 1 kredit</button>
+    </div>
+    <div class="hint">1 kredit untuk 10 lowongan teratas yang belum dinilai AI. Skor kasar di kartu tidak memakai kredit.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Saldo kurang</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert warn"><svg class="i"><use href="#i-coins"/></svg><span><b>Kredit tidak cukup</b><br>Nilai dengan AI butuh 1 kredit; saldomu 0.</span></div>
+      <div class="jbar" style="margin:0">
+        <button class="btn sec sm" disabled><svg class="i"><use href="#i-sparkles"/></svg>Nilai dengan AI · 1 kredit</button>
+        <button class="btn pri sm">Beli kredit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>Selesai (kredit terpakai)</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert ok"><span>&#10003;</span><span><b>10 lowongan dinilai.</b> 1 kredit terpakai, sisa 41.</span></div>
+      <div class="jbar" style="margin:0"><button class="btn sec sm"><svg class="i"><use href="#i-sparkles"/></svg>Nilai dengan AI · 1 kredit</button></div>
+    </div>
+    <div class="hint">Menekan lagi menilai 10 lowongan berikutnya dan memotong 1 kredit lagi.</div>
+  </div>
+
+  <div class="card sh">
+    <div class="sec" style="padding-top:0"><h3>AI gangguan (kredit kembali)</h3></div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div class="alert bad"><span>&#9888;</span><span><b>AI sedang gangguan. Kreditmu tidak terpakai.</b></span></div>
+      <div class="jbar" style="margin:0"><button class="btn sec sm"><svg class="i"><use href="#i-refresh"/></svg>Coba lagi</button></div>
+    </div>
+    <div class="hint">State batas laju, plafon, dan offline sama dengan tombol Buat CV di atas.</div>
+  </div>
+</div>
+
+<!-- 10.8 Sempit -->
+<p class="frame-cap" style="margin-top:28px">Lebar &le;420&nbsp;px &mdash; Preview Lowongan (kiri) dan Akun (kanan)</p>
+<div class="frames" style="margin-bottom:12px">
+  <div style="width:400px;max-width:100%">
+<div class="opt narrow">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has" aria-current="page"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+    </nav>
+    <div class="acct">
+      <div class="credit"><span class="lbl"><svg class="i"><use href="#i-lock"/></svg>Belum masuk</span><span>Kamu sedang melihat preview dengan data contoh.</span></div>
+    </div>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Lowongan</h1><p>Lowongan yang cocok dengan profilmu, diambil tiap hari.</p></div>
+    </div>
+    <div class="alert info" style="margin-bottom:16px;flex-direction:column">
+      <span><b>Ini preview dengan data contoh.</b> Lowongan, Lamaran, CV, dan Surat baru bisa dipakai setelah kamu masuk.</span>
+      <button class="btn pri sm"><svg class="i"><use href="#i-login"/></svg>Masuk untuk memakai</button>
+    </div>
+    <div class="jlist">
+      <article class="jcard">
+        <span class="logo" aria-hidden="true">CK</span>
+        <div>
+          <h4 class="jt">Frontend Engineer (React)</h4>
+          <div class="jco"><span class="nm">PT Contoh Karya &middot; Greenhouse</span><span class="badge dim">Contoh</span></div>
+          <div class="gate" id="gate-n1"><svg class="i"><use href="#i-lock"/></svg>Masuk untuk memakai</div>
+          <div class="jacts">
+            <button class="btn pri sm" disabled aria-describedby="gate-n1">Buka &amp; isi</button>
+            <button class="btn sec sm" disabled aria-describedby="gate-n1"><svg class="i"><use href="#i-sparkles"/></svg>Siapkan lamaran</button>
+          </div>
+        </div>
+        <button class="score hi" aria-expanded="false" aria-label="Skor 86, Cocok. Tampilkan alasan"><b>86</b><svg class="i"><use href="#i-chev"/></svg></button>
+      </article>
+    </div>
+  </main>
+</div>
+  </div>
+  <div style="width:400px;max-width:100%">
+<div class="opt narrow">
+  <aside class="opt-side">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-brand"/></svg></span><span class="brand-name">job-kit</span></div>
+    <nav class="opt-nav" aria-label="Options">
+      <button>Profile</button>
+      <button class="has"><span>Lowongan</span><span class="count" aria-label="24 lowongan baru">24</span></button>
+      <button class="has"><span>Lamaran</span><span class="count" aria-label="2 perlu tindak lanjut">2</span></button>
+      <button>Data</button>
+      <button aria-current="page">Akun</button>
+    </nav>
+    <div class="acct">
+      <div class="credit"><span class="lbl"><svg class="i"><use href="#i-coins"/></svg>Saldo</span>
+        <span class="amt">42<small>kredit</small></span><span>Hangus 18 Des 2026</span></div>
+    </div>
+  </aside>
+  <main class="opt-main">
+    <div class="opt-head">
+      <div><h1>Akun</h1><p>nama@example.test</p></div>
+      <div class="acts"><button class="btn sec sm">Keluar</button></div>
+    </div>
+    <div class="stack" style="gap:12px">
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Saldo kredit</h3></div>
+        <div class="credit big" style="margin-top:8px;padding:12px">
+          <span class="amt">42<small>kredit</small></span>
+          <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">Hangus pada 18 Des 2026 <span class="badge warn">29 hari lagi</span></span>
+        </div>
+        <div class="mini" style="margin-top:12px"><button class="btn pri"><svg class="i"><use href="#i-coins"/></svg>Beli kredit</button></div>
+      </div>
+      <div class="card sh">
+        <div class="sec" style="padding-top:0"><h3>Riwayat kredit</h3></div>
+        <ul class="ledger" aria-label="Riwayat kredit" style="margin-top:8px">
+          <li><span class="d">19 Nov 2026</span><span class="t"><b>Buat CV</b><em>Frontend Engineer (React)</em></span><span class="n">−1</span></li>
+          <li><span class="d">19 Nov 2026</span><span class="t"><b>Dikembalikan</b><em>AI sedang gangguan</em></span><span class="n plus">+1</span></li>
+          <li><span class="d">18 Des 2025</span><span class="t"><b>Pembelian</b><em>Paket 50 kredit · Rp10.800</em></span><span class="n plus">+50</span></li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+  </div>
+</div>
+<p class="frame-note" style="max-width:none">Di lebar sempit sidebar jadi baris atas dan blok saldo tetap tampil (saldo tidak boleh tersembunyi); spanduk preview menumpuk dengan tombol di bawah teks; riwayat kredit memotong baris panjang dengan ellipsis. Modal dan panel memakai lebar penuh sampai 400&nbsp;px.</p>
+
+<!-- 11. ATURAN -->
+<h2>11. Aturan yang tidak boleh dilanggar</h2>
 <div class="card sh">
   <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.9;color:var(--text-secondary)">
     <li>Komponen tidak menyebut palet mentah — hanya token semantik.</li>
@@ -2522,10 +3260,11 @@ Titik riwayat memakai <code>.tl</code>: hijau untuk hasil berhasil (melamar), ab
     <li><code>--text-tertiary</code> tidak pernah membawa arti (2.58:1).</li>
     <li>Panel tidak pernah scroll horizontal.</li>
     <li>Bayangan tidak dipakai di panel — kartu dibedakan oleh border.</li>
-    <li>Komponen di luar <code>screens.md</code> §4 tidak dibuat, walau ada di referensi. Pengecualian terdaftar: delapan komponen Lamaran di <code>design-system.md</code> §4.4 (T40).</li>
+    <li>Komponen di luar <code>screens.md</code> §4 tidak dibuat, walau ada di referensi. Pengecualian terdaftar: delapan komponen Lamaran (T40) dan enam komponen akun dan kredit (T56), semuanya di <code>design-system.md</code> §4.4.</li>
     <li><b style="color:var(--text-primary)">Diff tidak pernah merah.</b> Tambahan hijau, bagian yang diganti dicoret abu. Merah hanya untuk gagal atau ditolak.</li>
     <li><b style="color:var(--text-primary)">Hasil AI selalu bertanda.</b> CV dan surat tampil dengan penanda <i>Tervalidasi</i>, atau tidak tampil sama sekali dan menyebut sebabnya.</li>
-    <li><b style="color:var(--text-primary)">Tombol nonaktif menyebut alasannya</b> di atas tombol itu (kunci kosong, batas harian, profil kosong).</li>
+    <li><b style="color:var(--text-primary)">Tombol nonaktif menyebut alasannya</b> di atas tombol itu (belum masuk, saldo kurang, plafon, offline, profil kosong).</li>
+    <li><b style="color:var(--text-primary)">Tombol AI menyebut biayanya</b> di labelnya (&ldquo;Buat CV · 1 kredit&rdquo;), dan pesan gagal menyebut kredit tidak terpakai bila memang dikembalikan.</li>
   </ol>
 </div>
 

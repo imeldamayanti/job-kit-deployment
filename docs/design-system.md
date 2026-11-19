@@ -309,6 +309,19 @@ Preview: `design-system.html` §9. Delapan komponen baru di atas komponen §4.3 
 
 Peta badge status lamaran (tetap): Draft `dim` · Dilamar `ok` · Direview `prog` · Interview `warn` · Offer `ok` · Ditolak `bad` · Dibatalkan `dim`. Dilamar dan Offer sama-sama hijau; teks badge dan kolomnya yang membedakan, bukan warna (D2: warna tidak membawa arti sendirian).
 
+
+**Akun dan kredit AI (2026-11-19, T56).** Preview: `design-system.html` §10. Dibuat untuk akun wajib, kredit AI, dan beli lewat QRIS (spec `2026-11-19-monetisasi-design.md` §3, §5, §6). Enam komponen baru; sisanya (alert, badge, tombol, kartu, input, tab folder, panel, `.jcard`, `.score`, `.bar`, empty state) dipakai ulang tanpa perubahan. Tidak ada token baru: latar redup modal diturunkan dari `--text-primary` dengan `color-mix`.
+
+| Komponen | Catatan penting |
+|---|---|
+| Blok saldo (`.credit`, `.credit.big`) | Kartu `--surface-sunken`, radius `--radius-lg`: label 12px kapital dengan ikon koin, angka 22px bobot 700 (`.big`: 32px, di halaman Akun), satuan "kredit" 12px `--text-secondary`, satu baris keterangan (percobaan, atau "Hangus 18 Des 2026"). Di sidebar duduk di bawah (`.acct`) dan **tidak disembunyikan di lebar sempit**: saldo selalu terlihat. Angka tabular-nums |
+| Alasan tombol nonaktif (`.gate`) | Satu baris 12px `--text-secondary` dengan ikon gembok, tepat di atas baris tombol (`aria-describedby` dari tombol). Bentuk ringan dari aturan §5.9 untuk kasus "Masuk untuk memakai" dan "Beli paket untuk lanjut"; alasan yang lebih panjang tetap memakai `.alert` di atas tombol |
+| Modal beli (`.scrim`, `.modal`) | Satu modal, tidak bertumpuk. Lebar maks 380px, `--radius-xl`, `--shadow-lg` (bayangan sah seperti slide-over: hanya di options page), kepala (judul 15px + tombol tutup 32px), badan, kaki bergaris atas. Latar redup `color-mix(in srgb, var(--text-primary) 45%, transparent)`. Lima state: membuat kode, QR menunggu bayar, berhasil, kedaluwarsa, gagal membuat QR. Harga "Rp10.800" 28px bobot 700, di bawahnya "50 kredit ≈ 25 CV + 25 surat" dan "Sudah termasuk semua biaya" (hijau, `--status-success-fg`) di setiap state yang menampilkan harga; catatan "kredit tidak bisa diuangkan, dan hangus 1 tahun sejak pembelian terakhir" di state yang menunggu atau gagal. Menutup modal tidak membatalkan pembelian |
+| Kotak QR (`.qrbox`) | 200px persegi, padding 12px, ground `--surface`, border `--border-strong`, kode `--text-primary`. **Saat dark mode ditulis (D4), kotak ini dikecualikan dari pembalikan token**: QR harus tetap gelap di atas terang agar terbaca pemindai. Varian `.skel` (garis putus, sedang dibuat) dan `.gone` (kode memudar 12%, label "Kode kedaluwarsa" di atasnya). Gambar di mockup hanya contoh, bukan kode valid |
+| Hitung mundur (`.cdown`) | Baris: ikon jam + "Berlaku 28:41" (bobot 650, tabular-nums) di kiri, titik berdenyut `--status-progress-fg` + "Menunggu pembayaran…" di kanan, lalu `.bar` selebar sisa waktu (`role="progressbar"`). Status dicek tiap 3 detik, kode berlaku 30 menit. Animasi berdenyut mati oleh `prefers-reduced-motion` |
+| Riwayat kredit (`.ledger`) | Daftar tiga kolom: tanggal 12px tabular-nums, jenis (tebal, 1 baris ellipsis) dengan keterangan 12px di bawahnya, jumlah bertanda (`−1`, `+50`; `+` hijau `--status-success-fg`, `−` tinta biasa). Tanda ±, bukan warna, yang membawa arti (D2). Maks 20 catatan terakhir, tanpa pagination |
+
+Bentuk tombol AI: label selalu memuat biaya ("Buat CV · 1 kredit", "Buat surat · 1 kredit", "Nilai dengan AI · 1 kredit", "Buat ulang · 1 kredit"). Saat saldo kurang, tombol Buat turun jadi sekunder nonaktif dan "Beli kredit" jadi primer, supaya hanya ada satu tombol utama. Pesan kasus kredit (spec §6): "AI sedang gangguan. Kreditmu tidak terpakai." (alert merah), "Kredit tidak cukup" dan "Layanan AI penuh bulan ini" dan "Terlalu cepat, coba lagi sebentar" (alert amber), "CV disusun dari profilmu apa adanya; kredit tidak terpakai." (alert info). Tombol "Beli kredit" tidak muncul untuk plafon dan batas laju, karena membeli tidak menyelesaikannya. Badge sidebar: "Percobaan" (`.badge.prog`) dan "Hanya baca" (`.badge.dim` dengan gembok); item hanya-baca memakai "Beli paket untuk lanjut".
 ---
 
 ## 5. Aturan yang tidak boleh dilanggar
@@ -318,10 +331,11 @@ Peta badge status lamaran (tetap): Draft `dim` · Dilamar `ok` · Direview `prog
 3. **`--text-tertiary` tidak pernah membawa arti.** Gagal 4.5:1 (§3.2).
 4. **Panel tidak pernah scroll horizontal.** Semua teks panjang tunduk ke aturan D3.
 5. **Bayangan tidak dipakai di panel.** Kartu dibedakan oleh border.
-6. **Komponen di luar `screens.md` §4 tidak dibuat**, walau ada di referensi. Pengecualian terdaftar: delapan komponen Lamaran di §4.4 (T40).
+6. **Komponen di luar `screens.md` §4 tidak dibuat**, walau ada di referensi. Pengecualian terdaftar: delapan komponen Lamaran (T40) dan enam komponen akun dan kredit (T56), semuanya di §4.4.
 7. **Diff tidak pernah merah.** Tambahan hijau, bagian yang diganti dicoret abu. Merah hanya untuk gagal atau ditolak.
 8. **Hasil AI selalu bertanda.** CV dan surat tampil dengan penanda Tervalidasi, atau tidak tampil dan menyebut sebabnya.
-9. **Tombol nonaktif menyebut alasannya** di atas tombol itu (kunci kosong, batas harian, profil kosong).
+9. **Tombol nonaktif menyebut alasannya** di atas tombol itu (belum masuk, saldo kurang, plafon, offline, profil kosong).
+10. **Tombol AI menyebut biayanya** di labelnya ("Buat CV · 1 kredit"), dan pesan gagal menyebut kredit tidak terpakai bila memang dikembalikan.
 
 ---
 
