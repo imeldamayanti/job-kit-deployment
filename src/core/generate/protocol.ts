@@ -30,8 +30,8 @@ export type GenerateResponse =
 
 // The answer of `create-payment`. Here and not in src/server because the extension reads it too.
 export type CreatePaymentResponse =
-  | { ok: true; purchaseId: string; qrUrl: string; amountIdr: number; expiresAt: string }
-  | { ok: false; error: string; message: string }
+  | { ok: true; purchaseId: string; qrUrl: string; amountIdr: number; credits: number; expiresAt: string }
+  | { ok: false; error: 'unauthenticated' | 'invalid-request' | 'gateway'; message: string }
 
 // A refusal from the server, as the pipelines see it: they turn it into a failure result instead of throwing on.
 export class RemoteRefusal extends Error {

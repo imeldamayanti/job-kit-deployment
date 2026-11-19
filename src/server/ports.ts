@@ -28,3 +28,15 @@ export type Db = {
 
 // One model call. Throws AiError.
 export type Complete = (system: string, user: string, maxTokens: number) => Promise<{ text: string; usage: AiUsage }>
+
+// A purchase as the payment handlers see it (the `purchases` row of supabase/billing.sql).
+export type Purchase = { id: string; status: string; amountIdr: number; credits: number; qrUrl: string | null; expiresAt: string }
+
+// The payment functions of supabase/billing.sql, called with the service key. An unexpected SQL error is thrown.
+export type PaymentDb = {
+  // The user's still-valid pending purchase for this package, or a new one.
+  createPurchase(user: string, packageId: string): Promise<Purchase>
+  attachTripay(purchaseId: string, reference: string, qrUrl: string): Promise<void>
+  // Returns the final status of the purchase, or 'not_found' when there is no such purchase.
+  applyPayment(purchaseId: string, reference: string, status: string, amount: number): Promise<string>
+}

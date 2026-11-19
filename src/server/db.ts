@@ -1,4 +1,4 @@
-import type { Db } from './ports'
+import type { Db, PaymentDb, Purchase } from './ports'
 
 type FetchLike = (url: string, init?: RequestInit) => Promise<Response>
 
@@ -11,8 +11,19 @@ class DbError extends Error {
 
 const GUARDS = ['ok', 'budget', 'rate-limit'] as const
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
+
+function readPurchase(row: unknown): Purchase {
+  if (!isRecord(row)) throw new Error('create_purchase returned no row')
+  const { id, status, amount_idr: amountIdr, credits, qr_url: qrUrl, expires_at: expiresAt } = row
+  if (typeof id !== 'string' || typeof status !== 'string' || typeof amountIdr !== 'number' || typeof credits !== 'number' || typeof expiresAt !== 'string') {
+    throw new Error('create_purchase returned a row it cannot read')
+  }
+  return { id, status, amountIdr, credits, qrUrl: typeof qrUrl === 'string' ? qrUrl : null, expiresAt }
+}
+
 // The billing functions of supabase/billing.sql over PostgREST, with the service key (the functions are granted to service_role only).
-export function createDb(url: string, serviceKey: string, fetchImpl: FetchLike = (u, init) => fetch(u, init)): Db {
+export function createDb(url: string, serviceKey: string, fetchImpl: FetchLike = (u, init) => fetch(u, init)): Db & PaymentDb {
   const base = url.replace(/\/+$/, '')
   const headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'content-type': 'application/json' }
 
@@ -22,7 +33,9 @@ export function createDb(url: string, serviceKey: string, fetchImpl: FetchLike =
       const error = (await response.json().catch(() => null)) as { message?: unknown } | null
       throw new DbError(response.status, typeof error?.message === 'string' ? error.message : 'no detail', what)
     }
-    return response.json()
+    // A `void` function answers with an empty body or `null`.
+    const text = await response.text()
+    return text === '' ? null : JSON.parse(text)
   }
   const rpc = (fn: string, args: Record<string, unknown>) => send(fn, `/rest/v1/rpc/${fn}`, { method: 'POST', body: JSON.stringify(args) })
 
@@ -55,6 +68,26 @@ export function createDb(url: string, serviceKey: string, fetchImpl: FetchLike =
       const rows = await send('balance', `/rest/v1/accounts?user_id=eq.${encodeURIComponent(user)}&select=credits`, { method: 'GET' })
       const credits = Array.isArray(rows) ? (rows[0] as { credits?: unknown } | undefined)?.credits : undefined
       return typeof credits === 'number' ? credits : 0
+    },
+
+    async createPurchase(user, packageId) {
+      return readPurchase(await rpc('create_purchase', { p_user: user, p_package: packageId }))
+    },
+
+    async attachTripay(purchaseId, reference, qrUrl) {
+      await rpc('attach_tripay', { p_purchase: purchaseId, p_reference: reference, p_qr_url: qrUrl })
+    },
+
+    async applyPayment(purchaseId, reference, status, amount) {
+      try {
+        const final = await rpc('apply_payment', { p_purchase: purchaseId, p_reference: reference, p_status: status, p_amount: amount })
+        if (typeof final !== 'string') throw new Error('apply_payment returned no status')
+        return final
+      } catch (error) {
+        // An unknown purchase is a normal answer; anything else (a duplicate reference, an outage) is thrown so the gateway retries.
+        if (error instanceof DbError && error.detail === 'not_found') return 'not_found'
+        throw error
+      }
     },
   }
 }
