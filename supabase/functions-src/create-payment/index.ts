@@ -1,7 +1,7 @@
 import { createDb } from '../../../src/server/db'
 import { handleCreatePayment } from '../../../src/server/payments'
 import type { MidtransEnv } from '../../../src/server/midtrans'
-import { userFromRequest } from '../_shared/auth'
+import { authenticate } from '../_shared/auth'
 import { corsHeaders, logFailure, reply, requireEnv } from '../_shared/http'
 
 function readMidtrans(): MidtransEnv {
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = requireEnv('SUPABASE_URL')
     const db = createDb(supabaseUrl, requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
-    const caller = userFromRequest(req)
+    const caller = await authenticate(req, { url: supabaseUrl, anonKey: requireEnv('SUPABASE_ANON_KEY') })
     const body: unknown = await req.json().catch(() => null)
     const result = await handleCreatePayment(
       { userId: caller?.id ?? null, email: caller?.email ?? null, body },

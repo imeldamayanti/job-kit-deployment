@@ -187,8 +187,12 @@ export async function handleGenerate(input: { userId: string | null; body: unkno
     credits = await settleOutcome().catch((error: unknown) => (report?.('settle', error), settleOutcome()))
   } catch (error) {
     report?.('settle', error)
+    // The work is done and the outcome keeps the charge: hand it over rather than claim the credit was not used. If the charge never
+    // committed, the reaper refunds the stuck reservation. The balance is unknown here, so it is read again and, failing that, left
+    // out (NaN is sent as null and the client keeps the balance it shows).
+    if (outcome.reason === null) return outcome.respond(await db.balance(userId).catch(() => Number.NaN))
     // The tokens were spent either way, so the refund keeps them in the monthly budget.
-    return giveUp(outcome.usage, outcome.reason ?? 'ai')
+    return giveUp(outcome.usage, outcome.reason)
   }
   return outcome.respond(credits)
 }

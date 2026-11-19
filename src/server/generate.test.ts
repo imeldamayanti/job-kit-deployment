@@ -290,21 +290,46 @@ describe('when something unexpected throws', () => {
     expect(deps.settles.map((s) => [s[1], s[2]])).toEqual([[true, null], [true, null]])
   })
 
-  it('refunds with the real usage, not zero, when both settle attempts fail after the model answered', async () => {
+  it('returns the produced result when both settle attempts fail but the outcome keeps the charge (the reaper refunds if it never committed)', async () => {
     const deps = fakes({ replies: [goodCv] })
     deps.db.settle = vi.fn(async (...args: Settle) => {
       deps.settles.push(args)
-      if (args[1]) throw new Error('connection reset secret-detail')
-      return 9
+      throw new Error('connection reset secret-detail')
+    })
+    const { status, body } = await run(cvBody, deps)
+    expect(status).toBe(200)
+    // The balance is read afresh because the settle never answered with one.
+    expect(body).toEqual({ ok: true, kind: 'cv', text: goodCv, fallback: false, credits: 4, usage })
+    expect(JSON.stringify(body)).not.toContain('secret-detail')
+    expect(deps.settles.map((s) => [s[1], s[2]])).toEqual([[true, null], [true, null]])
+  })
+
+  it('still returns the produced result, with no balance, when the balance cannot be read either', async () => {
+    const deps = fakes({ replies: [goodCv] })
+    deps.db.settle = async () => { throw new Error('db down') }
+    deps.db.balance = async () => { throw new Error('db down') }
+    const { status, body } = await run(cvBody, deps)
+    expect(status).toBe(200)
+    expect(body).toMatchObject({ ok: true, kind: 'cv', text: goodCv })
+    // NaN is sent as null: the client then keeps the balance it already shows.
+    expect(JSON.parse(JSON.stringify(body)).credits).toBeNull()
+  })
+
+  it('refunds with the real usage, not zero, when the settles fail after an answer that must be refunded', async () => {
+    const deps = fakes({ replies: ['not a cv at all', 'still not a cv'] })
+    deps.db.settle = vi.fn(async (...args: Settle) => {
+      deps.settles.push(args)
+      throw new Error('connection reset secret-detail')
     })
     const { status, body } = await run(cvBody, deps)
     expect(status).toBe(500)
-    expect(expectFailure(body)).toMatchObject({ error: 'ai', credits: 9 })
+    expect(expectFailure(body)).toMatchObject({ error: 'ai', credits: null })
     expect(JSON.stringify(body)).not.toContain('secret-detail')
-    expect(deps.settles.map((s) => [s[1], s[2]])).toEqual([[true, null], [true, null], [false, 'ai']])
-    const [, , , , inTok, outTok, cost] = deps.settles[2] as Settle
-    expect([inTok, outTok]).toEqual([1000, 500])
-    expect(cost).toBeCloseTo((1000 * 0.28 + 500 * 0.42) / 1e6, 10)
+    expect(deps.settles.every((s) => s[1] === false)).toBe(true)
+    expect(deps.settles.length).toBeGreaterThanOrEqual(3)
+    const [, , , , inTok, outTok] = deps.settles[deps.settles.length - 1] as Settle
+    expect(inTok).toBeGreaterThan(0)
+    expect(outTok).toBeGreaterThan(0)
   })
 
   it('refunds when the model throws something that is not an AiError', async () => {

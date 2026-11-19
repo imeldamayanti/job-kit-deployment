@@ -48,11 +48,35 @@ describe('logFailure', () => {
 })
 
 describe('requireNumber', () => {
-  it('names the secret, never its value, when it is not a number', () => {
-    vi.stubGlobal('Deno', { env: { get: (name: string) => ({ A: '1.5', B: 'x' })[name] } })
+  const stub = (values: Record<string, string>) => vi.stubGlobal('Deno', { env: { get: (name: string) => values[name] } })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('reads a positive number, ignoring surrounding whitespace', () => {
+    stub({ A: '1.5', B: ' 0.28 ', C: '3' })
     expect(requireNumber('A')).toBe(1.5)
+    expect(requireNumber('B')).toBe(0.28)
+    expect(requireNumber('C')).toBe(3)
+  })
+
+  it('names the secret, never its value, when it is missing or not a positive number', () => {
+    stub({ B: 'x' })
     expect(() => requireNumber('B')).toThrow('secret B is not a number')
     expect(() => requireNumber('C')).toThrow('missing secret C')
-    vi.unstubAllGlobals()
+  })
+
+  it.each([['0'], [' '], ['\t'], ['abc'], ['-1'], ['Infinity'], ['NaN'], ['0x'], ['1e999']])('refuses %j (it would switch a limit off)', (value) => {
+    stub({ P: value })
+    expect(() => requireNumber('P')).toThrow('secret P is not a number')
+  })
+
+  it('refuses a fraction when an integer is required, as for the rate limit', () => {
+    stub({ RATE_LIMIT_PER_HOUR: '1.5' })
+    expect(() => requireNumber('RATE_LIMIT_PER_HOUR', { integer: true })).toThrow('secret RATE_LIMIT_PER_HOUR is not a number')
+    for (const value of ['0', ' ', 'abc', '-1']) {
+      stub({ RATE_LIMIT_PER_HOUR: value })
+      expect(() => requireNumber('RATE_LIMIT_PER_HOUR', { integer: true }), value).toThrow()
+    }
+    stub({ RATE_LIMIT_PER_HOUR: ' 30 ' })
+    expect(requireNumber('RATE_LIMIT_PER_HOUR', { integer: true })).toBe(30)
   })
 })

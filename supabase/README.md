@@ -17,7 +17,7 @@ Tiga fungsi di `supabase/functions-src/` (`generate`, `create-payment`, `midtran
 
 ### Secrets
 
-Diisi pemilik dengan Supabase CLI setelah `supabase login`. `SUPABASE_URL` dan `SUPABASE_SERVICE_ROLE_KEY` disediakan Supabase sendiri di Edge Functions. Ganti semua `<...>` dengan nilai asli; nilai asli tidak pernah ditulis di repo.
+Diisi pemilik dengan Supabase CLI setelah `supabase login`. `SUPABASE_URL`, `SUPABASE_ANON_KEY`, dan `SUPABASE_SERVICE_ROLE_KEY` disediakan Supabase sendiri di Edge Functions (jangan di-set manual; `SUPABASE_ANON_KEY` dipakai `generate` dan `create-payment` untuk memeriksa token). Ganti semua `<...>` dengan nilai asli; nilai asli tidak pernah ditulis di repo.
 
 ```sh
 supabase secrets set --project-ref ktgcjqxoohuvxwvsjhif \
@@ -45,7 +45,7 @@ Di dashboard Midtrans (Settings > Configuration, kolom Payment Notification URL;
 https://ktgcjqxoohuvxwvsjhif.supabase.co/functions/v1/midtrans-callback
 ```
 
-`midtrans-callback` memakai `verify_jwt = false` (lihat `config.toml`) karena Midtrans tidak membawa token Supabase; `signature_key` di isi notifikasi (SHA-512 dari `order_id`, `status_code`, `gross_amount`, dan server key) yang memeriksanya sebelum database disentuh. `generate` dan `create-payment` tetap memakai `verify_jwt` bawaan (`true`).
+`midtrans-callback` memakai `verify_jwt = false` (lihat `config.toml`) karena Midtrans tidak membawa token Supabase; `signature_key` di isi notifikasi (SHA-512 dari `order_id`, `status_code`, `gross_amount`, dan server key) yang memeriksanya sebelum database disentuh. `generate` dan `create-payment` tetap memakai `verify_jwt` bawaan (`true`) sebagai lapisan kedua. Fungsinya sendiri juga memeriksa token ke Supabase Auth (`GET /auth/v1/user` dengan token dan `SUPABASE_ANON_KEY`) dan memakai id dari jawabannya, bukan dari isi token, jadi tetap aman kalau `verify_jwt` dimatikan (kunci JWT asimetris). Auth menolak token: jawabannya 401. Auth tidak terjangkau atau error: 500 umum.
 
 ### Deploy dan verifikasi (dijalankan pemilik, butuh login CLI)
 

@@ -1,28 +1,33 @@
-// Who is calling, read from the Supabase access token. The gateway already checked the signature (`verify_jwt` is on for `generate`
-// and `create-payment`), so this only decodes the payload and does not verify it again. Never use it on a function with `verify_jwt` off.
+// Who is calling. The access token is checked by Supabase Auth itself (GET /auth/v1/user), and the user id comes from its answer,
+// never from decoding the token here. `verify_jwt` stays on at the gateway as a second layer, but with asymmetric JWT keys it can
+// be turned off, so this must not depend on it.
 
 export type CallerIdentity = { id: string; email: string | null }
+// Normally given by the Edge runtime as SUPABASE_URL and SUPABASE_ANON_KEY.
+export type AuthEnv = { url: string; anonKey: string }
 
-function decodePayload(token: string): unknown {
-  const parts = token.split('.')
-  if (parts.length !== 3 || !parts[1]) return null
-  // base64url -> base64, then the bytes as UTF-8 (an email may hold non-ASCII).
-  const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
-  const binary = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='))
-  return JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0))))
-}
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 
-export function userFromRequest(req: Request): CallerIdentity | null {
+// The caller, or null when there is no valid session (no header, or Auth refuses the token: expired, forged, the anon key itself).
+// Throws when Auth cannot be asked or is itself failing: that is our outage, not a bad token, and the entrypoint answers its generic 500.
+export async function authenticate(req: Request, env: AuthEnv, fetchImpl: typeof fetch = fetch): Promise<CallerIdentity | null> {
   const match = /^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization') ?? '')
   if (!match?.[1]) return null
+  let response: Response
+  let body: unknown
   try {
-    const payload = decodePayload(match[1])
-    if (typeof payload !== 'object' || payload === null) return null
-    const { sub, email } = payload as { sub?: unknown; email?: unknown }
-    // A key such as the anon key is a valid token with no `sub`: that is no user.
-    if (typeof sub !== 'string' || !sub) return null
-    return { id: sub, email: typeof email === 'string' && email ? email : null }
+    response = await fetchImpl(`${env.url.replace(/\/$/, '')}/auth/v1/user`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${match[1]}`, apikey: env.anonKey },
+      signal: AbortSignal.timeout(5000),
+    })
+    body = response.status === 200 ? await response.json() : null
   } catch {
-    return null
+    throw new Error('auth service unreachable')
   }
+  if (response.status >= 500) throw new Error(`auth service answered ${response.status}`)
+  if (response.status !== 200 || !isRecord(body)) return null
+  const { id, email } = body
+  if (typeof id !== 'string' || !id) return null
+  return { id, email: typeof email === 'string' && email ? email : null }
 }

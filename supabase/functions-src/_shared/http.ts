@@ -35,8 +35,10 @@ export function requireEnv(name: string): string {
   return value
 }
 
-export function requireNumber(name: string): number {
-  const value = Number(requireEnv(name))
-  if (!Number.isFinite(value) || value < 0) throw new Error(`secret ${name} is not a number`)
+// A secret that must be a number above zero (a price, a budget, a limit): 0, blank or junk would switch the guard off, so it fails loudly.
+export function requireNumber(name: string, options: { integer?: boolean } = {}): number {
+  const text = requireEnv(name).trim()
+  const value = text === '' ? Number.NaN : Number(text)
+  if (!Number.isFinite(value) || value <= 0 || (options.integer && !Number.isInteger(value))) throw new Error(`secret ${name} is not a number`)
   return value
 }

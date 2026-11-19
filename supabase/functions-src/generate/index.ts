@@ -2,7 +2,7 @@ import { createDb } from '../../../src/server/db'
 import { handleGenerate } from '../../../src/server/generate'
 import { createModel } from '../../../src/server/model'
 import type { ServerEnv } from '../../../src/server/ports'
-import { userFromRequest } from '../_shared/auth'
+import { authenticate } from '../_shared/auth'
 import { corsHeaders, logFailure, reply, requireEnv, requireNumber } from '../_shared/http'
 
 // Default calls one account may make per hour (spec §5.4 proposes 30); RATE_LIMIT_PER_HOUR overrides it.
@@ -16,7 +16,7 @@ function readEnv(): ServerEnv {
     priceIn: requireNumber('AI_PRICE_IN'),
     priceOut: requireNumber('AI_PRICE_OUT'),
     budgetUsd: requireNumber('MONTHLY_AI_BUDGET_USD'),
-    rateLimit: Deno.env.get('RATE_LIMIT_PER_HOUR') ? requireNumber('RATE_LIMIT_PER_HOUR') : DEFAULT_RATE_LIMIT,
+    rateLimit: Deno.env.get('RATE_LIMIT_PER_HOUR') ? requireNumber('RATE_LIMIT_PER_HOUR', { integer: true }) : DEFAULT_RATE_LIMIT,
   }
 }
 
@@ -27,10 +27,12 @@ Deno.serve(async (req) => {
 
   try {
     const env = readEnv()
-    const db = createDb(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
+    const supabaseUrl = requireEnv('SUPABASE_URL')
+    const db = createDb(supabaseUrl, requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
+    const caller = await authenticate(req, { url: supabaseUrl, anonKey: requireEnv('SUPABASE_ANON_KEY') })
     const body: unknown = await req.json().catch(() => null)
     const result = await handleGenerate(
-      { userId: userFromRequest(req)?.id ?? null, body },
+      { userId: caller?.id ?? null, body },
       { db, env, complete: createModel(env), report: logFailure },
     )
     return reply(result.status, result.body, cors)
