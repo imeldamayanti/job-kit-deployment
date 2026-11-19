@@ -91,7 +91,7 @@ describe('createDb', () => {
   })
   describe('payments', () => {
     const PURCHASE = '22222222-2222-2222-2222-222222222222'
-    const purchaseRow = { id: PURCHASE, user_id: USER, package_id: 'basic', amount_idr: 10800, credits: 50, status: 'pending', tripay_reference: null, qr_url: null, expires_at: '2026-11-19T10:30:00+00:00', paid_at: null, created_at: '2026-11-19T10:00:00+00:00' }
+    const purchaseRow = { id: PURCHASE, user_id: USER, package_id: 'basic', amount_idr: 10800, credits: 50, status: 'pending', gateway_reference: null, qr_url: null, expires_at: '2026-11-19T10:30:00+00:00', paid_at: null, created_at: '2026-11-19T10:00:00+00:00' }
 
     it('createPurchase calls create_purchase and maps the row', async () => {
       const { seen, fetchImpl } = spy(() => json(purchaseRow))
@@ -102,8 +102,8 @@ describe('createDb', () => {
     })
 
     it('createPurchase keeps the qr_url of a purchase that already has one', async () => {
-      const { fetchImpl } = spy(() => json({ ...purchaseRow, qr_url: 'https://tripay.co.id/qr/1' }))
-      expect((await createDb('https://p.test', 'k', fetchImpl).createPurchase(USER, 'basic')).qrUrl).toBe('https://tripay.co.id/qr/1')
+      const { fetchImpl } = spy(() => json({ ...purchaseRow, qr_url: 'https://api.midtrans.com/v2/qris/1/qr-code' }))
+      expect((await createDb('https://p.test', 'k', fetchImpl).createPurchase(USER, 'basic')).qrUrl).toBe('https://api.midtrans.com/v2/qris/1/qr-code')
     })
 
     it.each([[{ ...purchaseRow, id: undefined }], [{ ...purchaseRow, amount_idr: '10800' }], [null], [[]]])('createPurchase throws on a row it cannot read (%j)', async (row) => {
@@ -116,23 +116,23 @@ describe('createDb', () => {
       await expect(createDb('https://p.test', 'k', fetchImpl).createPurchase(USER, 'x')).rejects.toThrow()
     })
 
-    it.each([[() => json(null)], [() => new Response(null, { status: 204 })], [() => new Response('', { status: 200 })]])('attachTripay sends the arguments and accepts an empty void answer', async (respond) => {
+    it.each([[() => json(null)], [() => new Response(null, { status: 204 })], [() => new Response('', { status: 200 })]])('attachGateway sends the arguments and accepts an empty void answer', async (respond) => {
       const { seen, fetchImpl } = spy(respond)
-      await expect(createDb('https://p.test', 'k', fetchImpl).attachTripay(PURCHASE, 'DEV-1', 'https://q.test/1')).resolves.toBeUndefined()
-      expect(seen[0]?.url).toBe('https://p.test/rest/v1/rpc/attach_tripay')
-      expect(body(seen[0])).toEqual({ p_purchase: PURCHASE, p_reference: 'DEV-1', p_qr_url: 'https://q.test/1' })
+      await expect(createDb('https://p.test', 'k', fetchImpl).attachGateway(PURCHASE, 'mt-1', 'https://q.test/1')).resolves.toBeUndefined()
+      expect(seen[0]?.url).toBe('https://p.test/rest/v1/rpc/attach_gateway')
+      expect(body(seen[0])).toEqual({ p_purchase: PURCHASE, p_reference: 'mt-1', p_qr_url: 'https://q.test/1' })
     })
 
-    it('attachTripay throws on not_found', async () => {
+    it('attachGateway throws on not_found', async () => {
       const { fetchImpl } = spy(() => json({ code: 'P0001', message: 'not_found' }, 400))
-      await expect(createDb('https://p.test', 'k', fetchImpl).attachTripay(PURCHASE, 'R', 'u')).rejects.toThrow()
+      await expect(createDb('https://p.test', 'k', fetchImpl).attachGateway(PURCHASE, 'R', 'u')).rejects.toThrow()
     })
 
     it('applyPayment returns the final status', async () => {
       const { seen, fetchImpl } = spy(() => json('paid'))
-      expect(await createDb('https://p.test', 'k', fetchImpl).applyPayment(PURCHASE, 'DEV-1', 'PAID', 10800)).toBe('paid')
+      expect(await createDb('https://p.test', 'k', fetchImpl).applyPayment(PURCHASE, 'mt-1', 'PAID', 10800)).toBe('paid')
       expect(seen[0]?.url).toBe('https://p.test/rest/v1/rpc/apply_payment')
-      expect(body(seen[0])).toEqual({ p_purchase: PURCHASE, p_reference: 'DEV-1', p_status: 'PAID', p_amount: 10800 })
+      expect(body(seen[0])).toEqual({ p_purchase: PURCHASE, p_reference: 'mt-1', p_status: 'PAID', p_amount: 10800 })
     })
 
     it('applyPayment maps not_found to the answer "not_found"', async () => {
@@ -140,7 +140,7 @@ describe('createDb', () => {
       expect(await createDb('https://p.test', 'k', fetchImpl).applyPayment(PURCHASE, 'R', 'PAID', 1)).toBe('not_found')
     })
 
-    it.each([[{ code: '23505', message: 'duplicate key value violates unique constraint "purchases_tripay_reference_key"' }, 409], [{ message: 'upstream down' }, 502]])('applyPayment throws on any other error (%j)', async (error, status) => {
+    it.each([[{ code: '23505', message: 'duplicate key value violates unique constraint "purchases_gateway_reference_key"' }, 409], [{ message: 'upstream down' }, 502]])('applyPayment throws on any other error (%j)', async (error, status) => {
       const { fetchImpl } = spy(() => json(error, status))
       await expect(createDb('https://p.test', 'k', fetchImpl).applyPayment(PURCHASE, 'R', 'PAID', 1)).rejects.toThrow()
     })

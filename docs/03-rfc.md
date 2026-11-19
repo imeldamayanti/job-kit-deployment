@@ -223,14 +223,14 @@ Alasan: kriteria tiket (satu klik, nama berkas, FR-42) dan tata letak yang bisa 
 Desain lengkap, struktur data, dan tabel kasus di `docs/superpowers/specs/2026-11-19-monetisasi-design.md`. Ringkasnya:
 
 ```
-extension ──token──► create-payment ──► Tripay (QRIS) ──scan──► tripay-callback ──► apply_payment()
+extension ──token──► create-payment ──► Midtrans (QRIS) ──scan──► midtrans-callback ──► apply_payment()
 extension ──token + payload tersamar──► generate: reserve_credits() → model → validasi + FR-40 → settle_generation()
 extension ◄── baca accounts / purchases / credit_ledger / generations (RLS, hanya baris sendiri)
 ```
 
 - **Tabel baru:** `packages`, `accounts` (saldo, `unlocked_at`), `purchases`, `credit_ledger`, `generations`. Klien hanya membaca barisnya sendiri; semua tulis lewat fungsi `security definer` yang dipanggil `service_role`.
-- **Tiga Edge Function:** `create-payment`, `tripay-callback` (tanpa JWT, HMAC-SHA256 dicek), `generate` (menerima payload terstruktur, bukan prompt bebas; menyusun prompt dan menjalankan `validateGrounded` dengan kode `src/core/` yang sama).
-- **Rahasia** hanya di secrets Supabase (kunci model, kunci Tripay). Build pengguna tidak memuat URL atau kunci penyedia AI.
+- **Tiga Edge Function:** `create-payment`, `midtrans-callback` (tanpa JWT, `signature_key` SHA-512 dicek), `generate` (menerima payload terstruktur, bukan prompt bebas; menyusun prompt dan menjalankan `validateGrounded` dengan kode `src/core/` yang sama).
+- **Rahasia** hanya di secrets Supabase (kunci model, server key Midtrans). Build pengguna tidak memuat URL atau kunci penyedia AI.
 - **Build:** build pengguna memakai AI lewat server; jalur kunci sendiri dan bridge Claude Code hanya di build pengembang.
 - **Izin:** host Supabase menjadi izin wajib; origin penyedia AI keluar dari build pengguna.
 
@@ -390,9 +390,9 @@ Tidak ada yang memblokir approval.
 *Why:* kunci baris (`for update`) mencegah saldo minus saat dua generate bersamaan; buku memberi jejak untuk setiap perubahan; `apply_payment` dan `settle_generation` idempoten sehingga callback berulang tidak menggandakan kredit.
 *Cost:* dua sumber yang harus selalu cocok (saldo dan jumlah buku); butuh tes yang membandingkan keduanya.
 
-**D24 — Pembayaran QRIS dinamis lewat Tripay, di dalam extension (keputusan PIC 2026-11-19).**
-*Why:* biaya termurah yang ditemukan (Rp750 + 0,7%), akun perorangan, callback bertanda tangan. Pembelian di extension menghindari login kedua di website. Harga Rp10.800 sudah termasuk biaya karena surcharge QRIS dilarang (PBI 23/2021 Pasal 52 ayat 1).
-*Cost:* bergantung pada satu gateway; penarikan dana kena Rp7.500; Tripay belum diverifikasi untuk akun PIC; CSP extension harus mengizinkan gambar QR dari domain Tripay.
+**D24 — Pembayaran QRIS dinamis lewat Midtrans, di dalam extension (keputusan PIC 2026-11-19; gateway semula Tripay, diganti Midtrans 2026-11-19).**
+*Why:* MDR QRIS 0,7% (docs.midtrans.com), callback bertanda tangan (`signature_key`). Pembelian di extension menghindari login kedua di website. Harga Rp10.800 sudah termasuk biaya karena surcharge QRIS dilarang (PBI 23/2021 Pasal 52 ayat 1).
+*Cost:* bergantung pada satu gateway; biaya penarikan dana Midtrans belum diverifikasi; Midtrans belum diverifikasi untuk akun PIC; CSP extension harus mengizinkan gambar QR dari `api.midtrans.com` (production) dan `api.sandbox.midtrans.com` (sandbox).
 
 ## 9. Stack conventions
 

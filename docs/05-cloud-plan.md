@@ -28,7 +28,7 @@ Kemajuan Fase 3 (disetujui PIC 2026-10-18, telemetri opt-in anonim hanya hitunga
 Keputusan Fase 4 (2026-11-19; PRD §4.5, RFC §3.3d dan D20 sampai D24, `plan.md` T56 sampai T63):
 - Login wajib; preview tanpa login; sinkron tetap opsional.
 - Tanpa kunci sendiri di build pengguna; AI lewat Supabase Edge Functions dengan kredit.
-- Satu saldo kredit; paket Rp10.800 sudah termasuk semua biaya; QRIS dinamis lewat Tripay, dicek otomatis.
+- Satu saldo kredit; paket Rp10.800 sudah termasuk semua biaya; QRIS dinamis lewat Midtrans, dicek otomatis.
 - Kredit dikembalikan bila AI gagal atau ditolak pemeriksa fakta; plafon AI bulanan; tarik dana bulanan.
 - Model `deepseek-v4.1-flash` lewat proxy sementara; diganti ke API resmi sebelum publik.
 - Website pindah ke Cloudflare Pages (Vercel Hobby tidak boleh komersial).

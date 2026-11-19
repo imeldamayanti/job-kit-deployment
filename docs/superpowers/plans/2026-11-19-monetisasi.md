@@ -6,7 +6,7 @@
 
 **Architecture:** Supabase penuh. Saldo dan pembayaran di Postgres, diubah hanya oleh fungsi `security definer` yang dipanggil Edge Functions memakai `service_role`. Logika server ditulis sebagai TypeScript murni di `src/server/` (port disuntik, dites dengan vitest) dan dibundel esbuild ke Edge Functions Deno, jadi prompt dan pemeriksa fakta hanya punya satu sumber di `src/core/`. Extension memanggil `generate` dengan payload tersamar, bukan prompt.
 
-**Tech Stack:** WXT 0.21.4 + React 19.3, TypeScript 7.0.2, vitest 5.0.3, Supabase (Postgres, Auth OTP, Edge Functions Deno, pg_cron), Tripay QRIS, DeepSeek lewat endpoint OpenAI-compatible, esbuild (sudah terpasang lewat vite), `@electric-sql/pglite` (baru, devDependency) untuk menguji fungsi SQL.
+**Tech Stack:** WXT 0.21.4 + React 19.3, TypeScript 7.0.2, vitest 5.0.3, Supabase (Postgres, Auth OTP, Edge Functions Deno, pg_cron), Midtrans QRIS, DeepSeek lewat endpoint OpenAI-compatible, esbuild (sudah terpasang lewat vite), `@electric-sql/pglite` (baru, devDependency) untuk menguji fungsi SQL.
 
 **Spec:** `docs/superpowers/specs/2026-11-19-monetisasi-design.md` (disetujui PIC 2026-11-19). Tiket proyek: `docs/plan.md` T56–T63.
 
@@ -20,7 +20,7 @@
 - QR berlaku 30 menit. Extension mengecek status tiap 3 detik.
 - Batas server: payload ≤ 60.000 karakter; 30 generate per jam per akun; plafon bulanan dari secret `MONTHLY_AI_BUDGET_USD`.
 - Server tidak pernah menyimpan atau me-log prompt, payload, atau hasil.
-- Rahasia hanya di secrets Supabase: `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL`, `AI_PRICE_IN`, `AI_PRICE_OUT`, `MONTHLY_AI_BUDGET_USD`, `TRIPAY_API_KEY`, `TRIPAY_PRIVATE_KEY`, `TRIPAY_MERCHANT_CODE`, `TRIPAY_MODE`. Model awal `deepseek-v4.1-flash` (bukan varian `-mod`).
+- Rahasia hanya di secrets Supabase: `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL`, `AI_PRICE_IN`, `AI_PRICE_OUT`, `MONTHLY_AI_BUDGET_USD`, `MIDTRANS_SERVER_KEY`, `MIDTRANS_MODE`. Model awal `deepseek-v4.1-flash` (bukan varian `-mod`).
 - Build pengguna (`npm run build`) = AI lewat server. `WXT_AI_MODE=byok` = jalur kunci sendiri (build pengembang). `WXT_SHARE_BUILD=true` = AI mati.
 - Konvensi repo: `core/` TS murni, `platform/` satu-satunya pemanggil `browser.*` (RFC D4); impor eksplisit; tanpa library state global; Tailwind token saja; ikon `lucide-react`; tes ditulis lebih dulu; komentar kode berbahasa Inggris, teks UI berbahasa Indonesia.
 - Commit tanpa trailer Co-Authored-By dan tanpa footer Claude (memori PIC).
@@ -28,7 +28,7 @@
 ## Review Focus
 
 1. **Dua generate bersamaan dengan saldo 1** (dua tab menekan Buat CV): tepat satu berjalan, yang lain mendapat `insufficient` tanpa saldo minus. Tes di Task 1.
-2. **Callback Tripay datang berulang, terlambat, atau untuk pembelian yang sudah `expired`**: kredit masuk paling banyak sekali; `PAID` setelah `expired` tetap dikreditkan (uang sudah masuk). Tes di Task 1 dan Task 4.
+2. **Notifikasi Midtrans datang berulang, terlambat, atau untuk pembelian yang sudah `expired`**: kredit masuk paling banyak sekali; `PAID` setelah `expired` tetap dikreditkan (uang sudah masuk). Tes di Task 1 dan Task 4.
 3. **Sesi login habis di tengah generate** (token kedaluwarsa, refresh gagal): server menolak sebelum `reserve_credits`, saldo utuh, extension meminta masuk lagi tanpa menghapus data lokal. Tes di Task 3 dan Task 7.
 4. **Pemeriksa fakta server (ruang tersamar) lolos, tetapi pemeriksa extension (setelah nama dipulihkan) menolak**: kredit sudah terpotong untuk hasil yang tidak diterima. Tes kesetaraan kedua pemeriksa pada `SAMPLE_PROFILES` di Task 2.
 5. **Saldo lewat `credits_expire_at` sebelum `expire_credits` harian jalan**: `reserve_credits` tetap menolak dengan `expired`. Tes di Task 1.
@@ -64,7 +64,7 @@
   - `public.settle_generation(p_id uuid, p_ok boolean, p_refund_reason text, p_model text, p_in int, p_out int, p_cost numeric) returns int`: saldo baru
   - `public.ai_guard(p_user uuid, p_budget_usd numeric, p_rate int) returns text`: `'ok' | 'budget' | 'rate-limit'`
   - `public.create_purchase(p_user uuid, p_package text) returns public.purchases`: pending yang masih berlaku, atau yang baru
-  - `public.attach_tripay(p_purchase uuid, p_reference text, p_qr_url text) returns void`
+  - `public.attach_gateway(p_purchase uuid, p_reference text, p_qr_url text) returns void`
   - `public.apply_payment(p_purchase uuid, p_reference text, p_status text, p_amount int) returns text`: status akhir
   - `public.expire_credits() returns int`, `public.reap_reserved() returns int`: jumlah akun atau generasi yang tersentuh
 - Tabel dan kolom persis seperti desain §5.3, plus `accounts.trial_granted_at`, `accounts.credits_expire_at`, dan `credit_ledger.reason` yang juga menerima `'trial'` dan `'expire'`. Seed `packages`: `('basic', 10800, 50, true)`.
@@ -229,11 +229,13 @@ Expected: PASS.
 
 ---
 
-## Task 4: Tripay, buat QRIS dan terima callback (T59)
+## Task 4: Midtrans, buat QRIS dan terima notifikasi (T59)
+
+> Gateway semula Tripay; diganti Midtrans (Core API, QRIS) atas keputusan PIC 2026-11-19 (Task 4b). Blok di bawah sudah memakai Midtrans.
 
 **Files:**
-- Create: `src/server/tripay.ts`, `src/server/payments.ts`
-- Test: `src/server/tripay.test.ts`, `src/server/payments.test.ts`
+- Create: `src/server/midtrans.ts`, `src/server/payments.ts`
+- Test: `src/server/midtrans.test.ts`, `src/server/payments.test.ts`
 - Modify: `src/server/ports.ts` (port `PaymentDb`), `src/server/db.ts`
 
 **Interfaces:**
@@ -242,40 +244,41 @@ Expected: PASS.
   // ports.ts
   export type PaymentDb = {
     createPurchase(user: string, packageId: string): Promise<{ id: string; status: string; amountIdr: number; credits: number; qrUrl: string | null; expiresAt: string }>
-    attachTripay(purchaseId: string, reference: string, qrUrl: string): Promise<void>
+    attachGateway(purchaseId: string, reference: string, qrUrl: string): Promise<void>
     applyPayment(purchaseId: string, reference: string, status: string, amount: number): Promise<string>
   }
-  // tripay.ts
-  export type TripayEnv = { apiKey: string; privateKey: string; merchantCode: string; mode: 'sandbox' | 'production'; callbackUrl: string }
-  export const tripayBase = (mode: TripayEnv['mode']) => mode === 'production' ? 'https://tripay.co.id/api' : 'https://tripay.co.id/api-sandbox'
-  export async function hmacHex(key: string, message: string): Promise<string>                 // WebCrypto, jalan di Node dan Deno
-  export async function verifyCallback(rawBody: string, signature: string | null, privateKey: string): Promise<boolean>  // perbandingan waktu-konstan
-  export async function createQris(env: TripayEnv, input: { merchantRef: string; amount: number; email: string; expiresAt: Date }, fetchImpl?: typeof fetch): Promise<{ reference: string; qrUrl: string }>
+  // midtrans.ts
+  export type MidtransEnv = { serverKey: string; mode: 'sandbox' | 'production' }
+  export const midtransBase = (mode: MidtransEnv['mode']) => mode === 'production' ? 'https://api.midtrans.com' : 'https://api.sandbox.midtrans.com'
+  export async function sha512Hex(message: string): Promise<string>                 // WebCrypto, jalan di Node dan Deno
+  export async function verifyNotification(n: { order_id: string; status_code: string; gross_amount: string; signature_key: string }, serverKey: string): Promise<boolean>  // SHA512(order_id + status_code + gross_amount + serverKey), perbandingan waktu-konstan
+  export function mapStatus(transactionStatus: string, fraudStatus?: string): 'PAID' | 'EXPIRED' | 'FAILED' | 'UNPAID' | 'REFUND'
+  export async function createQris(env: MidtransEnv, input: { orderId: string; amount: number; email: string; expiresAt: Date }, fetchImpl?: typeof fetch): Promise<{ reference: string; qrUrl: string }>  // reference = transaction_id
   // payments.ts
   export type CreatePaymentResponse = { ok: true; purchaseId: string; qrUrl: string; amountIdr: number; credits: number; expiresAt: string } | { ok: false; error: 'unauthenticated'|'invalid-request'|'gateway'; message: string }
-  export async function handleCreatePayment(input: { userId: string | null; email: string | null; body: unknown }, deps: { db: PaymentDb; tripay: TripayEnv; fetchImpl?: typeof fetch }): Promise<{ status: number; body: CreatePaymentResponse }>
-  export async function handleCallback(input: { rawBody: string; signature: string | null; event: string | null }, deps: { db: PaymentDb; privateKey: string }): Promise<{ status: number; body: { success: boolean; message?: string } }>
+  export async function handleCreatePayment(input: { userId: string | null; email: string | null; body: unknown }, deps: { db: PaymentDb; midtrans: MidtransEnv; fetchImpl?: typeof fetch }): Promise<{ status: number; body: CreatePaymentResponse }>
+  export async function handleCallback(input: { rawBody: string }, deps: { db: PaymentDb; serverKey: string; report?: ... }): Promise<{ status: number; body: { success: boolean; message?: string } }>
   ```
-- Body Tripay: `method: 'QRIS'`, `merchant_ref`, `amount: 10800`, `customer_name` (bagian email sebelum `@`), `customer_email`, `order_items: [{ name: 'job-kit 50 kredit', price: 10800, quantity: 1 }]`, `callback_url`, `expired_time` (detik Unix), `signature = hmacHex(privateKey, merchantCode + merchantRef + amount)`. Tidak ada field biaya pembeli.
+- Body Midtrans (`POST /v2/charge`, Basic auth = base64(serverKey + ':')): `payment_type: 'qris'`, `transaction_details: { order_id, gross_amount: 10800 }`, `customer_details: { first_name, email }`, `qris: { acquirer: 'gopay' }`, `custom_expiry: { expiry_duration, unit: 'minute' }`. `order_id = <purchaseUuid>_<timestamp base36>` (maks 50 karakter; hanya huruf, angka, `-_~.`; Midtrans menolak order_id kembar dengan 406). Tidak ada field biaya pembeli.
 
 - [ ] **Step 1: Tulis tes yang gagal**
-  - `hmacHex` cocok dengan vektor yang dihitung `node:crypto` `createHmac('sha256')` untuk input yang sama.
-  - `createQris` mengirim body di atas ke `tripayBase(mode) + '/transaction/create'` dengan `Authorization: Bearer <apiKey>`; respons `{ success: true, data: { reference, qr_url } }` dipetakan; `success: false` → melempar.
-  - `handleCreatePayment`: tanpa user → 401; `packageId` bukan `'basic'` → 400; pending yang masih berlaku dengan `qrUrl` → tidak memanggil Tripay lagi; sukses → `attachTripay` dipanggil; Tripay gagal → 502 `gateway` dan pembelian tetap `pending`.
-  - `handleCallback`: tanda tangan salah → 401 tanpa `applyPayment`; `event` bukan `payment_status` → 400; `PAID` → `applyPayment(merchant_ref, reference, 'PAID', total_amount)` dan 200 `{ success: true }`; callback kedua yang sama → 200, dan `applyPayment` mengembalikan `'paid'` tanpa efek (Review Focus 2).
+  - `sha512Hex` cocok dengan vektor `node:crypto`; `verifyNotification` menerima yang benar, menolak yang salah, kosong, terpotong, atau kunci lain; `mapStatus` untuk semua nilai.
+  - `createQris` mengirim body di atas ke `midtransBase(mode) + '/v2/charge'` dengan header Basic, `Content-Type`, `Accept` dan timeout 15 detik; `transaction_id` dan URL gambar QR di `actions` dipetakan; kegagalan HTTP atau tanpa QR → melempar tanpa memuat kunci.
+  - `handleCreatePayment`: tanpa user → 401; `packageId` bukan `'basic'` → 400; pending yang masih berlaku dengan `qrUrl` → tidak memanggil Midtrans lagi; sukses → `attachGateway` dipanggil; Midtrans gagal → 502 `gateway` dan pembelian tetap `pending`; `attachGateway` melempar → handler melempar.
+  - `handleCallback`: body bukan JSON → 400; `signature_key` salah atau kosong → 401 tanpa `applyPayment`; `settlement` → `applyPayment(purchaseId, transaction_id, 'PAID', 10800)` dan 200 `{ success: true }`; `gross_amount` tak bulat → 400; callback kedua yang sama → 200, dan `applyPayment` mengembalikan `'paid'` tanpa efek (Review Focus 2); `PAID` yang tidak berujung `'paid'` atau `'mismatch'` → `report('paid-not-credited')`.
 - [ ] **Step 2: Run** `npx vitest run src/server`. Expected: FAIL.
 - [ ] **Step 3: Implementasi** sampai lulus.
 - [ ] **Step 4: Run** `npx vitest run src/server`. Expected: PASS.
-- [ ] **Step 5: Commit** `feat(server): pembayaran QRIS Tripay dan callback bertanda tangan`
+- [ ] **Step 5: Commit** `feat(server): pembayaran QRIS Midtrans dan notifikasi bertanda tangan` (semula Tripay; lihat Task 4b)
 
 ---
 
 ## Task 5: Entrypoint Edge Functions, bundel, dan deploy
 
 **Files:**
-- Create: `supabase/functions-src/generate/index.ts`, `supabase/functions-src/create-payment/index.ts`, `supabase/functions-src/tripay-callback/index.ts`, `supabase/functions-src/_shared/auth.ts`, `scripts/build-functions.mjs`
+- Create: `supabase/functions-src/generate/index.ts`, `supabase/functions-src/create-payment/index.ts`, `supabase/functions-src/midtrans-callback/index.ts`, `supabase/functions-src/_shared/auth.ts`, `scripts/build-functions.mjs`
 - Modify: `package.json` (script `build:functions`, `deploy:functions`), `.gitignore` (`supabase/functions/`, `supabase/.temp/`), `supabase/README.md`, `tsconfig.json` (exclude `supabase/functions-src` dari tipe browser bila perlu)
-- Create via CLI: `supabase/config.toml` (`supabase init`), dengan `[functions.tripay-callback] verify_jwt = false`
+- Create via CLI: `supabase/config.toml` (`supabase init`), dengan `[functions.midtrans-callback] verify_jwt = false`
 - Test: `scripts/build-functions.test.ts`
 
 **Interfaces:**
@@ -287,10 +290,10 @@ Expected: PASS.
 - [ ] **Step 2: Run** `npx vitest run scripts`. Expected: FAIL.
 - [ ] **Step 3: Tulis `scripts/build-functions.mjs`** memakai esbuild (`bundle: true`, `format: 'esm'`, `platform: 'neutral'`, `target: 'es2022'`) dan tiga entrypoint.
 - [ ] **Step 4: Run** `npx vitest run scripts`. Expected: PASS.
-- [ ] **Step 5:** Tambah ke `package.json`: `"build:functions": "node scripts/build-functions.mjs"` dan `"deploy:functions": "npm run build:functions && supabase functions deploy generate create-payment tripay-callback --project-ref ktgcjqxoohuvxwvsjhif"`.
-- [ ] **Step 6:** Di `supabase/README.md`, tulis cara PIC mengisi secrets (`supabase secrets set AI_BASE_URL=... AI_API_KEY=... AI_MODEL=deepseek-v4.1-flash AI_PRICE_IN=0.30 AI_PRICE_OUT=1.20 MONTHLY_AI_BUDGET_USD=5 TRIPAY_MODE=sandbox ...`) dan URL callback untuk dashboard Tripay (`https://ktgcjqxoohuvxwvsjhif.supabase.co/functions/v1/tripay-callback`). Kunci asli tidak ditulis di repo.
+- [ ] **Step 5:** Tambah ke `package.json`: `"build:functions": "node scripts/build-functions.mjs"` dan `"deploy:functions": "npm run build:functions && supabase functions deploy generate create-payment midtrans-callback --project-ref ktgcjqxoohuvxwvsjhif"`.
+- [ ] **Step 6:** Di `supabase/README.md`, tulis cara PIC mengisi secrets (`supabase secrets set AI_BASE_URL=... AI_API_KEY=... AI_MODEL=deepseek-v4.1-flash AI_PRICE_IN=0.30 AI_PRICE_OUT=1.20 MONTHLY_AI_BUDGET_USD=5 MIDTRANS_MODE=sandbox ...`) dan URL notifikasi untuk dashboard Midtrans (`https://ktgcjqxoohuvxwvsjhif.supabase.co/functions/v1/midtrans-callback`). Kunci asli tidak ditulis di repo.
 - [ ] **Step 7: Verifikasi deploy (PIC menjalankan, karena butuh login CLI):** `npm run deploy:functions`, lalu panggil `generate` dengan token uji. Expected: CV sungguhan kembali dan saldo berkurang 1. Catat token dan biaya di T58 `docs/plan.md`, yang juga menutup sisa T35.
-- [ ] **Step 8: Verifikasi sandbox Tripay:** buat pembayaran dari curl dengan token uji, bayar di simulator sandbox. Expected: `accounts.credits` +50, `unlocked_at` terisi.
+- [ ] **Step 8: Verifikasi sandbox Midtrans:** buat pembayaran dari curl dengan token uji, bayar di simulator sandbox. Expected: `accounts.credits` +50, `unlocked_at` terisi.
 - [ ] **Step 9: Commit** `feat(functions): entrypoint Edge Functions dan skrip bundel`
 
 ---
@@ -403,7 +406,7 @@ Expected: PASS.
 
 **Files:**
 - Create: `src/entrypoints/options/BuyCreditsModal.tsx`, `src/core/account/purchase-flow.ts`
-- Modify: `src/entrypoints/options/AccountPage.tsx` (saldo, tanggal hangus, riwayat), `wxt.config.ts` (CSP `img-src` menambah `https://tripay.co.id`)
+- Modify: `src/entrypoints/options/AccountPage.tsx` (saldo, tanggal hangus, riwayat), `wxt.config.ts` (CSP `img-src` menambah `https://api.midtrans.com` dan `https://api.sandbox.midtrans.com`)
 - Test: `src/core/account/purchase-flow.test.ts`, `src/entrypoints/options/BuyCreditsModal.test.tsx`, tambahan di `AccountPage.test.tsx`
 
 **Interfaces:**
@@ -429,7 +432,7 @@ Expected: PASS.
 - [ ] **Step 2: Run** `npx vitest run src/core/account src/entrypoints/options`. Expected: FAIL.
 - [ ] **Step 3: Implementasi.** Polling berhenti saat modal ditutup dan dilanjutkan saat dibuka lagi.
 - [ ] **Step 4: Run** `npm test && npm run typecheck`. Expected: PASS.
-- [ ] **Step 5: Verifikasi sandbox:** beli dari extension, bayar di simulator Tripay. Expected: layar berhasil ≤ 1 menit, saldo +50, riwayat bertambah satu baris.
+- [ ] **Step 5: Verifikasi sandbox:** beli dari extension, bayar di simulator Midtrans. Expected: layar berhasil ≤ 1 menit, saldo +50, riwayat bertambah satu baris.
 - [ ] **Step 6: Commit** `feat(options): beli kredit lewat QRIS dan riwayat kredit`
 
 ---
@@ -444,12 +447,12 @@ Expected: PASS.
 **Interfaces:**
 - Consumes: semua task sebelumnya.
 
-- [ ] **Step 1: Tulis tes yang gagal** di `site/site.test.ts`: `_headers` memuat CSP yang sama dengan `vercel.json`; `harga.html` memuat "Rp10.800", "50 kredit", "sudah termasuk semua biaya", "tidak bisa diuangkan", dan "1 tahun"; tidak memuat "admin"; `privasi.html` tidak lagi memuat "tidak memakai akun" dan "belum tersedia di versi ini", dan memuat "Tripay" serta "penyedia AI".
+- [ ] **Step 1: Tulis tes yang gagal** di `site/site.test.ts`: `_headers` memuat CSP yang sama dengan `vercel.json`; `harga.html` memuat "Rp10.800", "50 kredit", "sudah termasuk semua biaya", "tidak bisa diuangkan", dan "1 tahun"; tidak memuat "admin"; `privasi.html` tidak lagi memuat "tidak memakai akun" dan "belum tersedia di versi ini", dan memuat "Midtrans" serta "penyedia AI".
 - [ ] **Step 2: Run** `npx vitest run site`. Expected: FAIL.
-- [ ] **Step 3: Implementasi.** Di `privasi.html`, ganti hanya tiga bagian: akun wajib (email, saldo, riwayat pembelian); AI lewat server PIC (payload tersamar, tidak disimpan, penyedia DeepSeek); pembayaran lewat Tripay (email dan jumlah dikirim ke Tripay). Sisanya tetap (keputusan PIC 2026-11-19).
+- [ ] **Step 3: Implementasi.** Di `privasi.html`, ganti hanya tiga bagian: akun wajib (email, saldo, riwayat pembelian); AI lewat server PIC (payload tersamar, tidak disimpan, penyedia DeepSeek); pembayaran lewat Midtrans (email dan jumlah dikirim ke Midtrans). Sisanya tetap (keputusan PIC 2026-11-19).
 - [ ] **Step 4: Run** `npx vitest run site`. Expected: PASS.
 - [ ] **Step 5: Deploy website (PIC):** hubungkan repo ke Cloudflare Pages dengan direktori `site/`; cek header CSP di respons halaman.
 - [ ] **Step 6: Uji ujung ke ujung (sandbox)** di profil Chrome bersih dari `npm run zip`: instal → preview → masuk → 3 kredit percobaan → Buat CV → beli → saldo 52 → riwayat. Catat hasilnya di T63.
-- [ ] **Step 7: Produksi (PIC):** verifikasi akun Tripay, `supabase secrets set TRIPAY_MODE=production` beserta kunci produksi, satu transaksi nyata Rp10.800 oleh pengguna bukan PIC. Catat biaya AI + QRIS per paket (PRD §10).
+- [ ] **Step 7: Produksi (PIC):** verifikasi akun Midtrans, `supabase secrets set MIDTRANS_MODE=production` beserta kunci produksi, satu transaksi nyata Rp10.800 oleh pengguna bukan PIC. Catat biaya AI + QRIS per paket (PRD §10).
 - [ ] **Step 8:** Perbarui README, RFC §3.3d, dan `06-distribution.md` (centang "pembelian dalam aplikasi", formulir pengungkapan data: email, riwayat pembelian, isi CV tersamar ke penyedia AI; `key` manifest untuk ID tetap). Centang tiket di `docs/plan.md`.
 - [ ] **Step 9: Commit** `feat(site): halaman harga, privasi diperbarui, pindah ke Cloudflare Pages`

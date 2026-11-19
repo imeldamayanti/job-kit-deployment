@@ -13,7 +13,7 @@ Tidak ada kunci di repo ini. Proyek dibuat dan dikelola oleh pemilik.
 
 ## Edge Functions: AI berkredit dan pembayaran QRIS
 
-Tiga fungsi di `supabase/functions-src/` (`generate`, `create-payment`, `tripay-callback`) dibundel dari `src/server` dan `src/core` ke `supabase/functions/` (hasil build, tidak masuk git). Urutan SQL: `sync.sql`, lalu `billing.sql`, lalu `billing-cron.sql`; fungsi tidak akan jalan sebelum `billing.sql` dipasang.
+Tiga fungsi di `supabase/functions-src/` (`generate`, `create-payment`, `midtrans-callback`) dibundel dari `src/server` dan `src/core` ke `supabase/functions/` (hasil build, tidak masuk git). Urutan SQL: `sync.sql`, lalu `billing.sql`, lalu `billing-cron.sql`; fungsi tidak akan jalan sebelum `billing.sql` dipasang.
 
 ### Secrets
 
@@ -27,31 +27,29 @@ supabase secrets set --project-ref ktgcjqxoohuvxwvsjhif \
   AI_PRICE_IN=0.30 \
   AI_PRICE_OUT=1.20 \
   MONTHLY_AI_BUDGET_USD=5 \
-  TRIPAY_MODE=sandbox \
-  TRIPAY_API_KEY=<api key Tripay> \
-  TRIPAY_PRIVATE_KEY=<private key Tripay> \
-  TRIPAY_MERCHANT_CODE=<kode merchant Tripay> \
+  MIDTRANS_MODE=sandbox \
+  MIDTRANS_SERVER_KEY=<server key Midtrans, sandbox atau production sesuai mode> \
   EXTENSION_ID=<id ekstensi Chrome>
 ```
 
 - `AI_PRICE_IN` dan `AI_PRICE_OUT`: dolar per juta token, dipakai untuk menghitung biaya tiap panggilan.
 - `RATE_LIMIT_PER_HOUR` (opsional, bawaan 30): panggilan `generate` per akun per jam.
-- `TRIPAY_MODE`: `sandbox` atau `production`. Pakai `production` hanya setelah verifikasi sandbox di bawah lolos dan kunci production diisi.
+- `MIDTRANS_MODE`: `sandbox` atau `production`. Pakai `production` hanya setelah verifikasi sandbox di bawah lolos dan server key production diisi. Server key sandbox dan production berbeda; jangan dicampur.
 - `EXTENSION_ID`: hanya origin `chrome-extension://<id>` ini yang boleh memanggil `generate` dan `create-payment` dari browser.
 
-### Callback Tripay
+### Notifikasi Midtrans
 
-Di dashboard Tripay (merchant > pengaturan), isi URL callback:
+Di dashboard Midtrans (Settings > Configuration, kolom Payment Notification URL; sandbox dan production punya dashboard dan URL sendiri), isi URL notifikasi:
 
 ```
-https://ktgcjqxoohuvxwvsjhif.supabase.co/functions/v1/tripay-callback
+https://ktgcjqxoohuvxwvsjhif.supabase.co/functions/v1/midtrans-callback
 ```
 
-`tripay-callback` memakai `verify_jwt = false` (lihat `config.toml`) karena Tripay tidak membawa token Supabase; tanda tangan `X-Callback-Signature` atas isi mentah yang memeriksanya. `generate` dan `create-payment` tetap memakai `verify_jwt` bawaan (`true`).
+`midtrans-callback` memakai `verify_jwt = false` (lihat `config.toml`) karena Midtrans tidak membawa token Supabase; `signature_key` di isi notifikasi (SHA-512 dari `order_id`, `status_code`, `gross_amount`, dan server key) yang memeriksanya sebelum database disentuh. `generate` dan `create-payment` tetap memakai `verify_jwt` bawaan (`true`).
 
 ### Deploy dan verifikasi (dijalankan pemilik, butuh login CLI)
 
 1. `supabase login`, lalu `npm run deploy:functions` (membundel, lalu men-deploy ketiga fungsi).
 2. Verifikasi `generate`: panggil dengan token pengguna uji (`Authorization: Bearer <access token>`, `apikey: <publishable key>`) dan isi `kind: "cv"` yang sah. Harapan: CV sungguhan kembali dan saldo berkurang 1. Catat token pemakaian dan biayanya di T58 `docs/plan.md`, yang juga menutup sisa T35.
-3. Verifikasi sandbox Tripay: buat pembayaran lewat curl ke `create-payment` dengan token uji (`{"packageId":"basic"}`), lalu bayar kodenya di simulator sandbox Tripay. Harapan: `accounts.credits` bertambah 50 dan `unlocked_at` terisi. Panggil `create-payment` sekali lagi sebelum dibayar: harus mengembalikan QR yang sama.
+3. Verifikasi sandbox Midtrans: buat pembayaran lewat curl ke `create-payment` dengan token uji (`{"packageId":"basic"}`), lalu bayar kodenya di simulator QRIS sandbox Midtrans. Harapan: `accounts.credits` bertambah 50 dan `unlocked_at` terisi. Panggil `create-payment` sekali lagi sebelum dibayar: harus mengembalikan QR yang sama.
 4. Log fungsi (`supabase functions logs <nama>` atau dashboard) hanya memuat nama tahap dan pesan galat, tidak pernah isi permintaan.

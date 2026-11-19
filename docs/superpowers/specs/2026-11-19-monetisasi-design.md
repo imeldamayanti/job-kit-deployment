@@ -29,7 +29,7 @@ Pengguna sekarang lingkaran teman. Ke depan mungkin publik, jadi semua keputusan
 **Gagal walaupun "jalan"**
 - Pengguna membayar tetapi kredit tidak masuk dan tidak ada jalan untuk tahu kenapa.
 - Satu callback dihitung dua kali sehingga kredit dobel.
-- Kunci AI atau kunci Tripay ikut ter-bundle di extension.
+- Kunci AI atau server key Midtrans ikut ter-bundle di extension.
 - Tagihan AI jebol karena satu akun disalahgunakan.
 - Ada baris "biaya admin" terpisah untuk QRIS (melanggar PBI 23/2021 Pasal 52 ayat 1).
 
@@ -47,7 +47,7 @@ Pengguna sekarang lingkaran teman. Ke depan mungkin publik, jadi semua keputusan
 | 8 | **Kredit habis tidak mengunci fitur atau data**; hanya AI yang berhenti sampai beli lagi. |
 | 9 | **Plafon pengeluaran AI bulanan** di server. |
 | 10 | **Model `deepseek-v4.1-flash`** lewat proxy `bandelbanget.xyz` sementara ("cek ombak"); bukan varian `-mod`. Pindah ke `api.deepseek.com` cukup dengan mengganti secrets `AI_BASE_URL`, `AI_API_KEY`, dan `AI_MODEL` (`deepseek-flash`) di Supabase; tanpa rilis ulang extension. |
-| 11 | **Tarik dana bulanan** (Tripay mengenakan Rp7.500 per penarikan). |
+| 11 | **Tarik dana bulanan** (biaya penarikan Midtrans ke rekening belum diverifikasi; cek di dashboard sebelum produksi). |
 | 12 | **Kebijakan privasi:** pakai `site/privasi.html` yang ada untuk sementara (PIC 2026-11-19). Hanya kalimat yang jadi salah yang diganti di T63: "tidak memakai akun", "AI belum tersedia, tidak mengirim data ke penyedia AI", dan belum adanya pembelian. Tinjauan penuh sebelum dibuka publik. |
 | 13 | **Arsitektur: Supabase penuh** (Pendekatan A di §4). |
 
@@ -86,17 +86,17 @@ Sinkron terenkripsi (PRD §4.3) **tetap opsional** dengan kata sandi sinkron sen
 ### 5.2 Arus
 
 ```
-Extension ──(token login)──► Edge Function create-payment ──► Tripay: buat transaksi QRIS
+Extension ──(token login)──► Edge Function create-payment ──► Midtrans: buat transaksi QRIS
     ▲   menampilkan QR, cek status tiap 3 dtk                          │
     │                                                                  ▼ pembeli scan & bayar
-    └── baca purchases/accounts (RLS) ◄── apply_payment() ◄── tripay-callback (HMAC dicek)
+    └── baca purchases/accounts (RLS) ◄── apply_payment() ◄── midtrans-callback (signature_key dicek)
 
 Extension ──(token login, payload tersamar)──► Edge Function generate
     reserve_credits() → DeepSeek → validasi skema + pemeriksa fakta → settle_generation()
     sukses: kredit tetap terpotong · gagal/ditolak: kredit kembali
 ```
 
-Website dan extension **tidak perlu saling terhubung**. Keduanya hanya bicara ke Supabase. Website tetap statis: beranda, pasang, privasi, masukan, dan halaman harga (informasi saja). Akun Chrome Web Store milik teman PIC hanya memegang listing; login, saldo, dan pembayaran ada di Supabase dan Tripay milik PIC.
+Website dan extension **tidak perlu saling terhubung**. Keduanya hanya bicara ke Supabase. Website tetap statis: beranda, pasang, privasi, masukan, dan halaman harga (informasi saja). Akun Chrome Web Store milik teman PIC hanya memegang listing; login, saldo, dan pembayaran ada di Supabase dan Midtrans milik PIC.
 
 ### 5.3 Struktur data (Postgres, skema `public`)
 
@@ -120,13 +120,13 @@ accounts (
 )
 
 purchases (
-  id                uuid primary key default gen_random_uuid(),   -- = merchant_ref ke Tripay
+  id                uuid primary key default gen_random_uuid(),   -- bagian pertama order_id ke Midtrans
   user_id           uuid references auth.users on delete set null, -- null setelah hapus akun
   package_id        text not null references packages,
   amount_idr        integer not null,
   credits           integer not null,
   status            text not null check (status in ('pending','paid','expired','failed','mismatch')),
-  tripay_reference  text unique,
+  gateway_reference text unique,
   qr_url            text,
   expires_at        timestamptz not null,
   paid_at           timestamptz,
@@ -162,7 +162,7 @@ credit_ledger (
 Fungsi (semua `security definer`, `search_path = ''`, hanya `service_role` kecuali disebut lain):
 - `reserve_credits(user_id, kind, cost) → generation_id`: kunci baris `accounts` (`for update`), tolak bila saldo kurang, kurangi saldo, catat `ledger(-cost, 'generate')` dan `generations(status='reserved')` dalam satu transaksi.
 - `settle_generation(id, ok, refund_reason, model, in_tokens, out_tokens, cost_usd)`: `ok` → `done`; tidak `ok` → kembalikan kredit, `ledger(+cost, 'refund')`, `refunded`. Memanggil dua kali tidak berefek kedua.
-- `apply_payment(purchase_id, tripay_reference, status, amount_idr)`: hanya mengubah `pending`. `PAID` dengan jumlah sama → `paid`, saldo `+credits`, `unlocked_at = coalesce(unlocked_at, now())`, `ledger(+credits, 'purchase')`. Jumlah beda → `mismatch`, tanpa kredit. `EXPIRED`/`FAILED` → status itu. Idempoten.
+- `apply_payment(purchase_id, gateway_reference, status, amount_idr)`: hanya mengubah `pending`. `PAID` dengan jumlah sama → `paid`, saldo `+credits`, `unlocked_at = coalesce(unlocked_at, now())`, `ledger(+credits, 'purchase')`. Jumlah beda → `mismatch`, tanpa kredit. `EXPIRED`/`FAILED` → status itu. Idempoten.
 - `ensure_account()` (dipanggil pengguna sendiri, `authenticated`): membuat baris `accounts` bila belum ada dan memberi 3 kredit percobaan (`ledger(+3, 'trial')`, `trial_granted_at`) sekali per akun. Bila kuota percobaan harian global habis (usulan 30 akun per hari), akun tetap dibuat tanpa kredit percobaan.
 - `reap_reserved()`: generasi `reserved` lebih dari 10 menit dikembalikan (fungsi mati di tengah jalan). Dijalankan `pg_cron` tiap 5 menit.
 - `expire_credits()`: akun dengan `credits_expire_at < now()` dan saldo > 0 → `ledger(-saldo, 'expire')`, saldo 0. Dijalankan `pg_cron` tiap hari. `apply_payment` dan pemberian percobaan mengatur `credits_expire_at = now() + interval '1 year'`, sehingga **seluruh saldo** berlaku 1 tahun sejak pembelian terakhir. `reserve_credits` menolak saldo yang sudah lewat tanggal walau `expire_credits` belum jalan.
@@ -174,19 +174,19 @@ Hapus akun (sudah ada, `delete_account()`): `accounts` ikut terhapus; `purchases
 **`create-payment`** (butuh login)
 - Masukan `{ packageId }`. Paket harus `active`.
 - Bila akun punya `pending` yang belum kedaluwarsa, kembalikan yang itu (tidak membuat QR kedua).
-- Buat `purchases(pending, expires_at = now()+30 menit)`, panggil Tripay `POST /transaction/create` metode `QRIS`, `merchant_ref = purchases.id`, tanda tangan `HMAC-SHA256(merchant_code + merchant_ref + amount, private_key)`, `callback_url` = `tripay-callback`.
+- Buat `purchases(pending, expires_at = now()+30 menit)`, panggil Midtrans Core API `POST /v2/charge` dengan `payment_type = qris` (`qris.acquirer = gopay`), `order_id = <purchases.id>_<timestamp base36>` (unik per percobaan; Midtrans menolak order_id kembar dengan 406), `gross_amount` bilangan bulat rupiah, `custom_expiry` dalam menit, autentikasi Basic (server key + `:`). `reference` = `transaction_id`, `qrUrl` = URL gambar QR di `actions`. URL notifikasi diisi di dashboard Midtrans: `midtrans-callback`.
 - Kembalikan `{ purchaseId, qrUrl, amountIdr, credits, expiresAt }`.
 
-**`tripay-callback`** (publik, tanpa JWT)
-- Cek `X-Callback-Signature = HMAC-SHA256(body mentah, private_key)` dan `X-Callback-Event = payment_status`. Gagal → 401, tanpa efek.
-- Panggil `apply_payment`. Balas `{ success: true }` juga untuk kejadian yang sudah pernah diproses, supaya Tripay tidak mengulang tanpa henti.
+**`midtrans-callback`** (publik, tanpa JWT)
+- Parse isi JSON, lalu cek `signature_key = SHA512(order_id + status_code + gross_amount + server key)` (`gross_amount` apa adanya, mis. `"10800.00"`; perbandingan waktu-konstan) sebelum menyentuh database. Salah atau kosong → 401, tanpa efek. `purchase_id` diambil dari bagian `order_id` sebelum `_` pertama dan harus UUID sah. Status: `settlement` (atau `capture` dengan `fraud_status = accept`) → `PAID`, `pending` → `UNPAID`, `expire` → `EXPIRED`, `cancel`/`deny`/`failure` → `FAILED`, `refund`/`partial_refund`/`chargeback` → `REFUND`.
+- Panggil `apply_payment`. Balas `{ success: true }` juga untuk kejadian yang sudah pernah diproses, supaya Midtrans tidak mengulang tanpa henti.
 
 **`generate`** (butuh login)
 - Masukan: `{ kind, payload }`. `payload` adalah data tersamar yang sekarang sudah dibuat extension (PRD §4.2, RFC D13); **bukan** prompt bebas. Akun yang belum `unlocked` dan tidak punya saldo ditolak.
 - Server menyusun prompt dan menjalankan validasi skema serta pemeriksa fakta (`validateGrounded`, FR-40) dengan kode yang sama dengan extension (satu sumber di `src/core/`).
 - Urutan: cek plafon bulanan dan batas laju → `reserve_credits` → panggil model → validasi → `settle_generation` → kembalikan hasil + saldo baru.
 - Batas: payload ≤ 60.000 karakter, `max_tokens` ditentukan server per `kind`, timeout model 60 detik.
-- Rahasia hanya di secrets Supabase: `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL`, `AI_PRICE_IN`, `AI_PRICE_OUT`, `MONTHLY_AI_BUDGET_USD`, `TRIPAY_API_KEY`, `TRIPAY_PRIVATE_KEY`, `TRIPAY_MERCHANT_CODE`, `TRIPAY_MODE` (`sandbox`/`production`).
+- Rahasia hanya di secrets Supabase: `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL`, `AI_PRICE_IN`, `AI_PRICE_OUT`, `MONTHLY_AI_BUDGET_USD`, `MIDTRANS_SERVER_KEY`, `MIDTRANS_MODE` (`sandbox`/`production`).
 
 ### 5.5 Extension
 
@@ -236,7 +236,7 @@ Hapus akun (sudah ada, `delete_account()`): `accounts` ikut terhapus; `purchases
 | Jumlah dibayar ≠ harga | `mismatch`, tanpa kredit; PIC melihatnya di halaman admin |
 | QR kedaluwarsa (30 menit) | `expired`; pengguna membuat QR baru |
 | Modal ditutup sebelum bayar lalu bayar | Kredit tetap masuk lewat callback |
-| Callback tidak pernah datang | Tetap `pending`; PIC cek di dashboard Tripay dan memberi `admin_grant` |
+| Callback tidak pernah datang | Tetap `pending`; PIC cek di dashboard Midtrans dan memberi `admin_grant` |
 | Minta uang kembali | Tidak otomatis; PIC menangani manual |
 
 ## 7. Angka
@@ -245,8 +245,8 @@ Kurs Rp16.500/USD. Harga DeepSeek resmi jam sibuk ($0,30 / $1,20 per 1 juta toke
 
 | | Nilai |
 |---|---|
-| Biaya QRIS Tripay (halaman developer Tripay) | Rp750 + 0,7% = **Rp826** per paket |
-| Bersih per paket | Rp9.974 |
+| Biaya QRIS Midtrans (docs.midtrans.com: MDR QRIS 0,7% untuk merchant reguler; PPN dan biaya lain tidak disebut di halaman itu, cek di dashboard) | 0,7% = **Rp76** per paket |
+| Bersih per paket | Rp10.724 |
 | Biaya AI per CV (diukur, kode produksi: ±1.870 token masuk / ±350 keluar) | **±Rp16** |
 | Biaya AI per surat (±1.610 / ±280) | **±Rp14** |
 | Biaya AI per skor 10 lowongan (2 request, ±3.840 / ±1.030) | **±Rp39** |
@@ -275,4 +275,4 @@ Margin 25–40% berarti ratusan kredit per paket; PIC memilih **50 kredit per pa
 
 ## 10. Selesai bila
 
-Satu pengguna asli (bukan PIC) mendaftar, membayar Rp10.800 lewat QRIS di Tripay produksi, kredit masuk tanpa PIC menyentuh apa pun, membuat satu CV, dan biaya AI + biaya QRIS tercatat lebih kecil dari Rp10.800.
+Satu pengguna asli (bukan PIC) mendaftar, membayar Rp10.800 lewat QRIS di Midtrans produksi, kredit masuk tanpa PIC menyentuh apa pun, membuat satu CV, dan biaya AI + biaya QRIS tercatat lebih kecil dari Rp10.800.

@@ -74,8 +74,8 @@ export function createDb(url: string, serviceKey: string, fetchImpl: FetchLike =
       return readPurchase(await rpc('create_purchase', { p_user: user, p_package: packageId }))
     },
 
-    async attachTripay(purchaseId, reference, qrUrl) {
-      await rpc('attach_tripay', { p_purchase: purchaseId, p_reference: reference, p_qr_url: qrUrl })
+    async attachGateway(purchaseId, reference, qrUrl) {
+      await rpc('attach_gateway', { p_purchase: purchaseId, p_reference: reference, p_qr_url: qrUrl })
     },
 
     async applyPayment(purchaseId, reference, status, amount) {

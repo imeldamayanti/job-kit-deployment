@@ -36,7 +36,7 @@ export type Purchase = { id: string; status: string; amountIdr: number; credits:
 export type PaymentDb = {
   // The user's still-valid pending purchase for this package, or a new one.
   createPurchase(user: string, packageId: string): Promise<Purchase>
-  attachTripay(purchaseId: string, reference: string, qrUrl: string): Promise<void>
+  attachGateway(purchaseId: string, reference: string, qrUrl: string): Promise<void>
   // Returns the final status of the purchase, or 'not_found' when there is no such purchase.
   applyPayment(purchaseId: string, reference: string, status: string, amount: number): Promise<string>
 }

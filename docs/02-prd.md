@@ -119,7 +119,7 @@ Alasan: banyak teman PIC minta dibantu, dan tiap CV memakai kredit AI dan waktu 
 - **Tingkatan:** login gratis membuka profil, Import CV, Data, dan Autofill. **Membeli satu paket** membuka Lowongan, Lamaran, CV, dan surat untuk seterusnya. Fitur AI butuh saldo kredit; kredit habis tidak mengunci fitur atau data.
 - **Tanpa kunci sendiri.** Semua AI lewat server PIC (Supabase Edge Functions). Kunci model dan kunci gateway hanya ada di server.
 - **Harga:** paket **Rp10.800, sudah termasuk semua biaya**. Tidak ada baris biaya admin terpisah, karena membebankan biaya QRIS ke pembeli dilarang (PBI 23/2021 Pasal 52 ayat 1).
-- **Bayar QRIS dinamis** lewat Tripay, dicek otomatis lewat callback bertanda tangan; uang masuk ke rekening PIC.
+- **Bayar QRIS dinamis** lewat Midtrans, dicek otomatis lewat callback bertanda tangan; uang masuk ke rekening PIC.
 - **Kredit dikembalikan** bila AI gagal, balasannya tidak valid, ditolak pemeriksa fakta (FR-40), atau CV jatuh ke isi Profile apa adanya.
 - **Yang diketahui server:** email, saldo, riwayat pembelian, dan per generate hanya jenis, jumlah token, dan perkiraan biaya. **Isi prompt dan hasil tidak disimpan.** Payload tetap tersamar seperti §4.2.
 - **Model:** `deepseek-v4.1-flash`, sementara lewat proxy pihak ketiga; diganti ke API resmi lewat konfigurasi server tanpa rilis ulang extension.
@@ -456,7 +456,7 @@ flowchart LR
 | FR-49 | **Login wajib dan preview.** Tanpa sesi, options dan panel menampilkan data contoh dengan semua aksi nonaktif dan ajakan "Masuk untuk memakai". Masuk memakai email dan kode OTP. *(revisi 2026-11-19)* | Tanpa login: tombol Fill dan Buat nonaktif, data contoh tampil. Masuk dengan kode; profil sendiri tampil. | Must |
 | FR-50 | **Tingkatan akses.** Login gratis: profil, Import CV, Data, Autofill. Akun baru mendapat **3 kredit percobaan** sekali; selama kredit percobaan ada, Lowongan, Lamaran, CV, dan surat terbuka, lalu menjadi hanya-baca sampai membeli. Akun yang pernah membeli paket: Lowongan, Lamaran, CV, surat, Atur Lowongan, tanpa terkunci lagi walau saldo 0. Akses dicek server untuk AI dan dicache lokal untuk tampilan. | Akun baru: item Lowongan dan Lamaran menampilkan "Beli paket untuk membuka". Setelah beli: terbuka. Saldo 0: tetap terbuka, tombol Buat nonaktif. | Must |
 | FR-51 | **Saldo dan biaya terlihat.** Saldo kredit tampil di sidebar dan panel; tiap tombol AI menyebut biayanya ("Buat CV · 1 kredit") dan nonaktif dengan sebab bila saldo kurang, plafon tercapai, atau offline. | Saldo 0: Buat CV nonaktif dengan "Kredit tidak cukup" dan tombol Beli kredit. | Must |
-| FR-52 | **Beli paket lewat QRIS.** Modal di extension menampilkan QR dinamis, harga "Rp10.800, sudah termasuk semua biaya", dan hitung mundur 30 menit. Status dicek otomatis; kredit masuk tanpa campur tangan PIC. Menutup modal tidak membatalkan pembelian. Tidak ada baris biaya admin. | Bayar di sandbox Tripay; saldo bertambah dan fitur terbuka dalam ≤1 menit tanpa muat ulang. Callback yang sama dikirim dua kali; saldo bertambah sekali. | Must |
+| FR-52 | **Beli paket lewat QRIS.** Modal di extension menampilkan QR dinamis, harga "Rp10.800, sudah termasuk semua biaya", dan hitung mundur 30 menit. Status dicek otomatis; kredit masuk tanpa campur tangan PIC. Menutup modal tidak membatalkan pembelian. Tidak ada baris biaya admin. | Bayar di sandbox Midtrans; saldo bertambah dan fitur terbuka dalam ≤1 menit tanpa muat ulang. Callback yang sama dikirim dua kali; saldo bertambah sekali. | Must |
 | FR-53 | **AI lewat server dengan kredit.** CV, surat, dan skor AI dipanggil lewat server; kredit dipotong saat mulai dan dikembalikan pada kasus di §8. Build pengguna tidak punya pilihan penyedia, model, atau kunci API. | Payload uji tanpa nama, email, telepon, alamat. Model palsu error: saldo kembali. Pemeriksa fakta menolak: saldo kembali dan sebab tampil. Bundle build pengguna tidak memuat kunci atau URL penyedia AI. | Must |
 | FR-54 | **Riwayat kredit** di halaman Akun: pembelian dan pemakaian dengan tanggal, jenis, dan ±kredit. **Kedaluwarsa:** saldo hangus 1 tahun sejak pembelian terakhir (tiap pembelian memperpanjang seluruh saldo); tanggal hangus tampil di Akun, dan 30 hari sebelumnya sidebar memberi penanda. | Beli satu paket dan buat satu CV; dua baris muncul urut waktu. | Should |
 | FR-55 | **Pengaman biaya.** Plafon pengeluaran AI bulanan dan batas laju per akun di server. Saat tercapai, kredit tidak dipotong dan tombol AI menyebut sebabnya. | Set plafon ke 0; Buat CV menampilkan "Layanan AI penuh bulan ini" dan saldo tidak berubah. | Must |
@@ -516,7 +516,7 @@ flowchart LR
 | Bayar: callback datang berulang | Hanya yang pertama menambah kredit. |
 | Bayar: jumlah dibayar berbeda dari harga | Tidak ada kredit; pembelian ditandai untuk PIC. |
 | Bayar: QR kedaluwarsa | Pembelian kedaluwarsa; pengguna membuat QR baru. |
-| Bayar: callback tidak pernah datang | Pembelian tetap menunggu; PIC memeriksa di dashboard Tripay dan menambah kredit manual. |
+| Bayar: callback tidak pernah datang | Pembelian tetap menunggu; PIC memeriksa di dashboard Midtrans dan menambah kredit manual. |
 | Akun: sesi login habis | Options meminta masuk lagi; data lokal tidak hilang. |
 
 ## 9. Scope IN and OUT
@@ -536,7 +536,7 @@ flowchart LR
 
 **OUT (revisi 2026-10-15):** unggah CV otomatis ke form (pengguna memilih berkas sendiri), melamar otomatis, banyak templat CV, editor CV WYSIWYG, skor ATS dari pihak ketiga, pengisian essay atau pertanyaan bebas, notifikasi sistem, sinkron lintas perangkat, impor lamaran dari email atau situs, tampilan Daftar (pilihan kedua di penukar adalah Visualisasi; keputusan PIC 2026-10-15), seret-lepas kartu di papan, pencatatan lamaran manual untuk halaman di luar feed (FR-24, T21 tetap ditunda), latihan interview.
 
-**IN (revisi 2026-11-19):** login wajib (email OTP) dengan preview tanpa login, tingkatan akses, saldo kredit, beli paket Rp10.800 lewat QRIS Tripay di extension, AI lewat Supabase Edge Functions, pengembalian kredit, riwayat kredit, plafon dan batas laju, website pindah ke Cloudflare Pages dengan halaman harga.
+**IN (revisi 2026-11-19):** login wajib (email OTP) dengan preview tanpa login, tingkatan akses, saldo kredit, beli paket Rp10.800 lewat QRIS Midtrans di extension, AI lewat Supabase Edge Functions, pengembalian kredit, riwayat kredit, plafon dan batas laju, website pindah ke Cloudflare Pages dengan halaman harga.
 
 **OUT (revisi 2026-11-19):** jalur kunci API sendiri di build pengguna, langganan, kupon, referral, paket bertingkat, pembayaran selain QRIS, pengembalian uang otomatis, login Google, halaman beli di website, menyimpan isi prompt atau hasil di server.
 
@@ -595,7 +595,7 @@ Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lev
 | Tempat data Lamaran | Lokal di `storage.local`; ikut Export. Tanpa Notion, CSV, atau sinkron. **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
 | Urutan pengerjaan Application Kit | Mockup, lalu tracker, lalu CV, lalu surat (plan.md T40 sampai T55). **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
 
-| Akun dan pembayaran | Login wajib, tanpa kunci sendiri, satu saldo kredit, paket Rp10.800 sudah termasuk semua biaya, QRIS lewat Tripay, kredit dikembalikan bila gagal, arsitektur Supabase. **Diputuskan PIC 2026-11-19** (§4.5). |
+| Akun dan pembayaran | Login wajib, tanpa kunci sendiri, satu saldo kredit, paket Rp10.800 sudah termasuk semua biaya, QRIS lewat Midtrans, kredit dikembalikan bila gagal, arsitektur Supabase. **Diputuskan PIC 2026-11-19** (§4.5). |
 | Isi paket dan tarif | 50 kredit per Rp10.800; CV 1, surat 1, skor 10 lowongan 1 kredit; ambil lowongan gratis. **Diputuskan PIC 2026-11-19.** |
 | Skor AI dan kredit | Feed harian memakai skor kasar gratis; skor AI hanya saat pengguna menekan "Nilai dengan AI" (1 kredit per 10 lowongan). **Diputuskan PIC 2026-11-19.** |
 | Kredit percobaan | 3 kredit sekali per akun; fitur terbuka selama kredit percobaan ada, lalu hanya-baca sampai membeli; kuota percobaan harian global sebagai pengaman. **Diputuskan PIC 2026-11-19.** |

@@ -12,7 +12,7 @@ const SERVICE_FUNCTIONS = [
   'settle_generation',
   'ai_guard',
   'create_purchase',
-  'attach_tripay',
+  'attach_gateway',
   'apply_payment',
   'expire_credits',
   'reap_reserved',

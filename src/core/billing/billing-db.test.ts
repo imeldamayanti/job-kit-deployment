@@ -191,13 +191,13 @@ describe('payments', () => {
     expect(acct.unlocked_at).not.toBeNull()
     expect(daysFromNow(acct.credits_expire_at!)).toBeCloseTo(365, 0)
     expect((await ledgerRows(user)).filter((r) => r.reason === 'purchase')).toEqual([{ delta: 50, reason: 'purchase' }])
-    const { rows } = await db.query<{ status: string; paid_at: Date; tripay_reference: string }>(
-      'select status, paid_at, tripay_reference from public.purchases where id = $1',
+    const { rows } = await db.query<{ status: string; paid_at: Date; gateway_reference: string }>(
+      'select status, paid_at, gateway_reference from public.purchases where id = $1',
       [p.id],
     )
     expect(one(rows).status).toBe('paid')
     expect(one(rows).paid_at).not.toBeNull()
-    expect(one(rows).tripay_reference).toBe('T123')
+    expect(one(rows).gateway_reference).toBe('T123')
   })
 
   it('apply_payment with a different amount marks mismatch and adds nothing', async () => {
@@ -261,18 +261,18 @@ describe('payments', () => {
     await expect(newPurchase(user)).rejects.toThrow(/unknown_package/)
   })
 
-  it('attach_tripay stores the reference and QR url on a pending purchase', async () => {
+  it('attach_gateway stores the reference and QR url on a pending purchase', async () => {
     const user = await addUser()
     await ensureAccount(user)
     const p = await newPurchase(user)
-    await db.query('select public.attach_tripay($1, $2, $3)', [p.id, 'T999', 'https://qr.example/x.png'])
-    const { rows } = await db.query<{ tripay_reference: string; qr_url: string }>(
-      'select tripay_reference, qr_url from public.purchases where id = $1',
+    await db.query('select public.attach_gateway($1, $2, $3)', [p.id, 'T999', 'https://qr.example/x.png'])
+    const { rows } = await db.query<{ gateway_reference: string; qr_url: string }>(
+      'select gateway_reference, qr_url from public.purchases where id = $1',
       [p.id],
     )
-    expect(one(rows)).toEqual({ tripay_reference: 'T999', qr_url: 'https://qr.example/x.png' })
+    expect(one(rows)).toEqual({ gateway_reference: 'T999', qr_url: 'https://qr.example/x.png' })
     await expect(
-      db.query('select public.attach_tripay($1, $2, $3)', [randomUUID(), 'T1', 'u']),
+      db.query('select public.attach_gateway($1, $2, $3)', [randomUUID(), 'T1', 'u']),
     ).rejects.toThrow(/not_found/)
   })
 

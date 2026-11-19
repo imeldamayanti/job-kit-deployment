@@ -917,11 +917,11 @@ Sumber: PRD §4.5, FR-49 sampai FR-56; RFC §3.3d, D20 sampai D24; desain `docs/
 ```
 T56 mockup ── PIC setuju ───────────────────────────────┐
 T57 skema kredit ─┬─ T58 generate (server) ─────────────┼─ T61 AI lewat server di extension ─┐
-                  └─ T59 Tripay (sandbox) ──────────────┼─ T62 beli QRIS + riwayat ──────────┼─ T63 website + uji ujung ke ujung + produksi
+                  └─ T59 Midtrans (sandbox) ──────────────┼─ T62 beli QRIS + riwayat ──────────┼─ T63 website + uji ujung ke ujung + produksi
                      T60 login wajib + preview + akses ─┘                                    │
 ```
 
-Prasyarat di tangan PIC: akun Tripay (sandbox dulu, lalu verifikasi produksi), kunci proxy atau DeepSeek resmi di secrets Supabase, Supabase CLI terpasang untuk deploy Edge Functions.
+Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi), kunci proxy atau DeepSeek resmi di secrets Supabase, Supabase CLI terpasang untuk deploy Edge Functions.
 
 **Done when:** satu pengguna asli membayar Rp10.800 lewat QRIS produksi, kredit masuk tanpa PIC, membuat satu CV, dan biaya AI + QRIS < Rp10.800 (PRD §10).
 
@@ -974,14 +974,14 @@ Prasyarat di tangan PIC: akun Tripay (sandbox dulu, lalu verifikasi produksi), k
 
 **Done when:** CV nyata dibuat lewat fungsi yang sudah di-deploy dan saldo berkurang satu.
 
-### T59 · Tripay: buat QRIS dan terima callback (sandbox) · 2h · feature · Highest
+### T59 · Midtrans: buat QRIS dan terima callback (sandbox) · 2h · feature · Highest
 - [ ] **T59 selesai**
 
 **Acceptance criteria**
-- [ ] `create-payment` membuat `purchases(pending)` dan transaksi QRIS Tripay dengan tanda tangan HMAC; mengembalikan QR, jumlah, kredit, kedaluwarsa 30 menit (FR-52)
+- [ ] `create-payment` membuat `purchases(pending)` dan transaksi QRIS Midtrans (Core API charge, Basic auth); mengembalikan QR, jumlah, kredit, kedaluwarsa 30 menit (FR-52)
 - [ ] Bila ada `pending` yang masih berlaku, yang itu dikembalikan, bukan QR kedua (FR-52)
-- [ ] `tripay-callback` tanpa JWT; tanda tangan salah → 401 tanpa efek; callback sama dua kali → kredit sekali (FR-52)
-- [ ] Bayar di simulator sandbox Tripay; `accounts.credits` bertambah dan `unlocked_at` terisi (FR-50, FR-52)
+- [ ] `midtrans-callback` tanpa JWT; `signature_key` salah → 401 tanpa efek; callback sama dua kali → kredit sekali (FR-52)
+- [ ] Bayar di simulator sandbox Midtrans; `accounts.credits` bertambah dan `unlocked_at` terisi (FR-50, FR-52)
 - [ ] Jumlah 10.800 dan "sudah termasuk semua biaya"; tidak memakai opsi biaya ditanggung pembeli (PBI 23/2021 Pasal 52 ayat 1)
 
 **Done when:** satu pembayaran sandbox menambah kredit tanpa langkah manual.
@@ -1019,12 +1019,12 @@ Prasyarat di tangan PIC: akun Tripay (sandbox dulu, lalu verifikasi produksi), k
 - [ ] Modal beli memanggil `create-payment`, menampilkan QR, harga, perkiraan pemakaian, hitung mundur (FR-52)
 - [ ] Status dicek tiap 3 detik; berhasil → saldo baru dan fitur terbuka tanpa muat ulang; kedaluwarsa → tombol QR baru (FR-52)
 - [ ] Menutup modal tidak membatalkan; membuka lagi menampilkan pembelian yang masih berlaku (FR-52)
-- [ ] CSP extension mengizinkan gambar QR Tripay saja
+- [ ] CSP extension mengizinkan gambar QR Midtrans saja
 - [ ] Halaman Akun: saldo, tanggal hangus, dan riwayat kredit dari `credit_ledger`; penanda sidebar 30 hari sebelum hangus (FR-54)
 
 **Done when:** pembayaran sandbox dari extension menambah saldo dan riwayat menampilkannya.
 
-### T63 · Website, uji ujung ke ujung, dan Tripay produksi · 2h · launch · High
+### T63 · Website, uji ujung ke ujung, dan Midtrans produksi · 2h · launch · High
 - [ ] **T63 selesai**
 
 **Acceptance criteria**
@@ -1032,7 +1032,7 @@ Prasyarat di tangan PIC: akun Tripay (sandbox dulu, lalu verifikasi produksi), k
 - [ ] Halaman harga: isi paket, perkiraan pemakaian, "sudah termasuk semua biaya", kredit tidak bisa diuangkan, hangus 1 tahun sejak pembelian terakhir
 - [ ] `site/privasi.html` yang ada tetap dipakai (keputusan PIC 2026-11-19); hanya tiga kalimat yang jadi salah diganti: tidak memakai akun, AI belum tersedia, dan tidak ada pembelian (PRD §4.5)
 - [ ] Uji ujung ke ujung di profil Chrome bersih: instal → preview → masuk → beli (sandbox) → CV → riwayat
-- [ ] Tripay produksi aktif; satu transaksi nyata Rp10.800 oleh pengguna bukan PIC; biaya AI + QRIS dicatat (PRD §10)
+- [ ] Midtrans produksi aktif; satu transaksi nyata Rp10.800 oleh pengguna bukan PIC; biaya AI + QRIS dicatat (PRD §10)
 - [ ] README, RFC §3.3d, dan `06-distribution.md` (centang pembelian dalam aplikasi, pengungkapan data) sesuai hasil akhir
 
 **Done when:** metrik kredit dan pembayaran di PRD §10 tercatat di tiket ini.

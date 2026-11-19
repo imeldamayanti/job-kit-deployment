@@ -1,10 +1,10 @@
 import type { CreatePaymentResponse } from '../core/generate/protocol'
 import type { PaymentDb } from './ports'
-import { createQris, verifyCallback, type TripayEnv } from './tripay'
+import { createQris, isKnownTransactionStatus, mapStatus, orderIdFor, verifyNotification, type MidtransEnv } from './midtrans'
 
 export type { CreatePaymentResponse }
 
-// The bodies of the `create-payment` and `tripay-callback` Edge Functions, free of any runtime (spec §5.4, §6).
+// The bodies of the `create-payment` and `midtrans-callback` Edge Functions, free of any runtime (spec §5.4, §6).
 // The handlers never credit anything themselves: the balance only changes inside `apply_payment`, which decides by the amount it has on file.
 
 const PACKAGE_ID = 'basic'
@@ -12,7 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export type CreatePaymentDeps = {
   db: PaymentDb
-  tripay: TripayEnv
+  midtrans: MidtransEnv
   fetchImpl?: typeof fetch
   // Told which stage failed and with what error, so the Edge Function can log it. Never receives a key.
   report?: (stage: 'gateway', error: unknown) => void
@@ -20,9 +20,9 @@ export type CreatePaymentDeps = {
 
 export type CallbackDeps = {
   db: PaymentDb
-  privateKey: string
+  serverKey: string
   // Told which stage failed and with what error. Never receives the callback body.
-  report?: (stage: 'apply' | 'mismatch', error: unknown) => void
+  report?: (stage: 'apply' | 'mismatch' | 'paid-not-credited' | 'status', error: unknown) => void
 }
 
 const refuse = (status: number, error: 'unauthenticated' | 'invalid-request' | 'gateway', message: string): { status: number; body: CreatePaymentResponse } => ({
@@ -49,47 +49,62 @@ export async function handleCreatePayment(
 
   let qris: Awaited<ReturnType<typeof createQris>>
   try {
-    qris = await createQris(deps.tripay, { merchantRef: purchase.id, amount: purchase.amountIdr, email: input.email, expiresAt: new Date(purchase.expiresAt) }, deps.fetchImpl)
+    // A new order_id per attempt: Midtrans refuses a repeated one, and a retry after a failed charge must not be refused.
+    qris = await createQris(deps.midtrans, { orderId: orderIdFor(purchase.id, new Date()), amount: purchase.amountIdr, email: input.email, expiresAt: new Date(purchase.expiresAt) }, deps.fetchImpl)
   } catch (error) {
     // The purchase stays pending and the next try reuses it.
     deps.report?.('gateway', error)
     return refuse(502, 'gateway', 'Pembayaran sedang gangguan. Coba lagi sebentar.')
   }
-  await deps.db.attachTripay(purchase.id, qris.reference, qris.qrUrl)
+  await deps.db.attachGateway(purchase.id, qris.reference, qris.qrUrl)
   return answer(qris.qrUrl)
 }
 
 const callbackResult = (status: number, success: boolean, message?: string) => ({ status, body: { success, ...(message && { message }) } })
 
-export async function handleCallback(
-  input: { rawBody: string; signature: string | null; event: string | null },
-  deps: CallbackDeps,
-): Promise<{ status: number; body: { success: boolean; message?: string } }> {
-  // The signature comes first and covers the raw text; nothing is parsed before it holds.
-  if (!(await verifyCallback(input.rawBody, input.signature, deps.privateKey))) return callbackResult(401, false, 'Invalid signature')
-  if (input.event !== 'payment_status') return callbackResult(400, false, 'Unknown event')
+// "10800.00" and "10800" are whole rupiah; anything with a fraction is refused.
+const WHOLE_RUPIAH = /^\d+(\.0+)?$/
 
+export async function handleCallback(input: { rawBody: string }, deps: CallbackDeps): Promise<{ status: number; body: { success: boolean; message?: string } }> {
   let data: unknown
   try {
     data = JSON.parse(input.rawBody)
   } catch {
     return callbackResult(400, false, 'Invalid body')
   }
-  const { reference, merchant_ref: merchantRef, status, total_amount: amount } = (typeof data === 'object' && data !== null ? data : {}) as Record<string, unknown>
-  if (typeof reference !== 'string' || !reference || typeof merchantRef !== 'string' || !UUID.test(merchantRef) || typeof status !== 'string' || !status || typeof amount !== 'number' || !Number.isInteger(amount)) {
-    return callbackResult(400, false, 'Invalid body')
-  }
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) return callbackResult(400, false, 'Invalid body')
+  const fields = data as Record<string, unknown>
+  const text = (value: unknown) => (typeof value === 'string' ? value : '')
+
+  // The signature comes before the database and before any other check; a missing one fails like a wrong one.
+  const signed = { order_id: text(fields.order_id), status_code: text(fields.status_code), gross_amount: text(fields.gross_amount), signature_key: text(fields.signature_key) }
+  if (!(await verifyNotification(signed, deps.serverKey))) return callbackResult(401, false, 'Invalid signature')
+
+  const purchaseId = signed.order_id.split('_')[0] ?? ''
+  const reference = text(fields.transaction_id)
+  const transactionStatus = text(fields.transaction_status)
+  if (!UUID.test(purchaseId) || !reference || !transactionStatus || !WHOLE_RUPIAH.test(signed.gross_amount)) return callbackResult(400, false, 'Invalid body')
+  const amount = Number(signed.gross_amount)
+  if (!Number.isSafeInteger(amount)) return callbackResult(400, false, 'Invalid body')
+
+  const status = mapStatus(transactionStatus, typeof fields.fraud_status === 'string' ? fields.fraud_status : undefined)
+  if (!isKnownTransactionStatus(transactionStatus)) deps.report?.('status', new Error(`purchase ${purchaseId} got an unknown transaction_status (${transactionStatus.slice(0, 40)})`))
 
   let final: string
   try {
-    final = await deps.db.applyPayment(merchantRef, reference, status, amount)
+    final = await deps.db.applyPayment(purchaseId, reference, status, amount)
   } catch (error) {
     // A 5xx makes the gateway deliver again.
     deps.report?.('apply', error)
     return callbackResult(500, false, 'Try again')
   }
+  if (final === 'mismatch') {
+    deps.report?.('mismatch', new Error(`purchase ${purchaseId} was paid with a different amount`))
+  } else if (status === 'PAID' && final !== 'paid') {
+    // Money came in but the purchase is not credited (not found, or already failed): somebody has to look at it.
+    deps.report?.('paid-not-credited', new Error(`purchase ${purchaseId} was paid but the result is ${final}`))
+  }
   if (final === 'not_found') return callbackResult(404, false, 'Unknown purchase')
-  if (final === 'mismatch') deps.report?.('mismatch', new Error(`purchase ${merchantRef} was paid with a different amount`))
   // Also for an event seen before: apply_payment changes nothing the second time, and a 200 stops the retries.
   return callbackResult(200, true)
 }

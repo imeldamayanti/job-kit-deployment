@@ -15,7 +15,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build:functions": "node scripts/build-functions.mjs",
-    "deploy:functions": "npm run build:functions && supabase functions deploy generate create-payment tripay-callback --project-ref ktgcjqxoohuvxwvsjhif",
+    "deploy:functions": "npm run build:functions && supabase functions deploy generate create-payment midtrans-callback --project-ref ktgcjqxoohuvxwvsjhif",
     "postinstall": "wxt prepare"
   },
   "dependencies": {

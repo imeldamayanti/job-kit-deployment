@@ -6,7 +6,7 @@ import { CV_SYSTEM } from '../src/core/tailor/prompt'
 
 // vitest runs from the repository root.
 const root = `${process.cwd()}/`
-const FUNCTIONS = ['generate', 'create-payment', 'tripay-callback'] as const
+const FUNCTIONS = ['generate', 'create-payment', 'midtrans-callback'] as const
 const bundle = (name: string) => readFileSync(`${root}supabase/functions/${name}/index.ts`, 'utf8')
 
 // The Edge Functions are bundled from src/ so the server and the extension share one source (spec §5.4). These tests build for real.

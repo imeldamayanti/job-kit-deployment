@@ -25,7 +25,7 @@ create table if not exists public.accounts (
   created_at timestamptz not null default now()
 );
 
--- purchases: id is the merchant_ref sent to the payment gateway. Kept (user_id null) after account deletion.
+-- purchases: id is the first part of the order_id sent to the payment gateway. Kept (user_id null) after account deletion.
 create table if not exists public.purchases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users (id) on delete set null,
@@ -33,7 +33,7 @@ create table if not exists public.purchases (
   amount_idr integer not null,
   credits integer not null,
   status text not null check (status in ('pending', 'paid', 'expired', 'failed', 'mismatch')),
-  tripay_reference text unique,
+  gateway_reference text unique,
   qr_url text,
   expires_at timestamptz not null,
   paid_at timestamptz,
@@ -275,11 +275,11 @@ begin
 end;
 $$;
 
--- attach_tripay: stores the gateway's reference and QR image on a pending purchase.
-create or replace function public.attach_tripay(p_purchase uuid, p_reference text, p_qr_url text) returns void
+-- attach_gateway: stores the gateway's reference and QR image on a pending purchase.
+create or replace function public.attach_gateway(p_purchase uuid, p_reference text, p_qr_url text) returns void
 language plpgsql security definer set search_path = '' as $$
 begin
-  update public.purchases set tripay_reference = p_reference, qr_url = p_qr_url
+  update public.purchases set gateway_reference = p_reference, qr_url = p_qr_url
     where id = p_purchase and status = 'pending';
   if not found then
     raise exception 'not_found';
@@ -308,13 +308,13 @@ begin
 
   if v_status = 'PAID' then
     if p_amount is distinct from v_p.amount_idr then
-      update public.purchases set status = 'mismatch', tripay_reference = coalesce(tripay_reference, p_reference)
+      update public.purchases set status = 'mismatch', gateway_reference = coalesce(gateway_reference, p_reference)
         where id = p_purchase;
       return 'mismatch';
     end if;
 
     update public.purchases
-      set status = 'paid', paid_at = now(), tripay_reference = coalesce(tripay_reference, p_reference)
+      set status = 'paid', paid_at = now(), gateway_reference = coalesce(gateway_reference, p_reference)
       where id = p_purchase;
     -- user_id is null once the account was deleted: the payment is recorded, there is nobody to credit.
     if v_p.user_id is not null then
@@ -392,8 +392,8 @@ revoke all on function public.ai_guard(uuid, numeric, integer) from public, anon
 grant execute on function public.ai_guard(uuid, numeric, integer) to service_role;
 revoke all on function public.create_purchase(uuid, text) from public, anon, authenticated;
 grant execute on function public.create_purchase(uuid, text) to service_role;
-revoke all on function public.attach_tripay(uuid, text, text) from public, anon, authenticated;
-grant execute on function public.attach_tripay(uuid, text, text) to service_role;
+revoke all on function public.attach_gateway(uuid, text, text) from public, anon, authenticated;
+grant execute on function public.attach_gateway(uuid, text, text) to service_role;
 revoke all on function public.apply_payment(uuid, text, text, integer) from public, anon, authenticated;
 grant execute on function public.apply_payment(uuid, text, text, integer) to service_role;
 revoke all on function public.expire_credits() from public, anon, authenticated;

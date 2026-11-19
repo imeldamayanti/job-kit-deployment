@@ -5,7 +5,7 @@ import { rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
-const FUNCTIONS = ['generate', 'create-payment', 'tripay-callback']
+const FUNCTIONS = ['generate', 'create-payment', 'midtrans-callback']
 
 for (const name of FUNCTIONS) {
   rmSync(`${root}supabase/functions/${name}`, { recursive: true, force: true })
