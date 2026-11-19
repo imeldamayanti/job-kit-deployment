@@ -165,13 +165,30 @@ export async function handleGenerate(input: { userId: string | null; body: unkno
   const settle = (ok: boolean, reason: RefundReason | null, usage: AiUsage) =>
     db.settle(id, ok, reason, env.aiModel, usage.inputTokens, usage.outputTokens, costUsd(usage))
 
-  try {
-    const outcome = await produce(request, complete, report)
-    return outcome.respond(await settle(outcome.reason === null, outcome.reason, outcome.usage))
-  } catch (error) {
-    // Something we did not plan for: give the credit back if it is still held, and say nothing about what broke.
-    report?.('settle', error)
-    const credits = await settle(false, 'ai', NONE).catch((refundError: unknown) => (report?.('settle', refundError), null))
+  // The unexpected failure of a step: give the credit back if it is still held, and say nothing about what broke.
+  const giveUp = async (usage: AiUsage, reason: RefundReason): Promise<HandlerResult> => {
+    const credits = await settle(false, reason, usage).catch((refundError: unknown) => (report?.('settle', refundError), null))
     return failure(500, 'ai', MESSAGES.ai, credits)
   }
+
+  let outcome: Outcome
+  try {
+    outcome = await produce(request, complete, report)
+  } catch (error) {
+    report?.('model', error)
+    return giveUp(NONE, 'ai')
+  }
+
+  // Settling twice has no second effect (only a 'reserved' row changes), so a lost answer is safe to ask for again. This
+  // matters most for a charge: a refund after a settle that did commit would do nothing and tell the person the wrong thing.
+  const settleOutcome = () => settle(outcome.reason === null, outcome.reason, outcome.usage)
+  let credits: number
+  try {
+    credits = await settleOutcome().catch((error: unknown) => (report?.('settle', error), settleOutcome()))
+  } catch (error) {
+    report?.('settle', error)
+    // The tokens were spent either way, so the refund keeps them in the monthly budget.
+    return giveUp(outcome.usage, outcome.reason ?? 'ai')
+  }
+  return outcome.respond(credits)
 }

@@ -276,7 +276,21 @@ describe('score', () => {
 })
 
 describe('when something unexpected throws', () => {
-  it('never leaves a reservation unsettled: refunds with "ai" and answers a generic 500', async () => {
+  it('settles again once when the first settle is lost, and answers the original result', async () => {
+    const deps = fakes({ replies: [goodCv] })
+    let attempts = 0
+    deps.db.settle = vi.fn(async (...args: Settle) => {
+      deps.settles.push(args)
+      if (attempts++ === 0) throw new Error('timeout')
+      return 9
+    })
+    const { status, body } = await run(cvBody, deps)
+    expect(status).toBe(200)
+    expect(body).toEqual({ ok: true, kind: 'cv', text: goodCv, fallback: false, credits: 9, usage })
+    expect(deps.settles.map((s) => [s[1], s[2]])).toEqual([[true, null], [true, null]])
+  })
+
+  it('refunds with the real usage, not zero, when both settle attempts fail after the model answered', async () => {
     const deps = fakes({ replies: [goodCv] })
     deps.db.settle = vi.fn(async (...args: Settle) => {
       deps.settles.push(args)
@@ -287,7 +301,10 @@ describe('when something unexpected throws', () => {
     expect(status).toBe(500)
     expect(expectFailure(body)).toMatchObject({ error: 'ai', credits: 9 })
     expect(JSON.stringify(body)).not.toContain('secret-detail')
-    expect(deps.settles.map((s) => [s[1], s[2]])).toEqual([[true, null], [false, 'ai']])
+    expect(deps.settles.map((s) => [s[1], s[2]])).toEqual([[true, null], [true, null], [false, 'ai']])
+    const [, , , , inTok, outTok, cost] = deps.settles[2] as Settle
+    expect([inTok, outTok]).toEqual([1000, 500])
+    expect(cost).toBeCloseTo((1000 * 0.28 + 500 * 0.42) / 1e6, 10)
   })
 
   it('refunds when the model throws something that is not an AiError', async () => {
