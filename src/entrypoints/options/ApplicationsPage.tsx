@@ -25,7 +25,8 @@ import { SankeyChart } from './SankeyChart'
 import type { ApplicationsViewId } from './ViewToggle'
 
 // Props that make a card draggable. `dragging` is the card being dragged right now.
-type DragProps = { draggable: true; onDragStart: (event: DragEvent) => void; onDragEnd: () => void }
+// Empty in the signed-out preview: samples do not move.
+type DragProps = { draggable: true; onDragStart: (event: DragEvent) => void; onDragEnd: () => void } | Record<string, never>
 
 // FR-47: "Tindak lanjut hari ini" on the day, "terlewat" after it. The card gets an amber border either way (T40 `.kcard.due`).
 const dueLabel = (app: Application, today: string) => (app.followUpAt === today ? 'Tindak lanjut hari ini' : 'Tindak lanjut terlewat')
@@ -144,7 +145,7 @@ export function ApplicationsPage({
   const board = groupBoard(shown)
   const summary = closedSummary(board)
 
-  const dragProps = (app: Application): DragProps => ({
+  const dragProps = (app: Application): DragProps => locked ? {} : ({
     draggable: true,
     onDragStart: (event) => {
       event.dataTransfer?.setData('text/plain', app.id)
@@ -159,7 +160,7 @@ export function ApplicationsPage({
   })
 
   // A status is a drop target only while a card is being dragged. Dropping on its own status changes nothing.
-  const dropProps = (target: AppStatus) => ({
+  const dropProps = (target: AppStatus) => locked ? {} : ({
     'data-drop': target,
     onDragOver: (event: DragEvent) => {
       if (dragId === null) return
