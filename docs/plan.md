@@ -910,6 +910,134 @@ Belum diverifikasi: alasan nilai Jujur 4 di kartu 4; perbandingan Zen gratis vs 
 - Centang README, RFC, dan "PRD APPROVED" di atas tetap kosong sampai bagian itu selesai dan PIC setuju.
 
 
+## Akun, kredit, dan pembayaran (revisi PRD 2026-11-19)
+
+Sumber: PRD §4.5, FR-49 sampai FR-56; RFC §3.3d, D20 sampai D24; desain `docs/superpowers/specs/2026-11-19-monetisasi-design.md`. **Status: DRAFT, menunggu persetujuan PIC.** Pola sama dengan bagian sebelumnya: mockup dulu, server dan data sebelum UI, tes lebih dulu, fungsi murni di `core/`, I/O di `platform/`. Gerbang model sudah lewat: spike 2026-11-19 (`spikes/t45/results/2026-11-19T07-02-10.json`) memilih `deepseek-v4.1-flash` (9/9 berhasil, nol karangan, ±Rp35 per CV).
+
+```
+T56 mockup ── PIC setuju ───────────────────────────────┐
+T57 skema kredit ─┬─ T58 generate (server) ─────────────┼─ T61 AI lewat server di extension ─┐
+                  └─ T59 Tripay (sandbox) ──────────────┼─ T62 beli QRIS + riwayat ──────────┼─ T63 website + uji ujung ke ujung + produksi
+                     T60 login wajib + preview + akses ─┘                                    │
+```
+
+Prasyarat di tangan PIC: akun Tripay (sandbox dulu, lalu verifikasi produksi), kunci proxy atau DeepSeek resmi di secrets Supabase, Supabase CLI terpasang untuk deploy Edge Functions.
+
+**Done when:** satu pengguna asli membayar Rp10.800 lewat QRIS produksi, kredit masuk tanpa PIC, membuat satu CV, dan biaya AI + QRIS < Rp10.800 (PRD §10).
+
+### T56 · Mockup akun, preview, dan beli kredit · 1.5h · design · Highest
+- [ ] **T56 selesai**
+
+**Context:** seperti T28 dan T40: mockup di `docs/design-system.html` tanpa menyentuh produk.
+
+**Acceptance criteria**
+- [ ] Preview tanpa login (options dan panel): data contoh, aksi nonaktif, ajakan "Masuk untuk memakai" (FR-49)
+- [ ] Layar masuk: email, kode OTP, salah kode, kode kedaluwarsa (FR-49)
+- [ ] Item terkunci "Beli paket untuk membuka" di sidebar untuk akun gratis (FR-50)
+- [ ] Saldo di sidebar dan panel; tombol AI dengan biaya; state saldo kurang, plafon, offline (FR-51, FR-55)
+- [ ] Modal beli: QR, "Rp10.800, sudah termasuk semua biaya", perkiraan pemakaian, hitung mundur, menunggu, berhasil, kedaluwarsa, gagal membuat QR (FR-52)
+- [ ] Halaman Akun: saldo, riwayat kredit, hapus akun (FR-54, FR-56)
+- [ ] Tidak ada baris biaya admin di layar mana pun; tanpa overflow horizontal di 420 px
+
+**Done when:** PIC menyetujui mockup.
+
+### T57 · Skema kredit di Supabase · 2h · feature · Highest
+- [ ] **T57 selesai**
+
+**Context:** `supabase/billing.sql`, pola sama dengan `sync.sql` (RLS, `security definer`, `search_path = ''`). Struktur di desain §5.3.
+
+**Acceptance criteria**
+- [ ] Tabel `packages`, `accounts`, `purchases`, `generations`, `credit_ledger` dengan RLS: pengguna hanya `select` barisnya sendiri; `packages` terbaca `anon` (FR-50)
+- [ ] `reserve_credits` mengunci baris dan menolak saldo kurang; dua panggilan bersamaan dengan saldo 1 → satu berhasil (FR-53)
+- [ ] `settle_generation` idempoten; gagal → kredit kembali dan tercatat `refund` (FR-53)
+- [ ] `apply_payment` idempoten; jumlah beda → `mismatch` tanpa kredit; set `unlocked_at` sekali (FR-52)
+- [ ] `reap_reserved` dijadwalkan `pg_cron` tiap 5 menit (FR-53)
+- [ ] `ensure_account` memberi 3 kredit percobaan sekali per akun, dengan kuota harian global; dipanggil dua kali tetap 3 (FR-50)
+- [ ] `expire_credits` harian: saldo lewat `credits_expire_at` jadi 0 dan tercatat `expire`; pembelian memperpanjang ke 1 tahun; `reserve_credits` menolak saldo lewat tanggal (FR-54)
+- [ ] `delete_account` menghapus `accounts`; `purchases`, `credit_ledger`, `generations` tersisa dengan `user_id` null (FR-56)
+- [ ] Tes teks seperti `src/core/sync/sql.test.ts`; skrip uji SQL dijalankan di proyek sungguhan dan saldo = jumlah buku
+
+**Done when:** SQL berjalan di proyek Supabase dan semua uji di atas lulus.
+
+### T58 · Edge Function generate · 2h · feature · Highest
+- [ ] **T58 selesai**
+
+**Context:** `supabase/functions/generate/`. Server menyusun prompt dan menjalankan pemeriksa fakta dengan kode `src/core/` yang sama (RFC D22).
+
+**Acceptance criteria**
+- [ ] Menerima `{ kind: 'cv'|'letter'|'score', payload }`; menolak tanpa token, akun belum terbuka, payload > 60.000 karakter, `kind` tak dikenal (FR-53)
+- [ ] Prompt dan validasi diambil dari satu sumber di `src/core/`; ada tes yang gagal bila salinan server berbeda (RFC D22)
+- [ ] Urutan plafon → batas laju → `reserve_credits` → model → validasi → `settle_generation`; tiap kasus pengembalian di desain §6 punya tes dengan model palsu (FR-53)
+- [ ] Plafon bulanan dari `MONTHLY_AI_BUDGET_USD` dan batas 30 generate per jam per akun; saat tercapai kredit tidak dipotong (FR-55)
+- [ ] `generations` mencatat model, token, perkiraan biaya; tidak ada prompt atau hasil di tabel atau log
+- [ ] Satu panggilan nyata ke `deepseek-v4.1-flash` lewat secrets; token dan biaya dicatat di tiket ini (menutup sisa T35)
+
+**Done when:** CV nyata dibuat lewat fungsi yang sudah di-deploy dan saldo berkurang satu.
+
+### T59 · Tripay: buat QRIS dan terima callback (sandbox) · 2h · feature · Highest
+- [ ] **T59 selesai**
+
+**Acceptance criteria**
+- [ ] `create-payment` membuat `purchases(pending)` dan transaksi QRIS Tripay dengan tanda tangan HMAC; mengembalikan QR, jumlah, kredit, kedaluwarsa 30 menit (FR-52)
+- [ ] Bila ada `pending` yang masih berlaku, yang itu dikembalikan, bukan QR kedua (FR-52)
+- [ ] `tripay-callback` tanpa JWT; tanda tangan salah → 401 tanpa efek; callback sama dua kali → kredit sekali (FR-52)
+- [ ] Bayar di simulator sandbox Tripay; `accounts.credits` bertambah dan `unlocked_at` terisi (FR-50, FR-52)
+- [ ] Jumlah 10.800 dan "sudah termasuk semua biaya"; tidak memakai opsi biaya ditanggung pembeli (PBI 23/2021 Pasal 52 ayat 1)
+
+**Done when:** satu pembayaran sandbox menambah kredit tanpa langkah manual.
+
+### T60 · Login wajib, preview, dan tingkatan akses di extension · 2h · feature · High
+- [ ] **T60 selesai**
+
+**Acceptance criteria**
+- [ ] Tanpa sesi: options dan panel menampilkan data contoh, Fill dan Buat nonaktif, ajakan masuk (FR-49)
+- [ ] Masuk dengan email OTP memakai `core/sync/api.ts` yang ada; `ensure_account()` dipanggil sekali (FR-49)
+- [ ] Status akun (`credits`, `unlocked_at`) dicache di `storage.local`; disegarkan saat options dibuka dan setelah beli/generate; offline memakai cache (FR-50)
+- [ ] Akun percobaan: fitur terbuka selama kredit percobaan ada, lalu Lowongan dan Lamaran hanya-baca dengan "Beli paket untuk lanjut"; akun terbuka tidak terkunci walau saldo 0 (FR-50)
+- [ ] Sinkron tetap opsional dengan kata sandi sinkron (PRD §4.3); data lokal tidak hilang saat sesi habis
+- [ ] Host Supabase menjadi izin wajib di manifest
+
+**Done when:** akun baru melihat preview → masuk → profil dan Autofill bisa dipakai → fitur berbayar terkunci.
+
+### T61 · AI lewat server dan build pengguna tanpa kunci sendiri · 2h · feature · High
+- [ ] **T61 selesai**
+
+**Acceptance criteria**
+- [ ] CV, surat, dan skor AI memanggil `generate`, bukan penyedia langsung (FR-53)
+- [ ] Build pengguna tidak memuat pilihan penyedia, model, kunci API, bridge, atau URL penyedia AI; tes membaca bundle hasil build (FR-53)
+- [ ] Build pengembang tetap bisa memakai kunci sendiri dan bridge Claude Code
+- [ ] Tombol AI menyebut biaya dan nonaktif dengan sebab: saldo kurang, plafon, batas laju, offline (FR-51, FR-55)
+- [ ] Pesan pengembalian kredit sesuai desain §6; saldo baru tampil setelah tiap generate (FR-53)
+- [ ] Feed harian tidak memanggil AI; tombol "Nilai dengan AI" menilai 10 lowongan teratas per kredit (PRD §11, keputusan 2026-11-19)
+
+**Done when:** di build pengguna, Buat CV memotong satu kredit dan menampilkan hasil; model palsu error mengembalikan kredit.
+
+### T62 · Beli kredit QRIS dan riwayat kredit · 2h · feature · High
+- [ ] **T62 selesai**
+
+**Acceptance criteria**
+- [ ] Modal beli memanggil `create-payment`, menampilkan QR, harga, perkiraan pemakaian, hitung mundur (FR-52)
+- [ ] Status dicek tiap 3 detik; berhasil → saldo baru dan fitur terbuka tanpa muat ulang; kedaluwarsa → tombol QR baru (FR-52)
+- [ ] Menutup modal tidak membatalkan; membuka lagi menampilkan pembelian yang masih berlaku (FR-52)
+- [ ] CSP extension mengizinkan gambar QR Tripay saja
+- [ ] Halaman Akun: saldo, tanggal hangus, dan riwayat kredit dari `credit_ledger`; penanda sidebar 30 hari sebelum hangus (FR-54)
+
+**Done when:** pembayaran sandbox dari extension menambah saldo dan riwayat menampilkannya.
+
+### T63 · Website, uji ujung ke ujung, dan Tripay produksi · 2h · launch · High
+- [ ] **T63 selesai**
+
+**Acceptance criteria**
+- [ ] `site/` di Cloudflare Pages; CSP dari `vercel.json` dipindah ke `_headers`
+- [ ] Halaman harga: isi paket, perkiraan pemakaian, "sudah termasuk semua biaya", kredit tidak bisa diuangkan, hangus 1 tahun sejak pembelian terakhir
+- [ ] `site/privasi.html` yang ada tetap dipakai (keputusan PIC 2026-11-19); hanya tiga kalimat yang jadi salah diganti: tidak memakai akun, AI belum tersedia, dan tidak ada pembelian (PRD §4.5)
+- [ ] Uji ujung ke ujung di profil Chrome bersih: instal → preview → masuk → beli (sandbox) → CV → riwayat
+- [ ] Tripay produksi aktif; satu transaksi nyata Rp10.800 oleh pengguna bukan PIC; biaya AI + QRIS dicatat (PRD §10)
+- [ ] README, RFC §3.3d, dan `06-distribution.md` (centang pembelian dalam aplikasi, pengungkapan data) sesuai hasil akhir
+
+**Done when:** metrik kredit dan pembayaran di PRD §10 tercatat di tiket ini.
+
+
 ## Cakupan
 
 **FR → tiket**
@@ -954,6 +1082,14 @@ Belum diverifikasi: alasan nilai Jujur 4 di kartu 4; perbandingan Zen gratis vs 
 | | | FR-46 | T47, T48, T51 |
 | | | FR-47 | T53 |
 | | | FR-48 | T54 |
+| | | FR-49 | T56, T60 |
+| | | FR-50 | T56, T57, T59, T60 |
+| | | FR-51 | T56, T61 |
+| | | FR-52 | T56, T57, T59, T62 |
+| | | FR-53 | T57, T58, T61 |
+| | | FR-54 | T56, T62 |
+| | | FR-55 | T56, T58, T61 |
+| | | FR-56 | T56, T57 |
 
 **Layar → tiket:** S1 Panel · Autofill → T03, T04, T05, T06, T10, T38 · S2 Panel · Profile → T09 · S3 Options · Profile → T02, T07, T08, T11 · S4 Options · Lowongan → T28, T37 · S5 Options · Preferensi kerja → T28, T29 · S6 Options · Atur Lowongan → T28, T34 · S7 Options · Lamaran → T40, T43, T54 · S8 Options · Detail Lamaran → T40, T44, T49, T52 · S1 Panel · Autofill (tambahan surat dan konteks lamaran) → T40, T52.
 

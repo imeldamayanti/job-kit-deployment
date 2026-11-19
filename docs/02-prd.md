@@ -7,7 +7,7 @@
 **Author (PIC):** imelda
 **Builder:** imelda
 **Date:** 2026-10-09
-**Status:** APPROVED · **Penambahan 2026-10-09:** FR-20 (field wajib yang belum terisi ditandai di halaman; keputusan PIC 2026-10-09, T16). · **Revisi 2026-10-09 (DRAFT):** Lowongan harian (FR-26 sampai FR-33). Prinsip tanpa jaringan dan tanpa AI dicabut untuk fitur ini (keputusan PIC, §4.1). · **Revisi 2026-10-15 (DRAFT):** Application Kit: tracker lamaran, CV yang disesuaikan dengan requirement lowongan, dan surat lamaran (FR-34 sampai FR-48; §4.2, §6.8). Menunggu persetujuan PIC.
+**Status:** APPROVED · **Penambahan 2026-10-09:** FR-20 (field wajib yang belum terisi ditandai di halaman; keputusan PIC 2026-10-09, T16). · **Revisi 2026-10-09 (DRAFT):** Lowongan harian (FR-26 sampai FR-33). Prinsip tanpa jaringan dan tanpa AI dicabut untuk fitur ini (keputusan PIC, §4.1). · **Revisi 2026-10-15 (DRAFT):** Application Kit: tracker lamaran, CV yang disesuaikan dengan requirement lowongan, dan surat lamaran (FR-34 sampai FR-48; §4.2, §6.8). Menunggu persetujuan PIC. · **Revisi 2026-11-19 (DRAFT):** akun wajib, kredit AI, dan pembayaran QRIS (FR-49 sampai FR-56; §4.5). Jalur "bawa kunci sendiri" dicabut dari build pengguna. Desain: `docs/superpowers/specs/2026-11-19-monetisasi-design.md`.
 **Research input:** `docs/01-research.md` (verdict BUILD)
 **Launch date:** Day 10 — fixed
 
@@ -18,6 +18,8 @@
 job-kit membuat pelamar kerja mengisi form lamaran dengan satu klik dari profil yang ia ketik sekali, dan bisa membatalkannya.
 
 **Revisi 2026-10-09:** job-kit juga mencarikan lowongan yang cocok setiap hari, memberi skor beserta alasannya, dan mengantar pengguna ke form lamarannya.
+
+**Revisi 2026-11-19:** pengguna masuk dengan email, membeli paket kredit lewat QRIS, dan memakai fitur AI tanpa kunci API sendiri; PIC tidak perlu memeriksa pembayaran.
 
 **Revisi 2026-10-15:** dari lowongan yang cocok, job-kit menyiapkan CV yang disesuaikan dengan requirement perusahaan itu (hanya dari isi profil, tanpa mengarang), draf surat lamaran, dan melacak statusnya sampai hasil akhir.
 
@@ -68,7 +70,7 @@ Sampai T26, job-kit tidak melakukan request jaringan dan tidak memakai AI. Lowon
 
 - **Mati secara bawaan.** Izin host untuk sumber lowongan dan penyedia AI diminta saat pengguna menyalakan fitur (`optional_host_permissions`), bukan saat instal. Pengguna yang tidak memakai Lowongan tidak melihat izin baru.
 - **Kirim seperlunya.** Yang dikirim ke penyedia AI hanya ringkasan untuk pencocokan: role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe kerja. Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim. Alasannya bukan kebijakan privasi, tetapi karena data itu tidak membantu menilai kecocokan.
-- **Kunci milik pengguna (BYOK).** job-kit tetap tanpa server. Kunci API disimpan di `storage.local`, tidak ikut Export, ikut terhapus oleh Hapus semua.
+- ~~**Kunci milik pengguna (BYOK).** job-kit tetap tanpa server.~~ **Dicabut 2026-11-19 (§4.5):** build pengguna tidak punya jalur kunci sendiri; AI lewat server PIC dengan kredit. Jalur kunci sendiri hanya di build pengembang PIC. Kunci API disimpan di `storage.local`, tidak ikut Export, ikut terhapus oleh Hapus semua.
 - **Scraping tanpa akun.** Request scraping memakai `credentials: 'omit'`, sehingga tidak membawa sesi login pengguna dan akun pengguna tidak terkait dengan request itu. Risiko yang tersisa (ToS situs, blokir IP sementara, struktur halaman berubah) diterima PIC dan dibatasi di FR-27 dan §8.
 - **Yang lama tetap lokal.** Autofill, profil, dan Import CV tidak berubah perilakunya.
 - README dan bagian Privasi ditulis ulang saat fitur dirilis (T39). Sebelum itu, klaim "tidak melakukan permintaan jaringan" di README masih benar untuk build yang ada.
@@ -108,6 +110,22 @@ Penilaian lowongan (§4.1) hanya mengirim ringkasan tanpa identitas. CV dan sura
 - **Batas harian** panggilan AI untuk CV dan surat, bawaan 20, terpisah dari batas 50 untuk penilaian lowongan (FR-46).
 - **Penyimpanan:** CV, surat, dan lamaran di `storage.local`, ikut Export dan Hapus semua. Kunci API tetap tidak ikut Export.
 - README dan bagian Privasi ditulis ulang saat Application Kit dirilis (T55).
+
+### 4.5 Akun wajib, kredit AI, dan pembayaran (keputusan PIC 2026-11-19; desain di `docs/superpowers/specs/2026-11-19-monetisasi-design.md`)
+
+Alasan: banyak teman PIC minta dibantu, dan tiap CV memakai kredit AI dan waktu PIC. Pengguna membayar sendiri dan langsung memakai, tanpa PIC memeriksa. Aturan:
+
+- **Login wajib** (email + kode OTP). Tanpa login, extension hanya **preview** dengan data contoh dan semua aksi nonaktif. Ini mengubah §4.3: akun tidak lagi opsional, tetapi **sinkron tetap opsional** dengan kata sandi sinkronnya sendiri.
+- **Tingkatan:** login gratis membuka profil, Import CV, Data, dan Autofill. **Membeli satu paket** membuka Lowongan, Lamaran, CV, dan surat untuk seterusnya. Fitur AI butuh saldo kredit; kredit habis tidak mengunci fitur atau data.
+- **Tanpa kunci sendiri.** Semua AI lewat server PIC (Supabase Edge Functions). Kunci model dan kunci gateway hanya ada di server.
+- **Harga:** paket **Rp10.800, sudah termasuk semua biaya**. Tidak ada baris biaya admin terpisah, karena membebankan biaya QRIS ke pembeli dilarang (PBI 23/2021 Pasal 52 ayat 1).
+- **Bayar QRIS dinamis** lewat Tripay, dicek otomatis lewat callback bertanda tangan; uang masuk ke rekening PIC.
+- **Kredit dikembalikan** bila AI gagal, balasannya tidak valid, ditolak pemeriksa fakta (FR-40), atau CV jatuh ke isi Profile apa adanya.
+- **Yang diketahui server:** email, saldo, riwayat pembelian, dan per generate hanya jenis, jumlah token, dan perkiraan biaya. **Isi prompt dan hasil tidak disimpan.** Payload tetap tersamar seperti §4.2.
+- **Model:** `deepseek-v4.1-flash`, sementara lewat proxy pihak ketiga; diganti ke API resmi lewat konfigurasi server tanpa rilis ulang extension.
+- **Pengaman:** plafon pengeluaran AI bulanan dan batas laju per akun di server.
+- **Hapus akun** menghapus login, saldo, dan data sinkron; catatan pembelian dan pemakaian dipertahankan tanpa pengenal untuk pembukuan.
+- Kebijakan privasi dan syarat layanan diperbarui PIC **sebelum rilis berbayar**. **Bahasa hukum belum ditinjau.**
 
 ## 5. User stories
 
@@ -435,6 +453,14 @@ flowchart LR
 | FR-46 | Yang dikirim ke penyedia AI untuk CV dan surat dibatasi sesuai §4.2 (tanpa identitas; nama perusahaan dan kampus diganti kode lalu dipulihkan lokal). Ada batas harian panggilan AI untuk CV dan surat (bawaan 20) yang bisa diubah di Atur Lowongan. Tanpa kunci AI, kunci ditolak, kuota habis, atau batas harian tercapai: tombol Buat tampil nonaktif dengan sebabnya, dan fitur Lamaran lainnya tetap berfungsi penuh. Model yang diketahui memakai data untuk melatih memunculkan peringatan sekali per lamaran. | Payload uji tidak memuat nama, email, telepon, alamat, nama perusahaan asli. Cabut kunci; Buat CV nonaktif dengan alasan, tracker tetap bisa dipakai. | Must |
 | FR-47 | Tanggal tindak lanjut opsional per lamaran. Saat jatuh tempo, kartu ditandai amber dan item Lamaran di sidebar menampilkan badge jumlahnya. Tanpa notifikasi sistem. | Atur tindak lanjut hari ini; badge sidebar menyala 1. | Could |
 | FR-48 | **Visualisasi alur lamaran** di tampilan Visualisasi pada halaman Lamaran (pilihan kedua setelah Papan di penukar kanan atas): diagram Sankey dari Dilamar ke Direview, Interview, Offer, dengan cabang Tanpa kabar, Ditolak, dan Masih berjalan. Dihitung dari riwayat status, bukan hanya status sekarang (lamaran yang pernah Direview lalu Ditolak tampil di jalur itu). **Tanpa kabar** = berstatus Dilamar tanpa perubahan 14 hari atau lebih (bawaan); selebihnya Masih berjalan. Draft dan Dibatalkan tidak dihitung. Tersedia sebagai daftar batang di lebar sempit dan sebagai teks untuk pembaca layar. | 12 lamaran Dilamar, 6 pernah Direview, 3 pernah Interview, 1 Offer, 4 Ditolak, 4 Tanpa kabar, 3 Masih berjalan: pita dan angka sesuai. Lamaran Dilamar 20 hari tanpa perubahan masuk Tanpa kabar; 5 hari, Masih berjalan. | Should |
+| FR-49 | **Login wajib dan preview.** Tanpa sesi, options dan panel menampilkan data contoh dengan semua aksi nonaktif dan ajakan "Masuk untuk memakai". Masuk memakai email dan kode OTP. *(revisi 2026-11-19)* | Tanpa login: tombol Fill dan Buat nonaktif, data contoh tampil. Masuk dengan kode; profil sendiri tampil. | Must |
+| FR-50 | **Tingkatan akses.** Login gratis: profil, Import CV, Data, Autofill. Akun baru mendapat **3 kredit percobaan** sekali; selama kredit percobaan ada, Lowongan, Lamaran, CV, dan surat terbuka, lalu menjadi hanya-baca sampai membeli. Akun yang pernah membeli paket: Lowongan, Lamaran, CV, surat, Atur Lowongan, tanpa terkunci lagi walau saldo 0. Akses dicek server untuk AI dan dicache lokal untuk tampilan. | Akun baru: item Lowongan dan Lamaran menampilkan "Beli paket untuk membuka". Setelah beli: terbuka. Saldo 0: tetap terbuka, tombol Buat nonaktif. | Must |
+| FR-51 | **Saldo dan biaya terlihat.** Saldo kredit tampil di sidebar dan panel; tiap tombol AI menyebut biayanya ("Buat CV · 1 kredit") dan nonaktif dengan sebab bila saldo kurang, plafon tercapai, atau offline. | Saldo 0: Buat CV nonaktif dengan "Kredit tidak cukup" dan tombol Beli kredit. | Must |
+| FR-52 | **Beli paket lewat QRIS.** Modal di extension menampilkan QR dinamis, harga "Rp10.800, sudah termasuk semua biaya", dan hitung mundur 30 menit. Status dicek otomatis; kredit masuk tanpa campur tangan PIC. Menutup modal tidak membatalkan pembelian. Tidak ada baris biaya admin. | Bayar di sandbox Tripay; saldo bertambah dan fitur terbuka dalam ≤1 menit tanpa muat ulang. Callback yang sama dikirim dua kali; saldo bertambah sekali. | Must |
+| FR-53 | **AI lewat server dengan kredit.** CV, surat, dan skor AI dipanggil lewat server; kredit dipotong saat mulai dan dikembalikan pada kasus di §8. Build pengguna tidak punya pilihan penyedia, model, atau kunci API. | Payload uji tanpa nama, email, telepon, alamat. Model palsu error: saldo kembali. Pemeriksa fakta menolak: saldo kembali dan sebab tampil. Bundle build pengguna tidak memuat kunci atau URL penyedia AI. | Must |
+| FR-54 | **Riwayat kredit** di halaman Akun: pembelian dan pemakaian dengan tanggal, jenis, dan ±kredit. **Kedaluwarsa:** saldo hangus 1 tahun sejak pembelian terakhir (tiap pembelian memperpanjang seluruh saldo); tanggal hangus tampil di Akun, dan 30 hari sebelumnya sidebar memberi penanda. | Beli satu paket dan buat satu CV; dua baris muncul urut waktu. | Should |
+| FR-55 | **Pengaman biaya.** Plafon pengeluaran AI bulanan dan batas laju per akun di server. Saat tercapai, kredit tidak dipotong dan tombol AI menyebut sebabnya. | Set plafon ke 0; Buat CV menampilkan "Layanan AI penuh bulan ini" dan saldo tidak berubah. | Must |
+| FR-56 | **Hapus akun** menghapus login, saldo, dan data sinkron; catatan pembelian dan pemakaian tetap tanpa pengenal. | Hapus akun; baris `accounts` hilang, `purchases.user_id` menjadi null. | Should |
 
 ## 8. Edge cases & error states
 
@@ -483,6 +509,15 @@ flowchart LR
 | Surat: form tidak punya textarea cover letter | Surat tidak diisi; panel tidak menampilkan barisnya; pengguna memakai **Salin** di Detail Lamaran. |
 | Lamaran: penyimpanan penuh | Pengguna diberi tahu perubahan tidak tersimpan; lamaran, CV, dan surat yang sudah ada tidak dibuang otomatis. |
 | Lamaran: hapus satu lamaran | Konfirmasi menyebut bahwa CV dan suratnya ikut terhapus; lowongan di feed berstatus Disimpan (bukan Dilamar), supaya tidak hilang. |
+| Kredit: AI error, timeout, atau balasan tidak valid | Kredit dikembalikan; pesan "AI sedang gangguan. Kreditmu tidak terpakai." *(revisi 2026-11-19)* |
+| Kredit: pemeriksa fakta menolak, atau CV jatuh ke isi Profile apa adanya | Kredit dikembalikan; sebab tampil seperti sekarang. |
+| Kredit: server mati di tengah generate | Kredit kembali otomatis dalam ≤15 menit. |
+| Kredit: plafon bulanan atau batas laju tercapai | Kredit tidak dipotong; tombol menyebut sebabnya. |
+| Bayar: callback datang berulang | Hanya yang pertama menambah kredit. |
+| Bayar: jumlah dibayar berbeda dari harga | Tidak ada kredit; pembelian ditandai untuk PIC. |
+| Bayar: QR kedaluwarsa | Pembelian kedaluwarsa; pengguna membuat QR baru. |
+| Bayar: callback tidak pernah datang | Pembelian tetap menunggu; PIC memeriksa di dashboard Tripay dan menambah kredit manual. |
+| Akun: sesi login habis | Options meminta masuk lagi; data lokal tidak hilang. |
 
 ## 9. Scope IN and OUT
 
@@ -500,6 +535,10 @@ flowchart LR
 **IN (revisi 2026-10-15):** tracker Lamaran (Papan dan Visualisasi lewat satu penukar, Detail, riwayat), CV disesuaikan dengan pemeriksa fakta, pratinjau dan diff, unduh PDF dengan satu templat, surat lamaran dengan bahasa mengikuti lowongan, pengisian field cover letter, Lamaran ikut Export dan Hapus semua, batas harian panggilan AI.
 
 **OUT (revisi 2026-10-15):** unggah CV otomatis ke form (pengguna memilih berkas sendiri), melamar otomatis, banyak templat CV, editor CV WYSIWYG, skor ATS dari pihak ketiga, pengisian essay atau pertanyaan bebas, notifikasi sistem, sinkron lintas perangkat, impor lamaran dari email atau situs, tampilan Daftar (pilihan kedua di penukar adalah Visualisasi; keputusan PIC 2026-10-15), seret-lepas kartu di papan, pencatatan lamaran manual untuk halaman di luar feed (FR-24, T21 tetap ditunda), latihan interview.
+
+**IN (revisi 2026-11-19):** login wajib (email OTP) dengan preview tanpa login, tingkatan akses, saldo kredit, beli paket Rp10.800 lewat QRIS Tripay di extension, AI lewat Supabase Edge Functions, pengembalian kredit, riwayat kredit, plafon dan batas laju, website pindah ke Cloudflare Pages dengan halaman harga.
+
+**OUT (revisi 2026-11-19):** jalur kunci API sendiri di build pengguna, langganan, kupon, referral, paket bertingkat, pembayaran selain QRIS, pengembalian uang otomatis, login Google, halaman beli di website, menyimpan isi prompt atau hasil di server.
 
 **Cut list Application Kit (urutan potong):**
 1. FR-47, tindak lanjut dan badge.
@@ -526,6 +565,8 @@ Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lev
 - **≥4 dari 5 CV dinilai PIC layak dikirim dengan ≤2 suntingan.**
 - **Dari menekan Siapkan lamaran sampai CV dan surat siap diunduh: ≤3 menit** termasuk pemeriksaan PIC.
 - Biaya AI per lamaran dicatat (CV + surat).
+
+**Kredit dan pembayaran (revisi 2026-11-19):** satu pengguna asli (bukan PIC) mendaftar, membayar Rp10.800 lewat QRIS produksi, kredit masuk tanpa PIC menyentuh apa pun, dan membuat satu CV; biaya AI + biaya QRIS per paket tercatat lebih kecil dari Rp10.800. Nol kredit dobel dan nol kredit hilang di log selama 30 hari pertama.
 
 ## 11. Open questions
 
@@ -554,13 +595,21 @@ Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lev
 | Tempat data Lamaran | Lokal di `storage.local`; ikut Export. Tanpa Notion, CSV, atau sinkron. **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
 | Urutan pengerjaan Application Kit | Mockup, lalu tracker, lalu CV, lalu surat (plan.md T40 sampai T55). **Usulan default 2026-10-15, menunggu konfirmasi PIC.** |
 
+| Akun dan pembayaran | Login wajib, tanpa kunci sendiri, satu saldo kredit, paket Rp10.800 sudah termasuk semua biaya, QRIS lewat Tripay, kredit dikembalikan bila gagal, arsitektur Supabase. **Diputuskan PIC 2026-11-19** (§4.5). |
+| Isi paket dan tarif | 50 kredit per Rp10.800; CV 1, surat 1, skor 10 lowongan 1 kredit; ambil lowongan gratis. **Diputuskan PIC 2026-11-19.** |
+| Skor AI dan kredit | Feed harian memakai skor kasar gratis; skor AI hanya saat pengguna menekan "Nilai dengan AI" (1 kredit per 10 lowongan). **Diputuskan PIC 2026-11-19.** |
+| Kredit percobaan | 3 kredit sekali per akun; fitur terbuka selama kredit percobaan ada, lalu hanya-baca sampai membeli; kuota percobaan harian global sebagai pengaman. **Diputuskan PIC 2026-11-19.** |
+| Kedaluwarsa kredit | 1 tahun sejak pembelian terakhir; tiap pembelian memperpanjang seluruh saldo; ditulis di syarat layanan. **Diputuskan PIC 2026-11-19.** |
+| Model AI untuk pengguna | `deepseek-v4.1-flash`, sementara lewat proxy; spike 2026-11-19 mengalahkan `deepseek-v4-mod`. **Diputuskan PIC 2026-11-19.** |
+| Penyedia dan model AI default | Digantikan baris di atas. |
+
 **Genuinely open** (tidak memblokir APPROVED)
 
 | Pertanyaan | Owner | Tanggal |
 |---|---|---|
 | Nilai token mode gelap (di luar v1; ditunda) | imelda | setelah v1 |
 | Form kustom perusahaan ke-10 untuk metrik §10 | imelda | sebelum Day 8 |
-| Penyedia dan model AI default. Usul: Claude Haiku (murah, cukup untuk skor dan ekstraksi), BYOK, model bisa diganti. Perkiraan biaya per run diukur di T35. | imelda | sebelum T34 |
+| ~~Penyedia dan model AI default.~~ Selesai 2026-11-19 (`deepseek-v4.1-flash`). Usul lama: Claude Haiku (murah, cukup untuk skor dan ekstraksi), BYOK, model bisa diganti. Perkiraan biaya per run diukur di T35. | imelda | sebelum T34 |
 | Daftar sumber v1 final dan batas halaman LinkedIn per run | imelda | setelah spike T27 |
 | Daftar perusahaan awal untuk sumber ATS | imelda | sebelum T32 |
 | Import CV ikut memakai AI, sekarang setelah AI diperbolehkan? (parser aturan T23–T24 lemah di CV bebas format) | imelda | setelah lowongan harian |
@@ -571,3 +620,5 @@ Situs uji (diambil dari `docs/prd.md` §12, PRD JobFill lama): Greenhouse · Lev
 | Kualitas tailoring cukup untuk dilanjutkan? Spike T45 mengukur halusinasi, biaya, dan token pada 3 CV × 3 lowongan; hasil buruk berarti T46 sampai T52 dirancang ulang. | imelda | T45 |
 | Pencatatan lamaran manual (Fill di halaman yang bukan dari feed): dihidupkan lagi lewat T21 sekarang setelah Lamaran ada? | imelda | setelah T44 |
 | Tampilan Disimpan di Lowongan: tetap menampilkan Dilamar, atau Dilamar dipindah seluruhnya ke Lamaran? Usul: tetap, dengan tautan ke Lamaran. | imelda | T44 |
+| Tinjauan penuh kebijakan privasi dan syarat layanan (sementara memakai `site/privasi.html` dengan tiga kalimat yang diperbaiki; keputusan PIC 2026-11-19) | imelda | sebelum dibuka publik |
+| Ganti proxy ke `api.deepseek.com` resmi | imelda | sebelum dibuka publik |

@@ -1,0 +1,1209 @@
+{
+ "at": "2026-11-19T07:02:10.886Z",
+ "models": [
+  "deepseek-v4.1-flash",
+  "deepseek-v4-mod"
+ ],
+ "modes": [
+  "one"
+ ],
+ "jobs": [
+  {
+   "id": "J1",
+   "title": "Android Engineer - Experience",
+   "company": "Spotify (lever)",
+   "textLength": 1737
+  },
+  {
+   "id": "J2",
+   "title": "Software Engineer / AI Code Trainer (Python, Web, Full Stack)",
+   "company": "CodeForAI (remotive)",
+   "textLength": 558
+  },
+  {
+   "id": "J3",
+   "title": "Tier III Service Desk Engineer",
+   "company": "Unio Digital (remotive)",
+   "textLength": 607
+  }
+ ],
+ "results": [
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "A",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Experience developing Android applications using Kotlin",
+     "Experience developing iOS applications using Swift or Objective-C",
+     "Solid experience as an Engineer I",
+     "Ability to build maintainable, scalable, and well-tested software systems",
+     "Develop and maintain mobile client components that capture and report listening and user behavior signals",
+     "Build high-quality, well-tested, and well-documented Kotlin code",
+     "Contribute to business-critical datasets used for royalty reporting and analytics"
+    ],
+    "skills": [
+     "Jest",
+     "Git",
+     "TypeScript",
+     "React",
+     "REST API",
+     "Node.js",
+     "PostgreSQL"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%.",
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript.",
+       "Menulis REST API dengan Node.js dan PostgreSQL."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Membantu memindahkan halaman statis ke React.",
+       "Memperbaiki bug tampilan di situs perusahaan."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Ability to build maintainable, scalable, and well-tested software systems"
+     ],
+     "missing": [
+      "Experience developing Android applications using Kotlin",
+      "Experience developing iOS applications using Swift or Objective-C",
+      "Solid experience as an Engineer I",
+      "Develop and maintain mobile client components that capture and report listening and user behavior signals",
+      "Build high-quality, well-tested, and well-documented Kotlin code",
+      "Contribute to business-critical datasets used for royalty reporting and analytics"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1294,
+   "outTokens": 1403,
+   "ms": 10296,
+   "calls": 1,
+   "estCostUsd": 0.0020718,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "A",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Menulis kode yang bersih dan memahami desain perangkat lunak",
+     "Full-stack atau web development dengan framework front-end/back-end modern (JavaScript, TypeScript, React, Node.js)",
+     "Backend development dengan bahasa seperti C++, Java, Go, Rust, atau Python",
+     "Algoritma dan struktur data",
+     "System design",
+     "DevOps",
+     "Database engineering"
+    ],
+    "skills": [
+     "TypeScript",
+     "React",
+     "Node.js",
+     "PostgreSQL",
+     "REST API",
+     "Jest",
+     "Git"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript.",
+       "Menulis REST API dengan Node.js dan PostgreSQL.",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Membantu memindahkan halaman statis ke React.",
+       "Memperbaiki bug tampilan di situs perusahaan."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Full-stack atau web development dengan framework front-end/back-end modern (JavaScript, TypeScript, React, Node.js)",
+      "Database engineering"
+     ],
+     "missing": [
+      "Menulis kode yang bersih dan memahami desain perangkat lunak",
+      "Backend development dengan bahasa seperti C++, Java, Go, Rust, atau Python",
+      "Algoritma dan struktur data",
+      "System design",
+      "DevOps"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [
+    {
+     "type": "coverage",
+     "value": "javascript",
+     "where": "Full-stack atau web development dengan framework front-end/b"
+    }
+   ],
+   "inTokens": 1069,
+   "outTokens": 1077,
+   "ms": 3608,
+   "calls": 1,
+   "estCostUsd": 0.0016131,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "A",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Pengalaman sebagai Tier III Service Desk Engineer",
+     "Kemampuan problem-solving",
+     "Menjadi titik eskalasi dalam tim",
+     "Menyelesaikan masalah teknis kompleks",
+     "Memimpin client onboarding",
+     "Memimpin inisiatif proyek",
+     "Memberikan dukungan langsung ke end-user",
+     "Pengalaman di lingkungan managed service provider (MSP)"
+    ],
+    "skills": [
+     "Node.js",
+     "REST API",
+     "PostgreSQL",
+     "Git",
+     "TypeScript",
+     "React",
+     "Jest"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript.",
+       "Menulis REST API dengan Node.js dan PostgreSQL.",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Memperbaiki bug tampilan di situs perusahaan.",
+       "Membantu memindahkan halaman statis ke React."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Kemampuan problem-solving"
+     ],
+     "missing": [
+      "Pengalaman sebagai Tier III Service Desk Engineer",
+      "Menjadi titik eskalasi dalam tim",
+      "Menyelesaikan masalah teknis kompleks",
+      "Memimpin client onboarding",
+      "Memimpin inisiatif proyek",
+      "Memberikan dukungan langsung ke end-user",
+      "Pengalaman di lingkungan managed service provider (MSP)"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1059,
+   "outTokens": 3307,
+   "ms": 19771,
+   "calls": 1,
+   "estCostUsd": 0.004286099999999999,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "B",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Develop and maintain mobile client components that capture and report listening and user behavior signals",
+     "Build high-quality, well-tested, and well-documented Kotlin code",
+     "Contribute to business-critical datasets used for royalty reporting and analysis",
+     "Experience developing Android applications",
+     "Experience developing iOS applications using Swift or Objective-C",
+     "Solid experience as an Engineer I",
+     "Build maintainable, scalable, and well-tested software systems",
+     "Comfortable working across every screen, platform, and partner integration"
+    ],
+    "skills": [
+     "SQL",
+     "Python",
+     "pandas",
+     "Statistics",
+     "Excel",
+     "Tableau",
+     "English"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Built weekly sales dashboards in Tableau for the regional team.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to the store managers of Contoh Retail Group."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Develop and maintain mobile client components that capture and report listening and user behavior signals",
+      "Build high-quality, well-tested, and well-documented Kotlin code",
+      "Contribute to business-critical datasets used for royalty reporting and analysis",
+      "Experience developing Android applications",
+      "Experience developing iOS applications using Swift or Objective-C",
+      "Solid experience as an Engineer I",
+      "Build maintainable, scalable, and well-tested software systems",
+      "Comfortable working across every screen, platform, and partner integration"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1268,
+   "outTokens": 1003,
+   "ms": 6110,
+   "calls": 1,
+   "estCostUsd": 0.001584,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "B",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Software engineering background in algorithms, data structures, or system design",
+     "Full-stack or web development with modern frameworks (JavaScript, TypeScript, React, Node.js, PHP, Ruby)",
+     "Backend development in Python",
+     "Systems development in C++, Java, Go, or Rust",
+     "DevOps",
+     "Database engineering",
+     "Writing clean code and understanding software design",
+     "Working in English"
+    ],
+    "skills": [
+     "Python",
+     "SQL",
+     "pandas",
+     "Statistics",
+     "English",
+     "Tableau",
+     "Excel"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export.",
+       "Built weekly sales dashboards in Tableau for the regional team."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to the store managers of Contoh Retail Group."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [
+      "Backend development in Python",
+      "Database engineering"
+     ],
+     "missing": [
+      "Software engineering background in algorithms, data structures, or system design",
+      "Full-stack or web development with modern frameworks (JavaScript, TypeScript, React, Node.js, PHP, Ruby)",
+      "Systems development in C++, Java, Go, or Rust",
+      "DevOps",
+      "Writing clean code and understanding software design",
+      "Working in English"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1043,
+   "outTokens": 1964,
+   "ms": 11099,
+   "calls": 1,
+   "estCostUsd": 0.0026696999999999997,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "B",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Experienced Tier 3 service desk technician serving as escalation point for complex technical issues",
+     "Exceptional problem-solving skills",
+     "Leading client onboarding and project initiatives",
+     "Providing direct end-user support when required",
+     "Experience in a managed service provider (MSP) environment delivering Managed IT Services",
+     "Familiarity with low voltage cabling, access control, video surveillance, and intrusion services"
+    ],
+    "skills": [
+     "Python",
+     "SQL",
+     "pandas",
+     "Excel",
+     "English",
+     "Tableau",
+     "Statistics"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Built weekly sales dashboards in Tableau for the regional team.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to the store managers of Contoh Retail Group."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Experienced Tier 3 service desk technician serving as escalation point for complex technical issues",
+      "Exceptional problem-solving skills",
+      "Leading client onboarding and project initiatives",
+      "Providing direct end-user support when required",
+      "Experience in a managed service provider (MSP) environment delivering Managed IT Services",
+      "Familiarity with low voltage cabling, access control, video surveillance, and intrusion services"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1033,
+   "outTokens": 873,
+   "ms": 3691,
+   "calls": 1,
+   "estCostUsd": 0.0013575,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "C",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Pengalaman mengembangkan aplikasi Android dan iOS menggunakan Kotlin serta Swift atau Objective-C",
+     "Pengalaman solid sebagai Engineer I",
+     "Membangun sistem perangkat lunak yang mudah dipelihara, skalabel, dan teruji dengan baik",
+     "Mengembangkan dan memelihara komponen klien mobile yang menangkap dan melaporkan sinyal perilaku pengguna",
+     "Menulis kode Kotlin berkualitas tinggi, teruji, dan terdokumentasi dengan baik",
+     "Berkontribusi pada dataset bisnis kritis untuk pelaporan royalti dan analitik"
+    ],
+    "skills": [
+     "Komunikasi",
+     "Bahasa Inggris",
+     "Ticketing",
+     "Jaringan dasar",
+     "Windows",
+     "Microsoft 365"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani tiket keluhan pengguna lewat sistem ticketing, rata-rata 15 tiket per hari.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Pengalaman mengembangkan aplikasi Android dan iOS menggunakan Kotlin serta Swift atau Objective-C",
+      "Pengalaman solid sebagai Engineer I",
+      "Membangun sistem perangkat lunak yang mudah dipelihara, skalabel, dan teruji dengan baik",
+      "Mengembangkan dan memelihara komponen klien mobile yang menangkap dan melaporkan sinyal perilaku pengguna",
+      "Menulis kode Kotlin berkualitas tinggi, teruji, dan terdokumentasi dengan baik",
+      "Berkontribusi pada dataset bisnis kritis untuk pelaporan royalti dan analitik"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1233,
+   "outTokens": 706,
+   "ms": 3494,
+   "calls": 1,
+   "estCostUsd": 0.0012170999999999998,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "C",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Menulis kode yang bersih dan memahami desain perangkat lunak",
+     "Algoritma, struktur data, atau desain sistem",
+     "Pengembangan full-stack/web dengan framework front-end atau back-end modern (JavaScript, TypeScript, React, Node.js, Python, PHP, Ruby)",
+     "Pengembangan backend/sistem dengan C++, Java, Go, Rust, atau Python",
+     "DevOps dan database",
+     "Developer dari berbagai latar teknis dan spesialisasi bahasa"
+    ],
+    "skills": [
+     "Komunikasi",
+     "Bahasa Inggris",
+     "Ticketing",
+     "Windows",
+     "Microsoft 365",
+     "Jaringan dasar"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani tiket keluhan pengguna melalui sistem ticketing dengan rata-rata 15 tiket per hari.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Menulis kode yang bersih dan memahami desain perangkat lunak",
+      "Algoritma, struktur data, atau desain sistem",
+      "Pengembangan full-stack/web dengan framework front-end atau back-end modern (JavaScript, TypeScript, React, Node.js, Python, PHP, Ruby)",
+      "Pengembangan backend/sistem dengan C++, Java, Go, Rust, atau Python",
+      "DevOps dan database",
+      "Developer dari berbagai latar teknis dan spesialisasi bahasa"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 1008,
+   "outTokens": 2409,
+   "ms": 8719,
+   "calls": 1,
+   "estCostUsd": 0.0031931999999999998,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4.1-flash",
+   "mode": "one",
+   "profile": "C",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Menjadi escalation point untuk masalah teknis kompleks (Tier 3)",
+     "Kemampuan pemecahan masalah yang kuat",
+     "Memberikan dukungan langsung kepada end-user",
+     "Menangani tiket dukungan service desk",
+     "Pengalaman dengan Windows dan Microsoft 365",
+     "Memimpin onboarding klien",
+     "Memimpin inisiatif proyek",
+     "Pengalaman di lingkungan managed service provider (MSP)"
+    ],
+    "skills": [
+     "Ticketing",
+     "Microsoft 365",
+     "Windows",
+     "Jaringan dasar",
+     "Komunikasi",
+     "Bahasa Inggris"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani tiket keluhan pengguna lewat sistem ticketing, rata-rata 15 tiket per hari.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [
+      "Memberikan dukungan langsung kepada end-user",
+      "Menangani tiket dukungan service desk",
+      "Pengalaman dengan Windows dan Microsoft 365"
+     ],
+     "missing": [
+      "Menjadi escalation point untuk masalah teknis kompleks (Tier 3)",
+      "Kemampuan pemecahan masalah yang kuat",
+      "Memimpin onboarding klien",
+      "Memimpin inisiatif proyek",
+      "Pengalaman di lingkungan managed service provider (MSP)"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 998,
+   "outTokens": 818,
+   "ms": 5293,
+   "calls": 1,
+   "estCostUsd": 0.001281,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "A",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Mengembangkan dan memelihara komponen klien mobile yang menangkap dan melaporkan sinyal perilaku pengguna",
+     "Menulis kode Kotlin berkualitas tinggi, teruji, dan terdokumentasi dengan baik untuk dataset bisnis-kritis",
+     "Pengalaman mengembangkan aplikasi Android menggunakan Kotlin",
+     "Pengalaman mengembangkan aplikasi iOS menggunakan Swift atau Objective-C",
+     "Pengalaman solid sebagai Engineer I",
+     "Membangun sistem perangkat lunak yang maintainable, scalable, dan teruji dengan baik"
+    ],
+    "skills": [
+     "Git",
+     "Jest",
+     "TypeScript",
+     "React",
+     "Node.js",
+     "REST API",
+     "PostgreSQL"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript.",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%.",
+       "Ikut code review dua kali seminggu.",
+       "Menulis REST API dengan Node.js dan PostgreSQL."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Memperbaiki bug tampilan di situs perusahaan.",
+       "Membantu memindahkan halaman statis ke React."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Membangun sistem perangkat lunak yang maintainable, scalable, dan teruji dengan baik",
+      "Pengalaman solid sebagai Engineer I"
+     ],
+     "missing": [
+      "Mengembangkan dan memelihara komponen klien mobile yang menangkap dan melaporkan sinyal perilaku pengguna",
+      "Menulis kode Kotlin berkualitas tinggi, teruji, dan terdokumentasi dengan baik untuk dataset bisnis-kritis",
+      "Pengalaman mengembangkan aplikasi Android menggunakan Kotlin",
+      "Pengalaman mengembangkan aplikasi iOS menggunakan Swift atau Objective-C"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 18021,
+   "outTokens": 850,
+   "ms": 5044,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "A",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Menulis kode bersih dan memahami desain perangkat lunak",
+     "Full-stack / web developer dengan framework front-end atau back-end modern (JavaScript, TypeScript, React, Node.js)",
+     "Backend developer dengan Python",
+     "Backend & systems developer dengan C++, Java, Go, atau Rust",
+     "Pengalaman database sebagai Database Engineer",
+     "System design dan arsitektur sistem",
+     "Algoritma dan struktur data",
+     "Code review dan evaluasi kualitas kode (AI code trainer)"
+    ],
+    "skills": [
+     "TypeScript",
+     "React",
+     "Node.js",
+     "PostgreSQL",
+     "REST API",
+     "Jest",
+     "Git"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript.",
+       "Menulis REST API dengan Node.js dan PostgreSQL.",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%, serta ikut code review dua kali seminggu."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Membantu memindahkan halaman statis ke React.",
+       "Memperbaiki bug tampilan di situs perusahaan."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Menulis kode bersih dan memahami desain perangkat lunak",
+      "Full-stack / web developer dengan framework front-end atau back-end modern (JavaScript, TypeScript, React, Node.js)",
+      "Pengalaman database sebagai Database Engineer",
+      "Code review dan evaluasi kualitas kode (AI code trainer)"
+     ],
+     "missing": [
+      "Backend developer dengan Python",
+      "Backend & systems developer dengan C++, Java, Go, atau Rust",
+      "System design dan arsitektur sistem",
+      "Algoritma dan struktur data"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [
+    {
+     "type": "coverage",
+     "value": "javascript",
+     "where": "Full-stack / web developer dengan framework front-end atau b"
+    }
+   ],
+   "inTokens": 17796,
+   "outTokens": 1148,
+   "ms": 11938,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "A",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Pengalaman sebagai Tier 3 Service Desk Technician / titik eskalasi dalam tim",
+     "Kemampuan problem-solving teknis yang kuat untuk menangani isu kompleks",
+     "Memimpin proses client onboarding",
+     "Memimpin inisiatif proyek",
+     "Memberikan dukungan langsung kepada end-user",
+     "Pengalaman di lingkungan Managed Service Provider (MSP)",
+     "Pengetahuan Managed IT Services, low voltage cabling, access control, video surveillance, dan intrusion",
+     "Pengalaman troubleshooting dan eskalasi tiket tingkat lanjut"
+    ],
+    "skills": [
+     "Git",
+     "REST API",
+     "Node.js",
+     "TypeScript",
+     "PostgreSQL",
+     "React",
+     "Jest"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-a1",
+      "bullets": [
+       "Menulis REST API dengan Node.js dan PostgreSQL.",
+       "Menulis tes unit dengan Jest sehingga cakupan tes naik dari 40% ke 70%.",
+       "Membangun fitur dashboard pelanggan dengan React dan TypeScript."
+      ]
+     },
+     {
+      "sourceId": "exp-a2",
+      "bullets": [
+       "Memperbaiki bug tampilan di situs perusahaan.",
+       "Membantu memindahkan halaman statis ke React."
+      ]
+     }
+    ],
+    "education": [
+     "edu-a1"
+    ],
+    "coverage": {
+     "covered": [
+      "Kemampuan problem-solving teknis melalui perbaikan bug dan penulisan tes unit"
+     ],
+     "missing": [
+      "Pengalaman sebagai Tier 3 Service Desk Technician / titik eskalasi dalam tim",
+      "Memimpin proses client onboarding",
+      "Memimpin inisiatif proyek",
+      "Memberikan dukungan langsung kepada end-user",
+      "Pengalaman di lingkungan Managed Service Provider (MSP)",
+      "Pengetahuan Managed IT Services, low voltage cabling, access control, video surveillance, dan intrusion",
+      "Pengalaman troubleshooting dan eskalasi tiket tingkat lanjut"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 17786,
+   "outTokens": 1152,
+   "ms": 5500,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "B",
+   "job": "J1",
+   "error": "Expected ',' or '}' after property value in JSON at position 1853 (line 1 column 1854)",
+   "output": null,
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 17995,
+   "outTokens": 1008,
+   "ms": 4399,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "B",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Write clean code and understand software design",
+     "Software Engineers & Computer Scientists specializing in algorithms, data structures, or system design",
+     "Full-Stack & Web Developers working with modern front-end or back-end frameworks (JavaScript, TypeScript, React, Node.js, Python, PHP, Ruby, etc.)",
+     "Backend & Systems Developers experienced in languages such as C++, Java, Go, Rust, or Python",
+     "DevOps & Database Engineers",
+     "Developers from all technical backgrounds and language specializations"
+    ],
+    "skills": [
+     "Python",
+     "SQL",
+     "pandas",
+     "Statistics",
+     "English",
+     "Excel",
+     "Tableau"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Wrote SQL queries and pandas scripts to clean order data from three sources.",
+       "Reduced the weekly reporting time from 6 hours to 2 hours by automating the Excel export.",
+       "Built weekly sales dashboards in Tableau for the regional team."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to the store managers of Contoh Retail Group."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [
+      "Developers from all technical backgrounds and language specializations"
+     ],
+     "missing": [
+      "Write clean code and understand software design",
+      "Software Engineers & Computer Scientists specializing in algorithms, data structures, or system design",
+      "Full-Stack & Web Developers working with modern front-end or back-end frameworks (JavaScript, TypeScript, React, Node.js, Python, PHP, Ruby, etc.)",
+      "Backend & Systems Developers experienced in languages such as C++, Java, Go, Rust, or Python",
+      "DevOps & Database Engineers"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 17770,
+   "outTokens": 2270,
+   "ms": 11050,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "B",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Tier III service desk experience",
+     "Acting as escalation point within a team",
+     "Resolving complex technical issues",
+     "Leading client onboarding",
+     "Leading project initiatives",
+     "Providing direct end-user support",
+     "MSP / managed IT services experience",
+     "Exceptional problem-solving skills"
+    ],
+    "skills": [
+     "English",
+     "Excel",
+     "SQL",
+     "Python",
+     "pandas",
+     "Tableau",
+     "Statistics"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-b1",
+      "bullets": [
+       "Created weekly sales dashboards in Tableau for the regional team.",
+       "Used SQL queries and pandas scripts to clean order data from three sources.",
+       "Automated the Excel export, cutting weekly reporting time from 6 hours to 2 hours."
+      ]
+     },
+     {
+      "sourceId": "exp-b2",
+      "bullets": [
+       "Prepared monthly stock reports in Excel.",
+       "Presented findings to store managers."
+      ]
+     }
+    ],
+    "education": [
+     "edu-b1"
+    ],
+    "coverage": {
+     "covered": [
+      "Exceptional problem-solving skills"
+     ],
+     "missing": [
+      "Tier III service desk experience",
+      "Acting as escalation point within a team",
+      "Resolving complex technical issues",
+      "Leading client onboarding",
+      "Leading project initiatives",
+      "Providing direct end-user support",
+      "MSP / managed IT services experience"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 17760,
+   "outTokens": 2901,
+   "ms": 10775,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "C",
+   "job": "J1",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Pengembangan aplikasi Android menggunakan Kotlin",
+     "Pengembangan aplikasi iOS menggunakan Swift atau Objective-C",
+     "Pengalaman sebagai Engineer I",
+     "Membangun sistem perangkat lunak yang maintainable, scalable, dan well-tested",
+     "Mengembangkan dan memelihara komponen mobile client",
+     "Menangkap dan melaporkan signal listening serta user behavior",
+     "Menulis kode berkualitas, well-tested, dan well-documented",
+     "Berkontribusi pada dataset bisnis kritis seperti royalty reporting"
+    ],
+    "skills": [
+     "Komunikasi",
+     "Bahasa Inggris",
+     "Ticketing",
+     "Jaringan dasar",
+     "Windows",
+     "Microsoft 365"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani tiket keluhan pengguna lewat sistem ticketing, rata-rata 15 tiket per hari.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Pengembangan aplikasi Android menggunakan Kotlin",
+      "Pengembangan aplikasi iOS menggunakan Swift atau Objective-C",
+      "Pengalaman sebagai Engineer I",
+      "Membangun sistem perangkat lunak yang maintainable, scalable, dan well-tested",
+      "Mengembangkan dan memelihara komponen mobile client",
+      "Menangkap dan melaporkan signal listening serta user behavior",
+      "Menulis kode berkualitas, well-tested, dan well-documented",
+      "Berkontribusi pada dataset bisnis kritis seperti royalty reporting"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 17960,
+   "outTokens": 777,
+   "ms": 3126,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "C",
+   "job": "J2",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Software engineering fundamentals: algoritma, struktur data, system design",
+     "Full-stack/web development dengan framework front-end modern (JavaScript, TypeScript, React)",
+     "Back-end development (Node.js, Python, PHP, Ruby)",
+     "Pengalaman bahasa backend/sistem (C++, Java, Go, Rust, Python)",
+     "Menulis clean code dan memahami software design",
+     "DevOps engineering",
+     "Database engineering",
+     "Kontribusi pada pengembangan perangkat lunak secara umum (bukan hanya dukungan IT)"
+    ],
+    "skills": [
+     "Bahasa Inggris",
+     "Komunikasi",
+     "Windows",
+     "Jaringan dasar",
+     "Microsoft 365",
+     "Ticketing"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani tiket keluhan pengguna lewat sistem ticketing, rata-rata 15 tiket per hari.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [],
+     "missing": [
+      "Software engineering fundamentals: algoritma, struktur data, system design",
+      "Full-stack/web development dengan framework front-end modern (JavaScript, TypeScript, React)",
+      "Back-end development (Node.js, Python, PHP, Ruby)",
+      "Pengalaman bahasa backend/sistem (C++, Java, Go, Rust, Python)",
+      "Menulis clean code dan memahami software design",
+      "DevOps engineering",
+      "Database engineering",
+      "Kontribusi pada pengembangan perangkat lunak secara umum (bukan hanya dukungan IT)"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 17735,
+   "outTokens": 852,
+   "ms": 3017,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  },
+  {
+   "model": "deepseek-v4-mod",
+   "mode": "one",
+   "profile": "C",
+   "job": "J3",
+   "error": null,
+   "output": {
+    "requirements": [
+     "Menjadi escalation point/Tier 3 untuk masalah teknis kompleks",
+     "Kemampuan problem-solving tingkat lanjut",
+     "Memimpin client onboarding dan inisiatif proyek",
+     "Memberikan dukungan end-user langsung",
+     "Dukungan Windows dan Microsoft 365",
+     "Mengelola tiket/service desk",
+     "Pengetahuan jaringan dasar (kabel/switch)",
+     "Komunikasi dan kemampuan bahasa Inggris"
+    ],
+    "skills": [
+     "Ticketing",
+     "Windows",
+     "Microsoft 365",
+     "Jaringan dasar",
+     "Komunikasi",
+     "Bahasa Inggris"
+    ],
+    "experience": [
+     {
+      "sourceId": "exp-c1",
+      "bullets": [
+       "Menangani tiket keluhan pengguna melalui sistem ticketing, rata-rata 15 tiket per hari.",
+       "Memasang ulang Windows dan mengatur akun Microsoft 365 untuk karyawan baru.",
+       "Memeriksa kabel dan switch saat jaringan kantor bermasalah."
+      ]
+     }
+    ],
+    "education": [
+     "edu-c1"
+    ],
+    "coverage": {
+     "covered": [
+      "Memberikan dukungan end-user langsung",
+      "Dukungan Windows dan Microsoft 365",
+      "Mengelola tiket/service desk",
+      "Pengetahuan jaringan dasar (kabel/switch)",
+      "Komunikasi dan kemampuan bahasa Inggris"
+     ],
+     "missing": [
+      "Menjadi escalation point/Tier 3 untuk masalah teknis kompleks",
+      "Kemampuan problem-solving tingkat lanjut",
+      "Memimpin client onboarding dan inisiatif proyek"
+     ]
+    }
+   },
+   "violations": [],
+   "coverageViolations": [],
+   "inTokens": 17725,
+   "outTokens": 2093,
+   "ms": 8567,
+   "calls": 1,
+   "estCostUsd": null,
+   "finish": [
+    "stop"
+   ]
+  }
+ ]
+}

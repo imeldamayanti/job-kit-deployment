@@ -1,6 +1,6 @@
 # Rencana: deployment, penyimpanan data, metrik, dan API generate
 
-Status: **Fase 1 dikerjakan (tersisa langkah di tangan PIC), Fase 2 disetujui PIC dan kodenya selesai tetapi belum diuji ke server sungguhan** (2026-10-18). Fase 3 disetujui PIC dan dikerjakan di kode dan dokumen, kecuali T35/T55; Fase 4 masih usulan dan butuh persetujuan PIC.
+Status: **Fase 1 dikerjakan (tersisa langkah di tangan PIC), Fase 2 disetujui PIC dan kodenya selesai tetapi belum diuji ke server sungguhan** (2026-10-18). Fase 3 disetujui PIC dan dikerjakan di kode dan dokumen, kecuali T35/T55; **Fase 4 diputuskan PIC 2026-11-19** (DRAFT, menunggu persetujuan dokumen): [desain monetisasi](superpowers/specs/2026-11-19-monetisasi-design.md).
 
 Kemajuan Fase 1:
 - [x] Build dibagikan tanpa AI: `npm run build:share` (RFC D16). Belum dicek visual di Chrome sungguhan.
@@ -24,6 +24,16 @@ Kemajuan Fase 3 (disetujui PIC 2026-10-18, telemetri opt-in anonim hanya hitunga
 - [ ] PIC: jalankan SQL, isi `admin_users`, atur SMTP dan batas laju, jadwalkan cadangan dan uji pemulihan, tinjau privasi, terbit publik.
 - [ ] **Tidak dikerjakan:** T35 dan T55 (biaya AI nyata per generate). Fase 4 tidak bisa diberi harga tanpa angka ini.
 - Catatan: "berapa pengguna aktif minggu ini dari satu halaman" tidak sepenuhnya mungkin tanpa pengenal; lihat 07-operations.md §1.
+
+Keputusan Fase 4 (2026-11-19; PRD §4.5, RFC §3.3d dan D20 sampai D24, `plan.md` T56 sampai T63):
+- Login wajib; preview tanpa login; sinkron tetap opsional.
+- Tanpa kunci sendiri di build pengguna; AI lewat Supabase Edge Functions dengan kredit.
+- Satu saldo kredit; paket Rp10.800 sudah termasuk semua biaya; QRIS dinamis lewat Tripay, dicek otomatis.
+- Kredit dikembalikan bila AI gagal atau ditolak pemeriksa fakta; plafon AI bulanan; tarik dana bulanan.
+- Model `deepseek-v4.1-flash` lewat proxy sementara; diganti ke API resmi sebelum publik.
+- Website pindah ke Cloudflare Pages (Vercel Hobby tidak boleh komersial).
+- Tabel Supabase `user_data`, `event_counts`, `feedback` sudah ada di proyek (dicek 2026-11-19); butir "jalankan SQL" di Fase 2 dan 3 kemungkinan sudah dikerjakan PIC, belum dicentang.
+- Biaya AI per CV terukur ±Rp35 (spike 2026-11-19), menjawab butir "Fase 4 tidak bisa diberi harga".
 
 Keputusan PIC: AI mati total di build dibagikan, termasuk untuk pemilik kunci sendiri (pertanyaan 1 §8 terjawab).
 
@@ -106,7 +116,7 @@ Batas Supabase gratis ([harga](https://supabase.com/pricing.md); angka pihak ket
 - **Jalur "bawa kunci sendiri"** tetap ada dan gratis untuk yang mau.
 - **Cadangan model:** bila penyedia gagal, jatuh ke model lain atau ke CV dari Profile apa adanya.
 
-### Pilihan skema bayar (belum diputuskan)
+### Pilihan skema bayar (diputuskan 2026-11-19: kredit, lihat [desain monetisasi](superpowers/specs/2026-11-19-monetisasi-design.md))
 | Skema | Cocok bila | Risiko |
 |---|---|---|
 | **Kredit** (beli paket, habis pakai) | Pemakaian tidak rutin; paling sederhana; tidak ada langganan yang terlupa | Pengguna kecil membeli sedikit |

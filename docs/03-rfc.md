@@ -218,6 +218,22 @@ Alasan: kriteria tiket (satu klik, nama berkas, FR-42) dan tata letak yang bisa 
 
 **Risiko yang diketahui.** Halusinasi semantik yang lolos pemeriksa mekanis (mitigasi: diff dan edit manual, metrik PRD §10 menghitung klaim palsu); model gratis yang memakai data untuk melatih (mitigasi: peringatan dan batas payload §4.2); biaya per lamaran belum diukur (spike T45 dan T48); `storage.local` penuh oleh dokumen (CV dan surat berukuran KB, kecil dibanding feed; pemangkasan feed tidak menyentuh lamaran); Fill di halaman di luar feed tidak membuat lamaran (T21 tetap ditunda).
 
+### 3.3d Akun wajib, kredit, dan pembayaran (revisi PRD 2026-11-19, DRAFT)
+
+Desain lengkap, struktur data, dan tabel kasus di `docs/superpowers/specs/2026-11-19-monetisasi-design.md`. Ringkasnya:
+
+```
+extension ──token──► create-payment ──► Tripay (QRIS) ──scan──► tripay-callback ──► apply_payment()
+extension ──token + payload tersamar──► generate: reserve_credits() → model → validasi + FR-40 → settle_generation()
+extension ◄── baca accounts / purchases / credit_ledger / generations (RLS, hanya baris sendiri)
+```
+
+- **Tabel baru:** `packages`, `accounts` (saldo, `unlocked_at`), `purchases`, `credit_ledger`, `generations`. Klien hanya membaca barisnya sendiri; semua tulis lewat fungsi `security definer` yang dipanggil `service_role`.
+- **Tiga Edge Function:** `create-payment`, `tripay-callback` (tanpa JWT, HMAC-SHA256 dicek), `generate` (menerima payload terstruktur, bukan prompt bebas; menyusun prompt dan menjalankan `validateGrounded` dengan kode `src/core/` yang sama).
+- **Rahasia** hanya di secrets Supabase (kunci model, kunci Tripay). Build pengguna tidak memuat URL atau kunci penyedia AI.
+- **Build:** build pengguna memakai AI lewat server; jalur kunci sendiri dan bridge Claude Code hanya di build pengembang.
+- **Izin:** host Supabase menjadi izin wajib; origin penyedia AI keluar dari build pengguna.
+
 ### 3.4 Yang biasanya makan lebih dari 2 jam di stack ini
 
 1. **Mengisi form React/Vue (FR-10).** Menyetel `.value` saja tidak cukup; state framework tidak berubah. Perlu native setter dan event.
@@ -357,6 +373,26 @@ Tidak ada yang memblokir approval.
 *Why:* PIC melihat jumlah akun, akun baru per hari, akun yang menulis dalam 7 hari, dan hitungan kejadian per versi dari satu halaman (`site/admin.html`). Data dibaca lewat fungsi `admin_stats()` (security definer) yang hanya menjawab bila email pemanggil ada di tabel `admin_users`; fungsi itu tidak pernah menyentuh kolom `ciphertext`. Login admin memakai kode email yang sama dengan aplikasi.
 *Cost:* email admin diisi lewat SQL oleh PIC (tidak ada di repo); halaman admin ikut terdeploy ke website publik (tetapi tanpa login tidak menampilkan angka, dan diberi `noindex`); proyek Supabase gratis yang dijeda membuat halaman ini kosong.
 *Verdict:* ya.
+
+**D20 — Login wajib; sinkron tetap opsional (keputusan PIC 2026-11-19, PRD §4.5).**
+*Why:* kredit harus terikat ke satu akun, dan PIC ingin semua pemakai terdaftar. Login dipakai untuk identitas dan saldo; isi profil tetap lokal kecuali sinkron dinyalakan.
+*Cost:* janji "tanpa akun" (§4.3) dicabut; pengguna baru melewati satu langkah masuk; host Supabase menjadi izin wajib sehingga peringatan saat instal bertambah.
+
+**D21 — AI hanya lewat server dengan kredit; jalur kunci sendiri keluar dari build pengguna (keputusan PIC 2026-11-19).**
+*Why:* pengguna awam tidak punya kunci API, dan PIC mengambil untung dari kredit. Payload tetap tersamar (D13); server tidak menyimpan prompt atau hasil.
+*Cost:* server menjadi titik gagal tunggal untuk semua fitur AI; biaya AI ditanggung PIC sampai dibayar kembali lewat paket; kode prompt dan pemeriksa fakta harus berjalan di dua runtime (browser dan Deno).
+
+**D22 — Server menyusun prompt dan menjalankan pemeriksa fakta (2026-11-19).**
+*Why:* menerima prompt bebas membuat server jadi chatbot umum, dan pengembalian kredit atas penolakan pemeriksa fakta hanya bisa dipercaya bila server sendiri yang memeriksa.
+*Cost:* `src/core/` dibagi ke Edge Functions; perubahan prompt butuh deploy server, bukan hanya rilis extension.
+
+**D23 — Saldo di `accounts.credits` dengan buku `credit_ledger`, diubah hanya oleh fungsi bertransaksi (2026-11-19).**
+*Why:* kunci baris (`for update`) mencegah saldo minus saat dua generate bersamaan; buku memberi jejak untuk setiap perubahan; `apply_payment` dan `settle_generation` idempoten sehingga callback berulang tidak menggandakan kredit.
+*Cost:* dua sumber yang harus selalu cocok (saldo dan jumlah buku); butuh tes yang membandingkan keduanya.
+
+**D24 — Pembayaran QRIS dinamis lewat Tripay, di dalam extension (keputusan PIC 2026-11-19).**
+*Why:* biaya termurah yang ditemukan (Rp750 + 0,7%), akun perorangan, callback bertanda tangan. Pembelian di extension menghindari login kedua di website. Harga Rp10.800 sudah termasuk biaya karena surcharge QRIS dilarang (PBI 23/2021 Pasal 52 ayat 1).
+*Cost:* bergantung pada satu gateway; penarikan dana kena Rp7.500; Tripay belum diverifikasi untuk akun PIC; CSP extension harus mengizinkan gambar QR dari domain Tripay.
 
 ## 9. Stack conventions
 
