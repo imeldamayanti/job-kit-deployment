@@ -36,7 +36,9 @@ export type Purchase = { id: string; status: string; amountIdr: number; credits:
 export type PaymentDb = {
   // The user's still-valid pending purchase for this package, or a new one.
   createPurchase(user: string, packageId: string): Promise<Purchase>
-  attachGateway(purchaseId: string, reference: string, qrUrl: string): Promise<void>
-  // Returns the final status of the purchase, or 'not_found' when there is no such purchase.
+  // First writer wins: returns the QR url recorded for the purchase, which is the one to show. Throws when there is none.
+  attachGateway(purchaseId: string, reference: string, qrUrl: string): Promise<string>
+  // Returns the final status of the purchase, 'not_found' when there is no such purchase, or 'duplicate' when a purchase
+  // that is already paid by one gateway transaction gets a PAID callback of another.
   applyPayment(purchaseId: string, reference: string, status: string, amount: number): Promise<string>
 }

@@ -15,7 +15,7 @@ const row = (over: Partial<Awaited<ReturnType<PaymentDb['createPurchase']>>> = {
 const fakeDb = (over: Partial<PaymentDb> = {}) => {
   const db = {
     createPurchase: vi.fn(async () => row()),
-    attachGateway: vi.fn(async () => undefined),
+    attachGateway: vi.fn(async (_id: string, _reference: string, qrUrl: string) => qrUrl),
     applyPayment: vi.fn(async () => 'paid'),
     ...over,
   }
@@ -97,6 +97,14 @@ describe('handleCreatePayment', () => {
   it('lets a database error propagate', async () => {
     const db = fakeDb({ createPurchase: vi.fn(async () => { throw new Error('db down') }) })
     await expect(ask(db, fakeFetch())).rejects.toThrow('db down')
+  })
+
+  it('shows the QR the database recorded when another call attached first, never its own', async () => {
+    const recorded = 'https://api.sandbox.midtrans.com/v2/qris/winner/qr-code-v2'
+    const db = fakeDb({ attachGateway: vi.fn(async () => recorded) })
+    const result = await ask(db, fakeFetch())
+    expect(db.attachGateway).toHaveBeenCalledWith(PURCHASE, 'mt-1', QR)
+    expect(result).toEqual({ status: 200, body: { ok: true, purchaseId: PURCHASE, qrUrl: recorded, amountIdr: 10800, credits: 50, expiresAt: EXPIRES } })
   })
 
   it('throws when attachGateway fails after the QR was made, so the entrypoint answers a generic 500', async () => {
@@ -251,6 +259,28 @@ describe('handleCallback', () => {
     const result = await call(db, make(), report)
     expect(result.status).toBe(404)
     expect(report).toHaveBeenCalledWith('paid-not-credited', expect.any(Error))
+  })
+
+  it('reports duplicate-payment (stage and a short message, no body) for a second payment, and still answers 200', async () => {
+    const raw = make({ transaction_id: 'mt-orphan' })
+    const db = fakeDb({ applyPayment: vi.fn(async () => 'duplicate') })
+    const report = vi.fn()
+    const result = await call(db, raw, report)
+    expect(db.applyPayment).toHaveBeenCalledWith(PURCHASE, 'mt-orphan', 'PAID', 10800)
+    expect(result).toEqual({ status: 200, body: { success: true } })
+    expect(report).toHaveBeenCalledTimes(1)
+    expect(report).toHaveBeenCalledWith('duplicate-payment', expect.any(Error))
+    const text = JSON.stringify(report.mock.calls.map(([stage, error]) => [stage, (error as Error).message]))
+    expect(text).not.toContain(KEY)
+    expect(text).not.toContain(JSON.parse(raw).signature_key)
+  })
+
+  it('does not report a repeated callback of the same transaction (applyPayment answers paid)', async () => {
+    const report = vi.fn()
+    const db = fakeDb({ applyPayment: vi.fn(async () => 'paid') })
+    await call(db, make(), report)
+    await call(db, make(), report)
+    expect(report).not.toHaveBeenCalled()
   })
 
   it('does not report paid-not-credited for a credited, repeated or non-PAID callback', async () => {

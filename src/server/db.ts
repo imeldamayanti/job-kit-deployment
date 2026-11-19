@@ -75,7 +75,9 @@ export function createDb(url: string, serviceKey: string, fetchImpl: FetchLike =
     },
 
     async attachGateway(purchaseId, reference, qrUrl) {
-      await rpc('attach_gateway', { p_purchase: purchaseId, p_reference: reference, p_qr_url: qrUrl })
+      const recorded = await rpc('attach_gateway', { p_purchase: purchaseId, p_reference: reference, p_qr_url: qrUrl })
+      if (typeof recorded !== 'string' || !recorded) throw new Error('attach_gateway returned no QR')
+      return recorded
     },
 
     async applyPayment(purchaseId, reference, status, amount) {

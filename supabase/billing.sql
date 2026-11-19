@@ -275,22 +275,34 @@ begin
 end;
 $$;
 
--- attach_gateway: stores the gateway's reference and QR image on a pending purchase.
-create or replace function public.attach_gateway(p_purchase uuid, p_reference text, p_qr_url text) returns void
+-- attach_gateway: records the gateway's reference and QR image on a pending purchase, first writer wins. A purchase has one
+-- recorded QR: when a concurrent call already attached one, nothing is overwritten. Returns the recorded QR image, which is
+-- the one the caller must show, whether it was just written or was there already.
+create or replace function public.attach_gateway(p_purchase uuid, p_reference text, p_qr_url text) returns text
 language plpgsql security definer set search_path = '' as $$
+declare
+  v_qr text;
 begin
   update public.purchases set gateway_reference = p_reference, qr_url = p_qr_url
-    where id = p_purchase and status = 'pending';
+    where id = p_purchase and status = 'pending' and gateway_reference is null
+    returning qr_url into v_qr;
+  if found then
+    return v_qr;
+  end if;
+
+  select qr_url into v_qr from public.purchases where id = p_purchase and qr_url is not null;
   if not found then
     raise exception 'not_found';
   end if;
+  return v_qr;
 end;
 $$;
 
 -- apply_payment: the gateway's callback. Only a 'pending' or 'expired' purchase can change, so a repeated
 -- callback has no second effect. PAID with the right amount credits the balance, even after 'expired'
 -- (the money was received). A different amount becomes 'mismatch' and credits nothing.
--- Returns the final status.
+-- Returns the final status, or 'duplicate' when a PAID callback names another gateway transaction than the one
+-- that already paid the purchase (a second charge was paid: nothing is credited, the caller reports it).
 create or replace function public.apply_payment(p_purchase uuid, p_reference text, p_status text, p_amount integer) returns text
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -303,6 +315,9 @@ begin
   end if;
 
   if v_p.status not in ('pending', 'expired') then
+    if v_p.status = 'paid' and v_status = 'PAID' and v_p.gateway_reference is distinct from p_reference then
+      return 'duplicate';
+    end if;
     return v_p.status;
   end if;
 

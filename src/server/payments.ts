@@ -22,7 +22,7 @@ export type CallbackDeps = {
   db: PaymentDb
   serverKey: string
   // Told which stage failed and with what error. Never receives the callback body.
-  report?: (stage: 'apply' | 'mismatch' | 'paid-not-credited' | 'status', error: unknown) => void
+  report?: (stage: 'apply' | 'mismatch' | 'paid-not-credited' | 'duplicate-payment' | 'status', error: unknown) => void
 }
 
 const refuse = (status: number, error: 'unauthenticated' | 'invalid-request' | 'gateway', message: string): { status: number; body: CreatePaymentResponse } => ({
@@ -56,8 +56,8 @@ export async function handleCreatePayment(
     deps.report?.('gateway', error)
     return refuse(502, 'gateway', 'Pembayaran sedang gangguan. Coba lagi sebentar.')
   }
-  await deps.db.attachGateway(purchase.id, qris.reference, qris.qrUrl)
-  return answer(qris.qrUrl)
+  // First writer wins in the database: show the QR it recorded, which is ours only when no concurrent call attached one before.
+  return answer(await deps.db.attachGateway(purchase.id, qris.reference, qris.qrUrl))
 }
 
 const callbackResult = (status: number, success: boolean, message?: string) => ({ status, body: { success, ...(message && { message }) } })
@@ -100,6 +100,9 @@ export async function handleCallback(input: { rawBody: string }, deps: CallbackD
   }
   if (final === 'mismatch') {
     deps.report?.('mismatch', new Error(`purchase ${purchaseId} was paid with a different amount`))
+  } else if (final === 'duplicate') {
+    // A second charge of the same purchase was paid: nothing is credited, and the money must not go unnoticed. A 200 stops the retries.
+    deps.report?.('duplicate-payment', new Error(`purchase ${purchaseId} was paid a second time by another transaction`))
   } else if (status === 'PAID' && final !== 'paid') {
     // Money came in but the purchase is not credited (not found, or already failed): somebody has to look at it.
     deps.report?.('paid-not-credited', new Error(`purchase ${purchaseId} was paid but the result is ${final}`))

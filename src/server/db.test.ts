@@ -116,16 +116,24 @@ describe('createDb', () => {
       await expect(createDb('https://p.test', 'k', fetchImpl).createPurchase(USER, 'x')).rejects.toThrow()
     })
 
-    it.each([[() => json(null)], [() => new Response(null, { status: 204 })], [() => new Response('', { status: 200 })]])('attachGateway sends the arguments and accepts an empty void answer', async (respond) => {
-      const { seen, fetchImpl } = spy(respond)
-      await expect(createDb('https://p.test', 'k', fetchImpl).attachGateway(PURCHASE, 'mt-1', 'https://q.test/1')).resolves.toBeUndefined()
+    it('attachGateway sends the arguments and returns the QR url recorded in the database', async () => {
+      const { seen, fetchImpl } = spy(() => json('https://q.test/recorded'))
+      await expect(createDb('https://p.test', 'k', fetchImpl).attachGateway(PURCHASE, 'mt-1', 'https://q.test/1')).resolves.toBe('https://q.test/recorded')
       expect(seen[0]?.url).toBe('https://p.test/rest/v1/rpc/attach_gateway')
       expect(body(seen[0])).toEqual({ p_purchase: PURCHASE, p_reference: 'mt-1', p_qr_url: 'https://q.test/1' })
+    })
+
+    it.each([[() => json(null)], [() => new Response(null, { status: 204 })], [() => json('')], [() => json(5)]])('attachGateway throws when the database names no recorded QR', async (respond) => {
+      await expect(createDb('https://p.test', 'k', spy(respond).fetchImpl).attachGateway(PURCHASE, 'mt-1', 'https://q.test/1')).rejects.toThrow()
     })
 
     it('attachGateway throws on not_found', async () => {
       const { fetchImpl } = spy(() => json({ code: 'P0001', message: 'not_found' }, 400))
       await expect(createDb('https://p.test', 'k', fetchImpl).attachGateway(PURCHASE, 'R', 'u')).rejects.toThrow()
+    })
+
+    it('applyPayment passes the duplicate answer through', async () => {
+      expect(await createDb('https://p.test', 'k', spy(() => json('duplicate')).fetchImpl).applyPayment(PURCHASE, 'mt-2', 'PAID', 10800)).toBe('duplicate')
     })
 
     it('applyPayment returns the final status', async () => {

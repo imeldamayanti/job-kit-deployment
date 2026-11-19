@@ -261,11 +261,12 @@ describe('payments', () => {
     await expect(newPurchase(user)).rejects.toThrow(/unknown_package/)
   })
 
-  it('attach_gateway stores the reference and QR url on a pending purchase', async () => {
+  it('attach_gateway stores the reference and QR url on a pending purchase and returns the recorded QR', async () => {
     const user = await addUser()
     await ensureAccount(user)
     const p = await newPurchase(user)
-    await db.query('select public.attach_gateway($1, $2, $3)', [p.id, 'T999', 'https://qr.example/x.png'])
+    const { rows: attached } = await db.query<{ qr: string }>('select public.attach_gateway($1, $2, $3) as qr', [p.id, 'T999', 'https://qr.example/x.png'])
+    expect(one(attached).qr).toBe('https://qr.example/x.png')
     const { rows } = await db.query<{ gateway_reference: string; qr_url: string }>(
       'select gateway_reference, qr_url from public.purchases where id = $1',
       [p.id],
@@ -274,6 +275,52 @@ describe('payments', () => {
     await expect(
       db.query('select public.attach_gateway($1, $2, $3)', [randomUUID(), 'T1', 'u']),
     ).rejects.toThrow(/not_found/)
+  })
+
+  it('attach_gateway is first-writer-wins: a second attach changes nothing and returns the recorded QR', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    const p = await newPurchase(user)
+    await db.query('select public.attach_gateway($1, $2, $3)', [p.id, 'T-first', 'https://qr.example/first.png'])
+    const { rows: second } = await db.query<{ qr: string }>('select public.attach_gateway($1, $2, $3) as qr', [p.id, 'T-second', 'https://qr.example/second.png'])
+    expect(one(second).qr).toBe('https://qr.example/first.png')
+    const { rows } = await db.query<{ gateway_reference: string; qr_url: string }>('select gateway_reference, qr_url from public.purchases where id = $1', [p.id])
+    expect(one(rows)).toEqual({ gateway_reference: 'T-first', qr_url: 'https://qr.example/first.png' })
+  })
+
+  it('attach_gateway still returns the recorded QR once the purchase is paid, and refuses a paid purchase that never had one', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    const p = await newPurchase(user)
+    await db.query('select public.attach_gateway($1, $2, $3)', [p.id, 'T-first', 'https://qr.example/first.png'])
+    expect(await pay(p.id, 'PAID', 10800, 'T-first')).toBe('paid')
+    const { rows } = await db.query<{ qr: string }>('select public.attach_gateway($1, $2, $3) as qr', [p.id, 'T-second', 'https://qr.example/second.png'])
+    expect(one(rows).qr).toBe('https://qr.example/first.png')
+
+    const q = await newPurchase(await addUser())
+    expect(await pay(q.id, 'PAID', 10800, 'T-early')).toBe('paid')
+    await expect(db.query('select public.attach_gateway($1, $2, $3)', [q.id, 'T-late', 'https://qr.example/late.png'])).rejects.toThrow(/not_found/)
+  })
+
+  it('apply_payment tells a second payment of another transaction from a repeated callback, and credits nothing extra', async () => {
+    const user = await addUser()
+    await ensureAccount(user)
+    const p = await newPurchase(user)
+    expect(await pay(p.id, 'PAID', 10800, 'T-first')).toBe('paid')
+    expect(await pay(p.id, 'PAID', 10800, 'T-first')).toBe('paid') // the same callback again
+    expect(await pay(p.id, 'PAID', 10800, 'T-orphan')).toBe('duplicate')
+    expect(await pay(p.id, 'PAID', 10800, 'T-orphan')).toBe('duplicate')
+    expect((await account(user)).credits).toBe(53)
+    expect((await ledgerRows(user)).filter((r) => r.reason === 'purchase')).toEqual([{ delta: 50, reason: 'purchase' }])
+    const { rows } = await db.query<{ status: string; gateway_reference: string }>('select status, gateway_reference from public.purchases where id = $1', [p.id])
+    expect(one(rows)).toEqual({ status: 'paid', gateway_reference: 'T-first' })
+  })
+
+  it('apply_payment does not call a non-PAID status on a paid purchase a duplicate', async () => {
+    const p = await newPurchase(await addUser())
+    expect(await pay(p.id, 'PAID', 10800, 'T-first')).toBe('paid')
+    expect(await pay(p.id, 'EXPIRED', 10800, 'T-orphan')).toBe('paid')
+    expect(await pay(p.id, 'REFUND', 10800, 'T-orphan')).toBe('paid')
   })
 
   it('a purchase extends the expiry of the whole balance to now + 1 year', async () => {

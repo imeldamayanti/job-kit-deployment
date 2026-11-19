@@ -244,7 +244,7 @@ Expected: PASS.
   // ports.ts
   export type PaymentDb = {
     createPurchase(user: string, packageId: string): Promise<{ id: string; status: string; amountIdr: number; credits: number; qrUrl: string | null; expiresAt: string }>
-    attachGateway(purchaseId: string, reference: string, qrUrl: string): Promise<void>
+    attachGateway(purchaseId: string, reference: string, qrUrl: string): Promise<string>   // penulis pertama menang; mengembalikan QR yang tercatat
     applyPayment(purchaseId: string, reference: string, status: string, amount: number): Promise<string>
   }
   // midtrans.ts
