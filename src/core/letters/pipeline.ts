@@ -1,9 +1,8 @@
-import { AiError, aiErrorMessage } from '../ai/errors'
 import type { ScoringClient } from '../ai/score'
 import type { Application, CoverLetter } from '../applications/types'
 import type { Profile } from '../profile/types'
 import { profileHash } from '../tailor/hash'
-import { NO_TOKENS, ungroundedMessage, type TailorFailure } from '../tailor/pipeline'
+import { NO_TOKENS, askForDocument, ungroundedMessage, type AiSource, type TailorFailure } from '../tailor/pipeline'
 import { pseudonymize } from '../tailor/privacy'
 import { finishLetter, withoutSignOff } from './closing'
 import { validateLetter } from './grounded'
@@ -17,34 +16,29 @@ export type LetterInput = {
   // Chosen by the person; absent: the language of the posting, formal.
   lang?: Lang
   tone?: Tone
-  client: ScoringClient
-  key: string
-  model: string
   now: Date
   newId: () => string
   maxTokens?: number
-}
+} & AiSource
 
 export type LetterSuccess = { ok: true; letter: CoverLetter; usage: Awaited<ReturnType<ScoringClient['complete']>>['usage'] }
 export type LetterFailure = TailorFailure
 
 // Buat surat (FR-43): the same chain as the CV with one answer to check, the letter. Payload without identity → one call
 // → read the shape → put the real names back → reject what the Profile does not support → add the closing and the name.
-export async function writeLetter({ profile, application, lang, tone = 'formal', client, key, model, now, newId, maxTokens = 2000 }: LetterInput): Promise<LetterSuccess | LetterFailure> {
+export async function writeLetter(input: LetterInput): Promise<LetterSuccess | LetterFailure> {
+  const { profile, application, lang, tone = 'formal', now, newId, maxTokens = 2000 } = input
   const job = application.job
   if (job.description.trim() === '') return { ok: false, reason: 'no-text', message: 'Tempel teks lowongan dulu.', usage: NO_TOKENS }
   const language = lang ?? LETTER_LANG
 
   const hidden = pseudonymize(profile)
-  let reply
-  try {
-    reply = await client.complete({
-      key, model, system: letterSystem(language, tone), user: letterUserPrompt(job, hidden.payload), maxTokens,
-    })
-  } catch (error) {
-    const ai = error instanceof AiError ? error.reason : 'network'
-    return { ok: false, reason: 'ai', ai, message: aiErrorMessage(ai), usage: NO_TOKENS }
-  }
+  const reply = await askForDocument(
+    input,
+    { system: letterSystem(language, tone), user: letterUserPrompt(job, hidden.payload), maxTokens },
+    { kind: 'letter', job: { title: job.title, company: job.company, description: job.description }, payload: hidden.payload, lang: language, tone },
+  )
+  if (!reply.ok) return reply.failure
   const usage = reply.usage
 
   const parsed = parseLetter(reply.text)

@@ -1,5 +1,6 @@
 import type { Application, TailoredCv } from '../applications/types'
 import { AiError, aiErrorMessage, type AiFailure } from '../ai/errors'
+import { RemoteRefusal, type GenerateError, type RemoteDocument } from '../generate/protocol'
 import type { AiUsage, ScoringClient } from '../ai/score'
 import type { Profile } from '../profile/types'
 import { coverage } from './coverage'
@@ -13,12 +14,38 @@ import type { Violation } from './types'
 export type TailorInput = {
   profile: Profile
   application: Application
-  client: ScoringClient
-  key: string
-  model: string
   now: Date
   newId: () => string
   maxTokens?: number
+} & AiSource
+
+// Where the AI answer comes from: the person's own provider, or the server (`remote`), which holds the key and the model.
+export type AiSource =
+  | { client: ScoringClient; key: string; model: string; remote?: RemoteDocument }
+  | { remote: RemoteDocument; client?: ScoringClient; key?: string; model?: string }
+
+// One call for a CV or letter. A refusal from the server is not an error to throw: it comes back as `refused`.
+export async function askForDocument(
+  source: AiSource,
+  local: { system: string; user: string; maxTokens: number },
+  remoteRequest: Parameters<RemoteDocument>[0],
+): Promise<{ ok: true; text: string; usage: AiUsage } | { ok: false; failure: TailorFailure }> {
+  try {
+    if (source.remote) {
+      const reply = await source.remote(remoteRequest)
+      return { ok: true, text: reply.text, usage: reply.usage }
+    }
+    // The union guarantees these three when there is no remote.
+    const { client, key, model } = source as { client: ScoringClient; key: string; model: string }
+    const reply = await client.complete({ key, model, ...local })
+    return { ok: true, text: reply.text, usage: reply.usage }
+  } catch (error) {
+    if (error instanceof RemoteRefusal) {
+      return { ok: false, failure: { ok: false, reason: 'refused', refused: error.code, message: error.message, usage: NO_TOKENS, violations: error.violations } }
+    }
+    const ai = error instanceof AiError ? error.reason : 'network'
+    return { ok: false, failure: { ok: false, reason: 'ai', ai, message: aiErrorMessage(ai), usage: NO_TOKENS } }
+  }
 }
 
 export const NO_TOKENS: AiUsage = { inputTokens: 0, outputTokens: 0 }
@@ -34,10 +61,12 @@ export function ungroundedMessage(violations: Violation[]): string {
 // A failure leaves no CV behind (PRD §8): the caller keeps the earlier one and shows `message`.
 export type TailorFailure = {
   ok: false
-  reason: 'no-text' | 'ai' | 'unreadable' | 'ungrounded'
+  reason: 'no-text' | 'ai' | 'unreadable' | 'ungrounded' | 'refused'
   message: string
   usage: AiUsage
   ai?: AiFailure
+  // Set with reason 'refused': the server said no (no credit, over budget, facts not in the Profile, ...).
+  refused?: GenerateError
   violations?: Violation[]
 }
 export type TailorSuccess = { ok: true; cv: TailoredCv; usage: AiUsage; fallback: boolean }
@@ -45,18 +74,18 @@ export type TailorSuccess = { ok: true; cv: TailoredCv; usage: AiUsage; fallback
 // Buat CV (RFC §3.3c): payload without identity → one AI call → read the shape → put the real names back →
 // reject what the Profile does not support → coverage → CV. Only the AI's wording is kept; titles, companies, schools
 // and dates come from the Profile.
-export async function tailorCv({ profile, application, client, key, model, now, newId, maxTokens = 3000 }: TailorInput): Promise<TailorSuccess | TailorFailure> {
+export async function tailorCv(input: TailorInput): Promise<TailorSuccess | TailorFailure> {
+  const { profile, application, now, newId, maxTokens = 3000 } = input
   const { title, description } = application.job
   if (description.trim() === '') return { ok: false, reason: 'no-text', message: 'Tempel teks lowongan dulu.', usage: NO_TOKENS }
 
   const hidden = pseudonymize(profile)
-  let reply
-  try {
-    reply = await client.complete({ key, model, system: CV_SYSTEM, user: cvUserPrompt({ title, description }, hidden.payload), maxTokens })
-  } catch (error) {
-    const ai = error instanceof AiError ? error.reason : 'network'
-    return { ok: false, reason: 'ai', ai, message: aiErrorMessage(ai), usage: NO_TOKENS }
-  }
+  const reply = await askForDocument(
+    input,
+    { system: CV_SYSTEM, user: cvUserPrompt({ title, description }, hidden.payload), maxTokens },
+    { kind: 'cv', job: { title, description }, payload: hidden.payload },
+  )
+  if (!reply.ok) return reply.failure
   const usage = reply.usage
 
   const parsed = parseOutput(reply.text)

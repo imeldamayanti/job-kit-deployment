@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { AiError } from '../ai/errors'
 import type { ScoringClient } from '../ai/score'
 import type { Application } from '../applications/types'
+import { RemoteRefusal, type LetterRequest, type RemoteDocument } from '../generate/protocol'
 import { profileHash } from '../tailor/hash'
 import { SAMPLE_WEB_DEV } from '../tailor/sample-profiles'
 import { writeLetter } from './pipeline'
@@ -131,5 +132,53 @@ describe('writeLetter', () => {
     const { client } = fake({ letter: LETTER.replace('Thank you', 'I have not used GraphQL in production. Thank you') })
     const result = await run(client, { application: application({ description: `${ENGLISH} Experience with GraphQL is a plus.` }) })
     expect(result).toMatchObject({ ok: false, reason: 'ungrounded' })
+  })
+
+  describe('with a remote', () => {
+    const remoteWith = (text: string) => {
+      const requests: LetterRequest[] = []
+      const remote: RemoteDocument = async (request) => {
+        requests.push(request as LetterRequest)
+        return { text: JSON.stringify({ letter: text }), usage: { inputTokens: 7, outputTokens: 8 } }
+      }
+      return { remote, requests }
+    }
+
+    it('asks the remote with the language and tone, never the client, and sends no identity', async () => {
+      const { client, requests: clientCalls } = fake({ letter: LETTER })
+      const { remote, requests } = remoteWith(LETTER.replace('PT Contoh Teknologi', '{C1}'))
+      const result = await run(client, { remote, lang: 'id', tone: 'casual' })
+      expect(clientCalls).toHaveLength(0)
+      expect(requests).toHaveLength(1)
+      expect(requests[0]).toMatchObject({ kind: 'letter', lang: 'id', tone: 'casual', job: { title: 'Frontend Engineer', company: 'Acme' } })
+      const sent = JSON.stringify(requests[0])
+      for (const secret of ['Sari', 'Contohwati', 'example.test', '081200000000', 'PT Contoh Teknologi']) expect(sent).not.toContain(secret)
+      expect(result.ok).toBe(true)
+      if (!result.ok) return
+      expect(result.usage).toEqual({ inputTokens: 7, outputTokens: 8 })
+      expect(result.letter.body).toContain('At PT Contoh Teknologi I build')
+      expect(result.letter.body).toContain('Sari Contohwati')
+    })
+
+    it('defaults to English and formal like the local path', async () => {
+      const { client } = fake({ letter: LETTER })
+      const { remote, requests } = remoteWith(LETTER)
+      await run(client, { remote })
+      expect(requests[0]).toMatchObject({ lang: 'en', tone: 'formal' })
+    })
+
+    it('turns a refusal into a failure with its code', async () => {
+      const { client } = fake({ letter: LETTER })
+      const remote: RemoteDocument = async () => {
+        throw new RemoteRefusal('budget', 'Layanan sedang penuh')
+      }
+      expect(await run(client, { remote })).toMatchObject({ ok: false, reason: 'refused', refused: 'budget', message: 'Layanan sedang penuh' })
+    })
+
+    it('still checks the letter against the real Profile', async () => {
+      const { client } = fake({ letter: LETTER })
+      const { remote } = remoteWith(LETTER.replace('with Jest', 'with Kubernetes'))
+      expect(await run(client, { remote })).toMatchObject({ ok: false, reason: 'ungrounded' })
+    })
   })
 })
