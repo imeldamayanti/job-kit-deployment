@@ -95,6 +95,7 @@ export function ApplicationsPage({
   onMove,
   onAdd,
   today: todayProp,
+  locked = false,
 }: {
   applications: readonly Application[]
   view: ApplicationsViewId
@@ -106,6 +107,8 @@ export function ApplicationsPage({
   onAdd: (input: ManualInput) => Promise<AddResult>
   // Today's date for follow-ups (FR-47). The page works it out itself when not given; App passes a live one.
   today?: string
+  // The preview before sign-in: samples only, so nothing can be added.
+  locked?: boolean
 }) {
   const preview = import.meta.env.DEV ? previewApplicationsFromHash(location.hash) : undefined
   const all = preview?.applications ?? applications
@@ -180,7 +183,7 @@ export function ApplicationsPage({
   const overRing = (target: AppStatus) => (over === target ? 'outline-2 outline-dashed outline-accent bg-accent-wash' : '')
 
   const addButton = (
-    <Button variant="secondary" aria-expanded={adding} onClick={() => setAdding(!adding)}>
+    <Button variant="secondary" disabled={locked} aria-expanded={adding} onClick={() => setAdding(!adding)}>
       <Plus size={16} strokeWidth={2} aria-hidden="true" />
       Tambah lamaran
     </Button>

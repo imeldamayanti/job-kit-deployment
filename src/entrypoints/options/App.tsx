@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { SIGNED_OUT_APPLICATIONS } from '../../core/applications/preview'
+import { AI_MODE } from '../../core/build'
 import { countNew } from '../../core/feed/schedule'
 import type { SectionId } from '../../core/profile/sections'
 import { addManualApplication, changeApplicationStatus, patchApplication, removeApplication } from '../../platform/applications'
@@ -28,7 +30,9 @@ import { PersonalSection } from './PersonalSection'
 import { PreferencesSection } from './PreferencesSection'
 import { ProfileTabs } from './ProfileTabs'
 import { SaveIndicator } from './SaveIndicator'
-import { Sidebar } from './Sidebar'
+import { AccessAlert, LoginGate } from './LoginGate'
+import { Sidebar, SidebarAccount } from './Sidebar'
+import { useAccess } from './useAccess'
 import { StorageFullNotice } from './StorageFullNotice'
 import { ViewToggle, type ApplicationsViewId } from './ViewToggle'
 import { dueCount, todayKey } from '../../core/applications/followup'
@@ -41,7 +45,16 @@ import { letterViewFor } from '../../core/letters/view'
 const NO_LETTER_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onCopy: () => {}, onLang: () => {}, onTone: () => {} }
 const NO_CV_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onOrder: () => {}, onDownload: () => {}, onDownloadWord: () => {}, onCopyText: () => {} }
 
+// "Beli kredit" opens the purchase modal; that is built with the payment task, so for now it opens nothing.
+const NO_BUY = () => {}
+
 export function App() {
+  // Accounts exist only in the server build (spec §5.5). The other builds (own key, shared) have no sign-in and no credits.
+  const accounts = AI_MODE === 'server'
+  const access = useAccess(accounts)
+  const [loginOpen, setLoginOpen] = useState(false)
+  // Signed out: the preview. Lowongan and Lamaran show sample data with every action off; the other places ask to sign in.
+  const locked = accounts && access.mode === 'locked'
   const { profile, update, commit, saveState } = useProfile()
   const feed = useFeedSettings()
   const live = useFeed()
@@ -54,7 +67,7 @@ export function App() {
 
   const go = (next: Route) => {
     setRoute(next)
-    if (next.page === 'jobs' && !next.settings) live.markSeen()
+    if (next.page === 'jobs' && !next.settings && !locked) live.markSeen()
   }
   const choose = (id: PageId) =>
     go(id === 'profile' ? profileRoute(route.section) : id === 'jobs' ? jobsRoute() : id === 'applications' ? applicationsRoute() : id === 'account' ? accountRoute : dataRoute)
@@ -68,16 +81,52 @@ export function App() {
 
   const letterTab = useLetter(preview ? undefined : detailApp, (link) => go(link === 'settings' ? jobsRoute(true) : profileRoute('experience')), `${route.page}/${route.applicationId ?? ''}/${route.settings ? 's' : ''}`)
 
+  const ai = accounts ? access.ai : undefined
+  const trialEnded = Boolean(access.status?.trialGranted && !access.status.paid)
+  const signIn = () => setLoginOpen(true)
+  const signedIn = async () => {
+    setLoginOpen(false)
+    await access.refresh()
+  }
+
+  if (accounts && !access.ready) return <div className="min-h-full bg-neutral-100" />
+  // The session ran out: back to the gate. Only the session is gone; the data on this device is untouched.
+  if (accounts && access.session === 'expired') {
+    return (
+      <div className="flex min-h-full items-center justify-center bg-neutral-100 p-4">
+        <LoginGate variant="expired" onSignedIn={signedIn} />
+      </div>
+    )
+  }
+  // The places with no sample to show ask to sign in; so does "Masuk" from the sidebar or the banner.
+  const sampleView = (route.page === 'jobs' && !route.settings) || (route.page === 'applications' && !detailId)
+  const gateOpen = locked && (loginOpen || !sampleView)
+  const showNotice = accounts && !gateOpen && sampleView
+
   return (
     <div className="min-h-full bg-neutral-100 p-4 md:h-screen md:p-7">
       <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-[1200px] flex-col overflow-hidden rounded-xl md:h-full md:min-h-0 border border-border-strong bg-surface-sunken shadow-lg md:flex-row">
-        <Sidebar current={route.page} onSelect={choose} badges={{ jobs: countNew(live.feed, live.state.seenAt), applications: dueCount(preview?.applications ?? applications, today) }} />
+        <Sidebar
+          current={route.page}
+          onSelect={(id) => {
+            setLoginOpen(false)
+            choose(id)
+          }}
+          badges={locked ? {} : { jobs: countNew(live.feed, live.state.seenAt), applications: dueCount(preview?.applications ?? applications, today) }}
+          hidden={locked ? ['account'] : []}
+          account={accounts ? <SidebarAccount ai={access.ai} status={access.status} now={new Date()} onSignIn={signIn} onBuy={NO_BUY} /> : undefined}
+        />
         <main
           className={
             'min-w-0 flex-1 px-5 md:overflow-y-auto md:px-10 ' +
             (route.page === 'jobs' ? '' : 'md:[mask-image:linear-gradient(to_bottom,transparent,black_28px)]')
           }
         >
+          {gateOpen ? (
+            <div className="mx-auto flex max-w-[880px] flex-col gap-6 py-8">
+              <LoginGate variant="new" onSignedIn={signedIn} />
+            </div>
+          ) : (
           <div className="mx-auto flex max-w-[880px] flex-col gap-6 py-8">
             {!detailId && route.page === 'jobs' && route.settings && (
               <div className="-mb-3">
@@ -95,6 +144,7 @@ export function App() {
               {route.page === 'jobs' && route.settings && <SaveIndicator state={feed.saveState} />}
             </header>
             )}
+            {showNotice && ai && <AccessAlert ai={ai} trialEnded={trialEnded} onSignIn={signIn} onBuy={NO_BUY} />}
             {saveState === 'storage-full' && <StorageFullNotice />}
 
             {route.page === 'profile' && (
@@ -118,6 +168,7 @@ export function App() {
                 onOpenApplication={(id) => go(applicationRoute(id))}
                 onSettings={() => go(jobsRoute(true))}
                 onPreferences={() => go(profileRoute('preferences'))}
+                access={ai ? { ai } : undefined}
               />
             )}
             {route.page === 'jobs' && route.settings && feed.settings && (
@@ -157,14 +208,15 @@ export function App() {
             )}
             {route.page === 'applications' && !detailId && (
               <ApplicationsPage
-                applications={applications}
+                applications={locked ? SIGNED_OUT_APPLICATIONS : applications}
                 view={applicationsView}
                 today={today}
-                onOpen={(id) => go(applicationRoute(id))}
+                locked={locked}
+                onOpen={(id) => (locked ? signIn() : go(applicationRoute(id)))}
                 onJobs={() => go(jobsRoute())}
-                onMove={(id, status) => !preview && void changeApplicationStatus(id, status)}
+                onMove={(id, status) => !preview && !locked && void changeApplicationStatus(id, status)}
                 onAdd={async (input) => {
-                  if (preview) return { ok: true as const, id: '' }
+                  if (preview || locked) return { ok: true as const, id: '' }
                   const result = await addManualApplication(input)
                   return result.ok ? { ok: true as const, id: result.app.id } : result
                 }}
@@ -173,6 +225,7 @@ export function App() {
             {route.page === 'data' && <DataPage profile={profile} commit={commit} />}
             {route.page === 'account' && <AccountPage api={accountApi} onExport={() => go(dataRoute)} />}
           </div>
+          )}
         </main>
       </div>
     </div>

@@ -3,7 +3,7 @@ import type { FeedFilter } from './view'
 import type { Job, SourceRun } from './types'
 
 // Sample feeds to look at every state of the Lowongan page in a dev build (T28 mockup).
-// Never reachable from a production build.
+// The hash lookup is for dev builds only; the one sample a build always carries is SIGNED_OUT_PREVIEW below.
 export type FeedPreview = {
   feed: Job[]
   runs: SourceRun[]
@@ -67,3 +67,6 @@ export function previewFeedFromHash(hash: string): FeedPreview | undefined {
   const match = /^#jobs\?(?:.*&)?state=([a-z]+)/.exec(hash)
   return match ? SCENARIOS[match[1] as string] : undefined
 }
+
+// What someone who is not signed in sees on Lowongan (spec §5.1): the sample list, every action off. Also in production builds.
+export const SIGNED_OUT_PREVIEW: FeedPreview = SCENARIOS.list as FeedPreview
