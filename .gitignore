@@ -8,3 +8,5 @@ node_modules
 .output-share
 .superpowers
 spikes/**/.bundle.mjs
+supabase/functions/
+supabase/.temp/

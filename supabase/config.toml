@@ -1,0 +1,6 @@
+# Minimal Supabase CLI config for deploying the Edge Functions (`npm run deploy:functions`). Written by hand, no secrets.
+project_id = "job-kit-web"
+
+# Tripay's servers call this one without a Supabase token; the callback checks the request's own signature instead.
+[functions.tripay-callback]
+verify_jwt = false

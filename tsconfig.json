@@ -2,5 +2,7 @@
   "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx"
-  }
+  },
+  // Replaces the base list: supabase/functions is bundled build output, and supabase/functions-src declares its own Deno globals.
+  "exclude": ["node_modules", ".output", "supabase/functions"]
 }
