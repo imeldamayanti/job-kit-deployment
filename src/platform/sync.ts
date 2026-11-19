@@ -41,7 +41,8 @@ export async function finishLogin(email: string, code: string): Promise<{ ok: tr
 }
 
 // A fresh access token, or null when the person has to sign in again.
-async function liveSession(): Promise<Session | null> {
+// Also the session account.ts uses to call the server.
+export async function currentSession(): Promise<Session | null> {
   const session = await sessionItem.getValue()
   if (!session) return null
   if (session.expiresAt - 60 > Math.floor(Date.now() / 1000)) return session
@@ -59,7 +60,7 @@ export type UnlockResult = { ok: true; created: boolean } | { ok: false; reason:
 // First time: the password makes a new salt and a check value, stored (public by design) in the 'meta' row.
 // Later or on another device: the stored salt and check decide whether the password is right, before any data moves.
 export async function unlock(password: string): Promise<UnlockResult> {
-  const session = await liveSession()
+  const session = await currentSession()
   if (!session) return { ok: false, reason: 'signed-out' }
   const listed = await listRows(cfg, session)
   if (!listed.ok) return { ok: false, reason: listed.reason === 'signed-out' ? 'signed-out' : 'failed' }
@@ -123,7 +124,7 @@ export type SyncReport = SyncResult | { error: 'locked' | 'unavailable' | 'signe
 
 export async function syncNow({ confirmOverwrite = false }: { confirmOverwrite?: boolean } = {}): Promise<SyncReport> {
   if (!syncConfigured()) return { error: 'unavailable', outcomes: {} }
-  const [session, keyText] = await Promise.all([liveSession(), keyItem.getValue()])
+  const [session, keyText] = await Promise.all([currentSession(), keyItem.getValue()])
   if (!session) return { error: 'signed-out', outcomes: {} }
   if (!keyText) return { error: 'locked', outcomes: {} }
   const ports: SyncPorts = {
@@ -146,7 +147,7 @@ export async function signOutDevice(): Promise<void> {
 
 // "Hapus akun": the account and every server row go; this device's own data stays. Only a confirmed server answer counts.
 export async function deleteMyAccount(): Promise<{ ok: true } | { ok: false; reason: ApiFailure }> {
-  const session = await liveSession()
+  const session = await currentSession()
   if (!session) return { ok: false, reason: 'signed-out' }
   const result = await deleteAccount(cfg, session)
   if (!result.ok) return result

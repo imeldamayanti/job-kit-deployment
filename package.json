@@ -6,7 +6,9 @@
   "description": "Ketik sekali, lamar di mana saja.",
   "scripts": {
     "dev": "wxt",
+    "dev:byok": "WXT_AI_MODE=byok wxt",
     "build": "wxt build",
+    "build:byok": "WXT_AI_MODE=byok wxt build",
     "zip": "wxt zip",
     "build:share": "WXT_SHARE_BUILD=true wxt build",
     "zip:share": "WXT_SHARE_BUILD=true wxt zip",
