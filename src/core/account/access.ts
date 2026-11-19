@@ -45,3 +45,8 @@ export function expiryWarning(status: AccountStatus | null, now: Date): boolean 
 
 // The one package on sale. The server holds the real price (table `packages`); this is for display.
 export const PACKAGE = { id: 'basic', priceIdr: 10800, credits: 50 } as const
+
+// "Rp10.800": dots between thousands, written by hand so it never depends on the browser's locale data.
+export function formatRupiah(value: number): string {
+  return `Rp${String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
+}

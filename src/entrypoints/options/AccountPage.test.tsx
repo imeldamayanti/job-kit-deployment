@@ -1,7 +1,9 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { AccountPage, type AccountApi, type TelemetryApi } from './AccountPage'
+import type { AccountStatus } from '../../core/account/access'
+import type { LedgerEntry } from '../../platform/account'
+import { AccountPage, type AccountApi, type CreditsProps, type TelemetryApi } from './AccountPage'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -30,11 +32,11 @@ const api = (change: Partial<AccountApi> = {}): AccountApi => ({
   ...change,
 })
 
-async function render(a: AccountApi): Promise<string> {
+async function render(a: AccountApi, credits?: CreditsProps): Promise<string> {
   container?.remove()
   container = document.createElement('div')
   document.body.append(container)
-  await act(async () => createRoot(container!).render(<AccountPage api={a} onExport={vi.fn()} />))
+  await act(async () => createRoot(container!).render(<AccountPage api={a} onExport={vi.fn()} credits={credits} />))
   return container.textContent ?? ''
 }
 
@@ -193,5 +195,94 @@ describe('AccountPage', () => {
   it('telemetry: is not offered when there is no server', async () => {
     const text = await render(api({ telemetry: telemetry({ available: () => false }), load: vi.fn().mockResolvedValue({ configured: false, email: null, unlocked: false, lastSyncAt: null }) }))
     expect(text).not.toContain('Bantu perbaiki job-kit')
+  })
+})
+
+describe('AccountPage: credit balance and history (mockup S13)', () => {
+  const NOW = new Date('2026-11-19T10:00:00.000Z')
+  const signedIn = () => api({ load: vi.fn().mockResolvedValue({ configured: true, email: 'nama@example.test', unlocked: true, lastSyncAt: null }) })
+  const status = (change: Partial<AccountStatus> = {}): AccountStatus => ({ credits: 42, paid: true, trialGranted: true, expiresAt: '2027-11-19T10:00:00.000Z', checkedAt: NOW.toISOString(), ...change })
+  const entry = (reason: string, delta: number, at = '2026-11-19T08:00:00.000Z'): LedgerEntry => ({ at, delta, reason })
+  const credits = (change: Partial<CreditsProps> = {}): CreditsProps => ({
+    status: status(), now: NOW, onBuy: vi.fn(), loadLedger: vi.fn().mockResolvedValue([]), ...change,
+  })
+  const ledger = () => [...document.querySelectorAll('ul[aria-label="Riwayat kredit"] li')].map((li) => li.textContent)
+
+  it('shows the balance, when it lapses, and what the package is', async () => {
+    const text = await render(signedIn(), credits())
+    expect(text).toContain('Saldo kredit')
+    expect(text).toContain('42kredit')
+    expect(text).toContain('Hangus pada 19 Nov 2027, 1 tahun sejak pembelian terakhir')
+    expect(text).toContain('Paket 50 kredit, Rp10.800, sudah termasuk semua biaya. 1 CV = 1 kredit, 1 surat = 1 kredit, nilai 10 lowongan = 1 kredit. Kredit tidak bisa diuangkan.')
+    expect(text).not.toContain('hari lagi')
+  })
+
+  it('marks a balance that lapses within 30 days, with the days left', async () => {
+    const text = await render(signedIn(), credits({ status: status({ expiresAt: '2026-12-18T10:00:00.000Z' }) }))
+    expect(text).toContain('Hangus pada 18 Des 2026')
+    expect(text).toContain('29 hari lagi')
+  })
+
+  it('shows no lapse date for a free trial, which has none', async () => {
+    const text = await render(signedIn(), credits({ status: status({ credits: 3, paid: false, expiresAt: null }) }))
+    expect(text).toContain('3kredit')
+    expect(text).not.toContain('Hangus pada')
+  })
+
+  it('says the balance is being checked when it is not known yet', async () => {
+    const text = await render(signedIn(), credits({ status: null }))
+    expect(text).toContain('Memeriksa saldo…')
+  })
+
+  it('opens the purchase from Beli kredit', async () => {
+    const onBuy = vi.fn()
+    await render(signedIn(), credits({ onBuy }))
+    await click(button('Beli kredit'))
+    expect(onBuy).toHaveBeenCalledTimes(1)
+  })
+
+  it('lists the credit history with a Indonesian label for each reason', async () => {
+    const loadLedger = vi.fn().mockResolvedValue([
+      entry('expire', -12), entry('generate', -1), entry('refund', 1), entry('purchase', 50, '2025-12-18T08:00:00.000Z'), entry('trial', 3, '2025-12-04T08:00:00.000Z'),
+    ])
+    await render(signedIn(), credits({ loadLedger }))
+
+    expect(loadLedger).toHaveBeenCalledWith(20)
+    const lines = ledger()
+    expect(lines).toHaveLength(5)
+    expect(lines[0]).toContain('Hangus')
+    expect(lines[0]).toContain('−12')
+    expect(lines[1]).toContain('Pemakaian AI')
+    expect(lines[1]).toContain('−1')
+    expect(lines[2]).toContain('Dikembalikan')
+    expect(lines[2]).toContain('+1')
+    expect(lines[3]).toContain('18 Des 2025')
+    expect(lines[3]).toContain('Pembelian')
+    expect(lines[3]).toContain('Paket 50 kredit · Rp10.800')
+    expect(lines[3]).toContain('+50')
+    expect(lines[4]).toContain('Percobaan gratis')
+    expect(lines[4]).toContain('+3')
+    expect(document.body.textContent).toContain('20 catatan terakhir')
+  })
+
+  it('says so when there is no history yet', async () => {
+    const text = await render(signedIn(), credits())
+    expect(text).toContain('Belum ada pemakaian kredit')
+    expect(text).toContain('Pembelian dan pemakaian kredit muncul di sini.')
+    expect(ledger()).toHaveLength(0)
+  })
+
+  it('reads the history again when the balance changed, e.g. after a purchase', async () => {
+    const loadLedger = vi.fn().mockResolvedValue([])
+    const first = credits({ loadLedger })
+    await render(signedIn(), first)
+    await act(async () => createRoot(container!).render(<AccountPage api={signedIn()} onExport={vi.fn()} credits={{ ...first, status: status({ credits: 92 }) }} />))
+    expect(loadLedger.mock.calls.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('shows nothing about credits in builds without accounts', async () => {
+    const text = await render(signedIn())
+    expect(text).not.toContain('Saldo kredit')
+    expect(text).not.toContain('Riwayat kredit')
   })
 })

@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { SIGNED_OUT_APPLICATIONS } from '../../core/applications/preview'
 import { AI_MODE } from '../../core/build'
 import { countNew } from '../../core/feed/schedule'
 import type { SectionId } from '../../core/profile/sections'
 import { addManualApplication, changeApplicationStatus, patchApplication, removeApplication } from '../../platform/applications'
-import { loadAccountStatus } from '../../platform/account'
+import { loadAccountStatus, loadLedger } from '../../platform/account'
 import { openApplication } from '../../platform/open-job'
 import { describeScore, scoreTopWithAi } from '../../platform/remote'
 import { useApplications } from '../../ui/hooks/useApplications'
@@ -20,6 +20,7 @@ import { ApplicationDetailPage } from './ApplicationDetailPage'
 import { ApplicationsPage } from './ApplicationsPage'
 import { Empty } from './EmptyState'
 import { AccountPage } from './AccountPage'
+import { BuyCreditsModal } from './BuyCreditsModal'
 import { accountApi } from '../../platform/sync-api'
 import { DataPage } from './DataPage'
 import { EducationSection } from './EducationSection'
@@ -47,14 +48,14 @@ import { letterViewFor } from '../../core/letters/view'
 const NO_LETTER_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onCopy: () => {}, onLang: () => {}, onTone: () => {} }
 const NO_CV_ACTIONS = { onCreate: () => {}, onContinue: () => {}, onDismissNotice: () => {}, onLink: () => {}, onEdit: () => {}, onRestore: () => {}, onOrder: () => {}, onDownload: () => {}, onDownloadWord: () => {}, onCopyText: () => {} }
 
-// "Beli kredit" opens the purchase modal; that is built with the payment task, so for now it opens nothing.
-const NO_BUY = () => {}
-
 export function App() {
   // Accounts exist only in the server build (spec §5.5). The other builds (own key, shared) have no sign-in and no credits.
   const accounts = AI_MODE === 'server'
   const access = useAccess(accounts)
   const [loginOpen, setLoginOpen] = useState(false)
+  // Every "Beli kredit" on the page (sidebar, banner, AI notes, Akun) opens this one modal.
+  const [buying, setBuying] = useState(false)
+  const buy = useCallback(() => setBuying(true), [])
   // Signed out: the preview. Lowongan and Lamaran show sample data with every action off; the other places ask to sign in.
   const locked = accounts && access.mode === 'locked'
   const { profile, update, commit, saveState } = useProfile()
@@ -81,7 +82,7 @@ export function App() {
   const backToBoard = () => go(applicationsRoute())
   // What the CV and letter tabs need from the account: "Beli kredit", and the balance read again once credits were spent.
   const refreshAccess = access.refresh
-  const spending = useMemo(() => (accounts ? { onBuy: NO_BUY, onSpent: () => void refreshAccess() } : undefined), [accounts, refreshAccess])
+  const spending = useMemo(() => (accounts ? { onBuy: buy, onSpent: () => void refreshAccess() } : undefined), [accounts, buy, refreshAccess])
   const cvTab = useCv(preview ? undefined : detailApp, (link) => go(link === 'settings' ? jobsRoute(true) : profileRoute('experience')), `${route.page}/${route.applicationId ?? ''}/${route.settings ? 's' : ''}`, spending)
 
   const letterTab = useLetter(preview ? undefined : detailApp, (link) => go(link === 'settings' ? jobsRoute(true) : profileRoute('experience')), `${route.page}/${route.applicationId ?? ''}/${route.settings ? 's' : ''}`, spending)
@@ -98,6 +99,7 @@ export function App() {
   const signIn = () => setLoginOpen(true)
   const signedIn = async () => {
     setLoginOpen(false)
+    setBuying(false)
     await access.refresh()
   }
 
@@ -126,7 +128,7 @@ export function App() {
           }}
           badges={locked ? {} : { jobs: countNew(live.feed, live.state.seenAt), applications: dueCount(preview?.applications ?? applications, today) }}
           hidden={locked ? ['account'] : []}
-          account={accounts ? <SidebarAccount ai={access.ai} status={access.status} now={new Date()} onSignIn={signIn} onBuy={NO_BUY} /> : undefined}
+          account={accounts ? <SidebarAccount ai={access.ai} status={access.status} now={new Date()} onSignIn={signIn} onBuy={buy} /> : undefined}
         />
         <main
           className={
@@ -156,7 +158,7 @@ export function App() {
               {route.page === 'jobs' && route.settings && <SaveIndicator state={feed.saveState} />}
             </header>
             )}
-            {showNotice && ai && <AccessAlert ai={ai} trialEnded={trialEnded} onSignIn={signIn} onBuy={NO_BUY} />}
+            {showNotice && ai && <AccessAlert ai={ai} trialEnded={trialEnded} onSignIn={signIn} onBuy={buy} />}
             {saveState === 'storage-full' && <StorageFullNotice />}
 
             {route.page === 'profile' && (
@@ -180,7 +182,7 @@ export function App() {
                 onOpenApplication={(id) => go(applicationRoute(id))}
                 onSettings={() => go(jobsRoute(true))}
                 onPreferences={() => go(profileRoute('preferences'))}
-                access={ai ? { ai, onScore: scoreNow, onBuy: NO_BUY } : undefined}
+                access={ai ? { ai, onScore: scoreNow, onBuy: buy } : undefined}
               />
             )}
             {route.page === 'jobs' && route.settings && feed.settings && (
@@ -235,11 +237,12 @@ export function App() {
               />
             )}
             {route.page === 'data' && <DataPage profile={profile} commit={commit} />}
-            {route.page === 'account' && <AccountPage api={accountApi} onExport={() => go(dataRoute)} />}
+            {route.page === 'account' && <AccountPage api={accountApi} onExport={() => go(dataRoute)} credits={accounts ? { status: access.status, now: new Date(), onBuy: buy, loadLedger } : undefined} />}
           </div>
           )}
         </main>
       </div>
+      {accounts && buying && !locked && <BuyCreditsModal onClose={() => setBuying(false)} onPaid={() => void refreshAccess()} />}
     </div>
   )
 }

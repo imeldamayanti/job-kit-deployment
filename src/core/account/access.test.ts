@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { accessLevel, expiryWarning, featureMode, PACKAGE, type AccountStatus } from './access'
+import { accessLevel, expiryWarning, featureMode, formatRupiah, PACKAGE, type AccountStatus } from './access'
 
 const status = (over: Partial<AccountStatus> = {}): AccountStatus => ({
   credits: 0, paid: false, trialGranted: false, expiresAt: null, checkedAt: '2026-11-19T00:00:00.000Z', ...over,
@@ -70,5 +70,14 @@ describe('expiryWarning', () => {
 describe('PACKAGE', () => {
   it('is the one package on sale', () => {
     expect(PACKAGE).toEqual({ id: 'basic', priceIdr: 10800, credits: 50 })
+  })
+})
+
+describe('formatRupiah', () => {
+  it('writes rupiah with dots between thousands', () => {
+    expect(formatRupiah(10800)).toBe('Rp10.800')
+    expect(formatRupiah(PACKAGE.priceIdr)).toBe('Rp10.800')
+    expect(formatRupiah(950)).toBe('Rp950')
+    expect(formatRupiah(1_250_000)).toBe('Rp1.250.000')
   })
 })

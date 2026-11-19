@@ -5,8 +5,10 @@ import { failureText, summarizeSync, unlockText, type SyncSummary } from '../../
 import type { Outcome } from '../../core/sync/engine'
 import type { Kind } from '../../core/sync/merge'
 import { Button } from '../../ui/primitives/Button'
+import { CreditSection, type CreditsProps } from './CreditSection'
 import { TextField } from '../../ui/primitives/TextField'
 
+export type { CreditsProps }
 export type AccountInfo = { configured: boolean; email: string | null; unlocked: boolean; lastSyncAt: string | null }
 export type SyncReport = { outcomes: Partial<Record<Kind, Outcome>>; error?: ApiFailure | 'locked' | 'unavailable' | 'signed-out' }
 
@@ -86,9 +88,11 @@ function TelemetryCard({ api }: { api: TelemetryApi }) {
   )
 }
 
-export function AccountPage({ api, onExport }: { api: AccountApi; onExport: () => void }) {
+// `credits` is the balance and history of the server build; the builds without accounts pass nothing and show none of it.
+export function AccountPage({ api, onExport, credits }: { api: AccountApi; onExport: () => void; credits?: CreditsProps }) {
   return (
     <div className="flex flex-col gap-4">
+      {credits && <CreditSection {...credits} />}
       <AccountMain api={api} onExport={onExport} />
       <TelemetryCard api={api.telemetry} />
     </div>
