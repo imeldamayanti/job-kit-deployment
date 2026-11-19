@@ -34,8 +34,9 @@ describe('featureMode', () => {
     expect(featureMode('trial', status({ credits: 2, trialGranted: true }))).toBe('open')
   })
 
-  it('is read-only for a free account that has had its trial', () => {
-    expect(featureMode('free', status({ trialGranted: true }))).toBe('read-only')
+  it('stays open for a free account that has had its trial (only AI stops, via the credit balance)', () => {
+    expect(featureMode('free', status({ trialGranted: true }))).toBe('open')
+    expect(featureMode('free', status({ trialGranted: true, credits: 0 }))).toBe('open')
   })
 
   it('is locked for a free account that never got a trial, and for preview', () => {

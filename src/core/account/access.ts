@@ -21,11 +21,15 @@ export function accessLevel(signedIn: boolean, status: AccountStatus | null): Ac
   return 'free'
 }
 
-export type FeatureMode = 'open' | 'read-only' | 'locked'
+// `open`: Lowongan, Lamaran, Profile and Data are open and editable. Whether the AI buttons are enabled is decided
+// separately by the credit balance (credits > 0), not by the feature mode: when credits run out only AI stops.
+// `locked`: not signed in (preview), or signed in but the account never got its trial.
+export type FeatureMode = 'open' | 'locked'
 
+// paid | trial | free with a trial already granted -> open; anything else -> locked.
 export function featureMode(level: AccessLevel, status: AccountStatus | null): FeatureMode {
   if (level === 'paid' || level === 'trial') return 'open'
-  if (level === 'free' && status?.trialGranted) return 'read-only'
+  if (level === 'free' && status?.trialGranted) return 'open'
   return 'locked'
 }
 
