@@ -319,7 +319,7 @@ Expected: PASS.
   export type AccessLevel = 'preview' | 'free' | 'trial' | 'paid'
   export function accessLevel(signedIn: boolean, status: AccountStatus | null): AccessLevel
   export type FeatureMode = 'open' | 'locked'
-  export function featureMode(level: AccessLevel, status: AccountStatus | null): FeatureMode  // paid|trial|free+trialGranted → open; selain itu locked. Tombol AI mengikuti saldo (credits > 0), bukan featureMode
+  export function featureMode(level: AccessLevel, status: AccountStatus | null): FeatureMode  // preview → locked; semua level masuk (free, trial, paid, status null) → open. Tombol AI mengikuti saldo (credits > 0), bukan featureMode
   export function expiryWarning(status: AccountStatus | null, now: Date): boolean            // credits > 0 dan ≤ 30 hari menuju expiresAt
   export const PACKAGE = { id: 'basic', priceIdr: 10800, credits: 50 } as const
   // platform/sync.ts
@@ -334,7 +334,7 @@ Expected: PASS.
   ```
 - Nama `paid` dipakai agar tidak bentrok dengan `Account.unlocked` (kunci sinkron) di `platform/sync.ts`.
 
-- [ ] **Step 1: Tulis tes yang gagal:** tabel kebenaran `aiModeFrom`; `accessLevel` (tanpa sesi → `preview`; `paid` → `paid`; credits 2 dan belum bayar → `trial`; credits 0, trialGranted, belum bayar → `free`); `featureMode` untuk semua level (`paid`, `trial`, dan `free` dengan `trialGranted` → `open`; `free` tanpa `trialGranted`, status null, dan `preview` → `locked`); `expiryWarning` di batas 30 hari tepat; `callGenerate` mengirim `Authorization: Bearer <access>` dan `apikey` ke `/functions/v1/generate`; sesi null → `{ ok: false, error: 'unauthenticated' }` tanpa fetch; status dari `refreshAccountStatus` tersimpan di cache dan dipakai `loadAccountStatus` saat fetch gagal (offline).
+- [ ] **Step 1: Tulis tes yang gagal:** tabel kebenaran `aiModeFrom`; `accessLevel` (tanpa sesi → `preview`; `paid` → `paid`; credits 2 dan belum bayar → `trial`; credits 0, trialGranted, belum bayar → `free`); `featureMode` untuk semua level (`preview` → `locked`; semua level masuk → `open`: `paid`, `trial`, `free` dengan maupun tanpa `trialGranted`, dan `free` dengan status null); `expiryWarning` di batas 30 hari tepat; `callGenerate` mengirim `Authorization: Bearer <access>` dan `apikey` ke `/functions/v1/generate`; sesi null → `{ ok: false, error: 'unauthenticated' }` tanpa fetch; status dari `refreshAccountStatus` tersimpan di cache dan dipakai `loadAccountStatus` saat fetch gagal (offline).
 - [ ] **Step 2: Run** `npx vitest run src/core/build.test.ts src/core/account src/platform/account.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implementasi.** Tambah script `"dev:byok": "WXT_AI_MODE=byok wxt"` dan `"build:byok": "WXT_AI_MODE=byok wxt build"`.
 - [ ] **Step 4: Run** perintah yang sama lalu `npm test` dan `npm run typecheck`. Expected: PASS.
@@ -346,7 +346,7 @@ Expected: PASS.
 
 **Files:**
 - Create: `src/entrypoints/options/LoginGate.tsx`, `src/entrypoints/options/useAccess.ts`, `src/entrypoints/sidepanel/PanelLoginGate.tsx`
-- Modify: `src/entrypoints/options/App.tsx` (sidebar dan gerbang), komponen akar panel di `src/entrypoints/sidepanel/`, halaman Lowongan dan Lamaran (tetap terbuka dan bisa diedit di semua level setelah masuk; hanya tombol AI mengikuti saldo, tanpa mode terkunci untuk halaman)
+- Modify: `src/entrypoints/options/App.tsx` (sidebar dan gerbang), komponen akar panel di `src/entrypoints/sidepanel/`, halaman Lowongan dan Lamaran (`featureMode` = `open` di semua level setelah masuk, jadi tetap terbuka dan bisa diedit; hanya `preview` yang `locked`; hanya tombol AI mengikuti saldo)
 - Test: `src/entrypoints/options/LoginGate.test.tsx`, `src/entrypoints/options/App.access.test.tsx`
 
 **Interfaces:**
@@ -356,7 +356,8 @@ Expected: PASS.
 - [ ] **Step 1: Tulis tes yang gagal** (happy-dom, pola `AccountPage.test.tsx`):
   - tanpa sesi: data contoh tampil, tombol Fill dan Buat `disabled`, teks "Masuk untuk memakai";
   - setelah `finishLogin` sukses, `ensure_account` dipanggil sekali dan profil sendiri tampil;
-  - level `free` dengan trialGranted dan credits 0 (percobaan habis): Lowongan dan Lamaran tetap terbuka dan bisa diedit (Simpan, Buka & isi, filter jalan); tombol AI ("Siapkan lamaran · 1 kredit", "Nilai dengan AI · 1 kredit") `disabled` dengan teks "Kredit habis. Beli kredit untuk memakai AI." dan tombol "Beli kredit"; item sidebar tampil normal tanpa gembok atau badge, saldo "0 kredit" dengan "Percobaanmu habis. Hanya AI yang berhenti; halaman dan datamu tetap terbuka.";
+  - level `free` dengan trialGranted dan credits 0 (percobaan habis): Lowongan dan Lamaran tetap terbuka dan bisa diedit (Simpan, Buka & isi, filter jalan); tombol AI ("Siapkan lamaran · 1 kredit", "Nilai dengan AI · 1 kredit") `disabled` dengan teks "Kredit tidak cukup. Butuh 1 kredit; saldomu 0." (satu teks dengan state saldo kurang di Task 8) dan tombol "Beli kredit"; item sidebar tampil normal tanpa gembok atau badge, saldo "0 kredit" dengan "Percobaanmu habis. Hanya AI yang berhenti; halaman dan datamu tetap terbuka.";
+  - level `free` tanpa `trialGranted` atau status null (sudah masuk): Lowongan dan Lamaran tetap terbuka dan bisa diedit; tombol AI mengikuti saldo; hanya tanpa sesi (`preview`) yang `locked`;
   - level `paid` dengan credits 0: Lowongan dan Lamaran tetap terbuka penuh;
   - frame mockup "sesi habis" (§10, S10): `currentSession` null → kembali ke gerbang masuk dengan judul "Masuk lagi ke job-kit" dan pesan "Sesi masukmu sudah habis. Masuk lagi untuk memakai AI. Data dan profilmu tetap ada di browser ini."; data `storage.local` (profil, lowongan, lamaran) tidak dihapus dan tampil lagi setelah masuk (Review Focus 3).
 - [ ] **Step 2: Run** `npx vitest run src/entrypoints`. Expected: FAIL.

@@ -933,7 +933,7 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Acceptance criteria**
 - [ ] Preview tanpa login (options dan panel): data contoh, aksi nonaktif, ajakan "Masuk untuk memakai" (FR-49)
 - [ ] Layar masuk: email, kode OTP, salah kode, kode kedaluwarsa (FR-49)
-- [ ] Item terkunci "Beli paket untuk membuka" di sidebar untuk akun gratis (FR-50)
+- [ ] Semua halaman terbuka setelah login (tanpa item terkunci); hanya tanpa login yang preview (FR-50)
 - [ ] Saldo di sidebar dan panel; tombol AI dengan biaya; state saldo kurang, plafon, offline (FR-51, FR-55)
 - [ ] Modal beli: QR, "Rp10.800, sudah termasuk semua biaya", perkiraan pemakaian, hitung mundur, menunggu, berhasil, kedaluwarsa, gagal membuat QR (FR-52)
 - [ ] Halaman Akun: saldo, riwayat kredit, hapus akun (FR-54, FR-56)
@@ -993,11 +993,11 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 - [ ] Tanpa sesi: options dan panel menampilkan data contoh, Fill dan Buat nonaktif, ajakan masuk (FR-49)
 - [ ] Masuk dengan email OTP memakai `core/sync/api.ts` yang ada; `ensure_account()` dipanggil sekali (FR-49)
 - [ ] Status akun (`credits`, `unlocked_at`) dicache di `storage.local`; disegarkan saat options dibuka dan setelah beli/generate; offline memakai cache (FR-50)
-- [ ] Akun percobaan: fitur terbuka selama kredit percobaan ada, lalu Lowongan dan Lamaran hanya-baca dengan "Beli paket untuk lanjut"; akun terbuka tidak terkunci walau saldo 0 (FR-50)
+- [ ] Akun percobaan: semua halaman terbuka; kredit habis hanya menghentikan AI (tombol AI nonaktif dengan "Kredit tidak cukup" dan "Beli kredit"); akun yang pernah membeli juga tidak terkunci walau saldo 0 (FR-50)
 - [ ] Sinkron tetap opsional dengan kata sandi sinkron (PRD §4.3); data lokal tidak hilang saat sesi habis
 - [ ] Host Supabase menjadi izin wajib di manifest
 
-**Done when:** akun baru melihat preview → masuk → profil dan Autofill bisa dipakai → fitur berbayar terkunci.
+**Done when:** akun baru melihat preview → masuk → profil dan Autofill bisa dipakai → semua halaman terbuka; hanya AI yang butuh kredit.
 
 ### T61 · AI lewat server dan build pengguna tanpa kunci sendiri · 2h · feature · High
 - [ ] **T61 selesai**

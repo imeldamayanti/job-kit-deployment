@@ -81,7 +81,7 @@ Terbuka           → pernah membeli ≥1 paket; tidak ada beda akses halaman, h
 AI                → butuh saldo kredit; saldo 0 = tombol Buat nonaktif + "Beli kredit"
 ```
 
-Tabel kebenaran `featureMode` (`src/core/account/access.ts`): `paid`, `trial`, dan `free` dengan `trialGranted` → `open`; `preview` dan `free` tanpa `trialGranted` (atau status belum diketahui) → `locked`. `open` berarti halaman terbuka dan bisa diedit; aktif tidaknya tombol AI ditentukan terpisah oleh saldo kredit (`credits > 0`).
+Tabel kebenaran `featureMode` (`src/core/account/access.ts`): `preview` (belum masuk) → `locked`; semua level masuk → `open`: `paid`, `trial`, `free` dengan maupun tanpa `trialGranted`, dan `free` dengan status belum diketahui. `open` berarti halaman terbuka dan bisa diedit; aktif tidaknya tombol AI ditentukan terpisah oleh saldo kredit (`credits > 0`), bukan oleh `featureMode`.
 
 Ambil lowongan (termasuk LinkedIn, mati bawaan) tidak memakai kredit karena tidak memanggil AI. Feed harian selalu memakai "Skor kasar"; skor AI hanya berjalan saat pengguna menekan "Nilai dengan AI" (1 kredit per 10 lowongan, yang teratas lebih dulu). Kredit tidak pernah berkurang tanpa tindakan pengguna.
 
