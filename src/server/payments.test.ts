@@ -206,6 +206,17 @@ describe('handleCallback', () => {
     expect(report).not.toHaveBeenCalled()
   })
 
+  it.each([['202'], ['201'], ['407'], ['']])('never credits settlement or capture with the signed status_code %j: it is UNPAID and reported', async (statusCode) => {
+    for (const transactionStatus of ['settlement', 'capture']) {
+      const db = fakeDb({ applyPayment: vi.fn(async () => 'pending') })
+      const report = vi.fn()
+      const result = await call(db, make({ transaction_status: transactionStatus, fraud_status: 'accept', status_code: statusCode }), report)
+      expect(db.applyPayment).toHaveBeenCalledWith(PURCHASE, 'mt-1', 'UNPAID', 10800)
+      expect(result.status).toBe(200)
+      expect(report).toHaveBeenCalledWith('status', expect.any(Error))
+    }
+  })
+
   it('treats an unknown transaction_status as UNPAID and reports it', async () => {
     const db = fakeDb({ applyPayment: vi.fn(async () => 'pending') })
     const report = vi.fn()

@@ -6,6 +6,9 @@ import type { Session } from '../core/sync/api'
 vi.mock('../core/sync/config', () => ({ SUPABASE_CONFIG: { url: 'https://abc.supabase.co', key: 'sb_publishable_test' } }))
 vi.mock('./sync', () => ({ currentSession: vi.fn(), storedUserId: vi.fn() }))
 
+import { PACKAGE } from '../core/account/access'
+import { handleCreatePayment } from '../server/payments'
+import type { PaymentDb } from '../server/ports'
 import { callGenerate, createPayment, loadAccountStatus, loadLedger, noteCredits, purchaseStatus, refreshAccountStatus } from './account'
 import { currentSession, storedUserId } from './sync'
 
@@ -106,6 +109,22 @@ describe('createPayment', () => {
     expect(await createPayment()).toEqual(answer)
     expect(first().url).toBe('https://abc.supabase.co/functions/v1/create-payment')
     expect((first().init.headers as Record<string, string>).Authorization).toBe('Bearer access-1')
+    expect(JSON.parse(String(first().init.body))).toEqual({ packageId: PACKAGE.id })
+  })
+
+  it('sends a body the create-payment handler accepts (client and server cannot drift apart)', async () => {
+    serve(() => ({ body: { ok: false, error: 'gateway', message: 'x' } }))
+    await createPayment()
+    const sent: unknown = JSON.parse(String(first().init.body))
+    const purchase = { id: 'p1', status: 'pending', amountIdr: PACKAGE.priceIdr, credits: PACKAGE.credits, qrUrl: 'https://qr', expiresAt: '2026-11-19T02:00:00.000Z' }
+    const createPurchase = vi.fn(async () => purchase)
+    const db: PaymentDb = { createPurchase, attachGateway: vi.fn(async (_id, _ref, qrUrl) => qrUrl), applyPayment: vi.fn(async () => 'pending') }
+    const result = await handleCreatePayment(
+      { userId: 'u1', email: 'a@b.co', body: sent },
+      { db, midtrans: { serverKey: 'SB-Mid-server-test', mode: 'sandbox' }, fetchImpl: vi.fn() as unknown as typeof fetch },
+    )
+    expect(result.status).toBe(200)
+    expect(createPurchase).toHaveBeenCalledWith('u1', PACKAGE.id)
   })
 
   it('answers unauthenticated without a session, and gateway when offline', async () => {

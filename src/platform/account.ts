@@ -1,5 +1,5 @@
 import { storage } from 'wxt/utils/storage'
-import type { AccountStatus } from '../core/account/access'
+import { PACKAGE, type AccountStatus } from '../core/account/access'
 import type { CreatePaymentResponse, GenerateRequest, GenerateResponse } from '../core/generate/protocol'
 import type { Session } from '../core/sync/api'
 import { SUPABASE_CONFIG } from '../core/sync/config'
@@ -98,7 +98,7 @@ export async function callGenerate(request: GenerateRequest): Promise<GenerateRe
 export async function createPayment(): Promise<CreatePaymentResponse> {
   const session = await currentSession()
   if (!session) return { ok: false, error: 'unauthenticated', message: 'Masuk dulu untuk membeli kredit.' }
-  const result = await send(`${base}/functions/v1/create-payment`, { method: 'POST', headers: headers(session), body: '{}' })
+  const result = await send(`${base}/functions/v1/create-payment`, { method: 'POST', headers: headers(session), body: JSON.stringify({ packageId: PACKAGE.id }) })
   if (!result) return { ok: false, error: 'gateway', message: 'Tidak bisa menghubungi server. Coba lagi.' }
   if (isRecord(result.body) && typeof result.body.ok === 'boolean') return result.body as CreatePaymentResponse
   return { ok: false, error: 'gateway', message: 'Jawaban server tidak terbaca. Coba lagi.' }

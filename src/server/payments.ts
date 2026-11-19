@@ -87,8 +87,13 @@ export async function handleCallback(input: { rawBody: string }, deps: CallbackD
   const amount = Number(signed.gross_amount)
   if (!Number.isSafeInteger(amount)) return callbackResult(400, false, 'Invalid body')
 
-  const status = mapStatus(transactionStatus, typeof fields.fraud_status === 'string' ? fields.fraud_status : undefined)
+  let status = mapStatus(transactionStatus, typeof fields.fraud_status === 'string' ? fields.fraud_status : undefined)
   if (!isKnownTransactionStatus(transactionStatus)) deps.report?.('status', new Error(`purchase ${purchaseId} got an unknown transaction_status (${transactionStatus.slice(0, 40)})`))
+  // transaction_status is not covered by the signature, status_code is: a payment only counts when the signed code says success.
+  if (status === 'PAID' && signed.status_code !== '200') {
+    deps.report?.('status', new Error(`purchase ${purchaseId} has a paid transaction_status but the signed status_code is ${signed.status_code.slice(0, 10)}`))
+    status = 'UNPAID'
+  }
 
   let final: string
   try {
