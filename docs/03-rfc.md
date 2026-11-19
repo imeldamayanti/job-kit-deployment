@@ -233,6 +233,10 @@ extension ◄── baca accounts / purchases / credit_ledger / generations (RLS
 - **Rahasia** hanya di secrets Supabase (kunci model, server key Midtrans). Build pengguna tidak memuat URL atau kunci penyedia AI.
 - **Build:** build pengguna memakai AI lewat server; jalur kunci sendiri dan bridge Claude Code hanya di build pengembang.
 - **Izin:** host Supabase menjadi izin wajib; origin penyedia AI keluar dari build pengguna.
+- **Gateway:** Midtrans Core API (QRIS, `qris.acquirer = gopay`). `midtrans-callback` memverifikasi `signature_key` dan memanggil `apply_payment` (idempoten); mode `sandbox` atau `production` lewat secret `MIDTRANS_MODE`.
+- **Website:** pindah dari Vercel Hobby (tidak boleh komersial) ke Cloudflare Pages. CSP dari `site/vercel.json` dipindah ke `site/_headers` (tes menjaga isinya sama); `site/harga.html` memuat isi paket, perkiraan pemakaian, "sudah termasuk semua biaya", kredit tidak bisa diuangkan, dan hangus 1 tahun sejak pembelian terakhir. `privasi.html` hanya diganti di bagian akun wajib, AI lewat server, dan pembayaran Midtrans. `site/vercel.json` dihapus setelah `_headers` terbukti dipakai Cloudflare Pages.
+- **Chrome Web Store:** listing mencentang "berisi pembelian dalam aplikasi"; formulir pengungkapan data memuat email, riwayat pembelian, dan isi CV tersamar ke penyedia AI; `key` di manifest mengunci ID extension supaya pindah akun penerbit tidak memutus login (detail di `docs/06-distribution.md`).
+- **Status (2026-11-19):** kode dan tes selesai. Deploy website, uji ujung ke ujung di sandbox, dan Midtrans produksi **tertunda PIC** sampai prasyarat (akun Cloudflare dan Midtrans, secrets, Supabase CLI) siap.
 
 ### 3.4 Yang biasanya makan lebih dari 2 jam di stack ini
 

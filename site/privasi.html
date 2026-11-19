@@ -14,14 +14,20 @@
 <a class="brand" href="/"><img src="/assets/icon-128.png" alt="" width="32" height="32">job-kit</a>
 <nav aria-label="Utama">
 <a href="/pasang">Cara pasang</a>
+<a href="/harga">Harga</a>
 <a href="/privasi" aria-current="page">Privasi</a>
 <a href="/masukan">Masukan</a>
 </nav></div></header>
 <main class="wrap">
 <h1>Kebijakan privasi</h1>
 <p class="note"><b>Draf.</b> Belum ditinjau ahli hukum. Tanggal berlaku dan kontak pembuat diisi sebelum dipublikasikan luas.</p>
-<h2>Ringkasnya</h2>
-<p>Secara bawaan job-kit tidak memakai akun dan tidak ada server yang terlibat. Profil, lamaran, dan CV yang kamu impor disimpan di browsermu (<code>chrome.storage.local</code>). Akun dan sinkron antar perangkat bersifat <b>opsional</b>; bagiannya ada di bawah.</p>
+<h2>Akun wajib</h2>
+<p>Untuk memakai job-kit kamu harus masuk dengan akun. Tanpa masuk, job-kit hanya menampilkan pratinjau dengan data contoh. Akun dibuat dengan alamat email dan kode sekali pakai.</p>
+<ul>
+<li><b>Yang disimpan di akunmu:</b> alamat email, saldo kredit, dan riwayat pembelian serta pemakaian kredit.</li>
+<li><b>Yang tetap di browsermu:</b> profil, lamaran, dan CV yang kamu impor disimpan di browsermu (<code>chrome.storage.local</code>). Sinkron antar perangkat bersifat <b>opsional</b>; bagiannya ada di bawah.</li>
+<li>Server berada di luar negeri.</li>
+</ul>
 <h2>Yang tetap di browser ini</h2>
 <ul>
 <li><b>Profil dan Autofill.</b> Diisi dari profil di browser ini tanpa permintaan jaringan. job-kit hanya membaca halaman yang kamu izinkan, dan hanya saat kamu membuka panelnya.</li>
@@ -44,8 +50,19 @@
 <li>Sumber: Greenhouse, Lever, dan Ashby (untuk perusahaan yang kamu pilih), Remotive, dan halaman pencarian publik LinkedIn tanpa login dan tanpa cookie-mu.</li>
 <li>Risiko: ketentuan layanan situs sumber, blokir sementara, atau struktur halaman berubah.</li>
 </ul>
-<h2>AI</h2>
-<p>Pembuatan CV dan surat dengan AI belum tersedia di versi ini, dan versi ini tidak mengirim data ke penyedia AI mana pun. Bila nanti tersedia, kebijakan ini diperbarui sebelum fitur dirilis.</p>
+<h2>AI lewat server pembuat</h2>
+<p>Membuat CV, membuat surat, dan menilai lowongan dengan AI berjalan lewat server milik pembuat, bukan langsung dari browsermu. Yang dikirim ke server adalah data <b>tersamar</b>: skill, butir pengalaman, jabatan, jenjang dan jurusan, serta teks lowongan. Nama perusahaan tempat kerja dan nama kampus diganti kode. Nama, email, telepon, alamat, dan tanggal lahirmu tidak dikirim. Server meneruskannya ke penyedia AI, yaitu <b>DeepSeek</b>, untuk menyusun hasilnya.</p>
+<ul>
+<li>Isi yang dikirim dan hasilnya <b>tidak disimpan</b> di server pembuat. Yang dicatat hanya model, jumlah token, dan perkiraan biaya untuk menghitung kredit.</li>
+<li>Kunci penyedia AI hanya ada di server dan tidak pernah ada di ekstensi.</li>
+<li>Penyedia AI menerima isi yang dikirim itu dan memprosesnya di servernya sendiri.</li>
+</ul>
+<h2>Pembayaran lewat Midtrans</h2>
+<p>Pembelian kredit dibayar dengan QRIS lewat <b>Midtrans</b>. Yang dikirim ke Midtrans adalah alamat emailmu dan jumlah pembayaran. Data kartu atau rekening tidak lewat job-kit: kamu membayar dari aplikasi bank atau dompet digitalmu.</p>
+<ul>
+<li>Pembuat menyimpan riwayat pembelianmu (tanggal, jumlah, status) untuk menambah saldo dan menampilkannya di halaman Akun.</li>
+<li>Harga dan aturan kredit ada di <a href="/harga">halaman Harga</a>.</li>
+</ul>
 <h2>Telemetri dan analitik</h2>
 <ul>
 <li><b>Ekstensi:</b> telemetri <b>mati secara bawaan</b>; tidak ada yang dikirim kecuali kamu menyalakannya di halaman Akun. Bila menyala, yang dikirim hanya hitungan kejadian anonim (Fill dipakai, lamaran ditambah, CV dibuat, surat dibuat, lowongan diambil, sinkron jalan, ada error), tanggal, dan versi ekstensi. Tidak ada isi profil, CV, lowongan, URL, email, atau pesan error, dan tidak ada ID pengguna atau perangkat. Server menerima alamat IP seperti permintaan web mana pun dan infrastrukturnya mungkin mencatatnya.</li>

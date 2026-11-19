@@ -9,6 +9,8 @@ npm run build:share   # folder .output-share/chrome-mv3/
 npm run zip:share     # .output-share/job-kit-0.1.0-chrome.zip
 ```
 
+> **Revisi 2026-11-19.** Build yang dirilis untuk pengguna adalah `npm run build` / `npm run zip` (AI lewat server, login wajib, kredit). Bagian 3a berlaku untuk build itu. Build tanpa AI di bawah tetap ada untuk uji terbatas.
+
 Build ini: tanpa fitur AI (tanpa penyedia, kunci, atau panggilan AI), tanpa klien jembatan lokal (`scripts/bridge.mjs` tidak ada di zip). Build lokal (`npm run build`) tidak berubah dan tetap memakai AI.
 
 Sebelum membagikan zip, cek isinya: `unzip -l .output-share/job-kit-0.1.0-chrome.zip`. Hanya berkas ekstensi; tidak ada `scripts/`, `spikes/`, `docs/`, atau `.env*`.
@@ -45,10 +47,24 @@ Kirim zip dan arahkan teman ke [halaman Cara pasang](../site/pasang.html). Kekur
 
 **Aset yang dibutuhkan** **[verifikasi ukuran terkini]:** ikon 128px (ada di `public/icon/`), tangkapan layar, deskripsi singkat dan panjang.
 
+## 3a. Build pengguna berkredit: isian Chrome Web Store (revisi 2026-11-19)
+
+Akun penerbit adalah akun teman PIC; ia hanya memegang listing. Login, saldo, dan pembayaran ada di Supabase dan Midtrans milik PIC.
+
+- [ ] **Pembelian dalam aplikasi:** centang "berisi pembelian dalam aplikasi" di listing (pembelian kredit lewat QRIS di dalam extension).
+- [ ] **Formulir pengungkapan data (Privacy practices):** isi dengan
+  - email (akun, untuk login);
+  - riwayat pembelian (tanggal, jumlah, status);
+  - isi CV tersamar yang dikirim ke penyedia AI lewat server PIC (nama perusahaan dan kampus diganti kode; nama, email, telepon, alamat, dan tanggal lahir tidak dikirim).
+  Tetap isi: tidak ada penjualan atau transfer data pengguna, tidak ada kode jarak jauh. Cocokkan dengan kategori pada formulir saat ini **[verifikasi]**. Tautkan [kebijakan privasi](../site/privasi.html) dan [harga](../site/harga.html).
+- [ ] **ID extension tetap lewat `key` di `manifest`.** Tujuannya supaya pindah akun penerbit tidak mengubah ID dan memutus login pengguna. Langkah: unggah draf pertama ke dashboard, salin public key dari tab Package ("View public key" di dashboard penerbit) **[verifikasi]**, taruh sebagai `manifest.key` di `wxt.config.ts`, lalu pakai ID yang sama untuk secret `EXTENSION_ID` di Supabase (`supabase/README.md`). Belum ditambahkan ke repo; menunggu akun penerbit. **Jangan** menaruh private key (`.pem`) di repo.
+- [ ] **Izin:** host Supabase menjadi izin wajib (login wajib); origin penyedia AI tidak ada di build pengguna.
+- [ ] Ikuti tiga langkah yang **tertunda PIC** sebelum listing dikirim: deploy website ke Cloudflare Pages (T63), uji ujung ke ujung di sandbox Midtrans, dan produksi Midtrans.
+
 ## 4. Metrik tanpa melacak orang
 
 - Dashboard Chrome Web Store: pemasangan, pencopotan, pengguna mingguan per negara, bahasa, OS, versi.
-- Website: Vercel Web Analytics (kunjungan halaman).
+- Website: Vercel Web Analytics (kunjungan halaman). Setelah pindah ke Cloudflare Pages skrip `/_vercel/insights/script.js` tidak lagi dilayani; ganti atau hapus (keputusan PIC, tertunda bersama deploy).
 - Tidak ada telemetri di ekstensi.
 
 ## 5. Daftar sebelum dibagikan

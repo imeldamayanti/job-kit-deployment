@@ -4,7 +4,7 @@
 
 job-kit adalah ekstensi Chrome yang mengisi form lamaran kerja dari profil yang kamu ketik sekali. Kamu melihat apa yang akan diisi sebelum menekan Fill, dan bisa membatalkannya dengan Undo.
 
-Telemetri hanya bila kamu menyalakannya (opt-in, anonim, hanya hitungan kejadian). Datamu ada di browser. **Akun dan sinkron antar perangkat bersifat opsional dan mati secara bawaan**: tanpa akun, tidak ada server yang terlibat. Autofill, profil, dan Import CV tidak melakukan permintaan jaringan; fitur **Lowongan** dan **Lamaran** (opsional, mati secara bawaan) memakai jaringan dan AI, lihat [Privasi](#privasi).
+Telemetri hanya bila kamu menyalakannya (opt-in, anonim, hanya hitungan kejadian). Profil, lamaran, dan CV ada di browsermu. **Masuk dengan akun email wajib**: tanpa masuk, job-kit hanya menampilkan pratinjau dengan data contoh. Setelah masuk semua halaman terbuka; **hanya fitur AI yang memakai kredit** (Rp10.800 untuk 50 kredit, lihat [Akun, kredit, dan harga](#akun-kredit-dan-harga)). **Sinkron antar perangkat tetap opsional dan mati secara bawaan.** Autofill, profil, dan Import CV tidak melakukan permintaan jaringan; fitur **Lowongan** dan **Lamaran** memakai jaringan dan AI, lihat [Privasi](#privasi).
 
 ## Yang bisa dilakukan
 
@@ -16,8 +16,8 @@ Telemetri hanya bila kamu menyalakannya (opt-in, anonim, hanya hitungan kejadian
 - **Isi profil dari CV PDF.** Di halaman Data, pilih CV berformat PDF. job-kit membaca teksnya di browser ini, memetakan nama, kontak, pendidikan, dan pengalaman dengan aturan, lalu menampilkan pratinjau per field. Tidak ada yang tersimpan sebelum kamu menekan Isi profil, dan field yang sudah berisi dilewati kecuali kamu mencentangnya. Field yang meragukan ditandai "Periksa lagi"; teks yang tidak bisa dipetakan ditampilkan apa adanya.
 - **Lowongan harian (opsional).** job-kit mengambil lowongan sekali sehari dari sumber yang kamu nyalakan, memberi tiap lowongan skor kecocokan beserta alasannya, memisahkan Remote, Hybrid, dan On-site, dan **Buka & isi** membuka lowongannya dengan panel Autofill siap. Isi dulu **Preferensi kerja** di Profile, lalu nyalakan sumber di **Atur Lowongan**. Status: fitur ini lolos tes otomatis tetapi belum dijalankan terhadap layanan sungguhan di Chrome, jadi anggap eksperimental.
 - **Lamaran: satu tempat untuk semua lamaranmu.** Dari kartu lowongan, **Siapkan lamaran** membuat lamaran berstatus Draft dengan salinan lowongannya (tetap utuh walau lowongan dihapus dari feed). Halaman **Lamaran** menampilkannya sebagai papan (Draft, Dilamar, Direview, Interview, Offer; Ditolak dan Dibatalkan dilipat) yang bisa dicari dan diubah dengan menyeret kartu, atau sebagai **Visualisasi**: diagram alur dari Dilamar sampai Offer, Ditolak, atau Tanpa kabar (Dilamar tanpa perubahan 14 hari), dihitung dari riwayat status. Lamaran yang kamu isi lewat Buka & isi masuk ke sini otomatis; yang tidak datang dari feed bisa ditambah dengan **Tambah lamaran**. Detail Lamaran menyimpan catatan, riwayat otomatis, dan **tanggal tindak lanjut**: saat jatuh tempo kartunya berborder amber dan item Lamaran di sidebar menampilkan badge jumlahnya, tanpa notifikasi sistem.
-- **CV yang disesuaikan dengan lowongan (opsional, perlu kunci AI).** Di Detail Lamaran, **Buat CV** menyusun ulang urutan skill dan butir pengalamanmu agar sesuai requirement lowongan, lalu menunjukkan requirement mana yang tertutup dan mana yang belum. AI hanya boleh memilih dan menyusun ulang isi profilmu; jabatan, perusahaan, tanggal, dan skill diambil dari Profile. Pemeriksa fakta menolak seluruh hasil bila ada skill, angka, atau istilah teknis yang tidak ada di profilmu, dan CV sebelumnya tetap. Pemeriksa itu mesin: klaim yang bunyinya wajar tetapi tidak benar secara makna ("memimpin tim") tidak bisa dideteksi, jadi baca hasilnya sebelum dipakai. Status: lolos tes otomatis dan satu run nyata dengan profil contoh; belum dicoba pada lamaran nyata. **Unduh PDF** membuat PDF dengan satu templat di browser ini (tidak diunggah ke mana pun); huruf di luar WinAnsi (misalnya "李") diganti dan kamu diberi tahu.
-- **Surat lamaran (opsional, perlu kunci AI).** Di Detail Lamaran, tab **Surat**, **Buat surat** menulis draf dalam bahasa lowongan (Indonesia atau Inggris, bisa diganti) dengan nada formal atau santai, dari Profile dan teks lowongan. Aturan tanpa karangan sama dengan CV: skill, angka, atau istilah teknis yang tidak ada di Profile membuat seluruh surat ditolak dan kamu melihat sebabnya; penyebutan alat dari lowongan yang tidak kamu punya pun ditolak. Nama di penutup diisi di komputer ini dan tidak dikirim ke AI. Surat bisa diedit (tersimpan otomatis, bertanda Diedit), disalin, dibuat ulang (dengan konfirmasi bila sudah kamu edit), dan dikembalikan ke versi AI. Lewat **Buka & isi**, panel mengisi field cover letter di form dari surat itu (bisa dimatikan seperti field lain) dan, setelah Fill, menandai lamaran Dilamar dengan tautan **Lihat lamaran**. Status: lolos tes otomatis dan dicoba di Chrome dengan penyedia AI palsu; belum dicoba dengan model sungguhan atau form lamaran sungguhan.
+- **CV yang disesuaikan dengan lowongan (memakai 1 kredit).** Di Detail Lamaran, **Buat CV** menyusun ulang urutan skill dan butir pengalamanmu agar sesuai requirement lowongan, lalu menunjukkan requirement mana yang tertutup dan mana yang belum. AI hanya boleh memilih dan menyusun ulang isi profilmu; jabatan, perusahaan, tanggal, dan skill diambil dari Profile. Pemeriksa fakta menolak seluruh hasil bila ada skill, angka, atau istilah teknis yang tidak ada di profilmu, dan CV sebelumnya tetap. Pemeriksa itu mesin: klaim yang bunyinya wajar tetapi tidak benar secara makna ("memimpin tim") tidak bisa dideteksi, jadi baca hasilnya sebelum dipakai. Status: lolos tes otomatis dan satu run nyata dengan profil contoh; belum dicoba pada lamaran nyata. **Unduh PDF** membuat PDF dengan satu templat di browser ini (tidak diunggah ke mana pun); huruf di luar WinAnsi (misalnya "李") diganti dan kamu diberi tahu.
+- **Surat lamaran (memakai 1 kredit).** Di Detail Lamaran, tab **Surat**, **Buat surat** menulis draf dalam bahasa lowongan (Indonesia atau Inggris, bisa diganti) dengan nada formal atau santai, dari Profile dan teks lowongan. Aturan tanpa karangan sama dengan CV: skill, angka, atau istilah teknis yang tidak ada di Profile membuat seluruh surat ditolak dan kamu melihat sebabnya; penyebutan alat dari lowongan yang tidak kamu punya pun ditolak. Nama di penutup diisi di komputer ini dan tidak dikirim ke AI. Surat bisa diedit (tersimpan otomatis, bertanda Diedit), disalin, dibuat ulang (dengan konfirmasi bila sudah kamu edit), dan dikembalikan ke versi AI. Lewat **Buka & isi**, panel mengisi field cover letter di form dari surat itu (bisa dimatikan seperti field lain) dan, setelah Fill, menandai lamaran Dilamar dengan tautan **Lihat lamaran**. Status: lolos tes otomatis dan dicoba di Chrome dengan penyedia AI palsu; belum dicoba dengan model sungguhan atau form lamaran sungguhan.
 - **Export, Import, dan Hapus semua.** Halaman Data menyimpan profil, lowongan, dan lamaran (termasuk CV yang disesuaikan) ke satu berkas JSON, memulihkannya (Gabung atau Ganti), dan menghapus semuanya setelah kamu mengetik `HAPUS`.
 
 ## Yang tidak dilakukan
@@ -54,14 +54,22 @@ npm run zip
 
 Hasilnya `.output/job-kit-0.1.0-chrome.zip`.
 
-### Build untuk dibagikan (tanpa AI)
+### Tiga jenis build
+
+| Perintah | Isi |
+|---|---|
+| `npm run build` / `npm run zip` | **Build pengguna.** AI lewat server (Supabase Edge Function), login wajib, tanpa pilihan penyedia, kunci API, atau bridge Claude Code. Host Supabase menjadi izin wajib. Inilah yang dipakai untuk Chrome Web Store dan end-to-end sandbox. |
+| `npm run build:byok` / `npm run dev:byok` | **Build pengembang.** Kunci API sendiri dan bridge Claude Code tetap ada; tidak ada login wajib dan tidak ada kredit. Hanya untuk pembuat. |
+| `npm run build:share` / `npm run zip:share` | **Build tanpa AI.** Lihat di bawah. |
+
+### Build tanpa AI
 
 ```bash
 npm run build:share   # .output-share/chrome-mv3/
 npm run zip:share     # .output-share/job-kit-0.1.0-chrome.zip
 ```
 
-Build ini tidak memuat fitur AI: skor lowongan memakai aturan (skor kasar), dan Buat CV serta Buat surat menampilkan "belum tersedia di versi ini". Penyedia Claude Code dan `scripts/bridge.mjs` tidak ikut. Website statis ada di [site/](site/README.md); panduan distribusi di [docs/06-distribution.md](docs/06-distribution.md).
+Build ini tidak memuat fitur AI: skor lowongan memakai aturan (skor kasar), dan Buat CV serta Buat surat menampilkan "belum tersedia di versi ini". Build lama untuk uji terbatas; build pengguna di atas yang dirilis. Penyedia Claude Code dan `scripts/bridge.mjs` tidak ikut. Website statis ada di [site/](site/README.md); panduan distribusi di [docs/06-distribution.md](docs/06-distribution.md).
 
 ## Cara pakai
 
@@ -69,20 +77,33 @@ Build ini tidak memuat fitur AI: skor lowongan memakai aturan (skor kasar), dan 
 2. **Buka halaman lamaran**, klik ikon job-kit, dan beri izin untuk situs itu bila diminta (**Beri izin untuk situs ini**). Panel menampilkan field yang cocok dan nilainya.
 3. **Periksa, lalu Fill.** Matikan field yang tidak perlu, tekan **Fill**, periksa form, lalu kirim sendiri. Salah isi? Tekan **Undo**.
 
+## Akun, kredit, dan harga
+
+- **Login wajib** dengan email dan kode sekali pakai. Tanpa login, job-kit menampilkan pratinjau dengan data contoh dan semua tombol aksi nonaktif ("Masuk untuk memakai").
+- **Semua halaman terbuka setelah login.** Hanya tombol AI (Buat CV, Buat surat, Nilai dengan AI) yang mengikuti saldo; saldo habis tidak mengunci halaman atau datamu.
+- **Paket: Rp10.800, sudah termasuk semua biaya, 50 kredit** (kira-kira 25 CV dan 25 surat; 1 kredit per CV atau surat). Tidak ada biaya admin terpisah.
+- **Kredit percobaan:** akun baru mendapat 3 kredit sekali per akun (selama kuota percobaan harian global masih ada).
+- **Bayar dengan QRIS lewat Midtrans.** Saldo masuk otomatis lewat callback bertanda tangan.
+- **Kredit tidak bisa diuangkan dan hangus 1 tahun sejak pembelian terakhir.** Bila AI gagal atau hasilnya ditolak pemeriksa fakta, kredit kembali.
+- **Server:** Supabase (login, saldo, pembelian) dan tiga Edge Function: `generate`, `create-payment`, `midtrans-callback`. Pemasangan dan rahasia: [supabase/README.md](supabase/README.md). Desain: [docs/superpowers/specs/2026-11-19-monetisasi-design.md](docs/superpowers/specs/2026-11-19-monetisasi-design.md).
+- **Status:** kode dan tes selesai; deploy website ke Cloudflare Pages, uji ujung ke ujung di sandbox Midtrans, dan produksi Midtrans **tertunda PIC** (prasyarat belum siap).
+
 ## Privasi
 
 **Yang tetap lokal.** Profil, Autofill, dan Import CV bekerja di browser ini tanpa permintaan jaringan. Profil disimpan di `storage.local`. job-kit hanya membaca halaman yang kamu izinkan, dan hanya saat kamu membuka panelnya. Telemetri mati secara bawaan (lihat di bawah).
 
-**Akun dan sinkron (opsional, mati secara bawaan).** Bila kamu menyalakannya, profil, lamaran, CV, dan surat dienkripsi di browser ini dengan **kata sandi sinkron** milikmu, lalu disimpan di Supabase sebagai ciphertext. Server tidak bisa membaca isinya; ia hanya tahu emailmu, kapan dan seberapa besar data ditulis. **Lupa kata sandi sinkron berarti data online tidak bisa dipulihkan**; data di browser tetap ada. Kunci API, daftar lowongan, dan pemakaian AI tidak disinkronkan. Dari halaman Akun kamu bisa Export, mematikan sinkron, dan menghapus akun beserta semua datanya di server. Izin host Supabase diminta saat kamu menyalakannya.
+**Akun wajib.** Server menyimpan emailmu, saldo kredit, dan riwayat pembelian serta pemakaian kredit. Untuk fitur AI, ekstensi mengirim data tersamar ke server pembuat, yang meneruskannya ke penyedia AI (DeepSeek); isi yang dikirim dan hasilnya tidak disimpan di server pembuat. Pembayaran lewat Midtrans: emailmu dan jumlah pembayaran dikirim ke Midtrans. Server berada di luar negeri.
+
+**Sinkron (opsional, mati secara bawaan).** Bila kamu menyalakannya, profil, lamaran, CV, dan surat dienkripsi di browser ini dengan **kata sandi sinkron** milikmu, lalu disimpan di Supabase sebagai ciphertext. Server tidak bisa membaca isinya; ia hanya tahu emailmu, kapan dan seberapa besar data ditulis. **Lupa kata sandi sinkron berarti data online tidak bisa dipulihkan**; data di browser tetap ada. Kunci API, daftar lowongan, dan pemakaian AI tidak disinkronkan. Dari halaman Akun kamu bisa Export, mematikan sinkron, dan menghapus akun beserta semua datanya di server. Izin host Supabase diminta saat kamu menyalakannya.
 
 **Telemetri (opsional, mati secara bawaan).** Bila kamu menyalakannya di halaman Akun, job-kit mengirim hitungan kejadian anonim: nama kejadian dari daftar tetap (Fill dipakai, lamaran ditambah, CV dibuat, surat dibuat, lowongan diambil, sinkron jalan, ada error), tanggal, versi ekstensi, dan jumlahnya. Tidak ada isi profil, CV, lowongan, URL, email, atau pesan error, dan tidak ada ID pengguna atau perangkat. Halaman Akun menampilkan persis apa yang akan dikirim. Mematikannya menghapus hitungan yang belum terkirim.
 
 **Fitur Lowongan** mengubah itu, hanya bila kamu menyalakannya:
 
-- **Mati secara bawaan, izin per sumber.** Izin host untuk Greenhouse, Lever, Ashby, Remotive, LinkedIn, dan penyedia AI diminta saat kamu menyalakannya, bukan saat instal.
-- **Yang dikirim ke penyedia AI** hanya ringkasan untuk pencocokan: role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe kerja, ditambah teks lowongan. Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim.
-- **Yang dikirim untuk CV dan surat yang disesuaikan** lebih sempit dari itu: skill, jabatan dan lamanya, butir deskripsi pengalaman, jenjang pendidikan, ditambah teks lowongan (untuk surat juga nama perusahaan di lowongan itu). Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim, dan nama perusahaan serta kampusmu diganti kode (`{C1}`, `{S1}`) sebelum dikirim lalu dipulihkan di browser ini. Ada batas harian panggilan AI untuk dokumen (bawaan 20, bisa diubah di Atur Lowongan). Bila model yang kamu pilih diketahui memakai data untuk melatih (misalnya tier gratis), job-kit memberi peringatan sekali per lamaran sebelum mengirim. Tanpa kunci AI, Lamaran tetap berfungsi penuh kecuali tombol Buat CV dan Buat surat. CV dan surat berbagi batas harian yang sama.
-- **Kunci API milikmu.** Tidak ada server job-kit. Kunci disimpan di `storage.local` browser ini, tidak ikut Export, dan terhapus oleh Hapus semua. Request AI langsung dari browsermu ke penyedia. (Build yang dibagikan tidak memuat fitur AI.)
+- **Mati secara bawaan, izin per sumber.** Izin host untuk Greenhouse, Lever, Ashby, Remotive, dan LinkedIn diminta saat kamu menyalakannya, bukan saat instal. Host Supabase (login dan AI) adalah izin wajib di build pengguna.
+- **Yang dikirim ke server AI** hanya ringkasan untuk pencocokan: role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, preferensi lokasi dan tipe kerja, ditambah teks lowongan. Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim.
+- **Yang dikirim untuk CV dan surat yang disesuaikan** lebih sempit dari itu: skill, jabatan dan lamanya, butir deskripsi pengalaman, jenjang pendidikan, ditambah teks lowongan (untuk surat juga nama perusahaan di lowongan itu). Nama, email, telepon, alamat, dan tanggal lahir tidak dikirim, dan nama perusahaan serta kampusmu diganti kode (`{C1}`, `{S1}`) sebelum dikirim lalu dipulihkan di browser ini. Server membatasi 30 panggilan AI per jam per akun, dan saat plafon biaya bulanan tercapai kredit tidak dipotong. Tanpa saldo kredit, Lamaran tetap berfungsi penuh kecuali tombol Buat CV, Buat surat, dan Nilai dengan AI. CV dan surat berbagi batas laju yang sama.
+- **AI lewat server pembuat.** Build pengguna tidak memuat kunci atau alamat penyedia AI; semua panggilan lewat server pembuat, yang meneruskannya ke DeepSeek. Isi yang dikirim dan hasilnya tidak disimpan di server pembuat; yang dicatat hanya model, jumlah token, dan perkiraan biaya. (Build pengembang `build:byok` memakai kunci sendiri dari `storage.local`; build tanpa AI tidak memuat fitur AI.)
 - **Risiko scraping.** LinkedIn dibaca dari halaman pencarian publik tanpa login dan tanpa cookie-mu, dengan jumlah halaman dibatasi dan jeda acak. Tetap ada risiko: syarat layanan situs, blokir IP sementara, atau struktur halaman berubah. Sumber yang gagal tiga kali berturut-turut dijeda otomatis.
 - **Sumber:** Greenhouse, Lever, dan Ashby (untuk perusahaan yang kamu pilih), Remotive, dan halaman pencarian publik LinkedIn.
 

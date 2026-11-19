@@ -2,19 +2,30 @@
 
 Folder ini adalah seluruh website: HTML, CSS, dan sedikit JS. Tanpa build, tanpa dependensi.
 
-## Deploy ke Vercel (dikerjakan pemilik akun)
+## Deploy ke Cloudflare Pages (dikerjakan pemilik akun; tertunda PIC)
+
+Vercel Hobby tidak boleh dipakai komersial, jadi website pindah ke Cloudflare Pages sejak kredit AI berbayar.
+
+1. Cloudflare dashboard > Workers & Pages > Create > Pages > hubungkan repo GitHub.
+2. Build command kosong; **Build output directory: `site`**.
+3. Header (CSP dan lainnya) dibaca dari `_headers`. URL bersih (`/pasang`, `/harga`) sudah bawaan Cloudflare Pages.
+4. Cek respons halaman: `curl -sI https://<alamat-pages>/ | grep -i content-security-policy` harus memuat CSP yang sama dengan `_headers`.
+5. Setelah header terbukti dipakai, hapus `vercel.json` (belum dihapus: menunggu langkah ini; tes `site.test.ts` yang membandingkan CSP-nya ikut disesuaikan). Cloudflare Pages tidak membaca `.vercelignore`: pastikan berkas tes, SQL, dan README ini tidak ikut terpublikasi (misalnya lewat build command yang menyalin hanya berkas website) **[verifikasi]**.
+6. Skrip Vercel Web Analytics di tiap halaman tidak berfungsi di Cloudflare Pages; ganti atau hapus (keputusan PIC).
+
+## Deploy ke Vercel (cara lama, sampai pindah ke Cloudflare Pages)
 
 1. Push repo ini ke GitHub milikmu (remote `origin` belum ada di salinan ini; tambahkan sendiri).
 2. vercel.com > Add New > Project > pilih repo.
 3. **Root Directory: `site`**. Framework Preset: **Other**. Build Command dan Output Directory dikosongkan. Deploy.
 4. Dashboard proyek > **Analytics** > Enable (Web Analytics). Skrip `/_vercel/insights/script.js` sudah ada di tiap halaman; angka mulai muncul setelah ada kunjungan.
-5. Buka alamat `*.vercel.app` dan cek: `/`, `/pasang`, `/privasi`, `/masukan`.
+5. Buka alamat `*.vercel.app` dan cek: `/`, `/pasang`, `/harga`, `/privasi`, `/masukan`.
 6. Domain sendiri (opsional): Settings > Domains.
 
 Catatan:
 - Paket Vercel Hobby hanya untuk pemakaian non-komersial. Cukup selama job-kit gratis; layanan berbayar (Fase 4) perlu Pro. Periksa syarat terbaru di vercel.com sebelum dipakai.
 - `.vercelignore` menjaga tes, SQL, dan README ini tidak ikut terpublikasi.
-- `vercel.json` memasang CSP: hanya sumber sendiri, ditambah `https://*.supabase.co` untuk formulir. Jangan menambah skrip atau gaya inline; CSP akan memblokirnya.
+- `vercel.json` memasang CSP (salinan yang sama ada di `_headers` untuk Cloudflare Pages; tes menjaga keduanya sama): hanya sumber sendiri, ditambah `https://*.supabase.co` untuk formulir. Jangan menambah skrip atau gaya inline; CSP akan memblokirnya.
 
 ## Halaman admin
 

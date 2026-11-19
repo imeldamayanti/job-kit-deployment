@@ -8,8 +8,8 @@ const pages = readdirSync(dir).filter((f) => f.endsWith('.html'))
 const read = (f: string) => readFileSync(join(dir, f), 'utf8')
 
 describe('static site', () => {
-  it('has the four pages the plan asks for', () => {
-    expect(pages.sort()).toEqual(['admin.html', 'index.html', 'masukan.html', 'pasang.html', 'privasi.html'])
+  it('has the pages the plan asks for', () => {
+    expect(pages.sort()).toEqual(['admin.html', 'harga.html', 'index.html', 'masukan.html', 'pasang.html', 'privasi.html'])
   })
 
   it('keeps the admin page out of search results and out of the public navigation', () => {
@@ -39,6 +39,36 @@ describe('static site', () => {
     expect(html).toContain('telemetri <b>mati secara bawaan</b>')
     expect(html).toContain('Draf.')
     expect(html).toContain('Supabase')
+  })
+
+  it('privacy page describes the account, the AI server, and Midtrans instead of the old no-account text', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('tidak memakai akun')
+    expect(html).not.toContain('belum tersedia di versi ini')
+    expect(html).toContain('Midtrans')
+    expect(html).toContain('penyedia AI')
+  })
+
+  it('price page states the package, the all-in price, non-cash-out credits, and the 1 year expiry', () => {
+    const html = read('harga.html')
+    for (const text of ['Rp10.800', '50 kredit', 'sudah termasuk semua biaya', 'tidak bisa diuangkan', '1 tahun']) {
+      expect(html, text).toContain(text)
+    }
+    expect(html.toLowerCase()).not.toContain('admin')
+  })
+
+  it('links the price page from every public page', () => {
+    for (const page of pages.filter((p) => p !== 'admin.html')) expect(read(page), page).toContain('href="/harga"')
+  })
+
+  it('_headers carries the same CSP as vercel.json', () => {
+    const config = JSON.parse(read('vercel.json'))
+    const csp: string = config.headers[0].headers.find((h: { key: string }) => h.key === 'Content-Security-Policy').value
+    const headers = read('_headers')
+    expect(headers).toMatch(/^\/\*$/m)
+    expect(headers).toContain(`Content-Security-Policy: ${csp}`)
+    expect(headers).toContain('X-Content-Type-Options: nosniff')
+    expect(headers).toContain('X-Frame-Options: DENY')
   })
 
   it('loads no third-party script besides Vercel analytics', () => {

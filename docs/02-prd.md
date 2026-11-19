@@ -116,7 +116,7 @@ Penilaian lowongan (§4.1) hanya mengirim ringkasan tanpa identitas. CV dan sura
 Alasan: banyak teman PIC minta dibantu, dan tiap CV memakai kredit AI dan waktu PIC. Pengguna membayar sendiri dan langsung memakai, tanpa PIC memeriksa. Aturan:
 
 - **Login wajib** (email + kode OTP). Tanpa login, extension hanya **preview** dengan data contoh dan semua aksi nonaktif. Ini mengubah §4.3: akun tidak lagi opsional, tetapi **sinkron tetap opsional** dengan kata sandi sinkronnya sendiri.
-- **Tingkatan:** login gratis membuka profil, Import CV, Data, dan Autofill. **Membeli satu paket** membuka Lowongan, Lamaran, CV, dan surat untuk seterusnya. Fitur AI butuh saldo kredit; kredit habis tidak mengunci fitur atau data.
+- **Tingkatan:** **semua halaman terbuka setelah login** (profil, Import CV, Data, Autofill, Lowongan, Lamaran); tanpa login hanya preview dengan data contoh. Hanya fitur AI (CV, surat, nilai lowongan) yang butuh saldo kredit; kredit habis tidak mengunci halaman atau data.
 - **Tanpa kunci sendiri.** Semua AI lewat server PIC (Supabase Edge Functions). Kunci model dan kunci gateway hanya ada di server.
 - **Harga:** paket **Rp10.800, sudah termasuk semua biaya**. Tidak ada baris biaya admin terpisah, karena membebankan biaya QRIS ke pembeli dilarang (PBI 23/2021 Pasal 52 ayat 1).
 - **Bayar QRIS dinamis** lewat Midtrans, dicek otomatis lewat callback bertanda tangan; uang masuk ke rekening PIC.

@@ -926,23 +926,23 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Done when:** satu pengguna asli membayar Rp10.800 lewat QRIS produksi, kredit masuk tanpa PIC, membuat satu CV, dan biaya AI + QRIS < Rp10.800 (PRD §10).
 
 ### T56 · Mockup akun, preview, dan beli kredit · 1.5h · design · Highest
-- [ ] **T56 selesai**
+- [x] **T56 selesai** (mockup di `docs/design-system.html` §10; PIC menyetujui 2026-11-19)
 
 **Context:** seperti T28 dan T40: mockup di `docs/design-system.html` tanpa menyentuh produk.
 
 **Acceptance criteria**
-- [ ] Preview tanpa login (options dan panel): data contoh, aksi nonaktif, ajakan "Masuk untuk memakai" (FR-49)
-- [ ] Layar masuk: email, kode OTP, salah kode, kode kedaluwarsa (FR-49)
-- [ ] Semua halaman terbuka setelah login (tanpa item terkunci); hanya tanpa login yang preview (FR-50)
-- [ ] Saldo di sidebar dan panel; tombol AI dengan biaya; state saldo kurang, plafon, offline (FR-51, FR-55)
-- [ ] Modal beli: QR, "Rp10.800, sudah termasuk semua biaya", perkiraan pemakaian, hitung mundur, menunggu, berhasil, kedaluwarsa, gagal membuat QR (FR-52)
-- [ ] Halaman Akun: saldo, riwayat kredit, hapus akun (FR-54, FR-56)
-- [ ] Tidak ada baris biaya admin di layar mana pun; tanpa overflow horizontal di 420 px
+- [x] Preview tanpa login (options dan panel): data contoh, aksi nonaktif, ajakan "Masuk untuk memakai" (FR-49)
+- [x] Layar masuk: email, kode OTP, salah kode, kode kedaluwarsa (FR-49)
+- [x] Semua halaman terbuka setelah login (tanpa item terkunci); hanya tanpa login yang preview (FR-50)
+- [x] Saldo di sidebar dan panel; tombol AI dengan biaya; state saldo kurang, plafon, offline (FR-51, FR-55)
+- [x] Modal beli: QR, "Rp10.800, sudah termasuk semua biaya", perkiraan pemakaian, hitung mundur, menunggu, berhasil, kedaluwarsa, gagal membuat QR (FR-52)
+- [x] Halaman Akun: saldo, riwayat kredit, hapus akun (FR-54, FR-56)
+- [x] Tidak ada baris biaya admin di layar mana pun; tanpa overflow horizontal di 420 px
 
 **Done when:** PIC menyetujui mockup.
 
 ### T57 · Skema kredit di Supabase · 2h · feature · Highest
-- [ ] **T57 selesai**
+- [ ] **T57 selesai** (kode dan tes lulus; tertunda PIC: `billing.sql` belum dijalankan di proyek Supabase sungguhan dan saldo = jumlah buku belum dicek)
 
 **Context:** `supabase/billing.sql`, pola sama dengan `sync.sql` (RLS, `security definer`, `search_path = ''`). Struktur di desain §5.3.
 
@@ -960,7 +960,7 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Done when:** SQL berjalan di proyek Supabase dan semua uji di atas lulus.
 
 ### T58 · Edge Function generate · 2h · feature · Highest
-- [ ] **T58 selesai**
+- [ ] **T58 selesai** (kode dan tes model palsu lulus; tertunda PIC: deploy fungsi dan satu panggilan nyata ke model, butuh secrets)
 
 **Context:** `supabase/functions/generate/`. Server menyusun prompt dan menjalankan pemeriksa fakta dengan kode `src/core/` yang sama (RFC D22).
 
@@ -975,7 +975,7 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Done when:** CV nyata dibuat lewat fungsi yang sudah di-deploy dan saldo berkurang satu.
 
 ### T59 · Midtrans: buat QRIS dan terima callback (sandbox) · 2h · feature · Highest
-- [ ] **T59 selesai**
+- [ ] **T59 selesai** (kode dan tes lulus; tertunda PIC: akun Midtrans sandbox, deploy, dan pembayaran di simulator)
 
 **Acceptance criteria**
 - [ ] `create-payment` membuat `purchases(pending)` dan transaksi QRIS Midtrans (Core API charge, Basic auth); mengembalikan QR, jumlah, kredit, kedaluwarsa 30 menit (FR-52)
@@ -987,7 +987,7 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Done when:** satu pembayaran sandbox menambah kredit tanpa langkah manual.
 
 ### T60 · Login wajib, preview, dan tingkatan akses di extension · 2h · feature · High
-- [ ] **T60 selesai**
+- [ ] **T60 selesai** (kode dan tes lulus; tertunda PIC: cek manual alur masuk di Chrome dengan Supabase sungguhan)
 
 **Acceptance criteria**
 - [ ] Tanpa sesi: options dan panel menampilkan data contoh, Fill dan Buat nonaktif, ajakan masuk (FR-49)
@@ -1000,7 +1000,7 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Done when:** akun baru melihat preview → masuk → profil dan Autofill bisa dipakai → semua halaman terbuka; hanya AI yang butuh kredit.
 
 ### T61 · AI lewat server dan build pengguna tanpa kunci sendiri · 2h · feature · High
-- [ ] **T61 selesai**
+- [ ] **T61 selesai** (kode dan tes lulus, termasuk tes bundle; tertunda PIC: cek manual terhadap fungsi yang sudah di-deploy)
 
 **Acceptance criteria**
 - [ ] CV, surat, dan skor AI memanggil `generate`, bukan penyedia langsung (FR-53)
@@ -1013,7 +1013,7 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Done when:** di build pengguna, Buat CV memotong satu kredit dan menampilkan hasil; model palsu error mengembalikan kredit.
 
 ### T62 · Beli kredit QRIS dan riwayat kredit · 2h · feature · High
-- [ ] **T62 selesai**
+- [ ] **T62 selesai** (kode dan tes lulus; tertunda PIC: pembelian sandbox dari extension)
 
 **Acceptance criteria**
 - [ ] Modal beli memanggil `create-payment`, menampilkan QR, harga, perkiraan pemakaian, hitung mundur (FR-52)
@@ -1025,15 +1025,15 @@ Prasyarat di tangan PIC: akun Midtrans (sandbox dulu, lalu verifikasi produksi),
 **Done when:** pembayaran sandbox dari extension menambah saldo dan riwayat menampilkannya.
 
 ### T63 · Website, uji ujung ke ujung, dan Midtrans produksi · 2h · launch · High
-- [ ] **T63 selesai**
+- [ ] **T63 selesai** (sebagian: `harga.html`, `_headers`, dan privasi sudah ada; tertunda PIC: deploy Cloudflare Pages, e2e sandbox, dan produksi Midtrans, menunggu prasyarat)
 
 **Acceptance criteria**
-- [ ] `site/` di Cloudflare Pages; CSP dari `vercel.json` dipindah ke `_headers`
-- [ ] Halaman harga: isi paket, perkiraan pemakaian, "sudah termasuk semua biaya", kredit tidak bisa diuangkan, hangus 1 tahun sejak pembelian terakhir
-- [ ] `site/privasi.html` yang ada tetap dipakai (keputusan PIC 2026-11-19); hanya tiga kalimat yang jadi salah diganti: tidak memakai akun, AI belum tersedia, dan tidak ada pembelian (PRD §4.5)
-- [ ] Uji ujung ke ujung di profil Chrome bersih: instal → preview → masuk → beli (sandbox) → CV → riwayat
-- [ ] Midtrans produksi aktif; satu transaksi nyata Rp10.800 oleh pengguna bukan PIC; biaya AI + QRIS dicatat (PRD §10)
-- [ ] README, RFC §3.3d, dan `06-distribution.md` (centang pembelian dalam aplikasi, pengungkapan data) sesuai hasil akhir
+- [ ] `site/` di Cloudflare Pages; CSP dari `vercel.json` dipindah ke `_headers` (`site/_headers` sudah ada dan dijaga tes; tertunda PIC: deploy dan cek header di respons; `vercel.json` dihapus setelah itu)
+- [x] Halaman harga (`site/harga.html`): isi paket, perkiraan pemakaian, "sudah termasuk semua biaya", kredit tidak bisa diuangkan, hangus 1 tahun sejak pembelian terakhir
+- [x] `site/privasi.html` yang ada tetap dipakai (keputusan PIC 2026-11-19); hanya tiga kalimat yang jadi salah diganti: tidak memakai akun, AI belum tersedia, dan tidak ada pembelian (PRD §4.5)
+- [ ] Uji ujung ke ujung di profil Chrome bersih: instal → preview → masuk → beli (sandbox) → CV → riwayat (tertunda PIC: deploy/prasyarat; saldo yang diharapkan 3 − 1 + 50 = 52)
+- [ ] (tertunda PIC: deploy/prasyarat) Midtrans produksi aktif; satu transaksi nyata Rp10.800 oleh pengguna bukan PIC; biaya AI + QRIS dicatat (PRD §10)
+- [ ] README, RFC §3.3d, dan `06-distribution.md` (centang pembelian dalam aplikasi, pengungkapan data) sesuai hasil akhir (sudah diperbarui 2026-11-19; cek ulang setelah e2e dan produksi)
 
 **Done when:** metrik kredit dan pembayaran di PRD §10 tercatat di tiket ini.
 
