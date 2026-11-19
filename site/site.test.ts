@@ -49,6 +49,13 @@ describe('static site', () => {
     expect(html).toContain('penyedia AI')
   })
 
+  it('privacy page is honest about what survives account deletion', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('semua data online')
+    expect(html).toContain('tanpa pengenal')
+    expect(html).toContain('pembukuan')
+  })
+
   it('price page states the package, the all-in price, non-cash-out credits, and the 1 year expiry', () => {
     const html = read('harga.html')
     for (const text of ['Rp10.800', '50 kredit', 'sudah termasuk semua biaya', 'tidak bisa diuangkan', '1 tahun']) {
