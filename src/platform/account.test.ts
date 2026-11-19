@@ -4,10 +4,10 @@ import type { GenerateRequest } from '../core/generate/protocol'
 import type { Session } from '../core/sync/api'
 
 vi.mock('../core/sync/config', () => ({ SUPABASE_CONFIG: { url: 'https://abc.supabase.co', key: 'sb_publishable_test' } }))
-vi.mock('./sync', () => ({ currentSession: vi.fn() }))
+vi.mock('./sync', () => ({ currentSession: vi.fn(), storedUserId: vi.fn() }))
 
 import { callGenerate, createPayment, loadAccountStatus, loadLedger, purchaseStatus, refreshAccountStatus } from './account'
-import { currentSession } from './sync'
+import { currentSession, storedUserId } from './sync'
 
 const session: Session = { accessToken: 'access-1', refreshToken: 'r', expiresAt: 9_999_999_999, userId: 'u1', email: 'a@b.co' }
 const scoreRequest: GenerateRequest = {
@@ -50,6 +50,8 @@ beforeEach(() => {
   calls = []
   vi.mocked(currentSession).mockReset()
   vi.mocked(currentSession).mockResolvedValue(session)
+  vi.mocked(storedUserId).mockReset()
+  vi.mocked(storedUserId).mockResolvedValue('u1')
 })
 
 describe('callGenerate', () => {
@@ -153,11 +155,56 @@ describe('account status', () => {
     expect(await refreshAccountStatus()).toBeNull()
   })
 
-  it('drops the cache when there is no session', async () => {
+  it('drops the cache when nobody is signed in', async () => {
     serve(server)
     await refreshAccountStatus()
     vi.mocked(currentSession).mockResolvedValue(null)
+    vi.mocked(storedUserId).mockResolvedValue(null)
     expect(await refreshAccountStatus()).toBeNull()
+    vi.mocked(storedUserId).mockResolvedValue('u1')
+    expect(await loadAccountStatus()).toBeNull()
+  })
+
+  it('keeps the cache offline with an expired token, when the session cannot be refreshed but is still stored', async () => {
+    serve(server)
+    const online = await refreshAccountStatus()
+    calls = []
+    vi.mocked(currentSession).mockResolvedValue(null)
+    expect(await refreshAccountStatus()).toEqual(online)
+    expect(await loadAccountStatus()).toEqual(online)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('never shows one person the status cached for another', async () => {
+    serve(server)
+    await refreshAccountStatus()
+
+    // u2 signs in and the server cannot be read: u1's credits must not appear.
+    vi.mocked(storedUserId).mockResolvedValue('u2')
+    vi.mocked(currentSession).mockResolvedValue({ ...session, userId: 'u2' })
+    expect(await loadAccountStatus()).toBeNull()
+    serve(() => ({ status: 500, body: null }))
+    expect(await refreshAccountStatus()).toBeNull()
+    serve(() => new Error('offline'))
+    expect(await refreshAccountStatus()).toBeNull()
+    vi.mocked(currentSession).mockResolvedValue(null)
+    expect(await refreshAccountStatus()).toBeNull()
+
+    // u2 reads their own, which replaces the cache.
+    serve((url) => (url.includes('/rpc/') ? { body: accountRow } : { body: [{ ...accountRow, credits: 7 }] }))
+    vi.mocked(currentSession).mockResolvedValue({ ...session, userId: 'u2' })
+    expect((await refreshAccountStatus())?.credits).toBe(7)
+    vi.mocked(storedUserId).mockResolvedValue('u1')
+    expect(await loadAccountStatus()).toBeNull()
+  })
+
+  it('discards a refresh that finishes after another person signed in', async () => {
+    serve((url) => {
+      if (url.includes('/rest/v1/accounts')) vi.mocked(storedUserId).mockResolvedValue('u2')
+      return server(url)
+    })
+    expect(await refreshAccountStatus()).toBeNull()
+    vi.mocked(storedUserId).mockResolvedValue('u1')
     expect(await loadAccountStatus()).toBeNull()
   })
 })

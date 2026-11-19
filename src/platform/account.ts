@@ -3,13 +3,15 @@ import type { AccountStatus } from '../core/account/access'
 import type { CreatePaymentResponse, GenerateRequest, GenerateResponse } from '../core/generate/protocol'
 import type { Session } from '../core/sync/api'
 import { SUPABASE_CONFIG } from '../core/sync/config'
-import { currentSession } from './sync'
+import { currentSession, storedUserId } from './sync'
 
 // The extension's side of the paid-AI account (spec §5): the credit status, the generate and payment calls, the purchase
 // and ledger reads. Plain fetch like platform/sync.ts. Nothing here throws: a failure is a value the UI can show.
 const cfg = SUPABASE_CONFIG
 const base = cfg.url.replace(/\/$/, '')
-const statusItem = storage.defineItem<AccountStatus | null>('local:accountStatus', { fallback: null })
+// The cached status is tagged with whose it is, so it is never shown to someone else. platform/sync.ts clears the same key on sign-out.
+type CachedStatus = { userId: string; status: AccountStatus }
+const statusItem = storage.defineItem<CachedStatus | null>('local:accountStatus', { fallback: null })
 
 const headers = (session: Session): Record<string, string> => ({
   'Content-Type': 'application/json', apikey: cfg.key, Authorization: `Bearer ${session.accessToken}`,
@@ -34,7 +36,11 @@ async function select(session: Session, path: string): Promise<unknown[] | null>
   return result?.ok && Array.isArray(result.body) ? result.body : null
 }
 
-export const loadAccountStatus = (): Promise<AccountStatus | null> => statusItem.getValue()
+// The cached status of whoever is signed in now. Identity comes from the stored session, so it still works offline with an expired token.
+export async function loadAccountStatus(): Promise<AccountStatus | null> {
+  const [userId, cached] = await Promise.all([storedUserId(), statusItem.getValue()])
+  return userId !== null && cached?.userId === userId ? cached.status : null
+}
 
 function toStatus(row: unknown, now: Date): AccountStatus | null {
   if (!isRecord(row) || typeof row.credits !== 'number') return null
@@ -47,20 +53,24 @@ function toStatus(row: unknown, now: Date): AccountStatus | null {
   }
 }
 
-// Makes sure the account exists (the first call gives the trial credits, once), then reads it. Offline or on any failure the
-// cached status stays. Signed out, the cache is dropped so the next person on this browser does not see it.
+// Makes sure the account exists (the first call gives the trial credits, once), then reads it. On any failure the cached status
+// stays, and an offline moment never clears it. It is dropped only when nobody is signed in, so the next person on this browser
+// does not see it.
 export async function refreshAccountStatus(): Promise<AccountStatus | null> {
   const session = await currentSession()
   if (!session) {
-    await statusItem.setValue(null)
-    return null
+    // No session can mean signed out, or a token that could not be refreshed over a bad network (the stored session stays then).
+    if ((await storedUserId()) === null) await statusItem.setValue(null)
+    return loadAccountStatus()
   }
   const ensured = await send(`${base}/rest/v1/rpc/ensure_account`, { method: 'POST', headers: headers(session), body: '{}' })
   if (!ensured?.ok) return loadAccountStatus()
   const rows = await select(session, 'accounts?select=credits,unlocked_at,trial_granted_at,credits_expire_at')
   const status = rows ? toStatus(rows[0], new Date()) : null
   if (!status) return loadAccountStatus()
-  await statusItem.setValue(status)
+  // Somebody else may have signed in while this was in flight: their cache is not ours to overwrite.
+  if ((await storedUserId()) !== session.userId) return loadAccountStatus()
+  await statusItem.setValue({ userId: session.userId, status })
   return status
 }
 

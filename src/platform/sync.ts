@@ -28,6 +28,16 @@ export async function loadAccount(): Promise<Account> {
   return { configured: syncConfigured(), email: session?.email ?? null, unlocked: session !== null && key !== null, lastSyncAt: last }
 }
 
+// Who is signed in on this device, from the stored session alone: no network, and it does not change when the token is
+// refreshed. null only when nobody is signed in (a failed refresh over a bad network keeps the stored session).
+export async function storedUserId(): Promise<string | null> {
+  return (await sessionItem.getValue())?.userId ?? null
+}
+
+// The credit status cached by platform/account.ts belongs to the person who signed in, so it goes with the session.
+// Same key as accountStatusItem there (account.ts imports this file, so it cannot be imported from here).
+const clearAccountStatus = (): Promise<void> => storage.removeItem('local:accountStatus')
+
 // Must start inside a click, before any await (it asks Chrome for the Supabase host).
 export const allowServer = (): Promise<boolean> => requestOrigins(supabaseOrigin())
 
@@ -142,7 +152,7 @@ export async function syncNow({ confirmOverwrite = false }: { confirmOverwrite?:
 export async function signOutDevice(): Promise<void> {
   const session = await sessionItem.getValue()
   if (session) await signOut(cfg, session)
-  await Promise.all([sessionItem.setValue(null), keyItem.setValue(null), stateItem.setValue(emptySyncState()), lastItem.setValue(null)])
+  await Promise.all([sessionItem.setValue(null), keyItem.setValue(null), stateItem.setValue(emptySyncState()), lastItem.setValue(null), clearAccountStatus()])
 }
 
 // "Hapus akun": the account and every server row go; this device's own data stays. Only a confirmed server answer counts.
@@ -151,6 +161,6 @@ export async function deleteMyAccount(): Promise<{ ok: true } | { ok: false; rea
   if (!session) return { ok: false, reason: 'signed-out' }
   const result = await deleteAccount(cfg, session)
   if (!result.ok) return result
-  await Promise.all([sessionItem.setValue(null), keyItem.setValue(null), stateItem.setValue(emptySyncState()), lastItem.setValue(null)])
+  await Promise.all([sessionItem.setValue(null), keyItem.setValue(null), stateItem.setValue(emptySyncState()), lastItem.setValue(null), clearAccountStatus()])
   return { ok: true }
 }
