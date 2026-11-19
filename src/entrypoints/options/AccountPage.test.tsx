@@ -152,10 +152,16 @@ describe('AccountPage', () => {
     await render(a)
     await click(button('Hapus akun'))
     expect(container!.textContent).toContain('Data di browser ini tidak ikut terhapus')
+    expect(container!.textContent).toContain('Akunmu dan data sinkron dihapus dari server')
+    expect(container!.textContent).toContain('Catatan pembelian dan pemakaian kredit tetap disimpan, tidak lagi terkait dengan akunmu')
+    expect(container!.textContent).not.toContain('Semua data online')
+    expect(container!.textContent).not.toContain('kredit akan hilang')
     expect(button('Hapus akun dan data online')?.disabled).toBe(true)
     await type(field('Ketik HAPUS untuk melanjutkan'), 'HAPUS')
     await click(button('Hapus akun dan data online'))
     expect(a.deleteAccount).toHaveBeenCalled()
+    expect(container!.textContent).toContain('Akun dihapus. Data sinkron ikut terhapus; catatan pembelian dan pemakaian kredit tetap disimpan, tidak lagi terkait dengan akunmu.')
+    expect(container!.textContent).not.toContain('Semua data online')
   })
 
   it('does not say the account is gone when the server refused', async () => {
@@ -207,6 +213,22 @@ describe('AccountPage: credit balance and history (mockup S13)', () => {
     status: status(), now: NOW, onBuy: vi.fn(), loadLedger: vi.fn().mockResolvedValue([]), ...change,
   })
   const ledger = () => [...document.querySelectorAll('ul[aria-label="Riwayat kredit"] li')].map((li) => li.textContent)
+
+  it.each([[42, 'Sisa 42 kredit akan hilang.'], [1, 'Sisa 1 kredit akan hilang.']])('warns in the delete dialog that the %i remaining credits are lost with the account', async (left, warning) => {
+    await render(signedIn(), credits({ status: status({ credits: left }) }))
+    expect(container!.textContent).not.toContain('akan hilang')
+    await click(button('Hapus akun'))
+    expect(container!.textContent).toContain(warning)
+  })
+
+  it('has no lost-credits warning in the delete dialog without credits or without a known balance', async () => {
+    await render(signedIn(), credits({ status: status({ credits: 0 }) }))
+    await click(button('Hapus akun'))
+    expect(container!.textContent).not.toContain('akan hilang')
+    await render(signedIn(), credits({ status: null }))
+    await click(button('Hapus akun'))
+    expect(container!.textContent).not.toContain('akan hilang')
+  })
 
   it('shows the balance, when it lapses, and what the package is', async () => {
     const text = await render(signedIn(), credits())

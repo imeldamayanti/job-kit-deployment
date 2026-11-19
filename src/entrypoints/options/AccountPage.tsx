@@ -93,13 +93,14 @@ export function AccountPage({ api, onExport, credits }: { api: AccountApi; onExp
   return (
     <div className="flex flex-col gap-4">
       {credits && <CreditSection {...credits} />}
-      <AccountMain api={api} onExport={onExport} />
+      <AccountMain api={api} onExport={onExport} credits={credits?.status?.credits ?? 0} />
       <TelemetryCard api={api.telemetry} />
     </div>
   )
 }
 
-function AccountMain({ api, onExport }: { api: AccountApi; onExport: () => void }) {
+// `credits` is what is left on the balance, which deleting the account takes with it.
+function AccountMain({ api, onExport, credits }: { api: AccountApi; onExport: () => void; credits: number }) {
   const [info, setInfo] = useState<AccountInfo | null>(null)
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')
@@ -168,7 +169,7 @@ function AccountMain({ api, onExport }: { api: AccountApi; onExport: () => void 
       setDeleting(false)
       setTyped('')
       setSummary(null)
-      setMessage('Akun dihapus. Semua data online ikut terhapus. Data di browser ini tetap ada.')
+      setMessage('Akun dihapus. Data sinkron ikut terhapus; catatan pembelian dan pemakaian kredit tetap disimpan, tidak lagi terkait dengan akunmu. Data di browser ini tetap ada.')
       await refresh()
     })
 
@@ -269,7 +270,10 @@ function AccountMain({ api, onExport }: { api: AccountApi; onExport: () => void 
           <div><Button variant="danger" onClick={() => setDeleting(true)}>Hapus akun</Button></div>
         ) : (
           <div className="flex max-w-[420px] flex-col gap-3">
-            <p className="text-[13px] text-text-secondary">Akun dan semua data online dihapus dari server dan tidak bisa dipulihkan. <b>Data di browser ini tidak ikut terhapus.</b></p>
+            <p className="text-[13px] text-text-secondary">
+              Akunmu dan data sinkron dihapus dari server dan tidak bisa dipulihkan. Catatan pembelian dan pemakaian kredit tetap disimpan, tidak lagi terkait dengan akunmu. <b>Data di browser ini tidak ikut terhapus.</b>
+            </p>
+            {credits > 0 && <p role="note" className="text-[13px] font-semibold text-amber-700">Sisa {credits} kredit akan hilang.</p>}
             <TextField label={`Ketik ${DELETE_WORD} untuk melanjutkan`} value={typed} onChange={(e) => setTyped(e.target.value)} />
             <div className="flex gap-2">
               <Button variant="danger" disabled={busy || !canConfirmDelete(typed)} onClick={() => void remove()}>Hapus akun dan data online</Button>
