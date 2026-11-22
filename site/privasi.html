@@ -14,28 +14,35 @@
 <a class="brand" href="/"><img src="/assets/icon-128.png" alt="" width="32" height="32">job-kit</a>
 <nav aria-label="Utama">
 <a href="/pasang">Cara pasang</a>
+<a href="/harga">Harga</a>
 <a href="/privasi" aria-current="page">Privasi</a>
 <a href="/masukan">Masukan</a>
 </nav></div></header>
 <main class="wrap">
 <h1>Kebijakan privasi</h1>
 <p class="note"><b>Draf.</b> Belum ditinjau ahli hukum. Tanggal berlaku dan kontak pembuat diisi sebelum dipublikasikan luas.</p>
-<h2>Ringkasnya</h2>
-<p>Secara bawaan job-kit tidak memakai akun dan tidak ada server yang terlibat. Profil, lamaran, dan CV yang kamu impor disimpan di browsermu (<code>chrome.storage.local</code>). Akun dan sinkron antar perangkat bersifat <b>opsional</b>; bagiannya ada di bawah.</p>
+<h2>Akun wajib</h2>
+<p>Untuk memakai job-kit kamu harus masuk dengan akun. Tanpa masuk, job-kit hanya menampilkan pratinjau dengan data contoh. Akun dibuat dengan alamat email dan kode sekali pakai.</p>
+<ul>
+<li><b>Yang disimpan di akunmu:</b> alamat email, saldo kredit, dan riwayat pembelian serta pemakaian kredit.</li>
+<li><b>Yang tetap di browsermu:</b> profil, lamaran, dan CV yang kamu impor disimpan di browsermu (<code>chrome.storage.local</code>). Sinkron antar perangkat bersifat <b>opsional</b>; bagiannya ada di bawah.</li>
+<li>Server berada di luar negeri.</li>
+<li><b>Bila akun dihapus,</b> akunmu dan data sinkronnya dihapus, tetapi catatan pembelian dan pemakaian kredit tetap disimpan untuk pembukuan dan tidak lagi terkait dengan akunmu. Midtrans menyimpan alamat email pembayar pada tiap transaksinya. Sisa kredit ikut hilang.</li>
+</ul>
 <h2>Yang tetap di browser ini</h2>
 <ul>
 <li><b>Profil dan Autofill.</b> Diisi dari profil di browser ini tanpa permintaan jaringan. job-kit hanya membaca halaman yang kamu izinkan, dan hanya saat kamu membuka panelnya.</li>
 <li><b>Import CV PDF.</b> PDF dibaca di browser ini dan tidak diunggah.</li>
 <li><b>Lamaran, catatan, dan CV yang diunduh.</b> Disimpan lokal. PDF dan Word dibuat di browser ini.</li>
 </ul>
-<h2>Akun dan sinkron (opsional, mati secara bawaan)</h2>
-<p>Bila kamu menyalakannya, profil, lamaran, CV, dan surat <b>dienkripsi di browsermu</b> dengan kata sandi sinkron yang kamu pilih, lalu disimpan di database Supabase milik pembuat sebagai ciphertext. Pembuat dan Supabase tidak bisa membaca isinya.</p>
+<h2>Sinkron antar perangkat (opsional, mati secara bawaan)</h2>
+<p>Akun tetap wajib; yang opsional hanya sinkron ini, dengan kata sandi sinkron yang terpisah dari login. Bila kamu menyalakannya, profil, lamaran, CV, dan surat <b>dienkripsi di browsermu</b> dengan kata sandi sinkron yang kamu pilih, lalu disimpan di database Supabase milik pembuat sebagai ciphertext. Pembuat dan Supabase tidak bisa membaca isinya.</p>
 <ul>
 <li><b>Yang diketahui server:</b> alamat emailmu, kapan dan seberapa besar data ditulis, dan jenis datanya (profile, lamaran, CV, surat). Isinya tidak.</li>
 <li><b>Yang tidak disinkronkan:</b> kunci API, daftar lowongan, dan pemakaian AI.</li>
 <li><b>Kata sandi sinkron tidak bisa dipulihkan.</b> Pembuat tidak menyimpannya dan tidak bisa mengatur ulang. Bila lupa, data online hilang; data di browser tetap ada.</li>
 <li><b>Login:</b> kode sekali pakai yang dikirim ke emailmu lewat Supabase Auth. Sesi login disimpan di browser ini; kata sandi sinkron tidak, jadi menutup browser mengunci sinkron lagi.</li>
-<li><b>Menghapus:</b> di halaman Akun ada Export dan Hapus akun, yang menghapus akunmu dan semua data online. Data di browser tidak ikut terhapus.</li>
+<li><b>Menghapus:</b> di halaman Akun ada Export dan Hapus akun, yang menghapus akunmu dan data sinkronnya. Catatan pembelian dan pemakaian kredit tetap ada (lihat bagian Akun wajib). Data di browser tidak ikut terhapus.</li>
 <li>Lokasi server dan masa simpan: <em>belum ditetapkan, diisi sebelum sinkron dibuka untuk umum</em>. Syarat layanan: <em>belum ada</em>.</li>
 </ul>
 <h2>Fitur Lowongan (opsional, mati secara bawaan)</h2>
@@ -44,8 +51,22 @@
 <li>Sumber: Greenhouse, Lever, dan Ashby (untuk perusahaan yang kamu pilih), Remotive, dan halaman pencarian publik LinkedIn tanpa login dan tanpa cookie-mu.</li>
 <li>Risiko: ketentuan layanan situs sumber, blokir sementara, atau struktur halaman berubah.</li>
 </ul>
-<h2>AI</h2>
-<p>Pembuatan CV dan surat dengan AI belum tersedia di versi ini, dan versi ini tidak mengirim data ke penyedia AI mana pun. Bila nanti tersedia, kebijakan ini diperbarui sebelum fitur dirilis.</p>
+<h2>AI lewat server pembuat</h2>
+<p>Membuat CV, membuat surat, dan menilai lowongan dengan AI berjalan lewat server milik pembuat, bukan langsung dari browsermu. Yang dikirim ke server adalah data <b>tersamar</b>. Server meneruskannya ke <b>penyedia AI pihak ketiga</b> untuk menyusun hasilnya.</p>
+<ul>
+<li><b>Menilai lowongan:</b> role incaran, level, skill, judul dan lama pengalaman, jenjang pendidikan, lokasi dan tipe kerja yang kamu pilih, ditambah teks lowongan yang dinilai.</li>
+<li><b>Membuat CV dan surat:</b> skill, jabatan, butir deskripsi pengalaman, jenjang dan jurusan, ditambah teks lowongan (untuk surat juga nama perusahaan di lowongan itu). Nama tempat kerja dan nama kampusmu diganti kode.</li>
+<li>Nama, email, telepon, alamat, dan tanggal lahirmu tidak dikirim.</li>
+<li>Isi yang dikirim dan hasilnya <b>tidak disimpan</b> di server pembuat. Yang dicatat hanya model, jumlah token, dan perkiraan biaya untuk menghitung kredit.</li>
+<li>Kunci penyedia AI hanya ada di server dan tidak pernah ada di ekstensi.</li>
+<li>Penyedia AI menerima isi yang dikirim itu dan memprosesnya di servernya sendiri.</li>
+</ul>
+<h2>Pembayaran lewat Midtrans</h2>
+<p>Pembelian kredit dibayar dengan QRIS lewat <b>Midtrans</b>. Yang dikirim ke Midtrans adalah alamat emailmu dan jumlah pembayaran. Data kartu atau rekening tidak lewat job-kit: kamu membayar dari aplikasi bank atau dompet digitalmu.</p>
+<ul>
+<li>Pembuat menyimpan riwayat pembelianmu (tanggal, jumlah, status) untuk menambah saldo dan menampilkannya di halaman Akun.</li>
+<li>Harga dan aturan kredit ada di <a href="/harga">halaman Harga</a>.</li>
+</ul>
 <h2>Telemetri dan analitik</h2>
 <ul>
 <li><b>Ekstensi:</b> telemetri <b>mati secara bawaan</b>; tidak ada yang dikirim kecuali kamu menyalakannya di halaman Akun. Bila menyala, yang dikirim hanya hitungan kejadian anonim (Fill dipakai, lamaran ditambah, CV dibuat, surat dibuat, lowongan diambil, sinkron jalan, ada error), tanggal, dan versi ekstensi. Tidak ada isi profil, CV, lowongan, URL, email, atau pesan error, dan tidak ada ID pengguna atau perangkat. Server menerima alamat IP seperti permintaan web mana pun dan infrastrukturnya mungkin mencatatnya.</li>
@@ -55,7 +76,7 @@
 <h2>Formulir masukan</h2>
 <p>Yang kamu tulis di formulir (jenis, pesan, dan email bila kamu mengisinya) dikirim dan disimpan di database <b>Supabase</b> milik pembuat, bersama waktu pengiriman. Hanya pembuat yang bisa membacanya, dan dipakai hanya untuk memperbaiki job-kit dan membalas bila kamu menulis email. Jangan menulis data pribadi yang tidak perlu, dan jangan menempelkan isi CV. Minta penghapusan pesanmu lewat formulir yang sama (sebutkan sebagian isinya). Lokasi server Supabase dan masa simpan: <em>belum ditetapkan, diisi sebelum dipublikasikan luas</em>.</p>
 <h2>Menghapus datamu</h2>
-<p>Di halaman Data ada <b>Export</b> (menyimpan semua data ke satu berkas JSON) dan <b>Hapus semua</b> (menghapus profil, lowongan, dan lamaran setelah kamu mengetik <code>HAPUS</code>). Mencopot ekstensi dari Chrome juga menghapus data lokalnya. Karena data hanya ada di browsermu, data yang terhapus tidak bisa dipulihkan kecuali dari berkas Export.</p>
+<p>Di halaman Data ada <b>Export</b> (menyimpan semua data ke satu berkas JSON) dan <b>Hapus semua</b> (menghapus profil, lowongan, dan lamaran setelah kamu mengetik <code>HAPUS</code>). Mencopot ekstensi dari Chrome juga menghapus data lokalnya. Data di browsermu yang terhapus tidak bisa dipulihkan kecuali dari berkas Export. Akun dan data sinkron di server dihapus lewat Hapus akun di halaman Akun (lihat bagian Akun wajib).</p>
 <h2>Perubahan dan kontak</h2>
 <p>Bila kebijakan berubah, halaman ini diperbarui. Pertanyaan: lewat <a href="/masukan">formulir masukan</a>.</p>
 </main>

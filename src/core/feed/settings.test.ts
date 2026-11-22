@@ -9,12 +9,12 @@ import {
   originsForSource,
   setCompanies,
   setSourceEnabled,
-  aiOrigins,
   setAiProvider,
   zenMayTrainOn,
   DEFAULT_DOCUMENT_LIMIT,
   normalizeDocumentLimit,
 } from './settings'
+import { aiOrigins } from '../ai/origins'
 
 describe('createDefaultSettings', () => {
   it('starts with every source off, at 08:00, with the default model', () => {

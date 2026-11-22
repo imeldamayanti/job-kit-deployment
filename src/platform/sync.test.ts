@@ -12,6 +12,7 @@ vi.mock('../core/sync/crypto', async (original) => {
 import { deleteMyAccount, finishLogin, loadAccount, lock, signOutDevice, syncNow, unlock } from './sync'
 import { loadProfile, saveProfile } from './storage'
 import { loadApplicationData } from './application-storage'
+import { storage } from 'wxt/utils/storage'
 
 type Row = { kind: string; ciphertext: string; updated_at: string }
 let rows: Row[] = []
@@ -120,8 +121,10 @@ describe('sync across two devices', () => {
     await saveProfile(setPersonalField(createEmptyProfile(), 'firstName', 'Siti'))
     await signIn()
     await syncNow()
+    await storage.setItem('local:accountStatus', { userId: 'u1', status: { credits: 3 } })
     await signOutDevice()
     expect((await loadAccount()).email).toBeNull()
+    expect(await storage.getItem('local:accountStatus')).toBeNull()
     expect(rows.length).toBe(2)
     expect((await loadProfile()).personal.firstName).toBe('Siti')
     expect((await loadApplicationData()).applications).toEqual([])
@@ -131,7 +134,9 @@ describe('sync across two devices', () => {
     await saveProfile(setPersonalField(createEmptyProfile(), 'firstName', 'Siti'))
     await signIn()
     await syncNow()
+    await storage.setItem('local:accountStatus', { userId: 'u1', status: { credits: 3 } })
     expect(await deleteMyAccount()).toEqual({ ok: true })
+    expect(await storage.getItem('local:accountStatus')).toBeNull()
     expect(deleted).toBe(true)
     expect(rows).toEqual([])
     expect((await loadAccount()).email).toBeNull()

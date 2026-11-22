@@ -4,7 +4,7 @@ import type { Application, AppEvent, AppStatus } from './types'
 import type { DetailTab } from './view'
 
 // Sample applications to look at every state of the Lamaran pages in a dev build (T40 mockup).
-// Never reachable from a production build.
+// The hash lookup is for dev builds only; the one sample a build always carries is SIGNED_OUT_APPLICATIONS below.
 export type ApplicationsPreview = {
   applications: Application[]
   view: 'board' | 'viz'
@@ -119,3 +119,6 @@ export function previewApplicationsFromHash(hash: string): ApplicationsPreview |
   const name = new URLSearchParams(hash.split('?')[1] ?? '').get('state')
   return name ? SCENARIOS[name] : undefined
 }
+
+// What someone who is not signed in sees on Lamaran (spec §5.1): the sample board, every action off. Also in production builds.
+export const SIGNED_OUT_APPLICATIONS: Application[] = SAMPLE

@@ -22,7 +22,10 @@ export type PipelineOptions = {
   runs: SourceRun[]
   now: Date
   ctx: FetchContext
-  client: ScoringClient
+  // Absent in the server build: the feed never asks an AI there.
+  client?: ScoringClient
+  // False scores every job by rules only, with no AI call and no credit (the server build, spec §5.4). Missing means on.
+  aiScoring?: boolean
   sources: JobSource[]
   onStage?: (stage: FeedStage) => void
 }
@@ -41,7 +44,7 @@ const refusing: ScoringClient = { complete: async () => { throw new AiError('no-
 
 // One run of the daily feed: sources in parallel, then rules, merge, score. A source that fails
 // is recorded and the rest carry on (FR-27).
-export async function runFeed({ profile, settings, key, feed, runs, now, ctx, client, sources, onStage }: PipelineOptions): Promise<PipelineResult> {
+export async function runFeed({ profile, settings, key, feed, runs, now, ctx, client, aiScoring = true, sources, onStage }: PipelineOptions): Promise<PipelineResult> {
   const stamp = now.toISOString()
   const fetchCtx: FetchContext = { ...ctx, now, companies: settings.companies }
 
@@ -60,7 +63,10 @@ export async function runFeed({ profile, settings, key, feed, runs, now, ctx, cl
 
   onStage?.('score')
   const scorable = merged.filter((job) => job.status !== 'hidden')
-  const scored = await scoreJobs({ jobs: scorable, profile, client: key.trim() === '' ? refusing : client, key, model: settings.ai.model, now })
+  // No AI: a limit of 0 sends nothing, so every job that needs a score gets the rule-based one ("Skor kasar").
+  const scored = await scoreJobs({
+    jobs: scorable, profile, client: aiScoring && client && key.trim() !== '' ? client : refusing, key, model: settings.ai.model, now, ...(aiScoring ? {} : { limit: 0 }),
+  })
   const byId = new Map(scored.jobs.map((job) => [job.id, job]))
 
   return {

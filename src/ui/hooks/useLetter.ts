@@ -3,12 +3,16 @@ import type { Application, CoverLetter } from '../../core/applications/types'
 import { LETTER_LANG, type Lang, type Tone } from '../../core/letters/language'
 import { createAutosaver } from '../../core/profile/autosave'
 import { isStale } from '../../core/tailor/hash'
+import { AI_MODE } from '../../core/build'
 import type { CvAvailability } from '../../core/tailor/limits'
+import { loadAccountStatus } from '../../platform/account'
+import { doneLine } from '../../platform/remote'
 import type { Profile } from '../../core/profile/types'
 import type { LetterTabState } from '../../entrypoints/options/LetterTab'
 import { loadApplicationData, watchApplications } from '../../platform/application-storage'
 import { copyText } from '../../platform/clipboard'
 import { buildLetter, letterStatus, restoreLetter, saveLetterEdit } from '../../platform/letter'
+import { isRejection } from '../../platform/tailor'
 import { loadProfile, watchProfile } from '../../platform/storage'
 
 type Link = Parameters<LetterTabState['onLink']>[0]
@@ -18,7 +22,8 @@ const EDIT_DELAY_MS = 500
 // The Surat tab of one application (T52): its letter, whether "Buat surat" is on and why not, the act of writing one, the
 // language and tone for the next one, and hand edits. `onLink` takes the person to where a reason can be fixed; `where`
 // names the screen, so coming back from Atur Lowongan reads the reason again (the same as the CV tab).
-export function useLetter(application: Application | undefined, onLink: (link: Link) => void, where = ''): LetterTabState {
+// `account` is the server build's side of it: where "Beli kredit" goes, and what to do once credits were spent (read the status again).
+export function useLetter(application: Application | undefined, onLink: (link: Link) => void, where = '', account?: { onBuy: () => void; onSpent: () => void }): LetterTabState {
   const [letter, setLetter] = useState<CoverLetter | null>(null)
   const [availability, setAvailability] = useState<CvAvailability | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -27,6 +32,9 @@ export function useLetter(application: Application | undefined, onLink: (link: L
   const [rejected, setRejected] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
   const [copyNote, setCopyNote] = useState<string | null>(null)
+  // The balance as last seen (a cache the server keeps current), and the line after a paid letter. Server build only.
+  const [balance, setBalance] = useState<number | null>(null)
+  const [done, setDone] = useState<string | null>(null)
   // What the person picked; absent means "as the letter is, or as the posting reads".
   const [pickedLang, setPickedLang] = useState<Lang | undefined>()
   const [pickedTone, setPickedTone] = useState<Tone | undefined>()
@@ -37,14 +45,17 @@ export function useLetter(application: Application | undefined, onLink: (link: L
 
   const refresh = useCallback(async () => {
     if (!id) return
-    const [data, status] = await Promise.all([loadApplicationData(), letterStatus(id)])
+    const [data, status, account] = await Promise.all([loadApplicationData(), letterStatus(id), AI_MODE === 'server' ? loadAccountStatus() : Promise.resolve(null)])
     setLetter(data.letters.find((item) => item.id === letterId) ?? null)
     setAvailability(status)
+    setBalance(account?.credits ?? null)
   }, [id, letterId])
 
   useEffect(() => {
     void refresh()
   }, [refresh, job?.description, where])
+  // Another application starts without the last one's "Surat siap".
+  useEffect(() => setDone(null), [id])
   useEffect(() => watchApplications(() => void refresh()), [refresh])
   useEffect(() => {
     void loadProfile().then(setProfile)
@@ -68,21 +79,23 @@ export function useLetter(application: Application | undefined, onLink: (link: L
       setRejected(false)
       setNotice(null)
       setCopyNote(null)
+      setDone(null)
       try {
         const result = await buildLetter(id, { acknowledged, lang, tone })
-        if (!result.ok) {
-          if (result.reason === 'notice') setNotice(result.message)
-          else {
-            setMessage(result.message)
-            setRejected(result.reason === 'ungrounded' || result.reason === 'unreadable')
-          }
+        if (result.ok) {
+          if (AI_MODE === 'server') setDone(await doneLine('Surat'))
+        } else if (result.reason === 'notice') setNotice(result.message)
+        else {
+          setMessage(result.message)
+          setRejected(isRejection(result))
         }
       } finally {
         setBusy(false)
         await refresh()
+        account?.onSpent()
       }
     },
-    [id, lang, tone, refresh],
+    [id, lang, tone, refresh, account],
   )
 
   // Edits are saved after a short pause, like the notes and the CV; the page reads the letter again once saved so the mark shows.
@@ -114,7 +127,8 @@ export function useLetter(application: Application | undefined, onLink: (link: L
   }, [letterId, editor])
 
   return {
-    letter, availability, busy, message, rejected, notice, lang, tone, copyNote, onLink,
+    letter, availability, busy, message, rejected, notice, lang, tone, copyNote, onLink, done,
+    credit: AI_MODE === 'server' ? { balance, onBuy: account?.onBuy ?? (() => {}) } : undefined,
     langAuto: pickedLang === undefined,
     stale: letter !== null && profile !== null && isStale(letter.profileHash, profile),
     onCreate: () => void create(false),

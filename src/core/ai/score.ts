@@ -3,7 +3,10 @@ import { truncateText } from '../feed/text'
 import type { AiFilled, Job, JobScore, Workplace } from '../feed/types'
 import type { JobLevel, WorkMode } from '../profile/job-preferences'
 import type { Profile } from '../profile/types'
+import { RemoteRefusal, SCORE_BATCH, type GenerateError, type RemoteScore, type ScoreJob } from '../generate/protocol'
 import { AiError, type AiFailure } from './errors'
+
+export type { ScoreJob }
 
 export type AiUsage = { inputTokens: number; outputTokens: number }
 export type ScoringClient = {
@@ -49,7 +52,7 @@ export function hashSummary(summary: ProfileSummary): string {
   return hash.toString(16).padStart(8, '0')
 }
 
-const SYSTEM = `You rate how well job postings fit one candidate. Reply with ONLY a JSON array, one object per posting:
+export const SCORE_SYSTEM = `You rate how well job postings fit one candidate. Reply with ONLY a JSON array, one object per posting:
 {"id": string, "score": integer 0-100, "matches": string[] (max 4, what fits), "gaps": string[] (max 4, what is missing or off), "summary": string (one sentence), "fill": object (optional)}.
 If a posting limits who may apply to a country or region that leaves out the candidate's locations (for example "US only", "must be authorized to work in the EU"), score it under 30 and say so in gaps.
 Write matches, gaps and summary in Indonesian, short and concrete, based only on the text given. Do not invent facts.
@@ -75,17 +78,9 @@ function readFill(raw: unknown): ScoreFill {
   return fill
 }
 
-// The model's answer, kept only where it is valid. A bad item is dropped, never repaired or invented.
-export function parseScoreOutput(text: string, ids: string[]): ScoreResult[] {
-  const start = text.indexOf('[')
-  const end = text.lastIndexOf(']')
-  if (start === -1 || end <= start) return []
-  let data: unknown
-  try {
-    data = JSON.parse(text.slice(start, end + 1))
-  } catch {
-    return []
-  }
+// Rows of a score answer, kept only where they are valid. A bad row is dropped, never repaired or invented. Shared by the
+// local model's text and by a server's result, which the extension must not trust any more than a model's.
+export function readScoreResults(data: unknown, ids: string[]): ScoreResult[] {
   if (!Array.isArray(data)) return []
   const results: ScoreResult[] = []
   for (const item of data) {
@@ -101,7 +96,22 @@ export function parseScoreOutput(text: string, ids: string[]): ScoreResult[] {
   return results
 }
 
-function batchPrompt(summary: ProfileSummary, jobs: Job[]): string {
+// The model's answer as text: the JSON array in it, read by `readScoreResults`.
+export function parseScoreOutput(text: string, ids: string[]): ScoreResult[] {
+  const start = text.indexOf('[')
+  const end = text.lastIndexOf(']')
+  if (start === -1 || end <= start) return []
+  let data: unknown
+  try {
+    data = JSON.parse(text.slice(start, end + 1))
+  } catch {
+    return []
+  }
+  return readScoreResults(data, ids)
+}
+
+// What the model is asked, built the same way on the server (spec §5.4) from the postings it was sent.
+export function scorePrompt(summary: ProfileSummary, jobs: ScoreJob[]): string {
   const postings = jobs.map((job) => ({
     id: job.id, title: job.title, company: job.company, location: job.location, workplace: job.workplace,
     level: job.level, contract: job.contract, salary: job.salary, experience: job.experience,
@@ -110,18 +120,23 @@ function batchPrompt(summary: ProfileSummary, jobs: Job[]): string {
   return `Candidate:\n${JSON.stringify(summary)}\n\nPostings:\n${JSON.stringify(postings)}`
 }
 
-export type ScoreRun = { jobs: Job[]; usage: AiUsage; aiProblem?: AiFailure; aiScored: number; roughScored: number }
+// `refused` is the server saying no (no credit, over budget, ...): the rest is scored by rules, and the screen explains.
+export type ScoreRun = { jobs: Job[]; usage: AiUsage; aiProblem?: AiFailure; refused?: GenerateError; aiScored: number; roughScored: number }
 
 type Options = {
   jobs: Job[]
   profile: Profile
-  client: ScoringClient
-  key: string
-  model: string
   now: Date
   limit?: number
   batchSize?: number
-}
+} & (
+  | { client: ScoringClient; key: string; model: string; remote?: RemoteScore }
+  // With a remote the server holds the key and the model, so the caller has none to give.
+  | { remote: RemoteScore; client?: ScoringClient; key?: string; model?: string }
+)
+
+const toScoreJob = ({ id, title, company, location, workplace, level, contract, salary, experience, description }: Job): ScoreJob =>
+  ({ id, title, company, location, workplace, level, contract, salary, experience, description })
 
 const FILLED: Record<keyof ScoreFill, AiFilled> = { workplace: 'workplace', level: 'level', experience: 'experience', salary: 'salary', contract: 'contract' }
 
@@ -139,7 +154,10 @@ function withAi(job: Job, result: ScoreResult, hash: string): Job {
 
 // Scores the jobs that need it: with the AI up to `limit`, by rules for the rest or when the AI
 // cannot be used (PRD §8). Scores for an unchanged profile are kept.
-export async function scoreJobs({ jobs, profile, client, key, model, now, limit = 50, batchSize = 5 }: Options): Promise<ScoreRun> {
+export async function scoreJobs(options: Options): Promise<ScoreRun> {
+  const { jobs, profile, now, limit = 50, remote } = options
+  // A remote scores one batch per call and a credit buys that whole batch, so its batch is the protocol's.
+  const batchSize = remote ? SCORE_BATCH : (options.batchSize ?? 5)
   const summary = buildProfileSummary(profile, now)
   const hash = hashSummary(summary)
   const current = new Map(jobs.map((job) => [job.id, job]))
@@ -148,21 +166,36 @@ export async function scoreJobs({ jobs, profile, client, key, model, now, limit 
   const usage: AiUsage = { inputTokens: 0, outputTokens: 0 }
   const scoredByAi = new Set<string>()
   let aiProblem: AiFailure | undefined
+  let refused: GenerateError | undefined
 
-  for (let start = 0; start < forAi.length && !aiProblem; start += batchSize) {
+  for (let start = 0; start < forAi.length && !aiProblem && !refused; start += batchSize) {
     const batch = forAi.slice(start, start + batchSize)
     try {
-      const reply = await client.complete({ key, model, system: SYSTEM, user: batchPrompt(summary, batch), maxTokens: 1500 })
-      usage.inputTokens += reply.usage.inputTokens
-      usage.outputTokens += reply.usage.outputTokens
-      for (const result of parseScoreOutput(reply.text, batch.map((job) => job.id))) {
+      let results: ScoreResult[]
+      if (remote) {
+        const reply = await remote({ kind: 'score', summary, jobs: batch.map(toScoreJob) })
+        usage.inputTokens += reply.usage.inputTokens
+        usage.outputTokens += reply.usage.outputTokens
+        results = reply.results
+      } else {
+        // The union guarantees these three when there is no remote.
+        const { client, key, model } = options as { client: ScoringClient; key: string; model: string }
+        const reply = await client.complete({ key, model, system: SCORE_SYSTEM, user: scorePrompt(summary, batch), maxTokens: 1500 })
+        usage.inputTokens += reply.usage.inputTokens
+        usage.outputTokens += reply.usage.outputTokens
+        results = parseScoreOutput(reply.text, batch.map((job) => job.id))
+      }
+      const inBatch = new Set(batch.map((job) => job.id))
+      for (const result of results) {
         const job = current.get(result.id)
-        if (!job) continue
+        // A result for a posting that was not in this call is not trusted, from a server any more than from a model.
+        if (!job || !inBatch.has(result.id)) continue
         current.set(result.id, withAi(job, result, hash))
         scoredByAi.add(result.id)
       }
     } catch (error) {
-      aiProblem = error instanceof AiError ? error.reason : 'network'
+      if (error instanceof RemoteRefusal) refused = error.code
+      else aiProblem = error instanceof AiError ? error.reason : 'network'
     }
   }
 
@@ -172,5 +205,5 @@ export async function scoreJobs({ jobs, profile, client, key, model, now, limit 
     current.set(job.id, { ...(current.get(job.id) as Job), score: roughScore(job, profile, now) satisfies JobScore })
     roughScored += 1
   }
-  return { jobs: jobs.map((job) => current.get(job.id) as Job), usage, aiProblem, aiScored: scoredByAi.size, roughScored }
+  return { jobs: jobs.map((job) => current.get(job.id) as Job), usage, aiProblem, refused, aiScored: scoredByAi.size, roughScored }
 }

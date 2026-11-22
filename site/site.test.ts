@@ -8,8 +8,8 @@ const pages = readdirSync(dir).filter((f) => f.endsWith('.html'))
 const read = (f: string) => readFileSync(join(dir, f), 'utf8')
 
 describe('static site', () => {
-  it('has the four pages the plan asks for', () => {
-    expect(pages.sort()).toEqual(['admin.html', 'index.html', 'masukan.html', 'pasang.html', 'privasi.html'])
+  it('has the pages the plan asks for', () => {
+    expect(pages.sort()).toEqual(['admin.html', 'harga.html', 'index.html', 'masukan.html', 'pasang.html', 'privasi.html'])
   })
 
   it('keeps the admin page out of search results and out of the public navigation', () => {
@@ -39,6 +39,61 @@ describe('static site', () => {
     expect(html).toContain('telemetri <b>mati secara bawaan</b>')
     expect(html).toContain('Draf.')
     expect(html).toContain('Supabase')
+  })
+
+  it('privacy page describes the account, the AI server, and Midtrans instead of the old no-account text', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('tidak memakai akun')
+    expect(html).not.toContain('belum tersedia di versi ini')
+    expect(html).toContain('Midtrans')
+    expect(html).toContain('penyedia AI')
+  })
+
+  it('privacy page is honest about what survives account deletion', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('semua data online')
+    expect(html).not.toContain('tanpa pengenal')
+    expect(html).toContain('pembukuan')
+    expect(html).toContain('tidak lagi terkait dengan akunmu')
+    expect(html).toContain('Midtrans menyimpan alamat email pembayar pada tiap transaksinya')
+  })
+
+  it('privacy page names the AI recipient neutrally and lists what is sent, as the code sends it', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('DeepSeek')
+    expect(html).toContain('penyedia AI pihak ketiga')
+    for (const text of ['role incaran, level, skill', 'lokasi dan tipe kerja', 'butir deskripsi pengalaman', 'jenjang dan jurusan', 'teks lowongan']) {
+      expect(html, text).toContain(text)
+    }
+  })
+
+  it('privacy page does not call the account optional or say all data lives only in the browser', () => {
+    const html = read('privasi.html')
+    expect(html).not.toContain('Akun dan sinkron (opsional')
+    expect(html).toContain('<h2>Sinkron antar perangkat (opsional, mati secara bawaan)</h2>')
+    expect(html).not.toContain('Karena data hanya ada di browsermu')
+  })
+
+  it('price page states the package, the all-in price, non-cash-out credits, and the 1 year expiry', () => {
+    const html = read('harga.html')
+    for (const text of ['Rp10.800', '50 kredit', 'sudah termasuk semua biaya', 'tidak bisa diuangkan', '1 tahun']) {
+      expect(html, text).toContain(text)
+    }
+    expect(html.toLowerCase()).not.toContain('admin')
+  })
+
+  it('links the price page from every public page', () => {
+    for (const page of pages.filter((p) => p !== 'admin.html')) expect(read(page), page).toContain('href="/harga"')
+  })
+
+  it('_headers carries the same CSP as vercel.json', () => {
+    const config = JSON.parse(read('vercel.json'))
+    const csp: string = config.headers[0].headers.find((h: { key: string }) => h.key === 'Content-Security-Policy').value
+    const headers = read('_headers')
+    expect(headers).toMatch(/^\/\*$/m)
+    expect(headers).toContain(`Content-Security-Policy: ${csp}`)
+    expect(headers).toContain('X-Content-Type-Options: nosniff')
+    expect(headers).toContain('X-Frame-Options: DENY')
   })
 
   it('loads no third-party script besides Vercel analytics', () => {

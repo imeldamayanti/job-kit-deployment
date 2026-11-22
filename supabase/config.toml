@@ -1,0 +1,6 @@
+# Minimal Supabase CLI config for deploying the Edge Functions (`npm run deploy:functions`). Written by hand, no secrets.
+project_id = "job-kit-web"
+
+# Midtrans's servers call this one without a Supabase token; the callback checks the signature_key in the request body instead.
+[functions.midtrans-callback]
+verify_jwt = false

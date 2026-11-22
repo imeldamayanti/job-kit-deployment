@@ -1,5 +1,6 @@
 import { AiError, mapAiFailure } from '../core/ai/errors'
-import { aiOrigins, BRIDGE_URL, type AiProvider } from '../core/feed/settings'
+import { aiOrigins, BRIDGE_URL } from '../core/ai/origins'
+import type { AiProvider } from '../core/feed/settings'
 import { hasOrigins } from './permissions'
 
 export type AiRequest = { key: string; model: string; system: string; user: string; maxTokens: number }

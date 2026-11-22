@@ -370,3 +370,28 @@ describe('ApplicationsPage tambah lamaran', () => {
     expect(onAdd).not.toHaveBeenCalled()
   })
 })
+
+// The preview before sign-in (locked) is samples only: nothing drags, nothing is announced as moved.
+describe('ApplicationsPage locked preview', () => {
+  it('has no draggable cards and no drop targets, and a drop announces nothing', async () => {
+    const onMove = vi.fn()
+    location.hash = '#applications?state=list'
+    container = document.createElement('div')
+    document.body.append(container)
+    const applications = previewApplicationsFromHash(location.hash)?.applications ?? []
+    await act(async () =>
+      createRoot(container!).render(<ApplicationsPage applications={applications} view="board" locked onOpen={() => {}} onJobs={() => {}} onMove={onMove} onAdd={async () => ({ ok: true, id: 'new' })} />),
+    )
+
+    expect(document.querySelectorAll('[draggable="true"]')).toHaveLength(0)
+    expect(column('applied')).toBeNull()
+    const data = new Map<string, string>()
+    await fire([...document.querySelectorAll('button')].find((b) => b.textContent?.includes('UI Engineer')), 'dragstart', data)
+    await fire(document.querySelector('section[aria-label="Dilamar"]'), 'dragover', data)
+    await fire(document.querySelector('section[aria-label="Dilamar"]'), 'drop', data)
+
+    expect(onMove).not.toHaveBeenCalled()
+    expect(document.querySelector('[role="status"]')?.textContent).toBe('')
+    expect(document.querySelector('[data-drop]')).toBeNull()
+  })
+})

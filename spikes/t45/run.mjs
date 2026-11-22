@@ -19,15 +19,19 @@ const only = flag('only', null) // e.g. B:J2,C:J1 re-runs just those profile:job
 const onlyPairs = only ? new Set(String(only).split(',')) : null
 const delayMs = Number(flag('delay', 1500))
 
-const key = mock ? 'mock' : loadEnv().GEMINI_API_KEY
-if (!key) {
-  console.error('GEMINI_API_KEY di .env.local masih kosong.')
+const env = mock ? {} : loadEnv()
+// deepseek-* models go to DEEPSEEK_BASE_URL (OpenAI-compatible); everything else to Gemini.
+const target = (model) => model.startsWith('deepseek')
+  ? { key: env.DEEPSEEK_API_KEY, url: `${env.DEEPSEEK_BASE_URL}/chat/completions`, name: 'DEEPSEEK_API_KEY' }
+  : { key: env.GEMINI_API_KEY, url: undefined, name: 'GEMINI_API_KEY' }
+if (!mock) for (const m of models) if (!target(m).key) {
+  console.error(`${target(m).name} di .env.local masih kosong.`)
   process.exit(1)
 }
 
 // Offline stand-in so the pipeline can be exercised without a key. It fabricates on purpose.
 async function call(req) {
-  if (!mock) return gemini({ key, ...req })
+  if (!mock) { const t = target(req.model); return gemini({ key: t.key, ...(t.url ? { url: t.url } : {}), ...req }) }
   const wantsReq = req.system === SYSTEM_REQ
   const out = wantsReq
     ? { requirements: ['Kotlin', '3 tahun Android'] }

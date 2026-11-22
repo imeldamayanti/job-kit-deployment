@@ -201,3 +201,49 @@ describe('LetterTab: with a letter', () => {
     expect(editor().value).toBe(tab.letter!.body)
   })
 })
+
+describe('LetterTab: credits in the server build', () => {
+  const credit = (balance: number | null = 42) => ({ balance, onBuy: vi.fn() })
+  const noCredits = { ok: false as const, reason: 'no-credits' as const, message: 'Kredit tidak cukup.', link: 'none' as const }
+
+  it('names the cost on the buttons and shows the balance', async () => {
+    const text = await render(state('empty', { credit: credit() }))
+    expect(button('Buat surat · 1 kredit')?.hasAttribute('disabled')).toBe(false)
+    expect(text).toContain('Saldo 42 kredit')
+    await render(state('result', { credit: credit() }))
+    expect(button('Buat ulang · 1 kredit')).toBeTruthy()
+  })
+
+  it('says that trying again costs a credit', async () => {
+    await render(state('rejected', { credit: credit() }))
+    expect(button('Coba lagi · 1 kredit')).toBeTruthy()
+  })
+
+  it('shows no cost outside the server build', async () => {
+    expect(await render(state('empty'))).not.toContain('kredit')
+  })
+
+  it('with no credits: says so, turns the button off, and offers Beli kredit', async () => {
+    const c = credit(0)
+    const text = await render(state('empty', { credit: c, availability: noCredits }))
+    expect(text).toContain('Kredit tidak cukup.')
+    expect(text).toContain('Buat surat butuh 1 kredit; saldomu 0.')
+    expect(button('Buat surat · 1 kredit')?.hasAttribute('disabled')).toBe(true)
+    await click(button('Beli kredit'))
+    expect(c.onBuy).toHaveBeenCalledTimes(1)
+  })
+
+  it('offers Beli kredit beside a letter that exists, and reports a paid one', async () => {
+    await render(state('result', { credit: credit(0), availability: noCredits }))
+    expect(button('Beli kredit')).toBeTruthy()
+    await render(state('result', { credit: credit(41), done: 'Surat siap. 1 kredit terpakai, sisa 41.' }))
+    expect(document.querySelector('[role="status"]')?.textContent).toBe('Surat siap. 1 kredit terpakai, sisa 41.')
+  })
+
+  it('names the offline reason without offering to buy', async () => {
+    const offline = { ok: false as const, reason: 'offline' as const, message: 'Tidak ada koneksi internet. Sambungkan dulu untuk memakai AI.', link: 'none' as const }
+    const text = await render(state('empty', { credit: credit(), availability: offline }))
+    expect(text).toContain('Tidak ada koneksi internet')
+    expect(button('Beli kredit')).toBeUndefined()
+  })
+})

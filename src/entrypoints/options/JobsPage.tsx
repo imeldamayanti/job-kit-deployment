@@ -1,10 +1,10 @@
-import { RefreshCw, SlidersHorizontal, Upload } from 'lucide-react'
-import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { RefreshCw, SlidersHorizontal, Sparkles, Upload } from 'lucide-react'
+import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react'
 import { aiErrorMessage } from '../../core/ai/errors'
 import { importMessage, type ImportResult } from '../../core/feed/import'
 import { canEnableFeed, type FeedSettings } from '../../core/feed/settings'
 import { countNew, type FeedState } from '../../core/feed/schedule'
-import { previewFeedFromHash } from '../../core/feed/preview'
+import { previewFeedFromHash, SIGNED_OUT_PREVIEW } from '../../core/feed/preview'
 import type { Application } from '../../core/applications/types'
 import type { Job, JobStatus, SourceRun } from '../../core/feed/types'
 import {
@@ -32,6 +32,17 @@ import { TextField } from '../../ui/primitives/TextField'
 import { Empty } from './EmptyState'
 import { ActionMenu, JobCard } from './JobCard'
 import { FolderTabs } from './FolderTabs'
+import { AI_GATE_TEXT, type AiAvailability } from './useAccess'
+
+// What the page needs to know about the account (useAccess). Absent in a build without accounts: no costs, nothing gated.
+export type JobsAccess = {
+  ai: AiAvailability
+  // The "Nilai dengan AI" button: scores the ten best roughly scored jobs for one credit, and says how it went (mockup S4).
+  // Without it the button is drawn only when the balance or the sign-in says it cannot be used, so no dead button is offered.
+  onScore?: () => Promise<{ ok: boolean; text: string }>
+  // "Beli kredit" next to the button that is off for lack of credits.
+  onBuy?: () => void
+}
 
 type Live = {
   feed: Job[]
@@ -121,6 +132,7 @@ export function JobsPage({
   onOpenApplication,
   onSettings,
   onPreferences,
+  access,
 }: {
   profile: Profile | null
   settings: FeedSettings | null
@@ -129,8 +141,11 @@ export function JobsPage({
   onOpenApplication: (id: string) => void
   onSettings: () => void
   onPreferences: () => void
+  access?: JobsAccess
 }) {
-  const preview = import.meta.env.DEV ? previewFeedFromHash(location.hash) : undefined
+  // Signed out: sample jobs and every action off. A dev preview hash still wins, to look at every state.
+  const signedOut = access?.ai === 'signed-out'
+  const preview = (import.meta.env.DEV ? previewFeedFromHash(location.hash) : undefined) ?? (signedOut ? SIGNED_OUT_PREVIEW : undefined)
   const data = preview ?? {
     feed: live.feed,
     runs: live.runs,
@@ -141,6 +156,9 @@ export function JobsPage({
   const [filter, setFilter] = useState<FeedFilter>({ tab: 'recommended', workplace: 'all', query: '', status: 'all', ...preview?.filter })
   const [order, setOrder] = useState<FeedOrder>('score')
   const [answer, setAnswer] = useState('')
+  // "Nilai dengan AI" is running, and what it said when it finished.
+  const [scoring, setScoring] = useState(false)
+  const [scored, setScored] = useState<{ ok: boolean; text: string } | null>(null)
   const now = new Date()
   const set = (change: Partial<FeedFilter>) => setFilter({ ...filter, ...change })
   const applicationOf = (job: Job) => applications.find((app) => app.jobId === job.id)
@@ -161,10 +179,29 @@ export function JobsPage({
         recommended: filterFeed(data.feed, { ...filter, workplace: 'all', query: '' }).length, shown: shown.length,
       })
   const notices = sourceNotices(data.runs, data.state.paused)
+  const scoreGate = useId()
+  const showScore = access !== undefined && access.ai !== 'signed-out' && (access.ai !== 'ready' || access.onScore !== undefined)
 
   const refresh = () => {
     setAnswer('')
-    void requestRefresh().then((status) => setAnswer(status === 'busy' ? 'Masih ada pengambilan yang berjalan.' : status === 'no-prefs' ? 'Isi role incaran di Preferensi kerja dulu.' : ''))
+    void requestRefresh().then((status) =>
+      setAnswer(
+        status === 'busy' ? 'Masih ada pengambilan yang berjalan.'
+          : status === 'no-prefs' ? 'Isi role incaran di Preferensi kerja dulu.'
+            : status === 'signed-out' ? 'Masuk dulu untuk mengambil lowongan.'
+              : '',
+      ),
+    )
+  }
+  const score = async () => {
+    if (!access?.onScore || scoring) return
+    setScoring(true)
+    setScored(null)
+    try {
+      setScored(await access.onScore())
+    } finally {
+      setScoring(false)
+    }
   }
   // "Impor": a JSON file of jobs collected elsewhere goes into the feed as saved jobs.
   const fileInput = useRef<HTMLInputElement>(null)
@@ -198,20 +235,25 @@ export function JobsPage({
       <div className="flex flex-wrap items-center justify-end gap-2">
         <span className="mr-1 text-[13px] text-text-secondary">{formatUpdated(data.state.lastRunAt, data.state.newJobs || countNew(data.feed, ''))}</span>
         <input ref={fileInput} type="file" accept=".json,application/json" className="hidden" aria-label="Berkas lowongan JSON" onChange={(event) => void importFile(event)} />
-        <Button variant="secondary" onClick={() => fileInput.current?.click()}>
+        <Button variant="secondary" disabled={signedOut} onClick={() => fileInput.current?.click()}>
           <Upload size={16} strokeWidth={2} aria-hidden="true" />
           Impor
         </Button>
-        <Button variant="secondary" disabled={data.state.running || !data.anySourceOn} onClick={refresh}>
+        <Button variant="secondary" disabled={signedOut || data.state.running || !data.anySourceOn} onClick={refresh}>
           <RefreshCw size={16} strokeWidth={2} aria-hidden="true" className={data.state.running ? 'animate-spin' : ''} />
           {data.state.running ? 'Sedang mengambil…' : 'Segarkan'}
         </Button>
-        <Button variant="secondary" onClick={onSettings}>
+        <Button variant="secondary" disabled={signedOut} onClick={onSettings}>
           <SlidersHorizontal size={16} strokeWidth={2} aria-hidden="true" />
           Atur
         </Button>
       </div>
       {answer && <p role="status" className="text-right text-[13px] text-amber-700">{answer}</p>}
+      {scored && (
+        <div role="status" className={'rounded-lg px-4 py-3 text-[13px] text-text-primary ' + (scored.ok ? 'bg-green-50' : 'bg-rose-50')}>
+          {scored.text}
+        </div>
+      )}
 
       <FolderTabs
         label="Lowongan"
@@ -298,6 +340,16 @@ export function JobsPage({
             <div className="min-w-[200px] flex-1">
               <TextField label="Cari lowongan" hideLabel className="h-10" placeholder="Cari judul atau perusahaan" value={filter.query} onChange={(event) => set({ query: event.target.value })} />
             </div>
+            {onRecommended && access && showScore && (
+              <>
+                <Button variant="secondary" disabled={access.ai !== 'ready' || scoring} aria-describedby={scoreGate} onClick={() => void score()}>
+                  <Sparkles size={16} strokeWidth={2} aria-hidden="true" className={scoring ? 'motion-safe:animate-pulse' : ''} />
+                  {scoring ? 'Menilai…' : 'Nilai dengan AI · 1 kredit'}
+                </Button>
+                {access.ai !== 'ready' && access.ai !== 'signed-out' && <span id={scoreGate} className="sr-only">{AI_GATE_TEXT[access.ai]}</span>}
+                {access.ai === 'no-credits' && access.onBuy && <Button onClick={access.onBuy}>Beli kredit</Button>}
+              </>
+            )}
           </StickyBar>
 
           {view === 'no-match' ? (
@@ -317,6 +369,8 @@ export function JobsPage({
                   onStatus={change}
                   onPrepare={prepare}
                   onOpenApplication={onOpenApplication}
+                  ai={access?.ai}
+                  sample={signedOut}
                 />
               ))}
             </div>

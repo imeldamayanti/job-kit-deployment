@@ -15,8 +15,21 @@ export const documentsToday = (usage: DocumentUsage, now: Date): number => (usag
 export const countDocument = (usage: DocumentUsage, now: Date): DocumentUsage => ({ date: localDay(now), documents: documentsToday(usage, now) + 1 })
 
 // Why Buat CV is off, and where the person can fix it (FR-46, PRD §8). Everything else in Lamaran keeps working.
-export type CvBlockReason = 'no-experience' | 'no-text' | 'no-key' | 'invalid-key' | 'quota' | 'no-permission' | 'daily-limit' | 'ai-unavailable'
+export type CvBlockReason =
+  | 'no-experience' | 'no-text' | 'no-key' | 'invalid-key' | 'quota' | 'no-permission' | 'daily-limit' | 'ai-unavailable'
+  | 'no-credits' | 'signed-out' | 'offline'
 export type CvAvailability = { ok: true } | { ok: false; reason: CvBlockReason; message: string; link: 'profile' | 'description' | 'settings' | 'none' }
+
+// What the server build knows about the account (spec §5): the AI runs on our server and is paid with credits, so the key, the
+// provider's problems and the daily count do not apply. The monthly ceiling and the rate limit come from the server as a refusal.
+export type ServerAccess = {
+  signedIn: boolean
+  // The cached balance, or null when it is not known yet (the server then decides).
+  credits: number | null
+  online: boolean
+}
+
+export const NO_CREDITS_TEXT = 'Kredit tidak cukup.'
 
 export type CvAvailabilityInput = {
   key: string
@@ -29,14 +42,22 @@ export type CvAvailabilityInput = {
   profile: Profile
   // False in the shared build, which has no AI at all. Missing means on.
   aiEnabled?: boolean
+  // Set in the server build: the credits decide, not the key (see ServerAccess).
+  server?: ServerAccess
 }
 
 const off = (reason: CvBlockReason, message: string, link: 'profile' | 'description' | 'settings' | 'none'): CvAvailability => ({ ok: false, reason, message, link })
 
-export function cvAvailability({ key, aiProblem, usage, now, limit, jobText, profile, aiEnabled = true }: CvAvailabilityInput): CvAvailability {
+export function cvAvailability({ key, aiProblem, usage, now, limit, jobText, profile, aiEnabled = true, server }: CvAvailabilityInput): CvAvailability {
   if (!aiEnabled) return off('ai-unavailable', 'Fitur AI belum tersedia di versi ini.', 'none')
   if (profile.experience.length === 0) return off('no-experience', 'Isi Work Experience dulu.', 'profile')
   if (jobText.trim() === '') return off('no-text', 'Tempel teks lowongan dulu.', 'description')
+  if (server) {
+    if (!server.signedIn) return off('signed-out', 'Masuk untuk memakai', 'none')
+    if (!server.online) return off('offline', 'Tidak ada koneksi internet. Sambungkan dulu untuk memakai AI.', 'none')
+    if (server.credits !== null && server.credits <= 0) return off('no-credits', NO_CREDITS_TEXT, 'none')
+    return { ok: true }
+  }
   if (key.trim() === '') return off('no-key', 'Kunci API belum diisi. Isi di Atur Lowongan.', 'settings')
   if (aiProblem === 'invalid-key') return off('invalid-key', 'Kunci ditolak penyedia. Periksa di Atur Lowongan.', 'settings')
   if (aiProblem === 'quota') return off('quota', 'Kuota atau saldo di penyedia habis. Periksa di Atur Lowongan.', 'settings')

@@ -7,7 +7,7 @@ import { initialFeedState } from '../../core/feed/schedule'
 import { createEmptyProfile } from '../../core/profile/profile'
 import { emptyJob } from '../../core/feed/sources/shared'
 import type { Job } from '../../core/feed/types'
-import { JobsPage } from './JobsPage'
+import { JobsPage, type JobsAccess } from './JobsPage'
 
 // Looks at every state of the T28 mockup through the dev preview hash, the way a person would.
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -233,5 +233,50 @@ describe('JobsPage states', () => {
     const tab = [...container.querySelectorAll('[role="tab"]')].find((el) => el.textContent?.includes('Rekomendasi'))
     expect(tab?.textContent).toContain('3')
     expect(container.textContent).not.toContain('tidak ditampilkan')
+  })
+})
+
+describe('JobsPage: Nilai dengan AI', () => {
+  const find = (label: string) => [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === label)
+  async function renderWith(access: JobsAccess) {
+    location.hash = '#jobs?state=list'
+    container = document.createElement('div')
+    document.body.append(container)
+    await act(async () => createRoot(container!).render(<JobsPage profile={null} settings={null} live={live} applications={[]} onOpenApplication={() => {}} onSettings={() => {}} onPreferences={() => {}} access={access} />))
+  }
+  const click = (el: Element | undefined) => act(async () => void el?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+
+  it('scores on click, says how it went, and is on again afterwards', async () => {
+    let finish: (value: { ok: boolean; text: string }) => void = () => {}
+    const onScore = vi.fn(() => new Promise<{ ok: boolean; text: string }>((resolve) => (finish = resolve)))
+    await renderWith({ ai: 'ready', onScore })
+
+    await click(find('Nilai dengan AI · 1 kredit'))
+    expect(onScore).toHaveBeenCalledTimes(1)
+    // While it runs the button says so and cannot be pressed twice.
+    expect(find('Menilai…')?.hasAttribute('disabled')).toBe(true)
+
+    await act(async () => finish({ ok: true, text: '10 lowongan dinilai. 1 kredit terpakai, sisa 41.' }))
+    expect(container?.textContent).toContain('10 lowongan dinilai. 1 kredit terpakai, sisa 41.')
+    expect(find('Nilai dengan AI · 1 kredit')?.hasAttribute('disabled')).toBe(false)
+  })
+
+  it('shows a refusal as it came', async () => {
+    await renderWith({ ai: 'ready', onScore: async () => ({ ok: false, text: 'Layanan AI penuh bulan ini. Kreditmu tidak terpakai.' }) })
+    await click(find('Nilai dengan AI · 1 kredit'))
+    expect(container?.textContent).toContain('Layanan AI penuh bulan ini. Kreditmu tidak terpakai.')
+  })
+
+  it('with no credits: the button is off and Beli kredit is next to it', async () => {
+    const onBuy = vi.fn()
+    await renderWith({ ai: 'no-credits', onBuy })
+    expect(find('Nilai dengan AI · 1 kredit')?.hasAttribute('disabled')).toBe(true)
+    await click(find('Beli kredit'))
+    expect(onBuy).toHaveBeenCalledTimes(1)
+  })
+
+  it('is not drawn when ready and nothing scores', async () => {
+    await renderWith({ ai: 'ready' })
+    expect(find('Nilai dengan AI · 1 kredit')).toBeUndefined()
   })
 })

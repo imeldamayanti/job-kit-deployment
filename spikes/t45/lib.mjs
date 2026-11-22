@@ -15,6 +15,8 @@ export const PRICES = {
   'gemini-3.8-flash': [0.75, 3.75],
   'gemini-3.6-flash': [0.75, 3.75],
   'gemini-3.1-pro-preview': [2, 12],
+  // DeepSeek official peak rates (api-docs.deepseek.com, 2026-10-27). Proxy rates unknown; -mod has no official price.
+  'deepseek-v4.1-flash': [0.3, 1.2],
 }
 export const cost = (model, inTok, outTok) => {
   const p = PRICES[model]
@@ -96,10 +98,10 @@ export function parseJson(text) {
 // --- Gemini via the OpenAI-compatible endpoint (same URL the extension uses) ---
 const URL_CHAT = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions'
 
-export async function gemini({ key, model, system, user, maxTokens = 6000 }) {
+export async function gemini({ key, model, system, user, maxTokens = 6000, url = URL_CHAT }) {
   const started = Date.now()
   for (let attempt = 0; attempt < 5; attempt++) {
-    const res = await fetch(URL_CHAT, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
       body: JSON.stringify({ model, max_tokens: maxTokens, temperature: 0.2, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),

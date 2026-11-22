@@ -6,12 +6,16 @@
   "description": "Ketik sekali, lamar di mana saja.",
   "scripts": {
     "dev": "wxt",
+    "dev:byok": "WXT_AI_MODE=byok wxt",
     "build": "wxt build",
+    "build:byok": "WXT_AI_MODE=byok wxt build",
     "zip": "wxt zip",
     "build:share": "WXT_SHARE_BUILD=true wxt build",
     "zip:share": "WXT_SHARE_BUILD=true wxt zip",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "build:functions": "node scripts/build-functions.mjs",
+    "deploy:functions": "npm run build:functions && supabase functions deploy generate create-payment midtrans-callback --project-ref ktgcjqxoohuvxwvsjhif",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
@@ -24,11 +28,13 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.2.17",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "26.6.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@wxt-dev/module-react": "1.2.2",
+    "esbuild": "0.28.2",
     "happy-dom": "20.14.6",
     "tailwindcss": "4.3.3",
     "typescript": "7.0.2",

@@ -9,12 +9,15 @@ import { describeReplaced } from '../../core/tailor/pdf-layout'
 import type { Profile } from '../../core/profile/types'
 import type { CvParts } from '../../core/tailor/diff'
 import { isStale } from '../../core/tailor/hash'
+import { AI_MODE } from '../../core/build'
 import type { CvAvailability } from '../../core/tailor/limits'
+import { loadAccountStatus } from '../../platform/account'
+import { doneLine } from '../../platform/remote'
 import { loadApplicationData, watchApplications } from '../../platform/application-storage'
 import { loadProfile, watchProfile } from '../../platform/storage'
 import { copyText } from '../../platform/clipboard'
 import { downloadCv } from '../../platform/cv-pdf'
-import { buildCv, cvStatus, restoreCv, saveCvEdit, saveCvOrder } from '../../platform/tailor'
+import { buildCv, cvStatus, isRejection, restoreCv, saveCvEdit, saveCvOrder } from '../../platform/tailor'
 import type { CvOrder } from '../../core/tailor/types'
 import type { CvTabState } from '../../entrypoints/options/CvTab'
 
@@ -25,7 +28,8 @@ const EDIT_DELAY_MS = 500
 // The CV tab of one application: its CV, whether "Buat CV" is on and why not, the act of making one, and hand edits (T48, T49).
 // `onLink` is the page's way to take the person where the reason can be fixed. `where` names the screen the person is on:
 // the key and the daily limit are changed on another page, so coming back is the moment to read the reason again.
-export function useCv(application: Application | undefined, onLink: (link: Link) => void, where = ''): CvTabState {
+// `account` is the server build's side of it: where "Beli kredit" goes, and what to do once credits were spent (read the status again).
+export function useCv(application: Application | undefined, onLink: (link: Link) => void, where = '', account?: { onBuy: () => void; onSpent: () => void }): CvTabState {
   const [cv, setCv] = useState<TailoredCv | null>(null)
   const [availability, setAvailability] = useState<CvAvailability | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -36,6 +40,9 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
   const [downloading, setDownloading] = useState(false)
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const [downloadNote, setDownloadNote] = useState<string | null>(null)
+  // The balance as last seen (a cache the server keeps current), and the line after a paid CV. Server build only.
+  const [balance, setBalance] = useState<number | null>(null)
+  const [done, setDone] = useState<string | null>(null)
 
   const id = application?.id
   const cvId = application?.cvId ?? null
@@ -43,14 +50,17 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
 
   const refresh = useCallback(async () => {
     if (!id) return
-    const [data, status] = await Promise.all([loadApplicationData(), cvStatus(id)])
+    const [data, status, account] = await Promise.all([loadApplicationData(), cvStatus(id), AI_MODE === 'server' ? loadAccountStatus() : Promise.resolve(null)])
     setCv(data.cvs.find((item) => item.id === cvId) ?? null)
     setAvailability(status)
+    setBalance(account?.credits ?? null)
   }, [id, cvId])
 
   useEffect(() => {
     void refresh()
   }, [refresh, text, where])
+  // Another application starts without the last one's "CV siap".
+  useEffect(() => setDone(null), [id])
   // The daily count and the key live elsewhere; a change to the applications is the moment this page re-reads them.
   useEffect(() => watchApplications(() => void refresh()), [refresh])
   useEffect(() => {
@@ -65,20 +75,25 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
       setMessage(null)
       setRejected(false)
       setNotice(null)
+      setDone(null)
       try {
         const result = await buildCv(id, { acknowledged })
-        if (result.ok) setMessage(result.fallback ? 'AI tidak mengembalikan butir; isi Profile dipakai apa adanya.' : null)
-        else if (result.reason === 'notice') setNotice(result.message)
+        if (result.ok) {
+          setMessage(result.note)
+          // A fallback CV is not charged, so there is nothing to report spent.
+          if (AI_MODE === 'server' && !result.fallback) setDone(await doneLine('CV'))
+        } else if (result.reason === 'notice') setNotice(result.message)
         else {
           setMessage(result.message)
-          setRejected(result.reason === 'ungrounded' || result.reason === 'unreadable')
+          setRejected(isRejection(result))
         }
       } finally {
         setBusy(false)
         await refresh()
+        account?.onSpent()
       }
     },
-    [id, refresh],
+    [id, refresh, account],
   )
 
   // Edits are saved after a short pause, like the notes; the page reads the CV again once saved so the Diedit mark shows.
@@ -131,7 +146,8 @@ export function useCv(application: Application | undefined, onLink: (link: Link)
   }, [cv, profile])
 
   return {
-    cv, availability, busy, message, rejected, notice, profile, onLink, downloading, downloadError, downloadNote,
+    cv, availability, busy, message, rejected, notice, profile, onLink, downloading, downloadError, downloadNote, done,
+    credit: AI_MODE === 'server' ? { balance, onBuy: account?.onBuy ?? (() => {}) } : undefined,
     stale: cv !== null && profile !== null && isStale(cv.profileHash, profile),
     onCreate: () => void create(false),
     onContinue: () => void create(true),

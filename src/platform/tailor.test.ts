@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fakeBrowser } from 'wxt/testing/fake-browser'
 import { AiError } from '../core/ai/errors'
 import type { ScoringClient } from '../core/ai/score'
@@ -9,6 +9,9 @@ import { loadApplicationData, loadDocumentUsage, saveApplications } from './appl
 import { loadState, loadAiKey, saveAiKey, saveSettings, saveState, loadSettings } from './feed-storage'
 import { buildCv, cvStatus, restoreCv, saveCvEdit } from './tailor'
 import { saveProfile } from './storage'
+
+// These tests are about the own-key build: the key, the daily limit and the provider notice exist only there.
+vi.mock('../core/build', async (importOriginal) => ({ ...(await importOriginal<typeof import('../core/build')>()), AI_MODE: 'byok' as const }))
 
 const NOW = new Date(2026, 9, 15, 10, 0)
 const AT = NOW.toISOString()

@@ -1,5 +1,5 @@
 import { Bookmark, Check, ChevronDown, EyeOff, FileText, MapPin, Minus, MoreHorizontal, RotateCcw, Sparkles } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { documentMarks } from '../../core/applications/view'
 import type { Application } from '../../core/applications/types'
 import type { Job, JobStatus } from '../../core/feed/types'
@@ -7,6 +7,8 @@ import { initialsOf, jobMeta, scoreTier, SOURCE_NAMES } from '../../core/feed/vi
 import { Button } from '../../ui/primitives/Button'
 import { AppStatusBadge } from './AppStatusBadge'
 import { DocChip } from '../../ui/primitives/DocChip'
+import { GateNote } from './LoginGate'
+import type { AiAvailability } from './useAccess'
 
 const WORKPLACE_TEXT = { remote: 'Remote', hybrid: 'Hybrid', onsite: 'On-site', unknown: '' } as const
 const TIER_STYLE = { hi: 'bg-green-50 text-green-700', mid: 'bg-amber-50 text-amber-700', lo: 'bg-neutral-100 text-text-secondary' } as const
@@ -73,7 +75,7 @@ export function menuFor(status: JobStatus): MenuItem[] {
   return [restore]
 }
 
-export function ActionMenu({ job, onStatus }: { job: Job; onStatus: (id: string, status: JobStatus) => void }) {
+export function ActionMenu({ job, onStatus, disabled = false }: { job: Job; onStatus: (id: string, status: JobStatus) => void; disabled?: boolean }) {
   const [open, setOpen] = useState(false)
   const box = useRef<HTMLSpanElement>(null)
   useEffect(() => {
@@ -93,10 +95,11 @@ export function ActionMenu({ job, onStatus }: { job: Job; onStatus: (id: string,
       <button
         type="button"
         aria-label="Menu lainnya"
+        disabled={disabled}
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen(!open)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50"
       >
         <MoreHorizontal size={16} strokeWidth={2} aria-hidden="true" />
       </button>
@@ -132,6 +135,8 @@ export function JobCard({
   onOpenApplication,
   application,
   startOpen = false,
+  ai,
+  sample = false,
 }: {
   job: Job
   now: Date
@@ -142,6 +147,11 @@ export function JobCard({
   // A job with an application takes its status from it (D11), so it has no status menu of its own.
   application?: Application
   startOpen?: boolean
+  // The state of the account (useAccess). Absent in a build without accounts: nothing gated.
+  // Only signed out (the preview) turns the card's actions off. "Siapkan lamaran" calls no AI, so it has no cost and no credit gate.
+  ai?: AiAvailability
+  // A sample job of the preview, marked "Contoh".
+  sample?: boolean
 }) {
   const [reasons, setReasons] = useState(startOpen)
   // A location that only says "Remote" repeats the work-type chip, so it is left out.
@@ -154,6 +164,8 @@ export function JobCard({
   ].filter((chip) => chip.text !== '')
   const meta = jobMeta(job, now)
   const saved = job.status === 'saved'
+  const gateId = useId()
+  const previewing = ai === 'signed-out'
 
   return (
     <article className="grid grid-cols-[40px_minmax(0,1fr)_auto] gap-x-2.5 rounded-xl border border-border bg-surface p-3.5 sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:gap-x-3.5 sm:px-5 sm:py-4">
@@ -167,6 +179,7 @@ export function JobCard({
             {job.company} · {SOURCE_NAMES[job.source]}
           </span>
           {job.status === 'new' && <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700">Baru</span>}
+          {sample && <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-bold text-text-secondary">Contoh</span>}
         </p>
         {chips.length > 0 && (
           <ul className="mt-2.5 flex flex-wrap gap-1.5">
@@ -201,15 +214,16 @@ export function JobCard({
             <DocChip kind="letter" ok={documentMarks(application).letter} />
           </p>
         )}
+        {previewing && <GateNote id={gateId} ai={ai} />}
         <div className="mt-3.5 flex flex-wrap items-center gap-2">
-          <Button onClick={() => onOpen(job)}>Buka &amp; isi</Button>
+          <Button disabled={previewing} aria-describedby={previewing ? gateId : undefined} onClick={() => onOpen(job)}>Buka &amp; isi</Button>
           {application ? (
-            <Button variant="secondary" onClick={() => onOpenApplication(application.id)}>
+            <Button variant="secondary" disabled={previewing} aria-describedby={previewing ? gateId : undefined} onClick={() => onOpenApplication(application.id)}>
               <FileText size={16} strokeWidth={2} aria-hidden="true" />
               Buka lamaran
             </Button>
           ) : (
-            <Button variant="secondary" onClick={() => onPrepare(job)}>
+            <Button variant="secondary" disabled={previewing} aria-describedby={previewing ? gateId : undefined} onClick={() => onPrepare(job)}>
               <Sparkles size={16} strokeWidth={2} aria-hidden="true" />
               Siapkan lamaran
             </Button>
@@ -219,14 +233,16 @@ export function JobCard({
               type="button"
               aria-label="Simpan lowongan"
               title="Simpan lowongan"
+              disabled={previewing}
+              aria-describedby={previewing ? gateId : undefined}
               onClick={() => onStatus(job.id, 'saved')}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border-strong text-text-secondary hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border-strong text-text-secondary hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Bookmark size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           )}
           {saved && !application && <span className="text-[13px] font-semibold text-text-secondary">Disimpan</span>}
-          {!application && <ActionMenu job={job} onStatus={onStatus} />}
+          {!application && <ActionMenu job={job} onStatus={onStatus} disabled={previewing} />}
         </div>
       </div>
       <ScoreBadge job={job} open={reasons} onToggle={() => setReasons(!reasons)} />

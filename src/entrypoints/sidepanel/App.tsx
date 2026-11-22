@@ -1,5 +1,6 @@
 import { Globe } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { AI_MODE } from '../../core/build'
 import { formIsLocked } from '../../core/fill/frames'
 import { formatFillSummary, formatMarkedNotice, matchPercent } from '../../core/fill/summary'
 import { buildPlan } from '../../core/matching/plan'
@@ -13,8 +14,10 @@ import { useStoredProfile } from '../../ui/hooks/useStoredProfile'
 import { Mascot } from '../../ui/mascot/Mascot'
 import { Button } from '../../ui/primitives/Button'
 import { Logo } from '../../ui/primitives/Logo'
+import { useAccess } from '../options/useAccess'
 import { EmptyProfile } from './EmptyProfile'
 import { FillNotice, FromFeed, UploadRows } from './PanelContext'
+import { PanelLoginGate, PanelPreview } from './PanelLoginGate'
 import { PlanRow, RequiredBadge } from './PlanRow'
 import { ProfileTab } from './ProfileTab'
 import { Tabs, type TabId } from './Tabs'
@@ -29,6 +32,10 @@ function toggled(set: ReadonlySet<string>, id: string, on: boolean): Set<string>
 }
 
 export function App() {
+  // Accounts exist only in the server build (spec §5.5); the other builds have no sign-in.
+  const accounts = AI_MODE === 'server'
+  const access = useAccess(accounts)
+  const [loginOpen, setLoginOpen] = useState(false)
   const { state, rescan } = useScan()
   const profile = useStoredProfile()
   const [disabled, setDisabled] = useState<ReadonlySet<string>>(new Set())
@@ -55,6 +62,19 @@ export function App() {
     total: plan?.total ?? 0,
     rescan,
   })
+
+  if (accounts) {
+    if (!access.ready) return <div className="min-h-full bg-surface" />
+    const signedIn = async () => {
+      setLoginOpen(false)
+      await access.refresh()
+    }
+    // The session ran out: back to the gate. Only the session is gone; the profile on this device is untouched.
+    if (access.session === 'expired') return <PanelLoginGate variant="expired" onSignedIn={signedIn} />
+    if (access.mode === 'locked') {
+      return loginOpen ? <PanelLoginGate variant="new" onSignedIn={signedIn} /> : <PanelPreview onSignIn={() => setLoginOpen(true)} />
+    }
+  }
 
   return (
     <div className="flex min-h-full flex-col bg-surface">

@@ -388,3 +388,72 @@ describe('CvTab: Unduh PDF (FR-42)', () => {
     expect(document.querySelector('[role="status"]')?.textContent).toContain('diganti')
   })
 })
+
+describe('CvTab: credits in the server build', () => {
+  const credit = (balance: number | null = 42) => ({ balance, onBuy: vi.fn() })
+
+  it('names the cost on the buttons and shows the balance beside the first one', async () => {
+    const text = await render(state('empty', { credit: credit() }))
+    expect(button('Buat CV · 1 kredit')?.hasAttribute('disabled')).toBe(false)
+    expect(text).toContain('Saldo 42 kredit')
+    await render(state('result', { credit: credit() }))
+    expect(button('Buat ulang · 1 kredit')).toBeTruthy()
+  })
+
+  it('shows no cost and no balance outside the server build', async () => {
+    const text = await render(state('empty'))
+    expect(button('Buat CV')).toBeTruthy()
+    expect(text).not.toContain('kredit')
+  })
+
+  it('keeps the plain label while the CV is being made', async () => {
+    await render(state('busy', { credit: credit() }))
+    expect(button('Sedang membuat…')).toBeTruthy()
+  })
+
+  it('with no credits: says so, turns the button off and steps it down, and offers Beli kredit as the main button', async () => {
+    const c = credit(0)
+    const tab = state('empty', { credit: c, availability: { ok: false, reason: 'no-credits', message: 'Kredit tidak cukup.', link: 'none' } })
+    const text = await render(tab)
+    expect(text).toContain('Kredit tidak cukup.')
+    expect(text).toContain('Buat CV butuh 1 kredit; saldomu 0.')
+    expect(button('Buat CV · 1 kredit')?.hasAttribute('disabled')).toBe(true)
+    expect(button('Buat CV · 1 kredit')?.className).not.toContain('bg-accent ')
+    expect(button('Beli kredit')?.className).toContain('bg-accent ')
+    await click(button('Beli kredit'))
+    expect(c.onBuy).toHaveBeenCalledTimes(1)
+    expect(tab.onCreate).not.toHaveBeenCalled()
+  })
+
+  it('says that trying again costs a credit', async () => {
+    await render(state('rejected', { credit: credit() }))
+    expect(button('Coba lagi · 1 kredit')).toBeTruthy()
+    await render(state('rejected'))
+    expect(button('Coba lagi')).toBeTruthy()
+  })
+
+  it('offers Beli kredit beside a CV that exists, too', async () => {
+    await render(state('result', { credit: credit(0), availability: { ok: false, reason: 'no-credits', message: 'Kredit tidak cukup.', link: 'none' } }))
+    expect(button('Buat ulang · 1 kredit')?.hasAttribute('disabled')).toBe(true)
+    expect(button('Beli kredit')).toBeTruthy()
+  })
+
+  it('offers no Beli kredit for the other reasons', async () => {
+    const offline = { ok: false as const, reason: 'offline' as const, message: 'Tidak ada koneksi internet. Sambungkan dulu untuk memakai AI.', link: 'none' as const }
+    const text = await render(state('empty', { credit: credit(), availability: offline }))
+    expect(text).toContain('Tidak ada koneksi internet. Sambungkan dulu untuk memakai AI.')
+    expect(text).toContain('Saldo 42 kredit')
+    expect(button('Beli kredit')).toBeUndefined()
+    expect(button('Buat CV · 1 kredit')?.hasAttribute('disabled')).toBe(true)
+  })
+
+  it('says the sign-in is needed when signed out', async () => {
+    const out = { ok: false as const, reason: 'signed-out' as const, message: 'Masuk untuk memakai', link: 'none' as const }
+    expect(await render(state('empty', { credit: credit(null), availability: out }))).toContain('Masuk untuk memakai')
+  })
+
+  it('reports a paid CV with the balance that is left', async () => {
+    await render(state('result', { credit: credit(41), done: 'CV siap. 1 kredit terpakai, sisa 41.' }))
+    expect(document.querySelector('[role="status"]')?.textContent).toBe('CV siap. 1 kredit terpakai, sisa 41.')
+  })
+})

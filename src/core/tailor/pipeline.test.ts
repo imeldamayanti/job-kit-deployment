@@ -3,6 +3,7 @@ import type { Application } from '../applications/types'
 import { AiError } from '../ai/errors'
 import type { ScoringClient } from '../ai/score'
 import { profileHash } from './hash'
+import { RemoteRefusal, type CvRequest, type RemoteDocument } from '../generate/protocol'
 import { tailorCv } from './pipeline'
 import { SAMPLE_WEB_DEV } from './sample-profiles'
 
@@ -149,5 +150,101 @@ describe('tailorCv', () => {
     const result = await run(client, SAMPLE_WEB_DEV, application({ description: '  ' }))
     expect(result).toMatchObject({ ok: false, reason: 'no-text' })
     expect(requests).toHaveLength(0)
+  })
+
+  describe('with a remote', () => {
+    const remoteWith = (text: unknown, fallback = false) => {
+      const requests: CvRequest[] = []
+      const remote: RemoteDocument = async (request) => {
+        requests.push(request as CvRequest)
+        return { text: JSON.stringify(text), usage: { inputTokens: 5, outputTokens: 6 }, fallback }
+      }
+      return { remote, requests }
+    }
+    const runRemote = (remote: RemoteDocument, client: ScoringClient) =>
+      tailorCv({ profile: SAMPLE_WEB_DEV, application: application(), client, remote, key: '', model: '', now: new Date(AT), newId: () => 'cv-1' })
+
+    it('asks the remote instead of the client, with no name, email or phone', async () => {
+      const { client, requests: clientCalls } = fake(good)
+      const { remote, requests } = remoteWith(good)
+      const result = await runRemote(remote, client)
+      expect(clientCalls).toHaveLength(0)
+      expect(requests).toHaveLength(1)
+      expect(requests[0]).toMatchObject({ kind: 'cv', job: { title: 'Frontend Engineer', description: expect.stringContaining('Kotlin') } })
+      const sent = JSON.stringify(requests[0])
+      for (const secret of ['Sari', 'Contohwati', 'example.test', '081200000000', 'PT Contoh Teknologi']) expect(sent).not.toContain(secret)
+      expect(result.ok).toBe(true)
+      if (!result.ok) return
+      expect(result.usage).toEqual({ inputTokens: 5, outputTokens: 6 })
+      // The rest of the chain is unchanged: the code is restored from the real Profile.
+      expect(result.cv.experience[0]?.bullets[0]).toBe('Membangun dashboard pelanggan dengan React dan TypeScript untuk PT Contoh Teknologi.')
+    })
+
+    it('still rejects an answer the real Profile does not support', async () => {
+      const { client } = fake(good)
+      const { remote } = remoteWith({ ...good, skills: ['React', 'Kubernetes'] })
+      expect(await runRemote(remote, client)).toMatchObject({ ok: false, reason: 'ungrounded' })
+    })
+
+    it('says the credit is spent when the server took it and this device then turns the answer down', async () => {
+      const { client } = fake(good)
+      const ungrounded = await runRemote(remoteWith({ ...good, skills: ['React', 'Kubernetes'] }).remote, client)
+      expect(ungrounded).toMatchObject({ ok: false, reason: 'ungrounded' })
+      expect(ungrounded.ok === false && ungrounded.message.endsWith(' 1 kredit sudah terpakai.')).toBe(true)
+      expect(ungrounded.ok === false && ungrounded.message).not.toContain('tidak terpakai')
+      const unreadable = await runRemote(remoteWith('bukan CV').remote, client)
+      expect(unreadable).toMatchObject({ ok: false, reason: 'unreadable' })
+      expect(unreadable.ok === false && unreadable.message.endsWith(' 1 kredit sudah terpakai.')).toBe(true)
+    })
+
+    it('does not say that when the server marked the answer as a fallback: it took no credit', async () => {
+      const { client } = fake(good)
+      const result = await runRemote(remoteWith({ ...good, skills: ['React', 'Kubernetes'] }, true).remote, client)
+      expect(result.ok === false && result.message).not.toContain('kredit sudah terpakai')
+    })
+
+    it('takes the fallback from the flag of the server, not from the content', async () => {
+      const { client } = fake(good)
+      const empty = { requirements: ['x'], skills: ['React'], experience: [], education: [] }
+      const unflagged = await runRemote(remoteWith(empty, false).remote, client)
+      expect(unflagged).toMatchObject({ ok: true, fallback: false })
+      const flagged = await runRemote(remoteWith(good, true).remote, client)
+      expect(flagged).toMatchObject({ ok: true, fallback: true })
+    })
+
+    it('turns a refusal into a failure that keeps the code', async () => {
+      const { client, requests } = fake(good)
+      const remote: RemoteDocument = async () => {
+        throw new RemoteRefusal('insufficient', 'Kredit tidak cukup')
+      }
+      const result = await runRemote(remote, client)
+      expect(result).toMatchObject({ ok: false, reason: 'refused', refused: 'insufficient', message: 'Kredit tidak cukup' })
+      expect(requests).toHaveLength(0)
+    })
+
+    it('keeps the violations of a refusal for the fact checker', async () => {
+      const { client } = fake(good)
+      const violations = [{ type: 'term' as const, value: 'kubernetes', where: 'exp-a1#1' }]
+      const remote: RemoteDocument = async () => {
+        throw new RemoteRefusal('ungrounded', 'Ditolak', violations)
+      }
+      expect(await runRemote(remote, client)).toMatchObject({ ok: false, reason: 'refused', refused: 'ungrounded', violations })
+    })
+
+    it('reports a network failure of the remote like one of the provider', async () => {
+      const { client } = fake(good)
+      const remote: RemoteDocument = async () => {
+        throw new TypeError('Failed to fetch')
+      }
+      expect(await runRemote(remote, client)).toMatchObject({ ok: false, reason: 'ai', ai: 'network' })
+    })
+
+    it('does not call the remote for a posting without text', async () => {
+      const { client } = fake(good)
+      const { remote, requests } = remoteWith(good)
+      const result = await tailorCv({ profile: SAMPLE_WEB_DEV, application: application({ description: ' ' }), client, remote, key: '', model: '', now: new Date(AT), newId: () => 'cv-1' })
+      expect(result).toMatchObject({ ok: false, reason: 'no-text' })
+      expect(requests).toHaveLength(0)
+    })
   })
 })

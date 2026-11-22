@@ -3,7 +3,8 @@ import { createEmptyProfile } from '../profile/profile'
 import type { Profile } from '../profile/types'
 import type { Job } from '../feed/types'
 import { AiError } from './errors'
-import { buildProfileSummary, hashSummary, parseScoreOutput, scoreJobs, type ScoringClient } from './score'
+import { RemoteRefusal, SCORE_BATCH, type RemoteScore, type ScoreRequest } from '../generate/protocol'
+import { SCORE_SYSTEM, buildProfileSummary, hashSummary, parseScoreOutput, readScoreResults, scoreJobs, scorePrompt, type ScoringClient } from './score'
 
 const NOW = new Date('2026-10-10T08:00:00Z')
 
@@ -197,5 +198,106 @@ describe('scoreJobs', () => {
     const client: ScoringClient = { complete: async () => reply([{ id: 'a', score: 80, matches: ['m'], gaps: [], summary: 's' }]) }
     await scoreJobs({ jobs: original, profile: profile(), client, ...settings, now: NOW })
     expect(original[0]?.score).toBeNull()
+  })
+
+  describe('with a remote', () => {
+    const remoteOk = () => {
+      const requests: ScoreRequest[] = []
+      const remote: RemoteScore = async (request) => {
+        requests.push(request)
+        return {
+          results: request.jobs.map((j) => ({ id: j.id, score: 77, matches: ['React'], gaps: [], summary: 'Cocok', fill: {} })),
+          usage: { inputTokens: 10, outputTokens: 4 },
+        }
+      }
+      return { remote, requests }
+    }
+    const unusedClient: ScoringClient = { complete: async () => { throw new Error('the client must not be called') } }
+
+    it('sends one batch of ten jobs and marks the scores as not rough', async () => {
+      const { remote, requests } = remoteOk()
+      const jobs = Array.from({ length: 10 }, (_, i) => job(`j${i}`))
+      const result = await scoreJobs({ jobs, profile: profile(), client: unusedClient, remote, ...settings, now: NOW, limit: 10 })
+      expect(SCORE_BATCH).toBe(10)
+      expect(requests).toHaveLength(1)
+      expect(requests[0]?.kind).toBe('score')
+      expect(requests[0]?.jobs).toHaveLength(10)
+      expect(requests[0]?.summary).toEqual(buildProfileSummary(profile(), NOW))
+      expect(result.jobs.every((j) => j.score?.rough === false && j.score.value === 77)).toBe(true)
+      expect(result.aiScored).toBe(10)
+      expect(result.usage).toEqual({ inputTokens: 10, outputTokens: 4 })
+    })
+
+    it('sends only the fields of a posting that the prompt uses', async () => {
+      const { remote, requests } = remoteOk()
+      await scoreJobs({ jobs: [job('a')], profile: profile(), client: unusedClient, remote, ...settings, now: NOW })
+      expect(Object.keys(requests[0]?.jobs[0] ?? {}).sort()).toEqual(
+        ['company', 'contract', 'description', 'experience', 'id', 'level', 'location', 'salary', 'title', 'workplace'],
+      )
+    })
+
+    it('makes one call per batch', async () => {
+      const { remote, requests } = remoteOk()
+      await scoreJobs({ jobs: Array.from({ length: 25 }, (_, i) => job(`j${i}`)), profile: profile(), client: unusedClient, remote, ...settings, now: NOW, limit: 25 })
+      expect(requests.map((r) => r.jobs.length)).toEqual([10, 10, 5])
+    })
+
+    it('stops at a refusal, scores the rest by rules and says why', async () => {
+      const calls: number[] = []
+      const remote: RemoteScore = async () => {
+        calls.push(1)
+        throw new RemoteRefusal('insufficient', 'Kredit tidak cukup')
+      }
+      const result = await scoreJobs({ jobs: Array.from({ length: 12 }, (_, i) => job(`j${i}`)), profile: profile(), client: unusedClient, remote, ...settings, now: NOW, limit: 12 })
+      expect(calls).toHaveLength(1)
+      expect(result.refused).toBe('insufficient')
+      expect(result.aiScored).toBe(0)
+      expect(result.roughScored).toBe(12)
+      expect(result.jobs.every((j) => j.score?.rough === true)).toBe(true)
+    })
+
+    it('treats a network failure of the remote like one of the provider', async () => {
+      const remote: RemoteScore = async () => {
+        throw new TypeError('Failed to fetch')
+      }
+      const result = await scoreJobs({ jobs: [job('a')], profile: profile(), client: unusedClient, remote, ...settings, now: NOW })
+      expect(result.aiProblem).toBe('network')
+      expect(result.refused).toBeUndefined()
+    })
+  })
+})
+
+describe('scorePrompt', () => {
+  it('is the prompt the local path sends, so the server builds the same one', async () => {
+    const seen: { system: string; user: string }[] = []
+    const client: ScoringClient = { complete: async (request) => (seen.push(request), reply([])) }
+    const jobs = [job('a', { description: 'x'.repeat(2000) })]
+    await scoreJobs({ jobs, profile: profile(), client, model: 'm', key: 'k', now: NOW })
+    expect(seen[0]?.system).toBe(SCORE_SYSTEM)
+    expect(seen[0]?.user).toBe(scorePrompt(buildProfileSummary(profile(), NOW), jobs))
+    expect(scorePrompt(buildProfileSummary(profile(), NOW), jobs)).toContain('Postings:')
+  })
+})
+
+describe('readScoreResults', () => {
+  const row = { id: 'a', score: 82.4, matches: ['React'], gaps: [], summary: ' Cocok. ', fill: { workplace: 'remote', salary: 7 } }
+
+  it('reads rows already parsed, the way a server sends them', () => {
+    expect(readScoreResults([row], ['a'])).toEqual([{ id: 'a', score: 82, matches: ['React'], gaps: [], summary: 'Cocok.', fill: { workplace: 'remote' } }])
+  })
+
+  it('gives nothing for anything that is not a list of rows', () => {
+    expect(readScoreResults(undefined, ['a'])).toEqual([])
+    expect(readScoreResults('x', ['a'])).toEqual([])
+    expect(readScoreResults({ results: [row] }, ['a'])).toEqual([])
+  })
+
+  it('drops rows with an unknown id, a repeated id, a score out of range, or no reason', () => {
+    const rows = [row, { ...row }, { ...row, id: 'zzz' }, { ...row, id: 'b', score: -1 }, { ...row, id: 'c', score: 101 }, { ...row, id: 'd', summary: ' ' }, { ...row, id: 'e', matches: 'x' }]
+    expect(readScoreResults(rows, ['a', 'b', 'c', 'd', 'e']).map((r) => r.id)).toEqual(['a'])
+  })
+
+  it('agrees with parseScoreOutput on the same rows', () => {
+    expect(parseScoreOutput(JSON.stringify([row]), ['a'])).toEqual(readScoreResults([row], ['a']))
   })
 })

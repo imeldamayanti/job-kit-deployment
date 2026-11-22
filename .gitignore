@@ -6,3 +6,7 @@ node_modules
 .env
 .env.*
 .output-share
+.superpowers
+spikes/**/.bundle.mjs
+supabase/functions/
+supabase/.temp/
